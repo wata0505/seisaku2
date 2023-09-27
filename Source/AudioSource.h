@@ -1,0 +1,22 @@
+#pragma once
+#include <memory>
+#include <xaudio2.h>
+#include "AudioResource.h"
+
+// オーディオソース
+class AudioSource
+{
+public:
+	AudioSource(IXAudio2* xaudio, std::shared_ptr<AudioResource>& resource);
+	~AudioSource();
+
+	// 再生
+	void Play(bool loop,float volume = 0.01f);
+
+	// 停止
+	void Stop();
+
+private:
+	IXAudio2SourceVoice* sourceVoice = nullptr;
+	std::shared_ptr<AudioResource>	resource;
+};
