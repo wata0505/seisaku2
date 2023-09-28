@@ -4,7 +4,7 @@
 //#include "StageMain.h"
 #include "StageManager.h"
 #include "EnemyManager.h"
-#include "EnemyDragon.h"
+//#include "EnemyDragon.h"
 #include "Input.h"
 #include "SwordTrailShader.h"
 #include "EffectManager.h"

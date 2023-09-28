@@ -7,7 +7,7 @@
 #include "Afterimage.h"
 #include "ProjectileStraite.h"
 //#include "EffectAll.h"
-#include "EnemyDragon.h"
+//#include "EnemyDragon.h"
 #include "ParticleSystem.h"
 #include "Calculation.h"
 #include "ParticleSpriteManager.h"
