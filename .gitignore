@@ -50,3 +50,16 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# Others
+*.ini
+*.zip
+resources/
+imgui/
+Shader/
+x64/
+cereal-master/
+.vs/
+DirectXTK-master/
+Effekseer153a/
+stb/
