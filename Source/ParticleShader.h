@@ -19,6 +19,7 @@ public:
 	enum ModelPSType {
 		Default,
 		Toon,
+		Distortion,
 
 		MAX
 	};

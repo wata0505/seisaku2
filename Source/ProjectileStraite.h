@@ -18,6 +18,7 @@ enum  Type
 	Sword,
 	Stinger,
 	ChangeWp,
+	Beem,
 	NULLType,
 };
 
@@ -51,6 +52,8 @@ private:
 	void StingerUpdate(float elapsedTime);
 
 	void ChangeWpUpdate(float elapsedTime);
+
+	void BeemUpdate(float elapsedTime);
 private:
 	std::shared_ptr<Model> model = { nullptr };
 	std::shared_ptr<SwordTrail> Trail;

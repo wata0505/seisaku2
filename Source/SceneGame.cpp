@@ -110,6 +110,7 @@ void SceneGame::Initialize()
 	subframebuffers[2] = std::make_unique<SubFramebuffer>(device.Get(), SCREEN_WIDTH /8, SCREEN_HEIGHT /8);
 	subframebuffers[3] = std::make_unique<SubFramebuffer>(device.Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
 	subframebuffers[4] = std::make_unique<SubFramebuffer>(device.Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
+	subframebuffers[5] = std::make_unique<SubFramebuffer>(device.Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
 	shadowbuffer = std::make_unique<Shadowbuffer>(device.Get(), ShadowMapSize, ShadowMapSize);
 	luminanceExtractionData.threshold = 0.3;
 	luminanceExtractionData.intensity = 5;
@@ -283,15 +284,29 @@ void SceneGame::Render()
 	EnemyManager::Instance().Render(immediate_context, shader);
 	StageManager::Instance().InstaningRender(immediate_context, shader);
 	shader->End(immediate_context);
-
+	//レンダーターゲット切り替え
+	immediate_context->OMSetRenderTargets(1, render_target_view.GetAddressOf(), graphics.GetDepthStencilView());
+	//基本リソースデータ挿入
+	subframebuffers[5]->Clear(immediate_context);
+	subframebuffers[5]->Activate(immediate_context);
+	bit_block_transfer->blit(immediate_context, framebuffers[0]->shaderResourceViews[0].GetAddressOf(), 0, 1, nullptr);
+	subframebuffers[5]->Deactivate(immediate_context);
+	immediate_context->PSSetShaderResources(8, 1, framebuffers[0]->shaderResourceViews[2].GetAddressOf());
+	//0622 Slot2にGBufferのPosition
+	immediate_context->PSSetShaderResources(9, 1, framebuffers[0]->shaderResourceViews[3].GetAddressOf());
+	immediate_context->PSSetShaderResources(3, 1, subframebuffers[5]->shaderResourceViews.GetAddressOf());
+	immediate_context->PSSetShaderResources(11, 1, framebuffers[0]->shaderResourceViews[1].GetAddressOf());
+	framebuffers[0]->RenderActivate(immediate_context);
 	//デバック関係
 	projectImgui();
 	//player->DrawDebugGUI();
 	//EnemyManager::Instance().DrawDebugGUI();
 	//graphics.GetDebugRenderer()->Render(immediate_context, rc.view, rc.projection);
+
 	//モデルパーティクル
 	ParticleShader* shader4 = graphics.GetParticleShader();
 	shader4->Begin(immediate_context, rc);
+	
 	ParticleManager::Instance().Render(immediate_context, shader4);
 	shader4->End(immediate_context);
 	//トーンシェーダー
@@ -442,7 +457,7 @@ void SceneGame::projectImgui()
 	if (ImGui::TreeNode("MRT"))
 	{
 		ImGui::Text("texture");
-		ImGui::Image(framebuffers[0]->shaderResourceViews[0].Get(), { 128, 128 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
+		ImGui::Image(subframebuffers[5]->shaderResourceViews.Get(), { 128, 128 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
 		ImGui::Image(framebuffers[0]->shaderResourceViews[1].Get(), { 128, 128 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
 		ImGui::Image(framebuffers[0]->shaderResourceViews[2].Get(), { 128, 128 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
 		ImGui::Image(framebuffers[0]->shaderResourceViews[3].Get(), { 128, 128 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });

@@ -86,9 +86,19 @@ void Framebuffer::Activate(ID3D11DeviceContext* immediate_context)
     //immediate_context->OMSetRenderTargets(1, renderTargetView[0].GetAddressOf(),
     //    depthStencilView.Get());
 
-    immediate_context->PSSetShaderResources(8, 1, shaderResourceViews[(int)Buffer::Nomal].GetAddressOf());
-    //0622 Slot2にGBufferのPosition
-    immediate_context->PSSetShaderResources(9, 1, shaderResourceViews[(int)Buffer::Pos].GetAddressOf());
+   
+}
+void Framebuffer::RenderActivate(ID3D11DeviceContext* immediate_context)
+{
+    ID3D11RenderTargetView* targets[] = {
+        renderTargetView[(int)Buffer::Color].Get(),
+        renderTargetView[(int)Buffer::Depth].Get(),
+        renderTargetView[(int)Buffer::Nomal].Get(),
+        renderTargetView[(int)Buffer::Pos].Get(),
+    };
+    // レンダーターゲットビュー設定
+    immediate_context->OMSetRenderTargets(
+        4, targets, depthStencilView.Get());
 }
 void Framebuffer::EffectActivate(ID3D11DeviceContext* immediate_context)
 {
@@ -99,7 +109,6 @@ void Framebuffer::EffectActivate(ID3D11DeviceContext* immediate_context)
 }
 void Framebuffer::Deactivate(ID3D11DeviceContext* immediate_context)
 {
-    
    
     Lighting(immediate_context);
     immediate_context->RSSetViewports(viewportCount, cachedViewports);

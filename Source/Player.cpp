@@ -128,6 +128,10 @@ Player::Player() {
     slash->ModelSerialize(".\\resources\\Textures\\zanngeki4.fbx");
     slash->ModelRegister(".\\resources\\Textures\\zanngeki4.fbx");
     slash->UpdateBufferDara(transform);
+    beem = std::make_unique<Model>(".\\resources\\Cube.fbx", true);
+    beem->ModelSerialize(".\\resources\\Textures\\Cube.fbx");
+    beem->ModelRegister(".\\resources\\Textures\\Cube.fbx");
+    beem->UpdateBufferDara(transform);
     wepon = std::make_unique<MainWepon>();
     maxHealth = 20;
     health = maxHealth;
@@ -664,7 +668,7 @@ void Player::SlashInput() {
         dot = acosf(dot);
         if (hitdir.x < 0)dot *= -1;//方法が左なら角度反転
         ProjectileStraite* projectile = new ProjectileStraite(&objectManager);
-        projectile->Launch(slash, height / 2, 4.0, angle.y, Type::Straight, (int)EffectTexAll::EfTexAll::Metal, 2, 3, 0.0);
+        projectile->Launch(slash, height / 2, 4.0, 0.2, Type::Straight, (int)EffectTexAll::EfTexAll::Metal, 2, 3, 0.0);
         projectile->SetScale(slashScale);
         projectile->SetDirectionUp({-attackDir.z,dot,attackDir.x});
         if (combo == WeponComboMax[weponType]) {//コンボ最後追加斬撃＋１
@@ -816,12 +820,12 @@ void Player::InputProjectile()
             for (int i = 1; i < 5; i++) {
                 h = 0.4*i;
                 ProjectileStraite* projectile = new ProjectileStraite(&objectManager);
-                projectile->Launch(sword,h,2.5 - 0.5 * i, angle.y, Type::Column, (int)EffectTexAll::EfTexAll::BlueThader, 2 + 0.1 * i,1,0.0f);
+                projectile->Launch(beem,h,2.5 - 0.5 * i, angle.y, Type::Beem, (int)EffectTexAll::EfTexAll::BlueThader, 2 + 0.1 * i,1,0.0f);
             }
             for (int i = 1; i < 5; i++) {
                 h = 0.4 * i;
                 ProjectileStraite* projectile = new ProjectileStraite(&objectManager);
-                projectile->Launch(sword, h,2.5 -0.5 * i, angle.y, Type::Column, (int)EffectTexAll::EfTexAll::BlueThader,2 + 0.1* i, 1, 0.0f,true);
+                projectile->Launch(beem, h,2.5 -0.5 * i, angle.y, Type::Beem, (int)EffectTexAll::EfTexAll::BlueThader,2 + 0.1* i, 1, 0.0f,true);
             }
     }
     //if (gamePad.GetButtonDown() & GamePad::BTN_B && mp > swordMp && skillCoolTime[ProjectileRotate] <= 0.0f)
@@ -1197,8 +1201,8 @@ void Player::CollisionNodeVsEnemies(float nodeRadius,DirectX::XMFLOAT2 pow, floa
                         HitInput(Damage, InvincibleTime);
                         DirectX::XMFLOAT3 trailDir = GetSlashDir();
                         //ヒットエフェクト
-                        ParticleSprite* particleSprite = new ParticleSprite(wepon->GetWeaponEFPoint(), trailDir, ParticleSprite::ParticleLine, ParticleSprite::Slash, int(EffectTexAll::EfTexAll::Distortion), 1, 0.5);
-                        particleSprite = new ParticleSprite(wepon->GetWeaponEFPoint(), trailDir, ParticleSprite::ParticleImpact, ParticleSprite::Expansion, int(EffectTexAll::EfTexAll::Impact), 1, 0.3);
+                        // particleSprite = new ParticleSprite(wepon->GetWeaponEFPoint(), trailDir, ParticleSprite::ParticleLine, ParticleSprite::Slash, int(EffectTexAll::EfTexAll::Distortion), 1, 0.5);
+                        ParticleSprite* particleSprite = new ParticleSprite(wepon->GetWeaponEFPoint(), trailDir, ParticleSprite::ParticleImpact, ParticleSprite::Expansion, int(EffectTexAll::EfTexAll::Impact), 1, 0.3);
                         particleSprite = new ParticleSprite(enemyPosition, wepon->GetWeaponEFPoint(), ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Distortion), 1000, 0.5);
                        
                     }
@@ -1225,7 +1229,7 @@ void Player::CollisionNodeVsEnemies(float nodeRadius,DirectX::XMFLOAT2 pow, floa
                     //ヒットエフェクト
                     ParticleSprite* particleSprite = new ParticleSprite(enemyPosition, trailDir, ParticleSprite::ParticleLine, ParticleSprite::Slash, int(EffectTexAll::EfTexAll::Distortion), 1, 0.5);
                     particleSprite = new ParticleSprite(enemyPosition, trailDir, ParticleSprite::ParticleImpact, ParticleSprite::Expansion, int(EffectTexAll::EfTexAll::Impact), 1, 0.3);
-                    particleSprite = new ParticleSprite(enemyPosition, wepon->GetWeaponEFPoint(), ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Distortion), 1000, 0.5);
+                    particleSprite = new ParticleSprite(enemyPosition, wepon->GetWeaponEFPoint(), ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Thunder), 30, 0.8);
                     if (enemy->GetBarrierFlag()) {
                         //particleSprite = new ParticleSprite(enemyPosition, wepon->GetWeaponEFPoint(), ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Distortion), 1000, 0.5);
                         particleSprite = new ParticleSprite(enemyPosition, {NULL,NULL,NULL}, ParticleSprite::ParticleTriangle, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Distortion), 1000, 0.5,1);
@@ -1279,14 +1283,14 @@ void Player::CollisionProjectilesVsEnemies()
                           SetShakeInput({ 0,1,0 }, 4);
                           continue;
                       }
-                      if (object->GetType() == Type::Column) {
-                          ParticleSystem::Instance().BoomEffect(object->GetPosition(), 1, int(EffectTexAll::EfTexAll::BlueThader), 1, { NULL,NULL,2,1 });
+                      if (object->GetType() == Type::Beem) {
+                          ParticleSystem::Instance().BoomEffect(object->GetPosition(), 5, int(EffectTexAll::EfTexAll::BlueThader), 1, { NULL,NULL,2,1 });
                          // ParticleSprite* particleSprite = new ParticleSprite(object->GetPosition(), object->GetPosition(), ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::BlueThader), 1000, 1.5);
                           AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::boom1)->Stop();
                           AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::boom1)->Play(false, SE);
                           ParticleSprite* particleSprite = new ParticleSprite(object->GetPosition(), { NULL,NULL,NULL }, ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::BlueThader), 1000, 1.5, 0, true, 0.05, {0,0,1,1});
                           SetShakeInput({0,1,0}, 2);
-                          object->Destroy();
+                          //object->Destroy();
                           continue;
                       }
                       //ランダム斬撃エフェクト

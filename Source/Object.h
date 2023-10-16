@@ -65,6 +65,7 @@ protected:
 	float damage = 1;
 	float invincibleTime = 1.0;
 	float lifeTimer = 3.0f;
+	float halfLife = 0;
 	ObjectManager* manager = nullptr;
 	float radius = 0.5f;
 };

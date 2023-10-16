@@ -49,6 +49,7 @@ private:
 	//ID3D11RenderTargetView* render_target_view;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView>render_target_view;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView>depth_stencil_view;
+
 	//奥行き情報を書き込むキャンバス
 
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> pixel_shaders[3];
@@ -65,7 +66,7 @@ private:
 	//std::unique_ptr<SkinnedMesh> SkinnedMeshes[8];
 	//オフスクリーンバファ
 	std::unique_ptr<Framebuffer> framebuffers[2];
-	std::unique_ptr<SubFramebuffer> subframebuffers[5];
+	std::unique_ptr<SubFramebuffer> subframebuffers[6];
 	std::unique_ptr<Shadowbuffer> shadowbuffer;
 
 	std::unique_ptr<Sprite> sprite_batchs;

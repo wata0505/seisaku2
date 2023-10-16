@@ -36,6 +36,7 @@ ParticleShader::ParticleShader(ID3D11Device* device)
 	{
 
 		create_ps_from_cso(device, "Shader\\ParticlePS.cso", pixelShader[static_cast<int>(ModelPSType::Toon)].GetAddressOf());
+		create_ps_from_cso(device, "Shader\\DistortionPS.cso", pixelShader[static_cast<int>(ModelPSType::Distortion)].GetAddressOf());
 		create_ps_from_cso(device, "Shader\\DefaultPS.cso", pixelShader[static_cast<int>(ModelPSType::Default)].GetAddressOf());
 	}
 

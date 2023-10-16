@@ -10,7 +10,8 @@ enum  ParticleType
 	Barrier,
 	BarrierEnemy,
 	Rubble,
-	Boom
+	Boom,
+	Impact
 };
 
 //íºêiíeä€
@@ -69,6 +70,8 @@ private:
 	void RubbleUpdate(float elapsedTime);
 	//îöî≠
 	void BoomUpdate(float elapsedTime);
+	//è’åÇ
+	void ImpactUpdate(float elapsedTime);
 
 	void UpdateTransform();
 

@@ -50,6 +50,9 @@ void Particle::Update(float elapsedTime)
 		case ParticleType::Boom:
 			BoomUpdate(elapsedTime);
 			break;
+		case ParticleType::Impact:
+			ImpactUpdate(elapsedTime);
+			break;
 		}
 	
 	
@@ -141,7 +144,21 @@ void Particle::BoomUpdate(float elapsedTime) {
 	scale.y += elapsedTime * moves.at(NULL).speed;
 	scale.z += elapsedTime * moves.at(NULL).speed;
 	//ライト
-	light->SetPos(moves.at(0).position, 5 * moves.at(NULL).speed, materialColor.x, materialColor.y, materialColor.z);
+	//light->SetPos(moves.at(0).position, 5 * moves.at(NULL).speed, materialColor.x, materialColor.y, materialColor.z);
+}
+void Particle::ImpactUpdate(float elapsedTime) {
+	//爆発
+	scale.x = scale.y = scale.z = 5.0f;
+	for (MoveConstants& move : moves) {
+		float speed = move.speed * elapsedTime;
+
+		move.position.x += move.direction.x * speed;
+		move.position.y += move.direction.y * speed;
+		move.position.z += move.direction.z * speed;
+
+	}
+	//ライト
+	//light->SetPos(moves.at(0).position, 5 * moves.at(NULL).speed, materialColor.x, materialColor.y, materialColor.z);
 }
 void Particle::Destroy()
 {
@@ -164,8 +181,8 @@ void Particle::Launch(std::vector<MoveConstants> constants, int type, int modelT
 	if (type == ParticleType::Boom) {
 		scale.x = scale.y = scale.z = 0.0;
 		//ライト設定
-		light = new Light(moves.at(0).position, 0, 1, 1, 1);
-		LightManager::Instance().Register(light);
+		//light = new Light(moves.at(0).position, 0, 1, 1, 1);
+		//LightManager::Instance().Register(light);
 	}
 	if (type == ParticleType::Lance || type == ParticleType::Barrier) {
 		//ライト設定

@@ -98,11 +98,11 @@ void ParticleSystem::BarrierEnemyEffect(float enemyID, int textype, DirectX::XMF
 
 }
 
-void ParticleSystem::RubbleEffect(DirectX::XMFLOAT3 position) {
+void ParticleSystem::RubbleEffect(DirectX::XMFLOAT3 position, int Max, int SpeedMax) {
     ParticleManager& particleManager = ParticleManager::Instance();
     Particle::MoveConstants move;
     std::vector<Particle::MoveConstants> moveConst;
-    for (int i = 0; i < 50; i++) {
+    for (int i = 0; i < Max; i++) {
         float angle = DirectX::XMConvertToRadians(rand() % 360);
         float length = rand() % 5;
         DirectX::XMFLOAT3 Vec, pos;
@@ -118,7 +118,7 @@ void ParticleSystem::RubbleEffect(DirectX::XMFLOAT3 position) {
         Vec.x = cosf(angleY) * sinf(angleX);
         Vec.z = cosf(angleY) * cosf(angleX);
         //Vec = Vector3::add({0,1,0}, Vec);
-        float speed = rand() % 100 + 10;
+        float speed = rand() % SpeedMax + 10;
         move.position = pos;
         move.direction = Vec;
         move.speed = speed;
@@ -137,20 +137,42 @@ void ParticleSystem::BoomEffect(DirectX::XMFLOAT3 position, int max, int textype
     Particle::MoveConstants move;
     std::vector<Particle::MoveConstants> moveConst;
     for (int i = 0; i < max; i++) {
-        float angle = DirectX::XMConvertToRadians(rand() % 360);
+        float pitch = DirectX::XMConvertToRadians(rand() % 360);
+        float yaw = DirectX::XMConvertToRadians(rand() % 180);
         DirectX::XMFLOAT3 Vec;
-        Vec.y = 0;
-        Vec.x = sinf(angle);
-        Vec.z = cosf(angle);
+        Vec.x = cosf(pitch) * sinf(yaw);
+        Vec.y = sin(pitch);
+        Vec.z = cosf(pitch) * cosf(yaw);
         move.position =position;
-        move.direction = Vec;
         move.directionUp = {NULL,1,NULL};
         move.speed = size;
+        if (i >= 1) {
+            move.position.x = position.x + (Vec.x * (rand() % 2 + 1));
+            move.position.y = position.y + (Vec.y * (rand() % 2 + 1));
+            move.position.z = position.z + (Vec.z * (rand() % 2 + 1));
+            move.speed = 0.01;
+        }
+        Vec.y = 0;
+        move.direction = Vec;
         moveConst.push_back(move);
 
     }
     Particle* particle = new Particle;
     particle->Launch(moveConst, ParticleType::Boom, Particle::Ball, static_cast<int>(ParticleShader::ModelPSType::Toon),textype, 1.0, color);
+    particleManager.Register(particle);
+}
+
+void ParticleSystem::ImpactEffect(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 dir, int textype, float size, DirectX::XMFLOAT4 color) {
+    ParticleManager& particleManager = ParticleManager::Instance();
+    Particle::MoveConstants move;
+    std::vector<Particle::MoveConstants> moveConst;
+    move.position = position;
+    move.directionUp = { NULL,1,NULL };
+    move.speed = size;
+    move.direction = dir;
+    moveConst.push_back(move);
+    Particle* particle = new Particle;
+    particle->Launch(moveConst, ParticleType::Impact, Particle::Ball, static_cast<int>(ParticleShader::ModelPSType::Distortion), textype, 0.2, color);
     particleManager.Register(particle);
 }
 

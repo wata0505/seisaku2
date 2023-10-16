@@ -519,7 +519,7 @@ void ChargeAttackState::Execute(float elapsedTime)
     if (owner->attackTime < 0 && !owner->effectflag) {//エフェクト
         ParticleSprite* particleSprite = new ParticleSprite(owner->GetPosition(), owner->GetWepon()->GetWeaponPoint(), ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Distortion), 3000, 3, NULL, true);
         ParticleSystem::Instance().BoomEffect(owner->GetWepon()->GetWeaponPoint(), 1, int(EffectTexAll::EfTexAll::Thunder), 7 * owner->chargeCount, { 1,NULL,NULL,1 });
-        ParticleSystem::Instance().RubbleEffect(owner->GetWepon()->GetWeaponPoint());
+        //ParticleSystem::Instance().RubbleEffect(owner->GetWepon()->GetWeaponPoint());
         AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Rock)->Play(false, SE);
         AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::boom2)->Play(false, SE);
         owner->effectflag = true;

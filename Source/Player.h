@@ -574,6 +574,7 @@ private:
     std::unique_ptr<Model> player;
     std::shared_ptr<Model> sword;
     std::shared_ptr<Model> slash;
+    std::shared_ptr<Model> beem;
     //‰º”¼gƒm[ƒh
     std::vector <const char*> lowerBody;
     const char* lower[13] = {

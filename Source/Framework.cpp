@@ -13,7 +13,7 @@ CONST BOOL FULLSCREEN{ TRUE };
 CONST LPCWSTR APPLICATION_NAME{ L"X3DGP" };
 
 // êÇíºìØä˙ä‘äuê›íË
-static const int syncInterval = 0;
+static const int syncInterval = 1;
 //UINT sync_interval{ 1 };
 Framework::Framework(HWND hwnd) : hwnd(hwnd), graphics(hwnd), input(hwnd)
 {

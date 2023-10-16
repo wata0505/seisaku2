@@ -33,6 +33,7 @@ public:
     void Clear(ID3D11DeviceContext* immediate_context,
         float r = 0, float g = 0, float b = 0, float a = 1, float depth = 1);
     void Activate(ID3D11DeviceContext* immediate_context);
+    void RenderActivate(ID3D11DeviceContext* immediate_context);
     void EffectActivate(ID3D11DeviceContext* immediate_context);
     void Deactivate(ID3D11DeviceContext* immediate_context);
     void Lighting(ID3D11DeviceContext* immediate_context);

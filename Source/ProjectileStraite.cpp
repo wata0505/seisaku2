@@ -7,6 +7,8 @@
 #include"Calculation.h"
 #include"EffectTexAll.h"
 #include"ParticleSystem.h"
+#include"ParticleSprite.h"
+#include"ParticleSystem.h"
 // コンストラクタ
 ProjectileStraite::ProjectileStraite(ObjectManager* manager)
 	:Object(manager)//基底クラスのコンストラクタ呼び出し
@@ -62,6 +64,8 @@ void ProjectileStraite::Update(float elapsedTime)
 		break;
 	case Type::ChangeWp:
 		ChangeWpUpdate(elapsedTime);
+	case Type::Beem:
+		BeemUpdate(elapsedTime);
 		break;
 	}
 	
@@ -91,6 +95,12 @@ void ProjectileStraite::StraightUpdate(float elapsedTime){
 	scale.y += elapsedTime*speed; 
 	scale.z += elapsedTime*speed;
 	uvStatus.z = 0;
+	if (angle < 0) {
+		ParticleSprite* particleSprite = new ParticleSprite(position, direction, ParticleSprite::ParticleImpact, ParticleSprite::Expansion, int(EffectTexAll::EfTexAll::Impact), 1, 0.8);
+		angle = 0.2;
+		ParticleSystem::Instance().RubbleEffect({ position.x,position.y -5,position.z }, 30, 100);
+	}
+	angle -= elapsedTime;
 	light->SetPos(position, 50, 3, 3, 3);
 }
 void ProjectileStraite::RotateUpdate(float elapsedTime) {
@@ -197,7 +207,7 @@ void ProjectileStraite::SwordUpdate(float elapsedTime) {
 		this->speed = 40;
 		if (position.y < under) {
 			if (!effectflag) {
-				ParticleSystem::Instance().BoomEffect(position, 1, int(EffectTexAll::EfTexAll::Thunder), 3, { 2,NULL,NULL,1 });
+				ParticleSystem::Instance().BoomEffect(position, 3, int(EffectTexAll::EfTexAll::Thunder), 2, { 2,NULL,NULL,1 });
 				radius = 4;
 				effectflag = true;
 			}
@@ -234,6 +244,29 @@ void ProjectileStraite::ChangeWpUpdate(float elapsedTime) {
 	//light->SetPos(position, 1, 1, 0.5, 0);
 	if (this->positionY == 1) {
 		light->SetPos(position, 50, 2, 1, 0);
+	}
+}
+
+void ProjectileStraite::BeemUpdate(float elapsedTime) {
+	float scalerate = 2.0f;
+	if (halfLife < lifeTimer) {
+		scale.z += scalerate * 0.5;
+		DirectX::XMVECTOR dir = DirectX::XMLoadFloat3(&direction);
+
+		position.x += direction.x * scalerate * 25.0f * elapsedTime;
+		position.y += direction.y * scalerate * 25.0f * elapsedTime;
+		position.z += direction.z * scalerate * 25.0f * elapsedTime;
+	}
+	else
+	{
+		scale.z -= scalerate;
+		if (scale.z < 0) scale.z = 0;
+		DirectX::XMVECTOR dir = DirectX::XMLoadFloat3(&direction);
+
+		position.x += direction.x * scalerate * 50.0f * elapsedTime;
+		position.y += direction.y * scalerate * 50.0f * elapsedTime;
+		position.z += direction.z * scalerate * 50.0f * elapsedTime;
+
 	}
 }
 //描画処理
@@ -286,6 +319,7 @@ void ProjectileStraite::Launch(std::shared_ptr <Model> buffer, float height, flo
 			DirectX::XMStoreFloat3(&direction, N);
 		}
 		radius = 1.0;
+		ParticleSystem::Instance().ImpactEffect({ position.x,position.y,position.z },direction, int(EffectTexAll::EfTexAll::BlueThader), 80, { NULL,NULL,2,1 });
 	}
 	if (type == Type::Column) {
 		direction.x = sinf(player.GetAngle().y);
@@ -306,6 +340,29 @@ void ProjectileStraite::Launch(std::shared_ptr <Model> buffer, float height, flo
 		position.z += Vec.z * length;
 		speed = 5;
 		Lenght = player.GetAngle().y;
+	}
+	if (type == Type::Beem) {
+		direction.x = sinf(player.GetAngle().y);
+		direction.z = cosf(player.GetAngle().y);
+		if (leftflag) {//右側か左側か
+			position.x = position.x - direction.z * Lenght;
+			position.z = position.z + direction.x * Lenght;
+		}
+		else {
+			radius = 0.5;
+			position.x = position.x + direction.z * Lenght;
+			position.z = position.z - direction.x * Lenght;
+		}
+		if (player.GetLockOnflag()) {
+			DirectX::XMVECTOR E = DirectX::XMLoadFloat3(&player.GetLockEnemyPos());
+			DirectX::XMVECTOR P = DirectX::XMLoadFloat3(&position);
+			DirectX::XMVECTOR V = DirectX::XMVectorSubtract(E, P);
+			DirectX::XMVECTOR N = DirectX::XMVector3Normalize(V);
+			DirectX::XMStoreFloat3(&direction, N);
+		}
+		halfLife = lifeTimer * 0.5;
+		scale.x = scale.y = 0.1;
+		scale.z = 0;
 	}
 	uvStatus.w = texType;
 	uvStatus.z = 0.3;
