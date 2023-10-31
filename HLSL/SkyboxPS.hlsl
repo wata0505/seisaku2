@@ -17,8 +17,7 @@ float4 main(VS_OUT pin) : SV_TARGET
 	texcoord.x = -((1 / 3.14159264) * atan(E.z / E.x));
 	texcoord.y = -((1 / 3.14159264) * atan(E.y / sqrt((E.x * E.x) + (E.z * E.z)))) + 0.5;
 
-
-
+	texcoord.y -= pin.dis * 0.5;
 	return texture0.Sample(anisotropic_sampler_state, texcoord) * pin.color;
 
 }

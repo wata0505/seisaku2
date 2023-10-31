@@ -1,6 +1,6 @@
 #include "Skybox.hlsli"
 
-VS_OUT main(float4 position : POSITION, float4 color : COLOR, float2 texcoord : TEXCOORD)
+VS_OUT main(float4 position : POSITION, float4 color : COLOR, float2 texcoord : TEXCOORD,float3 dissolve : Dissolve)
 {
 	VS_OUT vout;
 	vout.position = position;
@@ -20,6 +20,7 @@ VS_OUT main(float4 position : POSITION, float4 color : COLOR, float2 texcoord : 
 	//	カメラ空間座標からワールド空間座標への変換
 	vout.worldPosition = p.xyz;
 
+	vout.dis = dissolve.x;
 
 	return vout;
 }

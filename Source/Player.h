@@ -296,6 +296,8 @@ private:
     //弾とエネミーの衝突処理
     void CollisionProjectilesVsEnemies();
 
+    void CollisionBoomVsEnemies();
+
     //ロックオンカメラ
     void  ComeTerget(float elapsedTime);
 

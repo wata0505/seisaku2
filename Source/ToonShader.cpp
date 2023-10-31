@@ -113,16 +113,15 @@ void ToonShader::Begin(ID3D11DeviceContext* dc, const RenderContext& rc)
 }
 
 // •`‰æ
-void ToonShader::Draw(ID3D11DeviceContext* dc, const Model* model, std::vector<SkinnedMeshResouurce::constants> buffer, const DirectX::XMFLOAT4 uvstatus, const DirectX::XMFLOAT4 color)
+void ToonShader::Draw(ID3D11DeviceContext* dc,  Model* model, const DirectX::XMFLOAT4 uvstatus, const DirectX::XMFLOAT4 color)
 {
 	Graphics& graphics = Graphics::Instance();
 	const SkinnedMeshResouurce* resource = model->GetResource();
-	buffers = buffer;
 	int size = 0;
 	for (const SkinnedMeshResouurce::Mesh& mesh : resource->GetMeshes())
 	{
 
-		SkinnedMeshResouurce::constants buffer = buffers.at(size);
+		SkinnedMeshResouurce::constants buffer = model->GetBufferData().at(size);
 		UvConstants uv;
 		uint32_t stride{ sizeof(SkinnedMeshResouurce::Vertex) };
 		uint32_t offset{ 0 };

@@ -81,11 +81,13 @@ uint3 GTid : SV_GroupThreadID//スレッドID　ここで指定
 	case SLASHING:
 		break;
 	case DIFFUSION:
-		myVelocity.y += mySpeed * cos(myTimer);
+		//myVelocity.y += (mySpeed * sin(myTimer)) ;
+		//myVelocity.x += (mySpeed * cos(myTimer) * sin(myTimer * 4)) ;
+		//myVelocity.z += (mySpeed * cos(myTimer) * cos(myTimer * 2)) ;
 		myVelocity = normalize(myVelocity);
-		myLocation.x = myLocation.x + myVelocity.x * mySpeed;
-		myLocation.y = myLocation.y + myVelocity.y * mySpeed;
-		myLocation.z = myLocation.z + myVelocity.z * mySpeed;
+		myLocation.x = myLocation.x + myVelocity.x * mySpeed * 0.5;
+		myLocation.y = myLocation.y + myVelocity.y * mySpeed * 0.5;
+		myLocation.z = myLocation.z + myVelocity.z * mySpeed * 0.5;
 		myTimer += 0.12;
 		mySpeed -= mySpeed * 0.01;
 		break;

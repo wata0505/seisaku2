@@ -66,6 +66,7 @@ void ProjectileStraite::Update(float elapsedTime)
 		ChangeWpUpdate(elapsedTime);
 	case Type::Beem:
 		BeemUpdate(elapsedTime);
+	
 		break;
 	}
 	
@@ -76,7 +77,6 @@ void ProjectileStraite::Update(float elapsedTime)
 
 	//モデル行列更新
 	model->UpdateWorldBufferData(transform);
-	data = model->GetBufferData();
 	uvStatus.x += elapsedTime;
 	if (lifeTimer > 0) {
 		uvStatus.y -= dissolveSpeed * elapsedTime;
@@ -207,7 +207,7 @@ void ProjectileStraite::SwordUpdate(float elapsedTime) {
 		this->speed = 40;
 		if (position.y < under) {
 			if (!effectflag) {
-				ParticleSystem::Instance().BoomEffect(position, 3, int(EffectTexAll::EfTexAll::Thunder), 2, { 2,NULL,NULL,1 });
+				ParticleSystem::Instance().BoomEffect(position, 3, int(EffectTexAll::EfTexAll::Thunder), 2,1,{ 2,NULL,NULL,1 });
 				radius = 4;
 				effectflag = true;
 			}
@@ -272,7 +272,7 @@ void ProjectileStraite::BeemUpdate(float elapsedTime) {
 //描画処理
 void ProjectileStraite::Render(ID3D11DeviceContext* dc, ModelShader* shader)
 {
-	shader->Draw(dc, model.get(),data,uvStatus,materialColor);
+	shader->Draw(dc, model.get(),uvStatus,materialColor);
 }
 
 void ProjectileStraite::TrailRender(RenderContext& rc, SwordTrailShader* shader)
@@ -342,6 +342,9 @@ void ProjectileStraite::Launch(std::shared_ptr <Model> buffer, float height, flo
 		Lenght = player.GetAngle().y;
 	}
 	if (type == Type::Beem) {
+		model =std::make_unique<Model>(".\\resources\\Cube.fbx", true);
+		model->ModelSerialize(".\\resources\\Cube.fbx");
+		model->ModelRegister(".\\resources\\Cube.fbx");
 		direction.x = sinf(player.GetAngle().y);
 		direction.z = cosf(player.GetAngle().y);
 		if (leftflag) {//右側か左側か
@@ -363,6 +366,8 @@ void ProjectileStraite::Launch(std::shared_ptr <Model> buffer, float height, flo
 		halfLife = lifeTimer * 0.5;
 		scale.x = scale.y = 0.1;
 		scale.z = 0;
+		UpdateTransform();
+		model->UpdateBufferDara(transform);
 	}
 	uvStatus.w = texType;
 	uvStatus.z = 0.3;

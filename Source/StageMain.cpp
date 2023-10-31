@@ -6,15 +6,15 @@
 StageMain::StageMain()
 {
 
-	model = std::make_unique<Model>(".\\resources\\Stag\\GameStagMin5.fbx", true, false);
-	model->ModelSerialize(".\\resources\\Stag\\GameStagMin5.fbx");
+	model = std::make_unique<Model>(".\\resources\\Stag\\TILE.fbx", true, false);
+	model->ModelSerialize(".\\resources\\Stag\\TILE.fbx");
 	//model->ModelCreate(".\\resources\\ExampleStage\\ExampleStage.fbx");
-	model->ModelRegister(".\\resources\\Stag\\GameStagMin5.fbx");
+	model->ModelRegister(".\\resources\\Stag\\TILE.fbx","TILE.fbm\\1_$TILE_BaseColor.png");
 
 	// 行列更新
 	//angle.y = 3;
-	position.y = 0;
-	scale.x = scale.y = scale.z = 1.0;
+	position.y = -1.5;
+	scale.x = scale.y = scale.z = 100.0;
 	UpdateTransform();
     model->UpdateBufferDara(transform);
 }
@@ -37,7 +37,7 @@ void StageMain::Render(ID3D11DeviceContext* dc, ModelShader* shader)
 	//model->UpdateTransform(transform);
 
 	//シェーダーにモデルを描画してもらう
-	shader->Draw(dc, model.get(), model->GetBufferData());
+	shader->Draw(dc, model.get());
 }
 
 bool StageMain::RayCast(const DirectX::XMFLOAT3& start, const DirectX::XMFLOAT3& end, HitResult& hit)

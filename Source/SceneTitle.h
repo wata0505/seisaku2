@@ -100,6 +100,7 @@ private:
 	int gameMode = 0;
 	float dissolveTimer = 0;
 	float dissolveDTimer = 0;
+	float haikeiTimer = 0;
 	EffectTexAll* effectTexAll = nullptr;
 	//std::unique_ptr<AudioSource> titlebgm;
 	AudioAll* audioAll = nullptr;

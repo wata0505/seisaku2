@@ -4,6 +4,7 @@
 #include "Calculation.h"
 #include "ParticleSprite.h"
 #include "EffectTexAll.h"
+#include "Base.h"
 
 // TODO 02_03 Stateを基底クラスとして各種Stateクラスを用意する。
 // Wanderはサンプルとしてすでに記述済み
@@ -14,7 +15,7 @@
 void BagWanderState::Enter()
 {
 	owner->SetRandomTargetPosition();
-	owner->GetModel()->PlayAnimation(static_cast<int>(EnemyBag::RunFWD), true);
+	owner->GetModel()->PlayAnimation(static_cast<int>(EnemyBag::WalkFWD), true);
 	owner->PlaySe((int)EnemyBag::EnemyBagSE::Walk,true);
 }
 
@@ -23,7 +24,8 @@ void BagWanderState::Execute(float elapsedTime)
 {
 	// 目的地点までのXZ平面での距離判定
 	DirectX::XMFLOAT3 position = owner->GetPosition();
-	DirectX::XMFLOAT3 targetPosition = owner->GetTargetPosition();
+	//DirectX::XMFLOAT3 targetPosition = owner->GetTargetPosition();
+	DirectX::XMFLOAT3 targetPosition = Base::Instance().GetPos();
 	float vx = targetPosition.x - position.x;
 	float vz = targetPosition.z - position.z;
 	float distSq = vx * vx + vz * vz;
@@ -46,6 +48,7 @@ void BagWanderState::Execute(float elapsedTime)
 		owner->GetStateMachine()->ChangeState(static_cast<int>(EnemyBag::BagState::Battle));
 		//owner->GetStateMachine()->ChangeSubState(static_cast<int>(EnemyBag::Battle::Roar));
 	}
+	owner->GetStateMachine()->ChangeState(static_cast<int>(EnemyBag::BagState::Battle));
 
 }
 
@@ -58,7 +61,7 @@ void BagWanderState::Exit()
 void BagIdleState::Enter()
 {
 	owner->SetStateTimer(Mathf::RandomRange(3.0f, 5.0f));
-	owner->GetModel()->PlayAnimation(static_cast<int>(EnemyBag::IdleNormal), true);
+	owner->GetModel()->PlayAnimation(static_cast<int>(EnemyBag::WalkFWD), true);
 }
 
 // 待機ステートで実行するメソッド
@@ -84,7 +87,7 @@ void BagIdleState::Exit()
 void BagRoarState::Enter()
 {
 	owner->SetStateTimer(Mathf::RandomRange(3.0f, 5.0f));
-	owner->GetModel()->PlayAnimation(static_cast<int>(EnemyBag::Roar2), false);
+	owner->GetModel()->PlayAnimation(static_cast<int>(EnemyBag::WalkFWD), false);
 	owner->PlaySe((int)EnemyBag::EnemyBagSE::Roar, false);
 }
 
@@ -106,8 +109,9 @@ void BagRoarState::Exit()
 void BagPursuitState::Enter()
 {
 	owner->SetStateTimer(Mathf::RandomRange(3.0f, 5.0f));
-	DirectX::XMFLOAT2 dir = owner->ForwardToPlayer();
-	DirectX::XMFLOAT3 traget = Player::Instance().GetPosition();
+	DirectX::XMFLOAT2 dir = owner->ForwardToBase();
+	//DirectX::XMFLOAT3 traget = Player::Instance().GetPosition();
+	DirectX::XMFLOAT3 traget = Base::Instance().GetPos();
 	traget.x -= dir.x * owner->GetBattleRange();
 	traget.z -= dir.y * owner->GetBattleRange();
 	owner->SetTargetPosition(traget);
@@ -120,13 +124,13 @@ void BagPursuitState::Enter()
 	float dot = (dir.x * vx) + (dir.y * vz);
 	//目的地が自分より前方向なら
 	if (1.0 - dot < 0.2) {
-		owner->GetModel()->PlayAnimation(static_cast<int>(EnemyBag::RunFWD), true);
+		owner->GetModel()->PlayAnimation(static_cast<int>(EnemyBag::WalkFWD), true);
 		owner->SetMoveRate(1.5);
 		owner->PlaySe((int)EnemyBag::EnemyBagSE::Run, true);
 	}
 	else
 	{
-		owner->GetModel()->PlayAnimation(static_cast<int>(EnemyBag::WalkBWD), true);
+		owner->GetModel()->PlayAnimation(static_cast<int>(EnemyBag::WalkFWD), true);
 		owner->SetMoveRate(0.5);
 		owner->PlaySe((int)EnemyBag::EnemyBagSE::Walk, true);
 	}
@@ -140,8 +144,8 @@ void BagPursuitState::Execute(float elapsedTime)
 	// 目標地点をプレイヤー位置に設定
 	//owner->SetStateTimer(Mathf::RandomRange(3.0f, 5.0f));
 	if (owner->GetAttackFlg())owner->SetBattleRange(NULL);
-	DirectX::XMFLOAT2 dir = owner->ForwardToPlayer();
-	DirectX::XMFLOAT3 traget = Player::Instance().GetPosition();
+	DirectX::XMFLOAT2 dir = owner->ForwardToBase();
+	DirectX::XMFLOAT3 traget = Base::Instance().GetPos();
 	traget.x -= dir.x * owner->GetBattleRange();
 	traget.z -= dir.y * owner->GetBattleRange();
 	owner->SetTargetPosition(traget);
@@ -162,13 +166,13 @@ void BagPursuitState::Execute(float elapsedTime)
 	}
 	DirectX::XMFLOAT3 vec = Vector3::Subset(owner->GetTargetPosition(), owner->GetPosition());
 	float dist = Vector3::Lenght(vec);
-	if (Vector3::FrameInput(owner->GetEnemyTimer()) && !owner->GetAttackFlg()) {
-		if (Vector3::Probability(2)&&dist < owner->GetBackStepRange()) {
-			owner->GetStateMachine()->ChangeSubState(static_cast<int>(EnemyBag::Battle::BackStep));
-		}
+	if (Vector3::FrameInput(owner->GetEnemyTimer()) && owner->GetAttackFlg()) {
+		owner->SetAttackFlg(false);
+		// エネミーからメタAIへ MsgChangeAttackRight を送信する
+		Meta::Instance().SendMessaging(owner->GetId(), 0, MESSAGE_TYPE::MsgChangeAttackRight);
 	}
 	if (dist < 50 && owner->GetAttackFlg() && owner->GetAttackFireBallFlg()) {
-		owner->GetStateMachine()->ChangeSubState(static_cast<int>(EnemyBag::Battle::FireBall));
+		//owner->GetStateMachine()->ChangeSubState(static_cast<int>(EnemyBag::Battle::FireBall));
 	}
 	// 攻撃範囲に入ったとき攻撃ステートへ遷移しなさい
 	if (dist < owner->GetAttackRange() && owner->GetAttackFlg()) {
@@ -192,10 +196,10 @@ void BagAttackState::Enter()
 	// 攻撃権があればモーション再生開始
 	if (owner->GetAttackFlg())
 	{
-		owner->GetModel()->PlayAnimation(owner->GetAttackAnim(rand() % owner->GetAttackAnimMax()), false);
+		owner->GetModel()->PlayAnimation(static_cast<int>(owner->GetAttackAnim(rand() % owner->GetAttackAnimMax())), false);
 	}
 	owner->SetDamegeRadius(0.2);
-	ParticleSprite* particleSprite = new ParticleSprite(owner->SearchNodePos("head"), { NULL,NULL,NULL }, ParticleSprite::ParticleBurst, ParticleSprite::Expansion, (int)EffectTexAll::EfTexAll::BlackThunder, 1, 0.3);
+	ParticleSprite* particleSprite = new ParticleSprite(owner->SearchNodePos("atama"), { NULL,NULL,NULL }, ParticleSprite::ParticleBurst, ParticleSprite::Expansion, (int)EffectTexAll::EfTexAll::BlackThunder, 1, 0.3);
 }
 
 
@@ -206,16 +210,17 @@ void BagAttackState::Execute(float elapsedTime)
 	// 攻撃権があるとき
 	if (owner->GetAttackFlg())
 	{
-		owner->CollisionNodeVsPlayer("hand_r",owner->GetDamegeRadius(), { 10,0 },1);
+		owner->CollisionNodeVsPlayer("R_arm",owner->GetDamegeRadius(), { 10,0 },1);
+		owner->CollisionNodeVsBase("R_arm", owner->GetDamegeRadius(), { 10,0 }, 1);
 		// 攻撃モーションが終わっていれば待機へ遷移
 		if (!owner->GetModel()->IsPlayAnimation())
 		{
 
 			owner->RandBattleRange();
 			owner->GetStateMachine()->ChangeSubState(static_cast<int>(EnemyBag::Battle::Pursuit));
-			if (Vector3::Probability(2)) {//確率でバックステップ
-				owner->GetStateMachine()->ChangeSubState(static_cast<int>(EnemyBag::Battle::BackStep));
-			}
+			//if (Vector3::Probability(2)) {//確率でバックステップ
+			//	owner->GetStateMachine()->ChangeSubState(static_cast<int>(EnemyBag::Battle::BackStep));
+			//}
 		}
 	}
 	else
@@ -249,9 +254,9 @@ void BagFireBallState::Enter()
 	// 攻撃権があればモーション再生開始
 	if (owner->GetAttackFlg())
 	{
-		owner->GetModel()->PlayAnimation(static_cast<int>(EnemyBag::Roar1), false);
+		owner->GetModel()->PlayAnimation(static_cast<int>(EnemyBag::WalkFWD), false);
 	}
-	ParticleSprite* particleSprite = new ParticleSprite(owner->SearchNodePos("head"), { NULL,NULL,NULL }, ParticleSprite::ParticleBurst, ParticleSprite::Expansion, (int)EffectTexAll::EfTexAll::BlackThunder, 1, 0.3);
+	ParticleSprite* particleSprite = new ParticleSprite(owner->SearchNodePos("atama"), { NULL,NULL,NULL }, ParticleSprite::ParticleBurst, ParticleSprite::Expansion, (int)EffectTexAll::EfTexAll::BlackThunder, 1, 0.3);
 }
 
 
@@ -342,7 +347,7 @@ BagBattleState::~BagBattleState()
 // バトルステートに入った時のメソッド
 void BagBattleState::Enter()
 {
-		SetSubState(static_cast<int>(EnemyBag::Battle::Roar));
+		SetSubState(static_cast<int>(EnemyBag::Battle::Pursuit));
 }
 // バトルステートで実行するメソッド
 void BagBattleState::Execute(float elapsedTime)
@@ -390,7 +395,7 @@ void BagRecieveState::Exit()
 // TODO 05_03 他のエネミーから呼ばれたときのステートを追加
 void BagCalledState::Enter()
 {
-	owner->GetModel()->PlayAnimation(static_cast<int>(EnemyBag::RunFWD), true);
+	owner->GetModel()->PlayAnimation(static_cast<int>(EnemyBag::WalkFWD), true);
 	owner->SetStateTimer(5.0f);
 }
 // コールドステートで実行するメソッド
@@ -409,7 +414,8 @@ void BagCalledState::Execute(float elapsedTime)
 
 	}
 	// 対象をプレイヤー地点に設定
-	owner->SetTargetPosition(Player::Instance().GetPosition());
+	//owner->SetTargetPosition(Player::Instance().GetPosition());
+	owner->SetTargetPosition(Base::Instance().GetPos());
 	owner->MoveToTarget(elapsedTime, 1.0f);
 }
 // コールドステートから出ていくときのメソッド
@@ -453,7 +459,7 @@ void BagReDamageState::Exit()
 void BagDamageState::Enter()
 {
 	{
-		owner->GetModel()->PlayAnimation(owner->GetHitAnim(rand() % owner->GetHitAnimMax()), false);
+		owner->GetModel()->PlayAnimation(EnemyBag::Damage, false);
 	}
 }
 
@@ -495,7 +501,7 @@ void BagDieState::Enter()
 void BagDieState::Execute(float elapsedTime)
 {
 	if (!owner->GetModel()->IsPlayAnimation()) {
-		owner->Destroy();
+		//owner->Destroy();
 	}
 }
 
@@ -514,16 +520,16 @@ void BagStandbyState::Enter()
 		Meta::Instance().SendMessaging(owner->GetId(), 0, MESSAGE_TYPE::MsgAskAttackRight);
 	}
 	owner->SetStateTimer(Mathf::RandomRange(2.0f, 3.0f));
-	if (rand() % 2 == 0) {
-		owner->GetModel()->PlayAnimation(static_cast<int>(EnemyBag::WalkRight), true);
-		rightflag = true;
-	}
-	else
-	{
-		owner->GetModel()->PlayAnimation(static_cast<int>(EnemyBag::WalkLeft), true);
-		rightflag = false;
-	}
-	owner->PlaySe((int)EnemyBag::EnemyBagSE::Walk, true);
+	//if (rand() % 2 == 0) {
+	owner->GetModel()->PlayAnimation(static_cast<int>(EnemyBag::WalkFWD), true);
+	//	rightflag = true;
+	//}
+	//else
+	//{
+	//	owner->GetModel()->PlayAnimation(static_cast<int>(EnemyBag::WalkFWD), true);
+	//	rightflag = false;
+	//}
+	//owner->PlaySe((int)EnemyBag::EnemyBagSE::Walk, true);
 	owner->SetMoveRate(0.5);
 	//owner->GetModel()->PlayAnimation(static_cast<int>(EnemyBagAnimation::IdleBattle), false);
 }
@@ -546,8 +552,10 @@ void BagStandbyState::Execute(float elapsedTime)
 	}
 	owner->BattleMove(rightflag, elapsedTime, owner->GetMoveRate());
 	// 目標地点をプレイヤー位置に設定
-	DirectX::XMFLOAT2 dir = owner->ForwardToPlayer();
-	DirectX::XMFLOAT3 traget = Player::Instance().GetPosition();
+	//DirectX::XMFLOAT2 dir = owner->ForwardToPlayer();
+	DirectX::XMFLOAT2 dir = owner->ForwardToBase();
+	//DirectX::XMFLOAT3 traget = Player::Instance().GetPosition();
+	DirectX::XMFLOAT3 traget = Base::Instance().GetPos();
 	traget.x -= dir.x * owner->GetBattleRange();
 	traget.z -= dir.y * owner->GetBattleRange();
 	owner->SetTargetPosition(traget);
@@ -568,7 +576,7 @@ void BagStandbyState::Execute(float elapsedTime)
 	}
 	if (owner->GetStateTimer() < 0 && !owner->GetAttackFlg()) {
 		if (Vector3::Probability(2) && dist < owner->GetBackStepRange()) {
-			owner->GetStateMachine()->ChangeSubState(static_cast<int>(EnemyBag::Battle::BackStep));
+			//owner->GetStateMachine()->ChangeSubState(static_cast<int>(EnemyBag::Battle::BackStep));
 		}
 	}
 		
@@ -583,7 +591,7 @@ void BagStandbyState::Exit()
 void BagBackStepState::Enter()
 {
 	
-		owner->GetModel()->PlayAnimation(static_cast<int>(EnemyBag::Dodge), false);
+		owner->GetModel()->PlayAnimation(static_cast<int>(EnemyBag::WalkFWD), false);
 	
 }
 // 戦闘待機ステートで実行するメソッド

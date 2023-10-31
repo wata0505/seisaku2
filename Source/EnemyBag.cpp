@@ -12,38 +12,20 @@
 #include "FireBall.h"
 #include "ParticleSystem.h"
 #include "ParticleSprite.h"
+#include"Base.h"
 // コンストラクタ
 EnemyBag::EnemyBag(bool tutorial)
 {
-	model = std::make_unique<Model>(".\\resources\\Bug Creature\\Bug9.fbx", true);
-	//model->AppendAnimations(".\\resources\\Bug Creature\\Animations\\BugCreature2@idle1.fbx", 0);
-	//model->AppendAnimations(".\\resources\\Bug Creature\\Animations\\BugCreature2@idle2.fbx", 0);
-	//model->AppendAnimations(".\\resources\\Bug Creature\\Animations\\BugCreature2@idle3.fbx", 0);
-	//model->AppendAnimations(".\\resources\\Bug Creature\\Animations\\BugCreature2@idle4.fbx", 0);
-	//model->AppendAnimations(".\\resources\\Bug Creature\\Animations\\BugCreature2@idle5.fbx", 0);
-	//model->AppendAnimations(".\\resources\\Bug Creature\\Animations\\BugCreature2@attack1.fbx", 0);
-	//model->AppendAnimations(".\\resources\\Bug Creature\\Animations\\BugCreature2@attack2.fbx", 0);
-	//model->AppendAnimations(".\\resources\\Bug Creature\\Animations\\BugCreature2@attack3.fbx", 0);
-	//model->AppendAnimations(".\\resources\\Bug Creature\\Animations\\BugCreature2@attack4.fbx", 0);
-	//model->AppendAnimations(".\\resources\\Bug Creature\\Animations\\BugCreature2@attack5.fbx", 0);
-	//model->AppendAnimations(".\\resources\\Bug Creature\\Animations\\BugCreature2@attack6.fbx", 0);
-	//model->AppendAnimations(".\\resources\\Bug Creature\\Animations\\BugCreature2@attack7.fbx", 0);
-	//model->AppendAnimations(".\\resources\\Bug Creature\\Animations\\BugCreature2@walk1.fbx", 0);
-	//model->AppendAnimations(".\\resources\\Bug Creature\\Animations\\BugCreature2@walkback.fbx", 0);
-	//model->AppendAnimations(".\\resources\\Bug Creature\\Animations\\BugCreature2@strafeleft.fbx", 0);
-	//model->AppendAnimations(".\\resources\\Bug Creature\\Animations\\BugCreature2@straferight.fbx", 0);
-	//model->AppendAnimations(".\\resources\\Bug Creature\\Animations\\BugCreature2@rage1.fbx", 0);
-	//model->AppendAnimations(".\\resources\\Bug Creature\\Animations\\BugCreature2@rage2.fbx", 0);
-	//model->AppendAnimations(".\\resources\\Bug Creature\\Animations\\BugCreature2@gethit2.fbx", 0);
-	//model->AppendAnimations(".\\resources\\Bug Creature\\Animations\\BugCreature2@gethit3.fbx", 0);
-	//model->AppendAnimations(".\\resources\\Bug Creature\\Animations\\BugCreature2@gethit4.fbx", 0);
-	//model->AppendAnimations(".\\resources\\Bug Creature\\Animations\\BugCreature2@death1.fbx", 0);
-	//model->AppendAnimations(".\\resources\\Bug Creature\\Animations\\BugCreature2@death2.fbx", 0);
-	//model->AppendAnimations(".\\resources\\Bug Creature\\Animations\\BugCreature2@death3.fbx", 0);
-	//model->AppendAnimations(".\\resources\\Bug Creature\\Animations\\BugCreature2@death4.fbx", 0);
-	model->ModelSerialize(".\\resources\\Bug Creature\\Bug9.fbx");
+	model = std::make_unique<Model>(".\\resources\\enemy\\enemy.fbx", true);
+	model->AppendAnimations(".\\resources\\enemy\\Enemy_taikiandmigration.fbx",0);
+	model->AppendAnimations(".\\resources\\enemy\\Enemy_attack1.fbx", 0);
+	model->AppendAnimations(".\\resources\\enemy\\Enemy_attack2.fbx", 0);
+	model->AppendAnimations(".\\resources\\enemy\\Enemy_attack3.fbx", 0);
+	model->AppendAnimations(".\\resources\\enemy\\Enemy_damage.fbx", 0);
+	model->AppendAnimations(".\\resources\\enemy\\Enemy_Die.fbx", 0);
+	model->ModelSerialize(".\\resources\\enemy\\enemy.fbx");
 	//model->ModelCreate(".\\resources\\Slime\\Slime.fbx");
-	model->ModelRegister(".\\resources\\Bug Creature\\Bug9.fbx");
+	model->ModelRegister(".\\resources\\enemy\\enemy.fbx");
 	// モデルが大きいのでスケーリング
 	maxHealth = 30;
 	health = maxHealth;
@@ -76,7 +58,7 @@ EnemyBag::EnemyBag(bool tutorial)
 	UpdateTransform(0, 0);
 
 	model->UpdateBufferDara(transform);
-	renderdata = model->GetBufferData();
+	//renderdata = model->GetBufferData();
 
 	se[(int)EnemyBagSE::Walk] = Audio::Instance().LoadAudioSource("resources\\Audio\\wolk2.wav");
 	se[(int)EnemyBagSE::Run] = Audio::Instance().LoadAudioSource("resources\\Audio\\run3.wav");
@@ -84,8 +66,8 @@ EnemyBag::EnemyBag(bool tutorial)
 	//se[(int)EnemyBagSE::hit] = Audio::Instance().LoadAudioSource("resources\\Audio\\pannti.wav");
 	searchRange = 20.0f;
 
-	attackRange = 1.3f;
-	
+	attackRange = 2.5f;
+	scale.x = scale.y = scale.z = 4.0f;
 	territoryRange = 10.0f;
 	angle.y = DirectX::XMConvertToRadians(180);
 	tutorialflag = tutorial;
@@ -111,6 +93,8 @@ float EnemyBag::MovePow() {
 void EnemyBag::Update(float elapsedTime)
 {
 	//描画判定
+	if (reMoveflag)ReMove();
+	if (!activeflag)return;
 	UpdateRnderflag();
 	float ElapsedTime = elapsedTime;
 	if (Player::Instance().GetQuickflag()) {
@@ -119,14 +103,16 @@ void EnemyBag::Update(float elapsedTime)
 	if (health <= 0) {
 		if (!model->IsPlayAnimation()) {
 			//死亡モーションが終わったデリート
-			Destroy();
+			//Destroy();
+			activeflag = false;
+			renderflag = false;
 			//position.y = -2000;
 		}
 		UpdateTransform((int)Character::AxisType::RHSYUP, (int)Character::LengthType::Cm);
 		model->UpdateAnimation(ElapsedTime,"pelvis");
 		// モデル行列更新
 		model->UpdateBufferDara(transform);
-		renderdata = model->GetBufferData();
+		//renderdata = model->GetBufferData();
 		return;
 	}
 	
@@ -154,7 +140,7 @@ void EnemyBag::Update(float elapsedTime)
 		model->UpdateBufferDara(transform);
 	}
 	//モデル描画情報受け渡し
-	renderdata = model->GetBufferData();
+	//renderdata = model->GetBufferData();
 	//SEアプデート
 	SeUpdate(elapsedTime);
 	enemyTimer++;
@@ -188,7 +174,7 @@ void EnemyBag::OnDamaged()
 }
 void EnemyBag::FireBallShoat()
 {
-	nodePosition = SearchNodePos("neck_01");
+	nodePosition = SearchNodePos("koshi");
     
 	// ターゲット方向への進行ベクトルを算出
 	//DirectX::XMFLOAT3 dir;
@@ -200,6 +186,8 @@ void EnemyBag::FireBallShoat()
 	//方向、位置
 	projectile->Launch(dir, nodePosition, angle.y);
 }
+
+
 void EnemyBag::CollisionFireBallVSPlayer()
 {
 	int projectileCount = objectManager.GetObjectCount();
@@ -251,7 +239,7 @@ void EnemyBag::Render(ID3D11DeviceContext* dc, ModelShader* shader)
 	//if (health <= 0) {
 	//	return;
 	//}
-	if(renderflag)shader->Draw(dc, model.get(), renderdata);
+	if(renderflag)shader->Draw(dc, model.get());
 }
 
 
@@ -299,7 +287,7 @@ void EnemyBag::BattleMove(bool leftflag,float elapsedTime, float speedRate)
 void EnemyBag::FacePlayer(float elapsedTime, float speedRate)
 {
 	// ターゲット方向への進行ベクトルを算出
-	DirectX::XMFLOAT2 dir = ForwardToPlayer();
+	DirectX::XMFLOAT2 dir = ForwardToBase();
 	//プレイヤーに向く
 	Turn(elapsedTime, dir.x, dir.y, turnSpeed * speedRate);
 
@@ -321,7 +309,8 @@ void EnemyBag::MoveToTarget(float elapsedTime, float speedRate)
 	}
 	else
 	{
-		const DirectX::XMFLOAT3& playerPosition = Player::Instance().GetPosition();
+		//const DirectX::XMFLOAT3& playerPosition = Player::Instance().GetPosition();
+		const DirectX::XMFLOAT3& playerPosition = Base::Instance().GetPos();
 		float vx = playerPosition.x - position.x;
 		float vz = playerPosition.z - position.z;
 		float dist = sqrtf(vx * vx + vz * vz);
@@ -334,7 +323,8 @@ void EnemyBag::MoveToTarget(float elapsedTime, float speedRate)
 bool EnemyBag::SearchPlayer()
 {
 	// プレイヤーとの高低差を考慮して3Dで距離判定をする
-	const DirectX::XMFLOAT3& playerPosition = Player::Instance().GetPosition();
+	//const DirectX::XMFLOAT3& playerPosition = Player::Instance().GetPosition();
+	const DirectX::XMFLOAT3& playerPosition = Base::Instance().GetPos();
 	DirectX::XMFLOAT3 vec = Vector3::Subset(playerPosition, position);
 	float dist = Vector3::Lenght(vec);
 	//距離で視界に入っているか
@@ -367,6 +357,16 @@ DirectX::XMFLOAT2 EnemyBag::ForwardToPlayer() {
 	vz /= dist;
 	return {vx,vz};
 }
+DirectX::XMFLOAT2 EnemyBag::ForwardToBase() {
+
+	const DirectX::XMFLOAT3& basePosition = Base::Instance().GetPos();
+	float vx = basePosition.x - position.x;
+	float vz = basePosition.z - position.z;
+	float dist = sqrtf(vx * vx + vz * vz);
+	vx /= dist;
+	vz /= dist;
+	return { vx,vz };
+}
 DirectX::XMFLOAT3 EnemyBag::SearchNodePos(const char* nodeName) {
 	Animation::Keyframe::node* leftHandBone = model->FindNode(nodeName);
 	XMStoreFloat4x4(&world, XMLoadFloat4x4(&leftHandBone->globalTransform) * XMLoadFloat4x4(&transform));
@@ -377,7 +377,20 @@ DirectX::XMFLOAT3 EnemyBag::SearchNodePos(const char* nodeName) {
 	node.z = world._43;
 	return node;
 }
-
+void EnemyBag::ReMove()
+{
+	activeflag = true;
+	health = 30;
+	float yaw = DirectX::XMConvertToRadians(rand() % 360);
+	DirectX::XMFLOAT2 dir;
+	dir.x = sinf(yaw);
+	dir.y = cosf(yaw);
+	int len = rand() % 100 + 5;
+	position = DirectX::XMFLOAT3(dir.x * len, 0.0f, dir.y * len);
+	SetTerritory(position, 10.0f);
+	reMoveflag = false;
+	stateMachine->SetState(static_cast<int>(BagState::Search));
+}
 
 // デバッグエネミー情報表示
 //void EnemyBag::DrawDebugGUI()

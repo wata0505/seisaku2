@@ -45,6 +45,8 @@ public:
 	// リソース取得
 	const SkinnedMeshResouurce* GetResource() const { return resource.get(); }
 
+	void SetResource(const std::shared_ptr<SkinnedMeshResouurce> r) { resource = r; }
+
 	// アニメーション更新処理
 	void UpdateAnimation(float elapsedTime, const char* rootname,bool renderflag = true);
 	// サブアニメーション更新処理
@@ -91,7 +93,7 @@ public:
 	//サブノードの描画情報取得
 	void UpdateSubBufferDara(const DirectX::XMFLOAT4X4& world, std::vector <const char*> Node);
 	
-	std::vector <SkinnedMeshResouurce::constants> GetBufferData() { return data; };
+	std::vector <SkinnedMeshResouurce::constants>& GetBufferData() { return data; };
 	//描画情報の行列取得
 	DirectX::XMFLOAT4X4 GetBufferTransform() { return data.at(0).world; };
 

@@ -12,7 +12,7 @@ public:
 	~ToonShader() override {}
 
 	void Begin(ID3D11DeviceContext* dc, const RenderContext& rc)override;
-	void Draw(ID3D11DeviceContext* dc, const Model* model, std::vector<SkinnedMeshResouurce::constants> buffer, const DirectX::XMFLOAT4 uvstatus = { 0,0,0,0 }, const DirectX::XMFLOAT4 color = { 1.0f,1.0f,1.0f,1.0f })override;
+	void Draw(ID3D11DeviceContext* dc, Model* model, const DirectX::XMFLOAT4 uvstatus = { 0,0,0,0 }, const DirectX::XMFLOAT4 color = { 1.0f,1.0f,1.0f,1.0f })override;
 	void Draw(ID3D11DeviceContext* dc, const Model* model, InstancingConstants buffer, int max, const DirectX::XMFLOAT4 color = { 1.0f,1.0f,1.0f,1.0f }) {};
 	void End(ID3D11DeviceContext* dc) override;
 

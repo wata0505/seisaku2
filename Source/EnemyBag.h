@@ -26,34 +26,8 @@ public:
 		Attack01,
 		Attack02,
 		Attack03,
-		Attack04,
-		Attack05,
-		Attack06,
-		Attack07,
+		Damage,
 		Die1,
-		Die2,
-		Die3,
-		Die4,
-		Dodge,
-		Gethit1,
-		Gethit2,
-		Gethit3,
-		Gethit4,
-		IdleNormal,
-		IdleBattle,
-		Idele3,
-		Idele4,
-		Idele5,
-		Jump,
-		Roar1,
-		Roar2,
-		RunFWD,
-		Run2FWD,
-		WalkLeft,
-		WalkRight,
-		TurnRoteto,
-		Walk2,
-		WalkBWD,
 	};
 public:
 	EnemyBag(bool tutorial = false);
@@ -81,8 +55,12 @@ public:
 	//ファイルボールショット
 	void FireBallShoat();
 
+	
+
 	// プレイヤーへの方向取得
 	DirectX::XMFLOAT2 ForwardToPlayer();
+
+	DirectX::XMFLOAT2 ForwardToBase();
 
 	// TODO 05_02 メッセージ受信関数を追加
 	bool OnMessage(const Telegram& msg);
@@ -137,8 +115,8 @@ public:
 	float  MovePow();
 
 
-	int GetHitAnim(int i) { return hitAnim[i]; }
-	int GetHitAnimMax() { return MAX_HIT_ANIM; };
+	//int GetHitAnim(int i) { return hitAnim[i]; }
+	//int GetHitAnimMax() { return MAX_HIT_ANIM; };
 	int GetAttackAnim(int i) { return attackAnim[i]; }
 	int GetAttackAnimMax() { return MAX_ATTACK_ANIM; };
 
@@ -148,6 +126,8 @@ public:
 	bool GetTutorialflag() { return tutorialflag; }
 
 	DirectX::XMFLOAT3 SearchNodePos(const char* nodeName);
+
+	void ReMove();
 private:
 	void SeUpdate(float elapsedTime);
 
@@ -229,11 +209,11 @@ private:
 	//ヒットアニメーション最大
 	static const int MAX_HIT_ANIM{ 3 };
 	//ヒットアニメーション格納
-	int hitAnim[MAX_HIT_ANIM] = { static_cast<int>(EnemyBagAnimation::Gethit2) ,static_cast<int>(EnemyBagAnimation::Gethit3) ,static_cast<int>(EnemyBagAnimation::Gethit4) };
+	//int hitAnim[MAX_HIT_ANIM] = { static_cast<int>(EnemyBagAnimation::Gethit2) ,static_cast<int>(EnemyBagAnimation::Gethit3) ,static_cast<int>(EnemyBagAnimation::Gethit4) };
 	//攻撃アニメーション最大
-	static const int MAX_ATTACK_ANIM{ 7 };
+	static const int MAX_ATTACK_ANIM{ 3 };
 	//攻撃アニメーション格納
-	int attackAnim[MAX_ATTACK_ANIM] = { static_cast<int>(EnemyBagAnimation::Attack01) ,static_cast<int>(EnemyBagAnimation::Attack02) ,static_cast<int>(EnemyBagAnimation::Attack03),static_cast<int>(EnemyBagAnimation::Attack04),static_cast<int>(EnemyBagAnimation::Attack05),static_cast<int>(EnemyBagAnimation::Attack06),static_cast<int>(EnemyBagAnimation::Attack07) };
+	int attackAnim[MAX_ATTACK_ANIM] = { static_cast<int>(EnemyBagAnimation::Attack01) ,static_cast<int>(EnemyBagAnimation::Attack02) ,static_cast<int>(EnemyBagAnimation::Attack03)};
 	//ステートマシーン生成
 	std::shared_ptr<StateMachine<EnemyBag>> stateMachine = nullptr;
 	//描画情報格納

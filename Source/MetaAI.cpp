@@ -76,7 +76,7 @@ bool Meta::OnMessage(const Telegram& telegram)
 		}
 		//他に攻撃権持っている敵がいないなら、要求してきた敵に攻撃権を与えるメッセージを送る。
 		//要求してきた敵のidはtelegramから取得出来ます。
-		if (count < 2)
+		if (count < 10)
 		{
 			// TODO 05_05 攻撃権の付与
 			// 誰も攻撃権を持っていなければMetaAIから送信者に攻撃権付与のメッセージを送る

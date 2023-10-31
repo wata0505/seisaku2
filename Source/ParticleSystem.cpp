@@ -132,7 +132,7 @@ void ParticleSystem::RubbleEffect(DirectX::XMFLOAT3 position, int Max, int Speed
 }
 
 
-void ParticleSystem::BoomEffect(DirectX::XMFLOAT3 position, int max, int textype, float size, DirectX::XMFLOAT4 color) {
+void ParticleSystem::BoomEffect(DirectX::XMFLOAT3 position, int max, int textype, float size, float liftimer, DirectX::XMFLOAT4 color) {
     ParticleManager& particleManager = ParticleManager::Instance();
     Particle::MoveConstants move;
     std::vector<Particle::MoveConstants> moveConst;
@@ -150,7 +150,7 @@ void ParticleSystem::BoomEffect(DirectX::XMFLOAT3 position, int max, int textype
             move.position.x = position.x + (Vec.x * (rand() % 2 + 1));
             move.position.y = position.y + (Vec.y * (rand() % 2 + 1));
             move.position.z = position.z + (Vec.z * (rand() % 2 + 1));
-            move.speed = 0.01;
+            //move.speed = 0.01;
         }
         Vec.y = 0;
         move.direction = Vec;
@@ -158,7 +158,7 @@ void ParticleSystem::BoomEffect(DirectX::XMFLOAT3 position, int max, int textype
 
     }
     Particle* particle = new Particle;
-    particle->Launch(moveConst, ParticleType::Boom, Particle::Ball, static_cast<int>(ParticleShader::ModelPSType::Toon),textype, 1.0, color);
+    particle->Launch(moveConst, ParticleType::Boom, Particle::Ball, static_cast<int>(ParticleShader::ModelPSType::Toon),textype, liftimer, color);
     particleManager.Register(particle);
 }
 

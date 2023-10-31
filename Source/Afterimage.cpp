@@ -36,7 +36,7 @@ void Afterimage::Update(float elapsedTime)
 //•`‰æˆ—
 void Afterimage::Render(ID3D11DeviceContext* dc, ModelShader* shader)
 {
-	shader->Draw(dc, model.get(),data,uvStatus,materialColor);
+	shader->Draw(dc, model.get(),uvStatus,materialColor);
 }
 
 //”­ŽË

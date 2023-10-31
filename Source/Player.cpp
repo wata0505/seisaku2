@@ -19,6 +19,7 @@
 #include "GaugeUI.h"
 #include "InputGame.h"
 #include "StatePlayer.h"
+#include "ParticleManager.h"
 #define GRAVITY -1.0;
 using namespace DirectX;
 inline XMFLOAT4 to_xmfloat4(const FbxDouble4& fbxdouble4)
@@ -129,8 +130,8 @@ Player::Player() {
     slash->ModelRegister(".\\resources\\Textures\\zanngeki4.fbx");
     slash->UpdateBufferDara(transform);
     beem = std::make_unique<Model>(".\\resources\\Cube.fbx", true);
-    beem->ModelSerialize(".\\resources\\Textures\\Cube.fbx");
-    beem->ModelRegister(".\\resources\\Textures\\Cube.fbx");
+    beem->ModelSerialize(".\\resources\\Cube.fbx");
+    beem->ModelRegister(".\\resources\\Cube.fbx");
     beem->UpdateBufferDara(transform);
     wepon = std::make_unique<MainWepon>();
     maxHealth = 20;
@@ -146,7 +147,7 @@ Player::Player() {
     cameraController = std::make_unique<CameraController>();
     
     player->UpdateBufferDara(transform);
-    renderdata = player->GetBufferData();
+    //renderdata = player->GetBufferData();
     for (int i = 0; i < 13; i++) {
         lowerBody.push_back(lower[i]);
     }
@@ -230,8 +231,10 @@ void Player::update(float elapsedTime) {
     }
     //弾当たり判定
     CollisionProjectilesVsEnemies();
+
+    CollisionBoomVsEnemies();
     //描画情報入力
-    renderdata = player->GetBufferData();
+    //renderdata = player->GetBufferData();
     timer++;
     //uiアニメーション用更新
     //swordEffectColor.w ++;
@@ -381,7 +384,7 @@ void Player::ComeTerget(float elapsedTime) {
             //距離で判定
             if (enemyLength < 6000) {
                 target = enemy->GetPosition();
-                target.y += enemy->GetHeight() * 0.5;
+                //target.y += enemy->GetHeight() * 0.5;
                 dir = enemydir;
                 lockOn = true;
                 epos = enemy->GetEfPos();
@@ -406,7 +409,7 @@ void Player::ComeTerget(float elapsedTime) {
                     {
                         dist = a;
                         target = enemy->GetPosition();
-                        target.y += enemy->GetHeight() * 0.5f;
+                        //target.y += enemy->GetHeight() * 0.5f;
                         enemyId = enemy->GetId();
                         epos = enemy->GetEfPos();
                         dir = enemydir;
@@ -813,7 +816,7 @@ void Player::InputProjectile()
     if (gamePad.GetButtonDown() & GamePad::BTN_X && mp > swordMp && skillCoolTime[ProjectileColumn] <= 0.0f)
     {
         skillCoolTime[ProjectileColumn] = skillCoolTimeDefault[ProjectileColumn];
-        mp-= swordMp;
+       // mp-= swordMp;
     		// 前方向   		
         float h = 0;
     		// 発射
@@ -993,7 +996,7 @@ void Player::UpdateWeponChange(float elapsedTime)
 }
 void Player::render(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader) {
     if (renderflag) {
-        shader->Draw(immediate_context.Get(), player.get(), renderdata);
+        shader->Draw(immediate_context.Get(), player.get());
     }
     wepon->Render(immediate_context.Get(), shader);
 }
@@ -1212,7 +1215,7 @@ void Player::CollisionNodeVsEnemies(float nodeRadius,DirectX::XMFLOAT2 pow, floa
         }
         else
         {
-            enemyPosition = { enemy->GetPosition().x,enemy->GetPosition().y + enemy->GetHeight() / 2,enemy->GetPosition().z };
+            enemyPosition = { enemy->GetPosition().x,enemy->GetPosition().y,enemy->GetPosition().z };
             if (Collision::IntersectCapsuleVsSphere(
                 wepon->GetWeaponEFPoint(),
                 wepon->GetWeaponHPoint(),
@@ -1284,11 +1287,11 @@ void Player::CollisionProjectilesVsEnemies()
                           continue;
                       }
                       if (object->GetType() == Type::Beem) {
-                          ParticleSystem::Instance().BoomEffect(object->GetPosition(), 5, int(EffectTexAll::EfTexAll::BlueThader), 1, { NULL,NULL,2,1 });
+                          ParticleSystem::Instance().BoomEffect(object->GetPosition(), 5, int(EffectTexAll::EfTexAll::BlueThader), 3, 0.5,{ NULL,NULL,2,1 });
                          // ParticleSprite* particleSprite = new ParticleSprite(object->GetPosition(), object->GetPosition(), ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::BlueThader), 1000, 1.5);
                           AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::boom1)->Stop();
                           AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::boom1)->Play(false, SE);
-                          ParticleSprite* particleSprite = new ParticleSprite(object->GetPosition(), { NULL,NULL,NULL }, ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::BlueThader), 1000, 1.5, 0, true, 0.05, {0,0,1,1});
+                          ParticleSprite* particleSprite = new ParticleSprite(object->GetPosition(), { NULL,NULL,NULL }, ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::BlueThader), 200, 1.5, 0, true, 0.015, {0,0,1,1});
                           SetShakeInput({0,1,0}, 2);
                           //object->Destroy();
                           continue;
@@ -1308,6 +1311,41 @@ void Player::CollisionProjectilesVsEnemies()
                   }
                
                 
+            }
+        }
+    }
+}
+
+void Player::CollisionBoomVsEnemies()
+{
+    EnemyManager& enemyManager = EnemyManager::Instance();
+    ParticleManager& particleManager = ParticleManager::Instance();
+    //全ての弾丸とすべての敵を総当たりで衝突判定
+    int enemyCount = enemyManager.GetEnemyCount();
+    int projectileCount = particleManager.GetParticleCount();
+
+    for (int i = 0; i < projectileCount; ++i)
+    {
+        if (particleManager.GetParticle(i)->GetType() != ParticleType::Boom) continue;
+        Particle* object = particleManager.GetParticle(i);
+        for (Particle::MoveConstants& move : object->GetMove())
+        {
+            for (int j = 0; j < enemyCount; ++j)
+            {
+                Enemy* enemy = enemyManager.GetEnemy(j);
+                //衝突処理
+                DirectX::XMFLOAT3 outPosition;
+                if (Collision::IntersectSphereVsCylinder(
+                    move.position,
+                    object->GetScale().x,
+                    enemy->GetPosition(),
+                    enemy->GetRadius(),
+                    enemy->GetHeight(),
+                    outPosition))
+                {
+                    // ダメージを与える
+                    if (enemy->ApplyDamage(1, 0.5));
+                }
             }
         }
     }

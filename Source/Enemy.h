@@ -53,15 +53,21 @@ public:
 
 	void SetTargetPosition(DirectX::XMFLOAT3 t) { targetPosition = t; }
 
+	void ReMove() {};
+
 	bool GetActiveflag() { return activeflag; }
 	bool GetRenderflag() { return renderflag; }
 	void SetActiveflag(bool flag) { activeflag = flag; }
+	void SetReMoveflag(bool flag) { reMoveflag = flag; }
 
 	void SetLowAltitude(float low) { lowAltitude = low; }
+
+	void SetHealth(float heal) { health = heal; }
 
 	Animation::Keyframe GetEnemyKeyframe() { return enemyKeyframe; };
 
 	void CollisionNodeVsPlayer(const char* nodeName, float nodeRadius, DirectX::XMFLOAT2 pow, float damage,float invincibleTime = 1.0);
+	void CollisionNodeVsBase(const char* nodeName, float nodeRadius, DirectX::XMFLOAT2 pow, float damage, float invincibleTime = 1.0);
 
 	virtual DirectX::XMFLOAT3 SearchNodePos(const char* nodeName) = 0;
 
@@ -100,8 +106,10 @@ protected:
 	float attackRange = 0.0f;
 	//アクティブフラグ
 	bool  activeflag = true;
+	//再起動
+	bool  reMoveflag = false;
 	//下降限界
-	float lowAltitude = 0.1;
+	float lowAltitude = 2.1;
 	float efLife = 0.3;
 	float efMax = 1;
 	float eria = 50;

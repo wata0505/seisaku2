@@ -7,6 +7,7 @@
 #include "Mathf.h"
 #include "Player.h"
 #include "AudioAll.h"
+#include "Base.h"
 
 // デバッグプリミティブ描画
 void Enemy::DrawDebugPrimitive()
@@ -35,9 +36,9 @@ void Enemy::UpdateVerticalMove(float elapsedTime) {
 	if (my < 0.0f)
 	{
 		// レイの開始位置は足元より少し上
-		DirectX::XMFLOAT3 start = { position.x,position.y + stepOffset,position.z };
+		DirectX::XMFLOAT3 start = { position.x,position.y,position.z };
 		// レイの終点位置は移動後の位置
-		DirectX::XMFLOAT3 end = { position.x,position.y + my - lowAltitude,position.z };
+		DirectX::XMFLOAT3 end = { position.x,position.y - my - lowAltitude,position.z };
 		if (velocity.x == 0 && velocity.z == 0) {
 			if (isGround) {
 				velocity.y = 0.0f;
@@ -48,17 +49,10 @@ void Enemy::UpdateVerticalMove(float elapsedTime) {
 		// レイキャストによる地面判定
 		HitResult hit;
 		//if (health > 0) {
-		if (StageManager::Instance().RayCast(start, end, hit))
+		if (my < 0.0f)
 		{
-			// 法線ベクトル取得
-			normal = hit.normal;
-
-			// 地面に接地している
-			position = hit.position; 
-			position.y += lowAltitude;
-			// 傾斜率の計算
-			//float teihen = sqrtf(hit.normal.x * hit.normal.x + hit.normal.z * hit.normal.z);
-			//slopeRate = hit.normal.y / (teihen + hit.normal.y);
+			
+			position.y = 1.4;
 
 			// 着地した
 			if (!isGround && lowAltitude == 0)
@@ -190,6 +184,8 @@ void Enemy::UpdateRnderflag() {
 		radius);
      }
 }
+
+
 // 破棄
 void Enemy::Destroy()
 {
@@ -228,6 +224,21 @@ void Enemy::CollisionNodeVsPlayer(const char* nodeName, float nodeRadius, Direct
 		outPosition))
 	{
 		HitInpnt(player.GetEfPos(), pow, damage, invincibleTime);
+	}
+}
+
+void Enemy::CollisionNodeVsBase(const char* nodeName, float nodeRadius, DirectX::XMFLOAT2 pow, float damage, float invincibleTime)
+{
+
+	nodePosition = SearchNodePos(nodeName);
+	Base& base = Base::Instance();
+	DirectX::XMFLOAT3 outPosition;
+	if (Collision::IntersectSphereVsCylinder(
+		nodePosition, nodeRadius,
+		base.GetPos(), base.GetRadius(), base.GetHeight(),
+		outPosition))
+	{
+		base.InputDamage(damage);
 	}
 }
 void Enemy::HitInpnt(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT2 pow, float damage, float invincibleTime) {

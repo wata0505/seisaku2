@@ -60,9 +60,7 @@ MainWepon::MainWepon() {
 		weponLife[i] = maxLife[i];
 	}
 	weapon[weponType]->UpdateBufferDara(transform);
-	data = weapon[weponType]->GetBufferData();
 	weapon[WeponType::Shield]->UpdateBufferDara(transform);
-	shieldData = weapon[WeponType::Shield]->GetBufferData();
 }
 MainWepon& MainWepon::Instance()
 {
@@ -76,7 +74,6 @@ void MainWepon::Update(float elapsedTime)
 		WeponShieldUpdate();
 		UpdateTransform();
 		weapon[WeponType::Shield]->UpdateBufferDara(transform);
-		shieldData = weapon[WeponType::Shield]->GetBufferData();
 	}
 	switch (swordState)
 	{
@@ -108,7 +105,6 @@ void MainWepon::Update(float elapsedTime)
 	UpdateUI(elapsedTime);
 
 	weapon[weponType]->UpdateBufferDara(transform);
-	data = weapon[weponType]->GetBufferData();
 	//モデル行列更新
 	//sword->UpdateWorldBufferData(transform);
 	if (swordState != SwordState::Shift) {
@@ -247,8 +243,8 @@ void MainWepon::WeponLifeUpdate(float elapsedTime) {
 void MainWepon::Render(ID3D11DeviceContext* dc, ModelShader* shader)
 {
 	if (uvStatus.x != 1 ) {
-	shader->Draw(dc, weapon[weponType].get(), data,uvStatus);
-	if(weponType == WeponType::MainSword && uvShiedStatus.x != 1 && swordState == SwordState::Nomal)shader->Draw(dc, weapon[WeponType::Shield].get(), shieldData, uvShiedStatus);
+	shader->Draw(dc, weapon[weponType].get(),uvStatus);
+	if(weponType == WeponType::MainSword && uvShiedStatus.x != 1 && swordState == SwordState::Nomal)shader->Draw(dc, weapon[WeponType::Shield].get(), uvShiedStatus);
 	}
 }
 void MainWepon::UpdateTransform()

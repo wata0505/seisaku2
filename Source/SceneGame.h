@@ -12,7 +12,7 @@
 #include "MetaAI.h"
 #include "EffectAll.h"
 #include "EffectTexAll.h"
-
+#include "Base.h"
 
 #include <ctime>
 using namespace DirectX;
@@ -85,6 +85,7 @@ private:
 	void projectImgui();
 private:
 	std::unique_ptr<Player> player = nullptr;
+	std::unique_ptr<Base> base = nullptr;
 	//std::shared_ptr <CameraController> cameraController = nullptr;
 	std::unique_ptr<Meta> meta = nullptr;
 	static const int ShadowMapSize = 1096;
@@ -98,5 +99,5 @@ private:
 	LuminanceExtractionData luminanceExtractionData;
 
 	float dissolveTimer = 0;
-	
+	float haikeiTimer = 0;
 };

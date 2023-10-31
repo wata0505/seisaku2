@@ -138,7 +138,7 @@ HRESULT ParticleSprite::CreateDiffusionResource(DirectX::XMFLOAT3 pos, DirectX::
 		dir.z = cosf(pitch) * cosf(yaw);
 		posVertex[i].Position = Vector3::PosDir(posVertex[i].Position, dir, lenght);
 		posVertex[i].Velocity = dir;//速度
-		posVertex[i].Speed = ((rand() %50)+ 20 )* 0.005;//speed;//速度
+		posVertex[i].Speed = ((rand() %50)+ 20 )* speed;//speed;//速度
 		//サイズ
 		posVertex[i].ParticleSize.x = posVertex[i].ParticleSize.y = posVertex[i].ParticleSize.z = posVertex[i].ParticleSize.w = 0.12;
 		posVertex[i].type = Diffusion;

@@ -50,7 +50,7 @@ public:
 	virtual void Begin(ID3D11DeviceContext* dc, const RenderContext& rc) = 0;
 
 	// •`‰æ
-	virtual void Draw(ID3D11DeviceContext* dc, const Model* model, std::vector<SkinnedMeshResouurce::constants> buffer, const DirectX::XMFLOAT4 uvstatus= { 0,0,0,0 }, const DirectX::XMFLOAT4 color = { 1.0f,1.0f,1.0f,1.0f }) = 0;
+	virtual void Draw(ID3D11DeviceContext* dc,Model* model, const DirectX::XMFLOAT4 uvstatus= { 0,0,0,0 }, const DirectX::XMFLOAT4 color = { 1.0f,1.0f,1.0f,1.0f }) = 0;
 
 	virtual void Draw(ID3D11DeviceContext* dc, const Model* model, InstancingConstants buffer, int max, const DirectX::XMFLOAT4 color = { 1.0f,1.0f,1.0f,1.0f })  = 0;
 

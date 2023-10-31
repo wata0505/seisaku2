@@ -35,6 +35,7 @@ public:
 	// オブジェクト取得
 	Particle* GetParticle(int index) { return particles.at(index); }
 
+
 	std::shared_ptr<Model> GetModel(int type) { return model[type]; }
 
 	// オブジェクト削除

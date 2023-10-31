@@ -22,6 +22,7 @@
 #include "BaseUI.h"
 #include "BreakUI.h"
 #include "ParticleSystem.h"
+#include "EnemySystem.h"
 
 void SceneGame::Initialize()
 {
@@ -37,41 +38,49 @@ void SceneGame::Initialize()
 	//dragon->SetId(0);
 	//enemyManager.Register(dragon);
 	// バグ
-	for(int i = 0; i < 1; i++) {
-		EnemyBag* bag = new EnemyBag();
-		bag->SetPosition(DirectX::XMFLOAT3(-30.0f + 10 * i, 0.0f, 25.0f));
-		bag->SetTerritory(bag->GetPosition(), 10.0f);
-		//bag->SetId(0);
-		enemyManager.Register(bag);
-		//if (i % 2 == 0) {
-		//	bag->SetBarrierFlag(true);
-		//	ParticleSystem::Instance().BarrierEnemyEffect(bag->GetId(), (int)EffectTexAll::EfTexAll::BarrierEnemy, { 1,0,0,1 });
-		//}
-	}
-	
+	//for(int i = 0; i < 20; i++) {
+	//	EnemyBag* bag = new EnemyBag();
+	//	float yaw = DirectX::XMConvertToRadians(rand() % 360);
+	//	DirectX::XMFLOAT2 dir;
+	//	dir.x = sinf(yaw);
+	//	dir.y = cosf(yaw);
+	//	int len = rand() % 100 + 5;
+	//	bag->SetPosition(DirectX::XMFLOAT3(dir.x * len, 0.0f, dir.y * len));
+	//	bag->SetTerritory(bag->GetPosition(), 10.0f);
+	//	//bag->SetId(0);
+	//	enemyManager.Register(bag);
+	//	//if (i % 2 == 0) {
+	//	//	bag->SetBarrierFlag(true);
+	//	//	ParticleSystem::Instance().BarrierEnemyEffect(bag->GetId(), (int)EffectTexAll::EfTexAll::BarrierEnemy, { 1,0,0,1 });
+	//	//}
+	//}
+	//
+	//
+	//enemyManager.SetEnemyMaxCount(enemyManager.GetEnemyCount());
 
-	enemyManager.SetEnemyMaxCount(enemyManager.GetEnemyCount());
+	EnemySystem& enemySystem = EnemySystem::Instance();
+	enemySystem.Start();
 	StageManager& stageManager = StageManager::Instance();
 	stageManager.clear();
 	stageMain = new StageMain;
 	stageManager.Register(stageMain);
 
 	DirectX::XMFLOAT2 dir = { 0,0 };
-	DirectX::XMFLOAT3 pos = { 0,0,0 };
+	DirectX::XMFLOAT3 pos = { 0,0,10 };
 	float angle = 0;
-	for (int i = 0; i < 10; i++)
-	{
-
-		angle = DirectX::XMConvertToRadians(36 * i);
-		dir.x = sinf(angle);
-		dir.y = cosf(angle);
-		pos.x = dir.x * 70;
-		pos.y = -1.5;
-		pos.z = dir.y * 70;
-		StageObj* stageObj = new StageObj(pos);
-		//stageObj->SetPosition(pos);
-		stageManager.Register(stageObj);
-	}
+	//for (int i = 0; i < 10; i++)
+	//{
+	//
+	//	angle = DirectX::XMConvertToRadians(36 * i);
+	//	dir.x = sinf(angle);
+	//	dir.y = cosf(angle);
+	//	pos.x = dir.x * 70;
+	//	pos.y = -1.5;
+	//	pos.z = dir.y * 70;
+	//	StageObj* stageObj = new StageObj(pos);
+	//	//stageObj->SetPosition(pos);
+	//	stageManager.Register(stageObj);
+	//}
 	
 	Camera& camera = Camera::Instance();
 	camera.SetLookAt(
@@ -90,6 +99,7 @@ void SceneGame::Initialize()
 	
 
 	player = std::make_unique<Player>();
+	base = std::make_unique<Base>(pos);
 	//ピクセルシェーダーオブジェクト
 	create_ps_from_cso(device.Get(), "Shader\\PostEffectPS.cso", pixel_shaders[0].GetAddressOf());
 	create_ps_from_cso(device.Get(), "Shader\\BlurPS.cso", pixel_shaders[1].GetAddressOf());
@@ -98,7 +108,7 @@ void SceneGame::Initialize()
 	bit_block_transfer = std::make_unique<FullscreenQuad>(device.Get());
 
 
-	sprite_batchs = std::make_unique<Sprite>(L".\\resources\\3.png");
+	sprite_batchs = std::make_unique<Sprite>(L".\\resources\\haikei\\6.png");
 	sprite_batchs2 = std::make_unique<Sprite>();
 	claerSprite = std::make_unique<Sprite>(L".\\resources\\UI\\clear.png");
 	loodSprite = EffectTexAll::Instance().GetSprite(int(EffectTexAll::EfTexAll::Bock));
@@ -153,8 +163,9 @@ void SceneGame::Finalize()
 void SceneGame::Update(float elapsedTime)
 {
 	player->update(elapsedTime);
+	base->Update(elapsedTime);
 	StageManager::Instance().Update(elapsedTime);
-	
+	EnemySystem::Instance().Update(elapsedTime);
 	EnemyManager::Instance().Update(elapsedTime);
 	EnemyManager::Instance().DrawDebugPrimitive();
 		
@@ -169,7 +180,9 @@ void SceneGame::Update(float elapsedTime)
 	LightManager::Instance().Update(elapsedTime);
 
 	UIManager::Instance().Update(elapsedTime);
-	if (EnemyManager::Instance().GetEnemyCount() != 0 && player->GetHealth() > 0) {
+
+	
+	if (base->GetHP() != 0 && player->GetHealth() > 0) {
 		dissolveTimer += elapsedTime;
 		if (dissolveTimer > 3) dissolveTimer = 3;
 	}
@@ -177,7 +190,7 @@ void SceneGame::Update(float elapsedTime)
 	{
 		dissolveTimer -= elapsedTime;
 	}
-
+	haikeiTimer += elapsedTime;
 }
 void SceneGame::Render()
 {
@@ -231,6 +244,7 @@ void SceneGame::Render()
 	ModelShader* shader = graphics.GetShader(Graphics::ModelShaderId::ShadowmapCaster);
 	shader->Begin(immediate_context, rc);
 	player->render(immediate_context, shader);
+	base->Render(immediate_context,shader);
 	StageManager::Instance().Render(immediate_context, shader);
 	EnemyManager::Instance().Render(immediate_context, shader);
 	StageManager::Instance().InstaningRender(immediate_context,shader);
@@ -269,7 +283,8 @@ void SceneGame::Render()
 		0, 0, 1280, 720,
 		0, 0, sprite_batchs->GetTextureWidth(), sprite_batchs->GetTextureHeight(),
 		0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f
+		1.0f, 1.0f, 1.0f, 1.0f,
+		0, haikeiTimer,0
 	);
 	//sprite_batchs[0]->SetShaderResourceView(framebuffers[0]->shaderResourceViews[2], 1280, 720);
 	shader2->Draw(rc, sprite_batchs.get());
@@ -281,6 +296,7 @@ void SceneGame::Render()
 	StageManager::Instance().Render(immediate_context, shader);
 	shader->Begin(immediate_context, rc);
 	player->render(immediate_context, shader);
+	base->Render(immediate_context, shader);
 	EnemyManager::Instance().Render(immediate_context, shader);
 	StageManager::Instance().InstaningRender(immediate_context, shader);
 	shader->End(immediate_context);
@@ -397,6 +413,7 @@ void SceneGame::Render()
 	shader2->Draw(rc, sprite_batchs2.get());
 	//player->Sprite2DRender(immediate_context, rc, shader2);
 	UIManager::Instance().Render(rc,shader2);
+	base->HpDisplay(rc, shader2);
 	claerSprite->Render(immediate_context,
 		200, 120, 1000, 200,
 		0, 0, claerSprite->GetTextureWidth(), claerSprite->GetTextureHeight(),
@@ -412,7 +429,7 @@ void SceneGame::Render()
 		dissolveTimer,0,0
 	);
 	shader2->Draw(rc, loodSprite.get());
-	if (EnemyManager::Instance().GetEnemyCount() == 0) {
+	if (base->GetHP() == 0) {
 		
 		shader2->Draw(rc, claerSprite.get());
 		if (dissolveTimer < 0) {

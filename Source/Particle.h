@@ -59,6 +59,12 @@ public:
 	int GetModelType() { return modelType; }
 
 	float GetDissolveTimer() { return dissolveTimer; }
+
+	int GetType() { return type; }
+
+	std::vector<MoveConstants>  GetMove() { return moves; }
+
+	DirectX::XMFLOAT3 GetScale() { return scale; }
 private:
 	//ハルバート特殊
 	void LanceUpdate(float elapsedTime);

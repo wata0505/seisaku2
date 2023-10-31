@@ -10,6 +10,7 @@ Texture2D dissolve_map : register(t5);
 SamplerState ShadowSampler : register(s10);
 PS_OUT main(VS_OUT pin)
 {
+
         float4 color = texture_maps.Sample(sampler_states[ANISOTROPIC], pin.texcoord);
         float4 dissolves = dissolve_map.Sample(sampler_states[ANISOTROPIC], pin.texcoord);
         float alpha = color.a;

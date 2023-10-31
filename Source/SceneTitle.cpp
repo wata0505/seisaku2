@@ -70,7 +70,7 @@ void SceneTitle::Initialize()
 	luminanceExtractionData.intensity = 5;
 	bit_block_transfer = std::make_unique<FullscreenQuad>(device.Get());
 
-	spriteBatchs[0] = std::make_unique<Sprite>(L".\\resources\\3.png");
+	spriteBatchs[0] = std::make_unique<Sprite>(L".\\resources\\haikei\\6.png");
 	//SkinnedMeshes[0] = std::make_unique<SkinnedMesh>(device.Get(), ".\\resources\\nico.fbx",0);
 	framebuffers[0] = std::make_unique<Framebuffer>(device.Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
 	//framebuffers[1] = std::make_unique<Framebuffer>(device.Get(), SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
@@ -158,6 +158,7 @@ void SceneTitle::Update(float elapsedTime)
 	if (titleMode > 1) {
 		dissolveDTimer += elapsedTime * 0.5;
 	}
+	haikeiTimer += elapsedTime;
 }
 void SceneTitle::Render()
 {
@@ -253,7 +254,8 @@ void SceneTitle::Render()
 		0, 0, 1280, 720,
 		0, 0, spriteBatchs[0]->GetTextureWidth(), spriteBatchs[0]->GetTextureHeight(),
 		0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f
+		1.0f, 1.0f, 1.0f, 1.0f,
+		0,haikeiTimer
 	);
 	//spriteBatchs[0]->SetShaderResourceView(framebuffers[0]->shaderResourceViews[2], 1280, 720);
 	shader2->Draw(rc, spriteBatchs[0].get());

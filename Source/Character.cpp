@@ -1,6 +1,7 @@
 #include"Character.h"
 #include"StageManager.h"
 #include"Mathf.h"
+#include"Base.h"
 
 //行列更新処理
 void Character::UpdateTransform(int axisType,int lengthType)
@@ -248,14 +249,15 @@ void Character::UpdateVerticalMove(float elapsedTime)
 		// レイキャストによる地面判定
 		HitResult hit;
 		//if (health > 0) {
-			if (StageManager::Instance().RayCast(start, end, hit))
+			//if (StageManager::Instance().RayCast(start, end, hit))
+		    if (position.y < 0.1)
 			{
 				// 法線ベクトル取得
 				normal = hit.normal;
 
 				// 地面に接地している
-				position = hit.position;
-
+				//position = hit.position;
+				position.y = 0;
 				// 傾斜率の計算
 				//float teihen = sqrtf(hit.normal.x * hit.normal.x + hit.normal.z * hit.normal.z);
 				//slopeRate = hit.normal.y / (teihen + hit.normal.y);
@@ -327,6 +329,9 @@ void Character::UpdateHorizontalVelocity(float elapsedFrame)
 {
 	DirectX::XMFLOAT3 outPos;
 	if (StageManager::Instance().PillarVS(position, radius, height, outPos)) {
+		position = outPos;
+	}
+	if (Base::Instance().PillarVS(position, radius, height, outPos)) {
 		position = outPos;
 	}
 	// XZ平面の速力を減速する

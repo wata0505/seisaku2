@@ -140,17 +140,17 @@ void DefaultShader::Begin(ID3D11DeviceContext* dc, const RenderContext& rc)
 }
 
 // 描画
-void DefaultShader::Draw(ID3D11DeviceContext* dc, const Model* model, std::vector<SkinnedMeshResouurce::constants> buffer, const DirectX::XMFLOAT4 uvstatus, const DirectX::XMFLOAT4 color)
+void DefaultShader::Draw(ID3D11DeviceContext* dc, Model* model, const DirectX::XMFLOAT4 uvstatus, const DirectX::XMFLOAT4 color)
 {
 	
 	Graphics& graphics = Graphics::Instance();
 	const SkinnedMeshResouurce* resource = model->GetResource();
-	std::vector<SkinnedMeshResouurce::constants> buffers = buffer;
+	//std::vector<SkinnedMeshResouurce::constants> buffers = buffer;
 	int size = 0;
 	for (const SkinnedMeshResouurce::Mesh& mesh : resource->GetMeshes())
 	{
-
-		SkinnedMeshResouurce::constants buffer = buffers.at(size);
+	   
+		SkinnedMeshResouurce::constants buffers = model->GetBufferData().at(size);
 		UvConstants uv;
 		uint32_t stride{ sizeof(SkinnedMeshResouurce::Vertex) };
 		uint32_t offset{ 0 };
@@ -158,14 +158,14 @@ void DefaultShader::Draw(ID3D11DeviceContext* dc, const Model* model, std::vecto
 		dc->IASetIndexBuffer(mesh.indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 		dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		dc->IASetInputLayout(inputLayout.Get());
-
+	
 		for (const SkinnedMeshResouurce::Mesh::subset& subset : mesh.subsets)
 		{
 			// マテリアルの識別ID からマテリアルを取得し参照として設定
 			const SkinnedMeshResouurce::Material& material{ resource->materials.find({subset.materialUniqueId}).operator*() };
-
-			XMStoreFloat4(&buffer.materialColor, XMLoadFloat4(&color) * XMLoadFloat4(&material.Kd));
-			dc->UpdateSubresource(constantBuffer.Get(), 0, 0, &buffer, 0, 0);
+			
+			XMStoreFloat4(&buffers.materialColor, XMLoadFloat4(&color) * XMLoadFloat4(&material.Kd));
+			dc->UpdateSubresource(constantBuffer.Get(), 0, 0, &buffers, 0, 0);
 			dc->VSSetConstantBuffers(0, 1, constantBuffer.GetAddressOf());
 			dc->PSSetConstantBuffers(0, 1, constantBuffer.GetAddressOf());
 			uv.uvStatus = uvstatus;
