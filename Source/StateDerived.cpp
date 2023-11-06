@@ -25,7 +25,7 @@ void BagWanderState::Execute(float elapsedTime)
 	// 目的地点までのXZ平面での距離判定
 	DirectX::XMFLOAT3 position = owner->GetPosition();
 	//DirectX::XMFLOAT3 targetPosition = owner->GetTargetPosition();
-	DirectX::XMFLOAT3 targetPosition = Base::Instance().GetPos();
+	DirectX::XMFLOAT3 targetPosition = owner->GetTargetPosition();
 	float vx = targetPosition.x - position.x;
 	float vz = targetPosition.z - position.z;
 	float distSq = vx * vx + vz * vz;
@@ -109,9 +109,9 @@ void BagRoarState::Exit()
 void BagPursuitState::Enter()
 {
 	owner->SetStateTimer(Mathf::RandomRange(3.0f, 5.0f));
-	DirectX::XMFLOAT2 dir = owner->ForwardToBase();
+	DirectX::XMFLOAT2 dir = owner->ForwardToTarget();
 	//DirectX::XMFLOAT3 traget = Player::Instance().GetPosition();
-	DirectX::XMFLOAT3 traget = Base::Instance().GetPos();
+	DirectX::XMFLOAT3 traget = owner->GetTargetPosition();
 	traget.x -= dir.x * owner->GetBattleRange();
 	traget.z -= dir.y * owner->GetBattleRange();
 	owner->SetTargetPosition(traget);
@@ -144,8 +144,8 @@ void BagPursuitState::Execute(float elapsedTime)
 	// 目標地点をプレイヤー位置に設定
 	//owner->SetStateTimer(Mathf::RandomRange(3.0f, 5.0f));
 	if (owner->GetAttackFlg())owner->SetBattleRange(NULL);
-	DirectX::XMFLOAT2 dir = owner->ForwardToBase();
-	DirectX::XMFLOAT3 traget = Base::Instance().GetPos();
+	DirectX::XMFLOAT2 dir = owner->ForwardToTarget();
+	DirectX::XMFLOAT3 traget = owner->GetTargetPosition();
 	traget.x -= dir.x * owner->GetBattleRange();
 	traget.z -= dir.y * owner->GetBattleRange();
 	owner->SetTargetPosition(traget);
@@ -164,8 +164,8 @@ void BagPursuitState::Execute(float elapsedTime)
 		Meta::Instance().SendMessaging(owner->GetId(), 0, MESSAGE_TYPE::MsgChangeAttackRight);
 		owner->SetStateTimer(Mathf::RandomRange(3.0f, 5.0f));
 	}
-	DirectX::XMFLOAT3 vec = Vector3::Subset(owner->GetTargetPosition(), owner->GetPosition());
-	float dist = Vector3::Lenght(vec);
+	DirectX::XMFLOAT2 vec = Vector2::Subset({ owner->GetTargetPosition().x, owner->GetTargetPosition().z }, { owner->GetPosition().x,owner->GetPosition().z });
+	float dist = sqrtf(vec.x * vec.x + vec.y * vec.y);;
 	if (Vector3::FrameInput(owner->GetEnemyTimer()) && owner->GetAttackFlg()) {
 		owner->SetAttackFlg(false);
 		// エネミーからメタAIへ MsgChangeAttackRight を送信する
@@ -196,7 +196,8 @@ void BagAttackState::Enter()
 	// 攻撃権があればモーション再生開始
 	if (owner->GetAttackFlg())
 	{
-		owner->GetModel()->PlayAnimation(static_cast<int>(owner->GetAttackAnim(rand() % owner->GetAttackAnimMax())), false);
+		owner->SetAttackNodeNo(rand() % owner->GetAttackAnimMax());
+		owner->GetModel()->PlayAnimation(owner->GetAttackAnim(owner->GetAttackNodeNo()), false);
 	}
 	owner->SetDamegeRadius(0.2);
 	ParticleSprite* particleSprite = new ParticleSprite(owner->SearchNodePos("atama"), { NULL,NULL,NULL }, ParticleSprite::ParticleBurst, ParticleSprite::Expansion, (int)EffectTexAll::EfTexAll::BlackThunder, 1, 0.3);
@@ -210,8 +211,8 @@ void BagAttackState::Execute(float elapsedTime)
 	// 攻撃権があるとき
 	if (owner->GetAttackFlg())
 	{
-		owner->CollisionNodeVsPlayer("R_arm",owner->GetDamegeRadius(), { 10,0 },1);
-		owner->CollisionNodeVsBase("R_arm", owner->GetDamegeRadius(), { 10,0 }, 1);
+		owner->CollisionNodeVsPlayer(owner->GetAttackNode(owner->GetAttackNodeNo()),owner->GetDamegeRadius(), { 10,0 },1);
+		owner->CollisionNodeVsBase(owner->GetAttackNode(owner->GetAttackNodeNo()), owner->GetDamegeRadius(), { 10,0 }, 1);
 		// 攻撃モーションが終わっていれば待機へ遷移
 		if (!owner->GetModel()->IsPlayAnimation())
 		{
@@ -415,7 +416,7 @@ void BagCalledState::Execute(float elapsedTime)
 	}
 	// 対象をプレイヤー地点に設定
 	//owner->SetTargetPosition(Player::Instance().GetPosition());
-	owner->SetTargetPosition(Base::Instance().GetPos());
+	//owner->SetTargetPosition(Base::Instance().GetPos());
 	owner->MoveToTarget(elapsedTime, 1.0f);
 }
 // コールドステートから出ていくときのメソッド
@@ -553,9 +554,9 @@ void BagStandbyState::Execute(float elapsedTime)
 	owner->BattleMove(rightflag, elapsedTime, owner->GetMoveRate());
 	// 目標地点をプレイヤー位置に設定
 	//DirectX::XMFLOAT2 dir = owner->ForwardToPlayer();
-	DirectX::XMFLOAT2 dir = owner->ForwardToBase();
+	DirectX::XMFLOAT2 dir = owner->ForwardToTarget();
 	//DirectX::XMFLOAT3 traget = Player::Instance().GetPosition();
-	DirectX::XMFLOAT3 traget = Base::Instance().GetPos();
+	DirectX::XMFLOAT3 traget = owner->GetTargetPosition();
 	traget.x -= dir.x * owner->GetBattleRange();
 	traget.z -= dir.y * owner->GetBattleRange();
 	owner->SetTargetPosition(traget);
@@ -566,7 +567,7 @@ void BagStandbyState::Execute(float elapsedTime)
 	if (dist > owner->GetAttackRange()&& !owner->GetAttackFlg())
 	{
 		// 攻撃範囲から出たら追跡ステートへ遷移
-		//owner->SetBattleRange(rand() % 6 + 1);
+		owner->SetBattleRange(rand() % 6 + 1);
 		owner->GetStateMachine()->ChangeSubState(static_cast<int>(EnemyBag::Battle::Pursuit));
 	}
 	if (owner->GetStateTimer() < 0 && !owner->GetAttackFlg()) {

@@ -6,10 +6,10 @@
 StageMain::StageMain()
 {
 
-	model = std::make_unique<Model>(".\\resources\\Stag\\TILE.fbx", true, false);
-	model->ModelSerialize(".\\resources\\Stag\\TILE.fbx");
+	model = std::make_unique<Model>(".\\resources\\Stag\\Stage2.fbx", true, false);
+	model->ModelSerialize(".\\resources\\Stag\\Stage2.fbx");
 	//model->ModelCreate(".\\resources\\ExampleStage\\ExampleStage.fbx");
-	model->ModelRegister(".\\resources\\Stag\\TILE.fbx","TILE.fbm\\1_$TILE_BaseColor.png");
+	model->ModelRegister(".\\resources\\Stag\\Stage2.fbx");
 
 	// s—ñXV
 	//angle.y = 3;

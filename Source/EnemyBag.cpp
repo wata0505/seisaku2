@@ -72,6 +72,7 @@ EnemyBag::EnemyBag(bool tutorial)
 	angle.y = DirectX::XMConvertToRadians(180);
 	tutorialflag = tutorial;
 	eria = 100;
+	targetNo = 0;
 }
 
 // デストラクタ
@@ -118,6 +119,7 @@ void EnemyBag::Update(float elapsedTime)
 	
 	//ヒットストップ
 	if (Player::Instance().GetAttackHitflag()) ElapsedTime *= hitStop;
+	TargetUpdate();
 	//ステートマシン更新
 	stateMachine->Update(elapsedTime);
 
@@ -185,6 +187,21 @@ void EnemyBag::FireBallShoat()
 	dir.z = cosf(angle.y);
 	//方向、位置
 	projectile->Launch(dir, nodePosition, angle.y);
+}
+
+void EnemyBag::TargetUpdate() {
+	switch (targetNo)
+	{
+	case BaseTarget:
+		targetPosition = Base::Instance().GetPos();
+		break;
+	case PlayerTarget:
+		targetPosition = Player::Instance().GetPosition();
+		break;
+	default:
+		break;
+	}
+
 }
 
 
@@ -270,7 +287,7 @@ void EnemyBag::DrawDebugPrimitive()
 void EnemyBag::BattleMove(bool leftflag,float elapsedTime, float speedRate)
 {
 	// ターゲット方向への進行ベクトルを算出
-	DirectX::XMFLOAT2 dir = ForwardToPlayer();
+	DirectX::XMFLOAT2 dir = ForwardToTarget();
 	// 移動処理
 	if (leftflag) {
 		MoveInput(-dir.y, dir.x, moveSpeed * speedRate);
@@ -287,7 +304,7 @@ void EnemyBag::BattleMove(bool leftflag,float elapsedTime, float speedRate)
 void EnemyBag::FacePlayer(float elapsedTime, float speedRate)
 {
 	// ターゲット方向への進行ベクトルを算出
-	DirectX::XMFLOAT2 dir = ForwardToBase();
+	DirectX::XMFLOAT2 dir = ForwardToTarget();
 	//プレイヤーに向く
 	Turn(elapsedTime, dir.x, dir.y, turnSpeed * speedRate);
 
@@ -303,20 +320,17 @@ void EnemyBag::MoveToTarget(float elapsedTime, float speedRate)
 	vx /= dist;
 	vz /= dist;
 	// 移動処理
+	DirectX::XMFLOAT2 dir;
 	MoveInput(vx, vz, moveSpeed * speedRate);
 	if (!SearchPlayer()) {
-		Turn(elapsedTime, vx, vz, turnSpeed * speedRate);
+		dir = ForwardToTarget();
+		Turn(elapsedTime, dir.x, dir.y, turnSpeed * speedRate);
 	}
 	else
 	{
 		//const DirectX::XMFLOAT3& playerPosition = Player::Instance().GetPosition();
-		const DirectX::XMFLOAT3& playerPosition = Base::Instance().GetPos();
-		float vx = playerPosition.x - position.x;
-		float vz = playerPosition.z - position.z;
-		float dist = sqrtf(vx * vx + vz * vz);
-		vx /= dist;
-		vz /= dist;
-		Turn(elapsedTime, vx, vz, turnSpeed * speedRate);
+		dir = ForwardToTarget();
+		Turn(elapsedTime, dir.x, dir.y, turnSpeed * speedRate);
 	}
 }
 // 徘徊ステートへ遷移
@@ -357,9 +371,17 @@ DirectX::XMFLOAT2 EnemyBag::ForwardToPlayer() {
 	vz /= dist;
 	return {vx,vz};
 }
-DirectX::XMFLOAT2 EnemyBag::ForwardToBase() {
-
-	const DirectX::XMFLOAT3& basePosition = Base::Instance().GetPos();
+DirectX::XMFLOAT2 EnemyBag::ForwardToTarget() {
+	DirectX::XMFLOAT3 basePosition;
+	switch (targetNo)
+	{
+	case BaseTarget:
+		basePosition = Base::Instance().GetPos();
+		break;
+	case PlayerTarget:
+		basePosition = Player::Instance().GetPosition();
+		break;
+	}
 	float vx = basePosition.x - position.x;
 	float vz = basePosition.z - position.z;
 	float dist = sqrtf(vx * vx + vz * vz);

@@ -29,6 +29,12 @@ public:
 		Damage,
 		Die1,
 	};
+	//エネミーターゲット
+	enum  EnemyTarget
+	{
+		BaseTarget,
+		PlayerTarget,
+	};
 public:
 	EnemyBag(bool tutorial = false);
 	~EnemyBag()override;
@@ -55,12 +61,12 @@ public:
 	//ファイルボールショット
 	void FireBallShoat();
 
-	
+	void TargetUpdate();
 
 	// プレイヤーへの方向取得
 	DirectX::XMFLOAT2 ForwardToPlayer();
 
-	DirectX::XMFLOAT2 ForwardToBase();
+	DirectX::XMFLOAT2 ForwardToTarget();
 
 	// TODO 05_02 メッセージ受信関数を追加
 	bool OnMessage(const Telegram& msg);
@@ -74,6 +80,8 @@ public:
 
 	// ポジション取得
 	DirectX::XMFLOAT3 GetPosition() { return position; }
+
+	
 
 	// ステートタイマー設定
 	void SetStateTimer(float timer) {
@@ -110,6 +118,10 @@ public:
 
 	int GetFlameTimer() { return enemyTimer / 60; }
 
+	int GetAttackNodeNo() { return attackNodeNo; }
+
+	void SetAttackNodeNo(int no) {  if(no < 3)attackNodeNo = no; }
+
 	void RootMove();
 
 	float  MovePow();
@@ -119,6 +131,8 @@ public:
 	//int GetHitAnimMax() { return MAX_HIT_ANIM; };
 	int GetAttackAnim(int i) { return attackAnim[i]; }
 	int GetAttackAnimMax() { return MAX_ATTACK_ANIM; };
+
+	const char* GetAttackNode(int no) { return attackNode[no]; }
 
 	void PlaySe(int Index, bool loop) { se[Index]->Play(loop, BagSE); }
 	void StopSe(int Index) { se[Index]->Stop(); }
@@ -206,6 +220,8 @@ private:
 	//バリアHP
 	int                 barrierHP = 5;
 	DirectX::XMFLOAT4X4 world = {};
+	//ターゲットNo
+	int targetNo = 0;
 	//ヒットアニメーション最大
 	static const int MAX_HIT_ANIM{ 3 };
 	//ヒットアニメーション格納
@@ -214,6 +230,11 @@ private:
 	static const int MAX_ATTACK_ANIM{ 3 };
 	//攻撃アニメーション格納
 	int attackAnim[MAX_ATTACK_ANIM] = { static_cast<int>(EnemyBagAnimation::Attack01) ,static_cast<int>(EnemyBagAnimation::Attack02) ,static_cast<int>(EnemyBagAnimation::Attack03)};
+	//攻撃アニメーションノード格納
+	const char* attackNode[MAX_ATTACK_ANIM] = { "R_arm" ,"L_arm","R_arm" };
+	//攻撃アニメーションノード格納
+    int attackNodeNo = 0;
+
 	//ステートマシーン生成
 	std::shared_ptr<StateMachine<EnemyBag>> stateMachine = nullptr;
 	//描画情報格納

@@ -501,8 +501,17 @@ void SkinnedMeshResouurce::CreateComObjects(ID3D11Device* device, const char* fb
                     //::_makepath_s(filename, 256, nullptr, dirname, dir,nullptr);
                     //::_makepath_s(filename, 256, nullptr, filename,nomal,nullptr);
                     // テクスチャ読み込み
-                    LoadTextureFromFile(device, path.c_str(),
-                        shader_resource_view.GetAddressOf(), &texture2d_desc);
+                    std::filesystem::path dds_filename(path);
+                    dds_filename.replace_extension("dds");
+                    if (std::filesystem::exists(dds_filename.c_str())) {
+                        LoadTextureFromFile(device, path.c_str(),
+                            shader_resource_view.GetAddressOf(), &texture2d_desc);
+                    }
+                    else {
+                        const_cast<std::string*>(&material.textureFilenames[texture_index])->assign
+                        (texture_index == 1 ? "dummy_normal_map" : "dummy_diffuse_map");
+                        MakeDummyTexture(device, shader_resource_view.GetAddressOf(), texture_index == 1 ? 0xFFFF7F7F : 0xFFFFFFFF, 16);
+                    }
             
                 }
             }
