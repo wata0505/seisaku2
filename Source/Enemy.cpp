@@ -52,7 +52,7 @@ void Enemy::UpdateVerticalMove(float elapsedTime) {
 		if (my < 0.0f)
 		{
 			
-			position.y = 1.4;
+			position.y = 0.4;
 
 			// ’…’n‚µ‚½
 			if (!isGround && lowAltitude == 0)

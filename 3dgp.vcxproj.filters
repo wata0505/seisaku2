@@ -361,6 +361,12 @@
     <ClCompile Include="Source\StatePlayer.cpp">
       <Filter>Sources\System</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Base.cpp">
+      <Filter>Sources\Stage</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\EnemySystem.cpp">
+      <Filter>Sources\System</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imgui\imconfig.h">
@@ -660,6 +666,12 @@
     <ClInclude Include="Source\StatePlayer.h">
       <Filter>Sources\System</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Base.h">
+      <Filter>Sources\Stage</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\EnemySystem.h">
+      <Filter>Sources\System</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="HLSL\BlurPS.hlsl">
@@ -755,7 +767,7 @@
     <FxCompile Include="HLSL\ParticleVS.hlsl">
       <Filter>HLSL</Filter>
     </FxCompile>
-    <FxCompile Include="HLSL\ParticlePS.hlsl">
+    <FxCompile Include="HLSL\DistortionPS.hlsl">
       <Filter>HLSL</Filter>
     </FxCompile>
     <FxCompile Include="HLSL\ParticleSpriteVS.hlsl">
@@ -773,15 +785,6 @@
     <FxCompile Include="HLSL\DefaultPS.hlsl">
       <Filter>HLSL</Filter>
     </FxCompile>
-    <FxCompile Include="Source\InstancingGS.hlsl">
-      <Filter>HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="Source\InstancingVS.hlsl">
-      <Filter>HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="Source\InstancingPS.hlsl">
-      <Filter>HLSL</Filter>
-    </FxCompile>
     <FxCompile Include="HLSL\InstancingModelVS.hlsl">
       <Filter>HLSL</Filter>
     </FxCompile>
@@ -789,6 +792,18 @@
       <Filter>HLSL</Filter>
     </FxCompile>
     <FxCompile Include="HLSL\InstancingShadowMapVS.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="HLSL\InstancingGS.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="HLSL\InstancingPS.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="HLSL\InstancingVS.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="HLSL\ParticlePS.hlsl">
       <Filter>HLSL</Filter>
     </FxCompile>
   </ItemGroup>
@@ -841,13 +856,13 @@
     <None Include="HLSL\ParticleSprite.hlsli">
       <Filter>HLSL</Filter>
     </None>
-    <None Include="Source\Instancing.hlsli">
-      <Filter>HLSL</Filter>
-    </None>
     <None Include="HLSL\InstancingModel.hlsli">
       <Filter>HLSL</Filter>
     </None>
     <None Include="HLSL\InstancingShadowMap.hlsli">
+      <Filter>HLSL</Filter>
+    </None>
+    <None Include="HLSL\Instancing.hlsli">
       <Filter>HLSL</Filter>
     </None>
   </ItemGroup>

@@ -455,7 +455,7 @@ void SkinnedMeshResouurce::CreateComObjects(ID3D11Device* device, const char* fb
 
     for (const Material& material : materials)
      {
-        for (size_t texture_index = 0; texture_index < 4; ++texture_index)
+        for (size_t texture_index = 0; texture_index < 5; ++texture_index)
         {
             Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> shader_resource_view;
             D3D11_TEXTURE2D_DESC texture2d_desc;
@@ -480,7 +480,8 @@ void SkinnedMeshResouurce::CreateComObjects(ID3D11Device* device, const char* fb
                 //load_texture_from_file(device, filename,
                 //        shader_resource_view.GetAddressOf(), &texture2d_desc);
             }
-            else if (texfilename && texture_index < 2) {
+            else if (texfilename && texture_index < 5) {
+                bool dummyflag = false;
                 if (texture_index == 0) {
                     std::filesystem::path path(dirname);
                     path.replace_filename(texfilename);  
@@ -491,15 +492,13 @@ void SkinnedMeshResouurce::CreateComObjects(ID3D11Device* device, const char* fb
                     LoadTextureFromFile(device, path.c_str(),
                         shader_resource_view.GetAddressOf(), &texture2d_desc);
                 }
-                else
+                if (texture_index == 1)
                 {
                     std::filesystem::path path(dirname);
                     char filename[256];
                     const char* nomal = "Normal";
                     path.replace_filename(dir);
                     path.replace_filename(nomal);
-                    //::_makepath_s(filename, 256, nullptr, dirname, dir,nullptr);
-                    //::_makepath_s(filename, 256, nullptr, filename,nomal,nullptr);
                     // テクスチャ読み込み
                     std::filesystem::path dds_filename(path);
                     dds_filename.replace_extension("dds");
@@ -508,11 +507,67 @@ void SkinnedMeshResouurce::CreateComObjects(ID3D11Device* device, const char* fb
                             shader_resource_view.GetAddressOf(), &texture2d_desc);
                     }
                     else {
-                        const_cast<std::string*>(&material.textureFilenames[texture_index])->assign
-                        (texture_index == 1 ? "dummy_normal_map" : "dummy_diffuse_map");
-                        MakeDummyTexture(device, shader_resource_view.GetAddressOf(), texture_index == 1 ? 0xFFFF7F7F : 0xFFFFFFFF, 16);
+                        dummyflag = true;
                     }
-            
+                }
+                if (texture_index == 2)
+                {
+                    std::filesystem::path path(dirname);
+                    char filename[256];
+                    const char* nomal = "MetalSmoothness";
+                    path.replace_filename(dir);
+                    path.replace_filename(nomal);
+                    // テクスチャ読み込み
+                    std::filesystem::path dds_filename(path);
+                    dds_filename.replace_extension("dds");
+                    if (std::filesystem::exists(dds_filename.c_str())) {
+                        LoadTextureFromFile(device, path.c_str(),
+                            shader_resource_view.GetAddressOf(), &texture2d_desc);
+                    }
+                    else {
+                        dummyflag = true;
+                    }
+                }
+                if (texture_index == 3)
+                {
+                    std::filesystem::path path(dirname);
+                    char filename[256];
+                    const char* nomal = "AO";
+                    path.replace_filename(dir);
+                    path.replace_filename(nomal);
+                    // テクスチャ読み込み
+                    std::filesystem::path dds_filename(path);
+                    dds_filename.replace_extension("dds");
+                    if (std::filesystem::exists(dds_filename.c_str())) {
+                        LoadTextureFromFile(device, path.c_str(),
+                            shader_resource_view.GetAddressOf(), &texture2d_desc);
+                    }
+                    else {
+                        dummyflag = true;
+                    }
+                }
+                if (texture_index == 4)
+                {
+                    std::filesystem::path path(dirname);
+                    char filename[256];
+                    const char* nomal = "Emission";
+                    path.replace_filename(dir);
+                    path.replace_filename(nomal);
+                    // テクスチャ読み込み
+                    std::filesystem::path dds_filename(path);
+                    dds_filename.replace_extension("dds");
+                    if (std::filesystem::exists(dds_filename.c_str())) {
+                        LoadTextureFromFile(device, path.c_str(),
+                            shader_resource_view.GetAddressOf(), &texture2d_desc);
+                    }
+                    else {
+                        dummyflag = true;
+                    }
+                }
+                if (dummyflag) {
+                    const_cast<std::string*>(&material.textureFilenames[texture_index])->assign
+                    (texture_index == 1 ? "dummy_normal_map" : "dummy_diffuse_map");
+                    MakeDummyTexture(device, shader_resource_view.GetAddressOf(), texture_index == 1 ? 0xFFFF7F7F : 0xFFFFFFFF, 16);
                 }
             }
             else

@@ -70,12 +70,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
+    <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <LibraryPath>$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>true</LinkIncremental>
+    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -94,6 +94,7 @@
       <AdditionalIncludeDirectories>.\Source;.\imgui;.\cereal-master\cereal-master\include;.\DirectXTK-master\DirectXTK-master\Inc;C:\Program Files\Autodesk\FBX\FBX SDK\2020.2\include;.\Effekseer153a\include\Effekseer;.\Effekseer153a\include\EffekseerRendererDX11;%(AdditionalIncludeDirectories);%(AdditionalIncludeDirectories);%(AdditionalIncludeDirectories);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -110,6 +111,8 @@
       <ObjectFileOutput>Shader\%(Filename).cso</ObjectFileOutput>
       <AssemblerOutput>AssemblyCode</AssemblerOutput>
       <AssemblerOutputFile>Shader\%(Filename).cod</AssemblerOutputFile>
+      <DisableOptimizations>false</DisableOptimizations>
+      <EnableDebuggingInformation>false</EnableDebuggingInformation>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -129,12 +132,15 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>.\DirectXTK-master\DirectXTK-master\Bin\Desktop_2019\x64\Debug;C:\Program Files\Autodesk\FBX\FBX SDK\2020.2\lib\vs2019\x64\debug;.\Effekseer153a\lib\vs2019\MD\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>d3d11.lib;dxgi.lib;xinput.lib;xaudio2.lib;winmm.lib;DirectXTK.lib;zlib-md.lib;libxml2-md.lib;libfbxsdk-md.lib;Effekseerd.lib;EffekseerRendererDX11d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <FxCompile>
       <ShaderModel>5.0</ShaderModel>
       <ObjectFileOutput>Shader\%(Filename).cso</ObjectFileOutput>
       <AssemblerOutput>AssemblyCode</AssemblerOutput>
       <AssemblerOutputFile>Shader\%(Filename).cod</AssemblerOutputFile>
+      <DisableOptimizations>false</DisableOptimizations>
+      <EnableDebuggingInformation>false</EnableDebuggingInformation>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -210,6 +216,7 @@
     <ClCompile Include="Source\AudioAll.cpp" />
     <ClCompile Include="Source\AudioResource.cpp" />
     <ClCompile Include="Source\AudioSource.cpp" />
+    <ClCompile Include="Source\Base.cpp" />
     <ClCompile Include="Source\BaseModel.cpp" />
     <ClCompile Include="Source\BaseUI.cpp" />
     <ClCompile Include="Source\BreakUI.cpp" />
@@ -229,6 +236,7 @@
     <ClCompile Include="Source\Enemy.cpp" />
     <ClCompile Include="Source\EnemyBag.cpp" />
     <ClCompile Include="Source\EnemyManager.cpp" />
+    <ClCompile Include="Source\EnemySystem.cpp" />
     <ClCompile Include="Source\FireBall.cpp" />
     <ClCompile Include="Source\Framebuffer.cpp" />
     <ClCompile Include="Source\Framework.cpp" />
@@ -306,6 +314,7 @@
     <ClInclude Include="Source\AudioAll.h" />
     <ClInclude Include="Source\AudioResource.h" />
     <ClInclude Include="Source\AudioSource.h" />
+    <ClInclude Include="Source\Base.h" />
     <ClInclude Include="Source\BaseModel.h" />
     <ClInclude Include="Source\BaseUI.h" />
     <ClInclude Include="Source\BreakUI.h" />
@@ -324,6 +333,7 @@
     <ClInclude Include="Source\Enemy.h" />
     <ClInclude Include="Source\EnemyBag.h" />
     <ClInclude Include="Source\EnemyManager.h" />
+    <ClInclude Include="Source\EnemySystem.h" />
     <ClInclude Include="Source\FireBall.h" />
     <ClInclude Include="Source\Framebuffer.h" />
     <ClInclude Include="Source\Framework.h" />
@@ -470,6 +480,12 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
+    <FxCompile Include="HLSL\InstancingGS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Geometry</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Geometry</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Geometry</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Geometry</ShaderType>
+    </FxCompile>
     <FxCompile Include="HLSL\InstancingModelPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
@@ -482,11 +498,23 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
     </FxCompile>
+    <FxCompile Include="HLSL\InstancingPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+    </FxCompile>
     <FxCompile Include="HLSL\InstancingShadowMapVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="HLSL\InstancingVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
     <FxCompile Include="HLSL\LightPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
@@ -512,11 +540,15 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
     </FxCompile>
-    <FxCompile Include="HLSL\ParticlePS.hlsl">
+    <FxCompile Include="HLSL\DistortionPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="HLSL\ParticlePS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
     <FxCompile Include="HLSL\ParticleSpriteCS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
@@ -646,34 +678,13 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
-    <FxCompile Include="Source\InstancingGS.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Geometry</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Geometry</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Geometry</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Geometry</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
-    </FxCompile>
-    <FxCompile Include="Source\InstancingPS.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
-    </FxCompile>
-    <FxCompile Include="Source\InstancingVS.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
-    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="HLSL\Debug.hlsli" />
     <None Include="HLSL\FullscreenQuad.hlsli" />
     <None Include="HLSL\GeometricPrimitive.hlsli" />
     <None Include="HLSL\ImGui.hlsli" />
+    <None Include="HLSL\Instancing.hlsli" />
     <None Include="HLSL\InstancingModel.hlsli" />
     <None Include="HLSL\InstancingShadowMap.hlsli" />
     <None Include="HLSL\Light.hlsli" />
@@ -688,7 +699,6 @@
     <None Include="HLSL\StaticMech.hlsli" />
     <None Include="HLSL\SwordTrail.hlsli" />
     <None Include="HLSL\Toon.hlsli" />
-    <None Include="Source\Instancing.hlsli" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

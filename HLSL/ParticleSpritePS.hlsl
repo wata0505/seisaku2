@@ -18,8 +18,8 @@ float4 main(PS_INPUT Input) : SV_Target
 	//addcolor *= MaterialColor;
 	//addcolor += color;
 	//tex.a *= MaterialColor.a;
-	tex.rgb = addcolor + (color.rgb * tex.a);
-	tex.rgb = color.rgb;
+	tex.rgb = (color.rgb * tex.a);
+	//tex.rgb = color.rgb;
 	if (d < UvStatus.x) {
 		tex.rgb = MaterialColor.rgb;
 		tex.a *= MaterialColor.a;

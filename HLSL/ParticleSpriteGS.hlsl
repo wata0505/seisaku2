@@ -16,9 +16,9 @@ void main(point GS_INPUT In[1],
 	}
 	float sclea = 1;
 	if (In[0].Type == DIFFUSION) { //|| In[0].Type == EXPANSION) {
-		sclea = sin(In[0].Mer);
-		Dir.x = sin(In[0].Mer) * sclea;
-		Dir.y = cos(In[0].Mer) * sclea;
+		//sclea = sin(In[0].Mer);
+		//Dir.x = sin(In[0].Mer) * sclea;
+		//Dir.y = cos(In[0].Mer) * sclea;
 	}
 	float3 N = float3(0, 1, 0);
 	pos = mul(pos, View);
