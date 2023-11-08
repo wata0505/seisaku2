@@ -297,7 +297,7 @@ public:
          DirectX::XMFLOAT4 Kd{ 0.8f, 0.8f, 0.8f, 1.0f };
          DirectX::XMFLOAT4 Ks{ 1.0f, 1.0f, 1.0f, 1.0f };
      
-         std::string textureFilenames[4];
+         std::string textureFilenames[5];
          bool operator<(const Material& rhs) const { return uniqueId < rhs.uniqueId; }
          template<class T>
          void serialize(T& archive)
