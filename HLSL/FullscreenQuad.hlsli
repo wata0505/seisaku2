@@ -5,6 +5,13 @@ struct VS_OUT
     //in uint vertexid : VERTEXID
 };
 
+// ジッタードリフト定数バッファ
+cbuffer JitterDriftConstantBuffer : register(b13)
+{
+	float jitterStrength;
+	float time;
+};
+
 // カラーグレーディング
 float3 ColorGrading(float3 color)
 {
@@ -35,3 +42,4 @@ float3 Vignette(float3 color, float2 position)
 	color = lerp(color, float3(0, 0, 0), saturate(rate));
 	return color;
 };
+

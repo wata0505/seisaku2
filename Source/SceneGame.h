@@ -100,4 +100,17 @@ private:
 
 	float dissolveTimer = 0;
 	float haikeiTimer = 0;
+
+	// ジッタードリフト定数バッファ
+	struct JitterDriftConstantBuffer
+	{
+		float jitterStrength = 0.0f;
+		float time = 0.0f;
+		DirectX::XMFLOAT2 dummy;
+	};
+	
+	Microsoft::WRL::ComPtr<ID3D11Buffer> jitterDriftConstantBuffer;	// ジッタードリフト定数バッファ
+	Microsoft::WRL::ComPtr<ID3D11PixelShader> jitterDriftPixelShader;
+	std::unique_ptr<SubFramebuffer> jitterDriftSubFramebuffer;
+	JitterDriftData jitterDriftData;
 };

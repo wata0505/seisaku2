@@ -37,6 +37,14 @@ struct LuminanceExtractionData
 	DirectX::XMFLOAT2 dummy2;
 };
 
+// ジッタードリフト情報
+struct JitterDriftData
+{
+	float jitterStrength = 0.0f;
+	float time = 0.0f;
+	DirectX::XMFLOAT2 dummy;
+};
+
 // ポストエフェクトの最終パス用情報
 struct FinalpassData
 {
@@ -81,6 +89,8 @@ struct RenderContext
 	FinalpassData finalpassData;
 
 	LuminanceExtractionData luminanceExtractionData;
+
+	JitterDriftData jitterDriftData;
 
 	DirectX::XMFLOAT4 color;
 };

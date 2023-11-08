@@ -105,6 +105,22 @@ void SceneGame::Initialize()
 	create_ps_from_cso(device.Get(), "Shader\\BlurPS.cso", pixel_shaders[1].GetAddressOf());
 	create_ps_from_cso(device.Get(), "Shader\\EffectPS.cso", pixel_shaders[2].GetAddressOf());
 
+
+	// ジッタードリフト定数バッファ
+	{
+		// 定数バッファオブジェクト作成
+		D3D11_BUFFER_DESC bufferDesc{};
+		bufferDesc.ByteWidth = sizeof(JitterDriftConstantBuffer);
+		bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+		bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		bufferDesc.CPUAccessFlags = 0;
+		bufferDesc.MiscFlags = 0;
+		bufferDesc.StructureByteStride = 0;
+		HRESULT hr = device->CreateBuffer(&bufferDesc, nullptr, jitterDriftConstantBuffer.GetAddressOf());
+		_ASSERT_EXPR(SUCCEEDED(hr), HRTrace(hr));
+	}
+	create_ps_from_cso(device.Get(), "Shader\\JitterDriftPS.cso", jitterDriftPixelShader.GetAddressOf());
+
 	bit_block_transfer = std::make_unique<FullscreenQuad>(device.Get());
 
 
@@ -121,6 +137,7 @@ void SceneGame::Initialize()
 	subframebuffers[3] = std::make_unique<SubFramebuffer>(device.Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
 	subframebuffers[4] = std::make_unique<SubFramebuffer>(device.Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
 	subframebuffers[5] = std::make_unique<SubFramebuffer>(device.Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
+	jitterDriftSubFramebuffer = std::make_unique<SubFramebuffer>(device.Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
 	shadowbuffer = std::make_unique<Shadowbuffer>(device.Get(), ShadowMapSize, ShadowMapSize);
 	luminanceExtractionData.threshold = 0.3;
 	luminanceExtractionData.intensity = 5;
@@ -303,15 +320,15 @@ void SceneGame::Render()
 	//レンダーターゲット切り替え
 	immediate_context->OMSetRenderTargets(1, render_target_view.GetAddressOf(), graphics.GetDepthStencilView());
 	//基本リソースデータ挿入
-	subframebuffers[5]->Clear(immediate_context);
-	subframebuffers[5]->Activate(immediate_context);
-	bit_block_transfer->blit(immediate_context, framebuffers[0]->shaderResourceViews[0].GetAddressOf(), 0, 1, nullptr);
-	subframebuffers[5]->Deactivate(immediate_context);
-	immediate_context->PSSetShaderResources(8, 1, framebuffers[0]->shaderResourceViews[2].GetAddressOf());
-	//0622 Slot2にGBufferのPosition
-	immediate_context->PSSetShaderResources(9, 1, framebuffers[0]->shaderResourceViews[3].GetAddressOf());
-	immediate_context->PSSetShaderResources(3, 1, subframebuffers[5]->shaderResourceViews.GetAddressOf());
-	immediate_context->PSSetShaderResources(11, 1, framebuffers[0]->shaderResourceViews[1].GetAddressOf());
+	//subframebuffers[5]->Clear(immediate_context);
+	//subframebuffers[5]->Activate(immediate_context);
+	//bit_block_transfer->blit(immediate_context, framebuffers[0]->shaderResourceViews[0].GetAddressOf(), 0, 1, nullptr);
+	//subframebuffers[5]->Deactivate(immediate_context);
+	//immediate_context->PSSetShaderResources(8, 1, framebuffers[0]->shaderResourceViews[2].GetAddressOf());
+	////0622 Slot2にGBufferのPosition
+	//immediate_context->PSSetShaderResources(9, 1, framebuffers[0]->shaderResourceViews[3].GetAddressOf());
+	//immediate_context->PSSetShaderResources(3, 1, subframebuffers[5]->shaderResourceViews.GetAddressOf());
+	//immediate_context->PSSetShaderResources(11, 1, framebuffers[0]->shaderResourceViews[1].GetAddressOf());
 	framebuffers[0]->RenderActivate(immediate_context);
 	//デバック関係
 	projectImgui();
@@ -400,9 +417,18 @@ void SceneGame::Render()
 	}
 
 	subframebuffers[4]->Deactivate(immediate_context);
+
+	// ジッタードリフトシェーダー
+	jitterDriftData.time += 1.0f / 60.0f;
+	jitterDriftSubFramebuffer->Clear(immediate_context);
+	jitterDriftSubFramebuffer->Activate(immediate_context);
+	bit_block_transfer->JitterDrift(immediate_context, subframebuffers[4]->shaderResourceViews.GetAddressOf(), 13, 1, jitterDriftData, jitterDriftPixelShader.Get());
+	jitterDriftSubFramebuffer->Deactivate(immediate_context);
+
 	shader2 = graphics.GetShader(Graphics::SpriteShaderId::SpriteShaderDefault);
 	shader2->Begin(rc);
-	sprite_batchs2->SetShaderResourceView(subframebuffers[4]->shaderResourceViews.Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
+	//sprite_batchs2->SetShaderResourceView(subframebuffers[4]->shaderResourceViews.Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
+	sprite_batchs2->SetShaderResourceView(jitterDriftSubFramebuffer->shaderResourceViews.Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
 	sprite_batchs2->Render(immediate_context,
 		0, 0, 1280, 720,
 		0, 0, sprite_batchs2->GetTextureWidth(), sprite_batchs2->GetTextureHeight(),
@@ -490,6 +516,11 @@ void SceneGame::projectImgui()
 	{
 		ImGui::SliderFloat("threshold", &luminanceExtractionData.threshold, 0.0f, 1.0f);
 		ImGui::SliderFloat("intensity", &luminanceExtractionData.intensity, 0.0f, 10.0f);
+		ImGui::TreePop();
+	}
+	if (ImGui::TreeNode("JitterDrift"))
+	{
+		ImGui::SliderFloat("JitterStrength", &jitterDriftData.jitterStrength, 0.0f, 1.0f);
 		ImGui::TreePop();
 	}
 	if (ImGui::TreeNode("enemy"))
