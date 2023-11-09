@@ -806,6 +806,9 @@
     <FxCompile Include="HLSL\ParticlePS.hlsl">
       <Filter>HLSL</Filter>
     </FxCompile>
+    <FxCompile Include="HLSL\JitterDriftPS.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="HLSL\FullscreenQuad.hlsli">

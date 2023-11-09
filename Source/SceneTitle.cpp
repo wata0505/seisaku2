@@ -78,7 +78,8 @@ void SceneTitle::Initialize()
 	subframebuffers[1] = std::make_unique<SubFramebuffer>(device.Get(), SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
 	subframebuffers[2] = std::make_unique<SubFramebuffer>(device.Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
 	shadowbuffer = std::make_unique<Shadowbuffer>(device.Get(), ShadowMapSize, ShadowMapSize);
-	spriteBatchs[1] = std::make_unique<Sprite>(L".\\resources\\UI\\Change Braver.png");
+	//spriteBatchs[1] = std::make_unique<Sprite>(L".\\resources\\UI\\Change Braver.png");
+	spriteBatchs[1] = std::make_unique<Sprite>(L".\\resources\\UI\\Title\\title.png");
 	spriteBatchs[2] = std::make_unique<Sprite>(L".\\resources\\UI\\gamestart.png");
 	spriteBatchs[3] = std::make_unique<Sprite>();
 	spriteBatchs[4] = EffectTexAll::Instance().GetSprite(int(EffectTexAll::EfTexAll::Bock));

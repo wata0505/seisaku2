@@ -36,26 +36,26 @@ MainWepon::MainWepon() {
 		weapon[i]->UpdateBufferDara(transform);
 	}
 
-	weponUI[MainSwordUI] = std::make_unique<Sprite>(L".\\resources\\UI\\SW.PNG");
-	weponUI[AxeUI] = std::make_unique<Sprite>(L".\\resources\\UI\\Axe2.PNG");
-	weponUI[HalberdUI] = std::make_unique<Sprite>(L".\\resources\\UI\\HB.PNG");
-	weponUI[ShieldUI] = std::make_unique<Sprite>(L".\\resources\\UI\\SD.PNG");
-	weponUI[SubSwordUI] = std::make_unique<Sprite>(L".\\resources\\UI\\EX.PNG");
-	weponUI[WeponWAKU] = std::make_unique<Sprite>(L".\\resources\\UI\\weponwaku.PNG");
-	weponUI[MSHpUI] = std::make_unique<Sprite>();
-	weponUI[AXHpUI] = std::make_unique<Sprite>();
-	weponUI[HBHpUI] = std::make_unique<Sprite>();
-	weponUI[SDHpUI] = std::make_unique<Sprite>();
-	weponUI[SSHpUI] = std::make_unique<Sprite>();
+	//weponUI[MainSwordUI] = std::make_unique<Sprite>(L".\\resources\\UI\\SW.PNG");
+	//weponUI[AxeUI] = std::make_unique<Sprite>(L".\\resources\\UI\\Axe2.PNG");
+	//weponUI[HalberdUI] = std::make_unique<Sprite>(L".\\resources\\UI\\HB.PNG");
+	//weponUI[ShieldUI] = std::make_unique<Sprite>(L".\\resources\\UI\\SD.PNG");
+	//weponUI[SubSwordUI] = std::make_unique<Sprite>(L".\\resources\\UI\\EX.PNG");
+	//weponUI[WeponWAKU] = std::make_unique<Sprite>(L".\\resources\\UI\\weponwaku.PNG");
+	//weponUI[MSHpUI] = std::make_unique<Sprite>();
+	//weponUI[AXHpUI] = std::make_unique<Sprite>();
+	//weponUI[HBHpUI] = std::make_unique<Sprite>();
+	//weponUI[SDHpUI] = std::make_unique<Sprite>();
+	//weponUI[SSHpUI] = std::make_unique<Sprite>();
 
 	UIManager& uiManager = UIManager::Instance();
 	const float gaugeWidth = 65.0f;
 	const float gaugeHeight = 5.0f;
 	for (int i = 0; i < Shield; i++) {
-		uiWeponHp[i] = new GaugeUI(L".\\resources\\HP.png",100 + 100 * uiWeponWidth[i], 400+uiWeponHeight[i], gaugeWidth, gaugeHeight, weponLife[i], maxLife[i]);
+		//uiWeponHp[i] = new GaugeUI(L".\\resources\\HP.png",100 + 100 * uiWeponWidth[i], 400+uiWeponHeight[i], gaugeWidth, gaugeHeight, weponLife[i], maxLife[i]);
 	}
-	uiUseWepon = new BaseUI(L".\\resources\\UI\\weponwaku.PNG", 100,300, gaugeWidth,100,true);
-	weponUI[BreakUI] = std::make_unique<Sprite>(L".\\resources\\UI\\break.png");
+	//uiUseWepon = new BaseUI(L".\\resources\\UI\\weponwaku.PNG", 100,300, gaugeWidth,100,true);
+	//weponUI[BreakUI] = std::make_unique<Sprite>(L".\\resources\\UI\\break.png");
 	for (int i = 0; i < WeponMax; i++) {
 		weponLife[i] = maxLife[i];
 	}
@@ -102,7 +102,7 @@ void MainWepon::Update(float elapsedTime)
 
 	WeponLifeUpdate(elapsedTime);
 
-	UpdateUI(elapsedTime);
+	//UpdateUI(elapsedTime);
 
 	weapon[weponType]->UpdateBufferDara(transform);
 	//モデル行列更新

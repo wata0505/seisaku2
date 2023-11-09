@@ -144,7 +144,7 @@ private:
 
 		Max
 	};
-	std::unique_ptr<Sprite> weponUI[Max] = {};
+	//std::unique_ptr<Sprite> weponUI[Max] = {};
 	DirectX::XMFLOAT3  position = { 0,0,0 };
 	DirectX::XMFLOAT3  direction = { 0,0,1 };
 	DirectX::XMFLOAT3  shiftDirection = { 0,0,0 };

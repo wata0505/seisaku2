@@ -147,18 +147,18 @@ void SceneGame::Initialize()
 	float gaugeWidth = 500.0f;
 	float gaugeHeight = 50.0f;
 	BaseUI* hpWaku    = new BaseUI(L".\\resources\\kaba.png", 10, 595, gaugeWidth * 1.1, gaugeHeight * 1.1);
-	BaseUI* mpWaku    = new BaseUI(L".\\resources\\Mpwaku3.png", 10, 650, gaugeWidth * 1.1, gaugeHeight * 0.5);
+	//BaseUI* mpWaku    = new BaseUI(L".\\resources\\Mpwaku3.png", 10, 650, gaugeWidth * 1.1, gaugeHeight * 0.5);
 	gaugeWidth = 65.0f;
 	gaugeHeight = 100.0f;
-	BaseUI* mainSword = new BaseUI(L".\\resources\\UI\\SW.PNG", 100, 300, gaugeWidth, gaugeHeight);
-	BaseUI* axe       = new BaseUI(L".\\resources\\UI\\Axe2.PNG",200, 400, gaugeWidth, gaugeHeight);
-	BaseUI* halberd   = new BaseUI(L".\\resources\\UI\\HB.PNG", 0, 400, gaugeWidth, gaugeHeight);
-	BaseUI* subSword  = new BaseUI(L".\\resources\\UI\\EX.PNG", 100, 500, gaugeWidth, gaugeHeight);
-	BaseUI* zyuuzi = new BaseUI(L".\\resources\\UI\\zyuuzi.PNG", 110, 425,50, 50);
+	//BaseUI* mainSword = new BaseUI(L".\\resources\\UI\\SW.PNG", 100, 300, gaugeWidth, gaugeHeight);
+	//BaseUI* axe       = new BaseUI(L".\\resources\\UI\\Axe2.PNG",200, 400, gaugeWidth, gaugeHeight);
+	//BaseUI* halberd   = new BaseUI(L".\\resources\\UI\\HB.PNG", 0, 400, gaugeWidth, gaugeHeight);
+	//BaseUI* subSword  = new BaseUI(L".\\resources\\UI\\EX.PNG", 100, 500, gaugeWidth, gaugeHeight);
+	//BaseUI* zyuuzi = new BaseUI(L".\\resources\\UI\\zyuuzi.PNG", 110, 425,50, 50);
 	LockOnUI* lock    = new LockOnUI(L".\\resources\\Lockon.png");
-	BreakUI* breakWepon = new BreakUI(L".\\resources\\UI\\break.png", 100, 300, gaugeWidth, gaugeHeight);
-	BaseUI* lt = new BaseUI(L".\\resources\\UI\\LT.PNG", 0, 200, 200, 50);
-	BaseUI* lb = new BaseUI(L".\\resources\\UI\\LB.PNG", 0, 250, 250, 50);
+	//BreakUI* breakWepon = new BreakUI(L".\\resources\\UI\\break.png", 100, 300, gaugeWidth, gaugeHeight);
+	//BaseUI* lt = new BaseUI(L".\\resources\\UI\\LT.PNG", 0, 200, 200, 50);
+	//BaseUI* lb = new BaseUI(L".\\resources\\UI\\LB.PNG", 0, 250, 250, 50);
 
 	//ParticleSprite* particleSprite = new ParticleSprite({NULL,NULL,NULL}, { NULL,NULL,NULL }, ParticleSprite::ParticleSoft, ParticleSprite::Chile, (int)EffectTexAll::EfTexAll::Thunder, 20000,NULL, NULL, false);
 	AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Bgm)->Play(true);
