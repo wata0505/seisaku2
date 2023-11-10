@@ -22,11 +22,15 @@ struct VS_OUT
     float3 ShadowParam : TEXCOORD3;
 };
 
-struct PS_OUT {
+struct PS_OUT 
+{
     float4 Color : SV_TARGET0; // カラー
     float4 Depth : SV_TARGET1; // 距離
     float4 Normal : SV_TARGET2; // 法線
     float4 Position : SV_TARGET3; // 座標
+    float4 MetalSmoothness : SV_TARGET4;    // メタリック
+    float4 AmbientOcclusion : SV_TARGET5;   // 粗さ
+    float4 Emission : SV_TARGET6;           // エミッシブ
 };
 static const int MAX_BONES = 256;
 cbuffer OBJECT_CONSTANT_BUFFER : register(b0)

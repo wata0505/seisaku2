@@ -398,7 +398,7 @@ void SceneGame::Render()
 	////サブオフスクリーンバッファ（合成）
 	subframebuffers[3]->Clear(immediate_context);
 	subframebuffers[3]->Activate(immediate_context);
-	ID3D11ShaderResourceView* shaderResourceViews[2] = { framebuffers[0]->shaderResourceViews[5].Get(),subframebuffers[2]->shaderResourceViews.Get()};
+	ID3D11ShaderResourceView* shaderResourceViews[2] = { framebuffers[0]->shaderResourceViews[8].Get(),subframebuffers[2]->shaderResourceViews.Get()};
 	{
 		bit_block_transfer->blit(immediate_context, shaderResourceViews, 0, 2, pixel_shaders[0].Get());
 	
@@ -500,16 +500,19 @@ void SceneGame::projectImgui()
 	if (ImGui::TreeNode("MRT"))
 	{
 		ImGui::Text("texture");
-		ImGui::Image(subframebuffers[5]->shaderResourceViews.Get(), { 128, 128 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
-		ImGui::Image(framebuffers[0]->shaderResourceViews[1].Get(), { 128, 128 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
-		ImGui::Image(framebuffers[0]->shaderResourceViews[2].Get(), { 128, 128 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
-		ImGui::Image(framebuffers[0]->shaderResourceViews[3].Get(), { 128, 128 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
-		ImGui::Image(framebuffers[0]->shaderResourceViews[4].Get(), { 128, 128 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
-		ImGui::Image(framebuffers[0]->shaderResourceViews[5].Get(), { 128, 128 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
-		ImGui::Image(subframebuffers[0]->shaderResourceViews.Get(), { 128, 128 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
-		ImGui::Image(subframebuffers[1]->shaderResourceViews.Get(), { 128, 128 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
-		ImGui::Image(subframebuffers[2]->shaderResourceViews.Get(), { 128, 128 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
-		ImGui::Image(subframebuffers[4]->shaderResourceViews.Get(), { 128, 128 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
+		ImGui::Image(subframebuffers[5]->shaderResourceViews.Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
+		ImGui::Image(framebuffers[0]->shaderResourceViews[1].Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
+		ImGui::Image(framebuffers[0]->shaderResourceViews[2].Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
+		ImGui::Image(framebuffers[0]->shaderResourceViews[3].Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
+		ImGui::Image(framebuffers[0]->shaderResourceViews[4].Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
+		ImGui::Image(framebuffers[0]->shaderResourceViews[5].Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
+		ImGui::Image(framebuffers[0]->shaderResourceViews[6].Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
+		ImGui::Image(framebuffers[0]->shaderResourceViews[7].Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
+		ImGui::Image(framebuffers[0]->shaderResourceViews[8].Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
+		ImGui::Image(subframebuffers[0]->shaderResourceViews.Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
+		ImGui::Image(subframebuffers[1]->shaderResourceViews.Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
+		ImGui::Image(subframebuffers[2]->shaderResourceViews.Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
+		ImGui::Image(subframebuffers[4]->shaderResourceViews.Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
 		ImGui::TreePop();
 	}
 	if (ImGui::TreeNode("Bloom"))

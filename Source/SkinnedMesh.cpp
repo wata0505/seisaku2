@@ -567,14 +567,14 @@ void SkinnedMeshResouurce::CreateComObjects(ID3D11Device* device, const char* fb
                 if (dummyflag) {
                     const_cast<std::string*>(&material.textureFilenames[texture_index])->assign
                     (texture_index == 1 ? "dummy_normal_map" : "dummy_diffuse_map");
-                    MakeDummyTexture(device, shader_resource_view.GetAddressOf(), texture_index == 1 ? 0xFFFF7F7F : 0xFFFFFFFF, 16);
+                    MakeDummyTexture(device, shader_resource_view.GetAddressOf(), texture_index == 1 ? 0xFFFF7F7F : 0x00000000, 16);
                 }
             }
             else
             {
                 const_cast<std::string*>(&material.textureFilenames[texture_index])->assign
                 (texture_index == 1 ? "dummy_normal_map" : "dummy_diffuse_map");
-                MakeDummyTexture(device, shader_resource_view.GetAddressOf(),texture_index == 1 ? 0xFFFF7F7F : 0xFFFFFFFF, 16);
+                MakeDummyTexture(device, shader_resource_view.GetAddressOf(),texture_index == 1 ? 0xFFFF7F7F : 0x00000000, 16);
             }
             shaderResourceViews.insert(std::make_pair(material.textureFilenames[texture_index], shader_resource_view));
         }

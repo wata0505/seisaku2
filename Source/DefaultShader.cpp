@@ -175,6 +175,12 @@ void DefaultShader::Draw(ID3D11DeviceContext* dc, Model* model, const DirectX::X
 			dc->PSSetShaderResources(0, 1, resource->shaderResourceViews.at(material.textureFilenames[0]).GetAddressOf());
 			//法線マップ
 			dc->PSSetShaderResources(1, 1, resource->shaderResourceViews.at(material.textureFilenames[1]).GetAddressOf());
+			// メタリックマップ
+			dc->PSSetShaderResources(3, 1, resource->shaderResourceViews.at(material.textureFilenames[2]).GetAddressOf());
+			// 粗さマップ
+			dc->PSSetShaderResources(4, 1, resource->shaderResourceViews.at(material.textureFilenames[3]).GetAddressOf());
+			// エミッシブマップ
+			dc->PSSetShaderResources(7, 1, resource->shaderResourceViews.at(material.textureFilenames[4]).GetAddressOf());
 			//ディゾルブ
 			dc->PSSetShaderResources(5, 1, graphics.GetDissolveSprite(Graphics::DissolveSpriteId::Dissolve)->GetShaderResourceView().GetAddressOf());
 			//ディゾルブ 円

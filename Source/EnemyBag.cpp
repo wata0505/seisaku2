@@ -24,7 +24,7 @@ EnemyBag::EnemyBag(bool tutorial)
 	model->AppendAnimations(".\\resources\\enemy\\Enemy_damage.fbx", 0);
 	model->AppendAnimations(".\\resources\\enemy\\Enemy_Die.fbx", 0);
 	model->ModelSerialize(".\\resources\\enemy\\enemy.fbx");
-	//model->ModelCreate(".\\resources\\Slime\\Slime.fbx");
+	model->ModelRegister(".\\resources\\enemy\\enemy.fbx", "Texture\\all_low_lambert1.tif");
 	model->ModelRegister(".\\resources\\enemy\\enemy.fbx");
 	// モデルが大きいのでスケーリング
 	maxHealth = 30;
