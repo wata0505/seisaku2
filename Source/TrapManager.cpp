@@ -12,6 +12,7 @@
 
 TrapManager::TrapManager()
 {
+	sprite = std::make_unique<Sprite>(L".\\resources\\Sentorygun\\turret.png");
 	font = std::make_unique<Sprite>(L".\\resources\\Font\\Number.png");
 }
 
@@ -201,6 +202,49 @@ void TrapManager::Sprite2DRender(ID3D11DeviceContext* dc, RenderContext& rc, Spr
 
 	TrapManager::Instance().Text(shader, dc, std::to_string(cost[type]), 10, 10, 100, 100, 0.0f, 1.0f, 0.0f, 1.0f);
 	TrapManager::Instance().Text(shader, dc, std::to_string(trapPoint), 100, 10, 100, 100, 0.0f, 0.0f, 1.0f, 1.0f);
+
+
+
+	// ビューポート
+	D3D11_VIEWPORT viewport;
+	UINT numViewports = 1;
+	dc->RSGetViewports(&numViewports, &viewport);
+	// 変換行列
+	DirectX::XMMATRIX View = DirectX::XMLoadFloat4x4(&rc.view);
+	DirectX::XMMATRIX Projection = DirectX::XMLoadFloat4x4(&rc.projection);
+	DirectX::XMMATRIX World = DirectX::XMMatrixIdentity();
+	DirectX::XMFLOAT3 playerPosition = Player::Instance().GetPosition();
+	playerPosition.y += Player::Instance().GetHeight();
+	DirectX::XMVECTOR WorldPosition = DirectX::XMLoadFloat3(&playerPosition);
+	// ワールド座標からスクリーン座標へ変換
+	DirectX::XMVECTOR ScreenPosition = DirectX::XMVector3Project(
+		WorldPosition,
+		viewport.TopLeftX,
+		viewport.TopLeftY,
+		viewport.Width,
+		viewport.Height,
+		viewport.MinDepth,
+		viewport.MaxDepth,
+		Projection,
+		View,
+		World
+	);
+	// スクリーン座標
+	DirectX::XMFLOAT2 screenPosition;
+	DirectX::XMStoreFloat2(&screenPosition, ScreenPosition);
+
+
+	TrapManager::Instance().Text(shader, dc, std::to_string(trapPoint), 100, 10, 100, 100, 0.0f, 0.0f, 1.0f, 1.0f);
+	sprite->Render(dc,
+		screenPosition.x-100, screenPosition.y-100, 200, 100,
+		0, 0, 500, 250,
+		0.0f,
+		1.0f, 1.0f, 1.0f, 1.0f
+	);
+	shader->Draw(rc, sprite.get());
+
+
+
 
 }
 

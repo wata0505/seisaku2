@@ -83,6 +83,9 @@
     <Filter Include="Sources\UI">
       <UniqueIdentifier>{93371666-8dd2-4f44-82f5-177bcdeef448}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Sources\Trap">
+      <UniqueIdentifier>{643b2b62-f4ad-49ed-8913-af1cbc2058a8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui\imgui.cpp">
@@ -366,6 +369,24 @@
     </ClCompile>
     <ClCompile Include="Source\EnemySystem.cpp">
       <Filter>Sources\System</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Mine.cpp">
+      <Filter>Sources\Trap</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Totem.cpp">
+      <Filter>Sources\Trap</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Trap.cpp">
+      <Filter>Sources\Trap</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\TrapManager.cpp">
+      <Filter>Sources\Trap</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Turret.cpp">
+      <Filter>Sources\Trap</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Decoy.cpp">
+      <Filter>Sources\Trap</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -671,6 +692,24 @@
     </ClInclude>
     <ClInclude Include="Source\EnemySystem.h">
       <Filter>Sources\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Mine.h">
+      <Filter>Sources\Trap</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Totem.h">
+      <Filter>Sources\Trap</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Trap.h">
+      <Filter>Sources\Trap</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\TrapManager.h">
+      <Filter>Sources\Trap</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Turret.h">
+      <Filter>Sources\Trap</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Decoy.h">
+      <Filter>Sources\Trap</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

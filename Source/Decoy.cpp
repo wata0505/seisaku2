@@ -34,7 +34,7 @@ void Decoy::Update(float elapsedTime)
 
 void Decoy::Render(ID3D11DeviceContext* dc, ModelShader* shader)
 {
-    shader->Draw(dc, model.get(), renderdata);
+    shader->Draw(dc, model.get());
 }
 
 void Decoy::DrawDebugPrimitive()

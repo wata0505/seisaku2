@@ -227,6 +227,7 @@
     <ClCompile Include="Source\Character.cpp" />
     <ClCompile Include="Source\Collision.cpp" />
     <ClCompile Include="Source\DebugRenderer.cpp" />
+    <ClCompile Include="Source\Decoy.cpp" />
     <ClCompile Include="Source\DefaultShader.cpp" />
     <ClCompile Include="Source\DefaultSpriteShader.cpp" />
     <ClCompile Include="Source\Effect.cpp" />
@@ -258,6 +259,7 @@
     <ClCompile Include="Source\MainWepon.cpp" />
     <ClCompile Include="Source\Mathf.cpp" />
     <ClCompile Include="Source\MetaAI.cpp" />
+    <ClCompile Include="Source\Mine.cpp" />
     <ClCompile Include="Source\Model.cpp" />
     <ClCompile Include="Source\Mouse.cpp" />
     <ClCompile Include="Source\Particle.cpp" />
@@ -298,6 +300,10 @@
     <ClCompile Include="Source\Texture.cpp" />
     <ClCompile Include="Source\FullscreenQuad.cpp" />
     <ClCompile Include="Source\ToonShader.cpp" />
+    <ClCompile Include="Source\Totem.cpp" />
+    <ClCompile Include="Source\Trap.cpp" />
+    <ClCompile Include="Source\TrapManager.cpp" />
+    <ClCompile Include="Source\Turret.cpp" />
     <ClCompile Include="Source\UIManager.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -324,6 +330,7 @@
     <ClInclude Include="Source\Character.h" />
     <ClInclude Include="Source\Collision.h" />
     <ClInclude Include="Source\DebugRenderer.h" />
+    <ClInclude Include="Source\Decoy.h" />
     <ClInclude Include="Source\DefaultShader.h" />
     <ClInclude Include="Source\DefaultSpriteShader.h" />
     <ClInclude Include="Source\Effect.h" />
@@ -356,6 +363,7 @@
     <ClInclude Include="Source\MainWepon.h" />
     <ClInclude Include="Source\Mathf.h" />
     <ClInclude Include="Source\MetaAI.h" />
+    <ClInclude Include="Source\Mine.h" />
     <ClInclude Include="Source\Misc.h" />
     <ClInclude Include="Source\Model.h" />
     <ClInclude Include="Source\Mouse.h" />
@@ -400,6 +408,10 @@
     <ClInclude Include="Source\ToonShader.h" />
     <ClInclude Include="Source\SwordTrailShader.h" />
     <ClInclude Include="Source\Calculation.h" />
+    <ClInclude Include="Source\Totem.h" />
+    <ClInclude Include="Source\Trap.h" />
+    <ClInclude Include="Source\TrapManager.h" />
+    <ClInclude Include="Source\Turret.h" />
     <ClInclude Include="Source\UI.h" />
     <ClInclude Include="Source\UIManager.h" />
   </ItemGroup>
@@ -519,6 +531,8 @@
     <FxCompile Include="HLSL\JitterDriftPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
     </FxCompile>
     <FxCompile Include="HLSL\LightPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>

@@ -32,7 +32,7 @@ void Totem::Update(float elapsedTime)
 
 void Totem::Render(ID3D11DeviceContext* dc, ModelShader* shader)
 {
-    shader->Draw(dc, model.get(), renderdata);
+    shader->Draw(dc, model.get());
 }
 
 void Totem::DrawDebugPrimitive()

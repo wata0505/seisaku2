@@ -5,6 +5,9 @@
 #include "Camera.h"
 #include <math.h>
 
+//デバック用
+#include "Player.h"
+
 //デバッグプリミティブ描画
 void Trap::DrawDebugPrimitive()
 {
@@ -51,20 +54,32 @@ bool Trap::SearchEnemy(float territoryRange,float radius)
 	//dist = FLT_MAX;//縄張り範囲
 	dist = territoryRange;//縄張り範囲
 	
-	for (int i = 0; i < enemyManager.GetEnemyCount(); i++) {
-		//敵との距離判定
-		Enemy* e = enemyManager.GetEnemy(i);
-		float vx = e->GetPosition().x - position.x;
-		float vz = e->GetPosition().z - position.z;
-		float d = sqrtf(vx * vx + vz * vz);
+	//for (int i = 0; i < enemyManager.GetEnemyCount(); i++) {
+	//	//敵との距離判定
+	//	Enemy* e = enemyManager.GetEnemy(i);
+	//	float vx = e->GetPosition().x - position.x;
+	//	float vz = e->GetPosition().z - position.z;
+	//	float d = sqrtf(vx * vx + vz * vz);
+	//
+	//	if (d < dist && radius < d)//近すぎると反応しない
+	//	{
+	//		dist = d;
+	//		targetPosition = e->GetPosition();
+	//		
+	//	}
+	//}
 
-		if (d < dist && radius < d)//近すぎると反応しない
-		{
-			dist = d;
-			targetPosition = e->GetPosition();
-			
-		}
-	}
+	//デバック用
+	//float vx = Player::Instance().GetPosition().x - position.x;
+	//float vz = Player::Instance().GetPosition().z - position.z;
+	//float d = sqrtf(vx * vx + vz * vz);
+	//if (d < dist && radius < d)//近すぎると反応しない
+	//{
+	//	dist = d;
+	//	targetPosition = Player::Instance().GetPosition();
+	//}
+	
+
 
 	if (dist != territoryRange)//敵が見つかっていたら
 	{

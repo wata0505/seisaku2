@@ -178,6 +178,9 @@ Player::Player() {
     stateMachine->RegisterSubState(0, new DieState(this));
     // ステートをセット
     stateMachine->SetState(0);
+
+    position = { 100,0,-130 };
+
 }
 Player::~Player()
 {

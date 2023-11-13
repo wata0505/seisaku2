@@ -24,6 +24,7 @@
 #include "ParticleSystem.h"
 #include "EnemySystem.h"
 
+
 void SceneGame::Initialize()
 {
 	Graphics& graphics = Graphics::Instance();

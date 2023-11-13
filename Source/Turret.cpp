@@ -3,22 +3,8 @@
 Turret::Turret()
 {
 	
-	//model = std::make_unique<Model>(".\\resources\\Sentorygun\\TaretGun.fbx", true);
-	//model->ModelSerialize(".\\resources\\Sentorygun\\TaretGun.fbx");
-	//model->ModelRegister(".\\resources\\Sentorygun\\TaretGun.fbx", ".\\resources\\Sentorygun\\TARET_BODYTEX\\TARET_BODY_BaseColor.png");
-	//
-	//model2 = std::make_unique<Model>(".\\resources\\Sentorygun\\TaretBody.fbx", true);
-	//model2->ModelSerialize(".\\resources\\Sentorygun\\TaretBody.fbx");
-	//model2->ModelRegister(".\\resources\\Sentorygun\\TaretBody.fbx", ".\\resources\\Sentorygun\\TARET_GUNTEX\\TARET_GUN_BaseColor.png");
 
-
-	//model = std::make_unique<Model>(".\\resources\\Sentorygun\\TaretGun.fbx", true);
-	//model->ModelSerialize(".\\resources\\Sentorygun\\TaretGun.fbx");
-	//model->ModelRegister(".\\resources\\Sentorygun\\TaretGun.fbx");
-	//
-	//model2 = std::make_unique<Model>(".\\resources\\Sentorygun\\TaretBody.fbx", true);
-	//model2->ModelSerialize(".\\resources\\Sentorygun\\TaretBody.fbx");
-	//model2->ModelRegister(".\\resources\\Sentorygun\\TaretBody.fbx");
+	
 
 	model = std::make_unique<Model>(".\\resources\\Sentorygun\\Taret_GUN.fbx", true);
 	model->AppendAnimations(".\\resources\\Sentorygun\\GUN_motionBullet.fbx", 0);
@@ -87,8 +73,9 @@ void Turret::Update(float elapsedTime)
 
 void Turret::Render(ID3D11DeviceContext* dc, ModelShader* shader)
 {
-	shader->Draw(dc, model.get(), renderdata);
-	shader->Draw(dc, model2.get(), renderdata2);
+	shader->Draw(dc, model.get());
+	shader->Draw(dc, model2.get());
+	
 }
 
 void Turret::DrawDebugPrimitive()

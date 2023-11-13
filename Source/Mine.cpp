@@ -36,7 +36,7 @@ void Mine::Update(float elapsedTime)
 
 void Mine::Render(ID3D11DeviceContext* dc, ModelShader* shader)
 {
-    shader->Draw(dc, model.get(), renderdata);
+    shader->Draw(dc, model.get());
 }
 
 void Mine::DrawDebugPrimitive()

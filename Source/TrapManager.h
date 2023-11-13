@@ -75,4 +75,6 @@ private:
 	std::vector<Trap*> traps;
 	std::vector<Trap*> removes;
 	std::unique_ptr<Sprite> font = {};
+
+	std::unique_ptr<Sprite> sprite;
 };

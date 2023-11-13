@@ -68,14 +68,14 @@ void BagIdleState::Enter()
 void BagIdleState::Execute(float elapsedTime)
 {
 	// タイマー処理
-	owner->SetStateTimer(owner->GetStateTimer() - elapsedTime);
-	if (owner->GetTutorialflag())return;
-	if (owner->GetStateTimer() < 0.0f) {
-		owner->GetStateMachine()->ChangeSubState(static_cast<int>(EnemyBag::Search::Wander));
-	}
-	if (owner->SearchPlayer()) {
-		owner->GetStateMachine()->ChangeState(static_cast<int>(EnemyBag::BagState::Battle));
-	}
+	//owner->SetStateTimer(owner->GetStateTimer() - elapsedTime);
+	//if (owner->GetTutorialflag())return;
+	//if (owner->GetStateTimer() < 0.0f) {
+	//	owner->GetStateMachine()->ChangeSubState(static_cast<int>(EnemyBag::Search::Wander));
+	//}
+	//if (owner->SearchPlayer()) {
+	//	owner->GetStateMachine()->ChangeState(static_cast<int>(EnemyBag::BagState::Battle));
+	//}
 }
 
 // 待機ステートから出ていくときのメソッド
