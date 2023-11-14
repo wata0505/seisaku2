@@ -3,6 +3,8 @@
 #include "Model.h"
 #include "Mathf.h"
 #include"ResourceManager.h"
+#include <imgui.h>
+
 using namespace DirectX;
 // コンストラクタ
 Model::Model(const char* filename,bool triangulate, bool leftflag)
@@ -617,3 +619,55 @@ Animation::Keyframe::node* Model::FindNode(const char* name)
 	// 見つからなかった
 	return nullptr;
 }
+#if 1
+// デバッグ情報表示
+void Model::ModelImGuiRender(float adjustMetalness, float adjustSmoothness, float emissiveStrength)
+{
+	for (const SkinnedMeshResouurce::Mesh& mesh : resource->GetMeshes())
+	{
+		for (const SkinnedMeshResouurce::Mesh::subset& subset : mesh.subsets)
+		{
+			// マテリアルの識別ID からマテリアルを取得し参照として設定
+			const SkinnedMeshResouurce::Material& material{ resource->materials.find({subset.materialUniqueId}).operator*() };
+			//const SkinnedMeshResouurce::Material& material{ resource->materials.at(subset.materialUniqueId) };
+			SkinnedMeshResouurce::Material& mat = const_cast<SkinnedMeshResouurce::Material&>(material);
+			mat.pbr.adjustMetalness = adjustMetalness;  // 金属度
+			mat.pbr.adjustSmoothness = adjustSmoothness; // 粗さ
+			mat.pbr.emissiveStrength = emissiveStrength; // エミッシブ強度
+#if 0
+				//const SkinnedMeshResouurce::Material& mat{ resource->materials.find({subset.materialUniqueId}) };
+				//	材質変更
+				//for (const SkinnedMeshResouurce::Material& mat : resource->GetMaterials())
+			{
+				//ModelResource::Material& mat = const_cast<ModelResource::Material&>(material);
+				if (ImGui::TreeNode(mat.name.c_str()))
+				{
+					//ImGui::SliderFloat("adjustMetalness", &mat.pbr.adjustMetalness, -1.0f, 1.0f);
+					//ImGui::SliderFloat("adjustSmoothness", &mat.pbr.adjustSmoothness, -1.0f, 1.0f);
+					//ImGui::SliderFloat("emissive", &mat.pbr.emissiveStrength, 0.0f, 30.0f);
+					//ImGui::SliderFloat("emissive", &mat.pbr.emissiveStrength, 0.0f, 1.0f);
+					//ImGui::SliderFloat("hueShift", &mat.pbr.hueShift, 0.0f, 360.0f);
+					//ImGui::ColorEdit3("emissiveColor", &mat.pbr.emissiveColor.x);
+					//ImGui::SliderFloat("scanTiling", &mat.pbr.scanTiling, 0.01f, 10.0f);
+					//ImGui::SliderFloat("scanSpeed", &mat.pbr.scanSpeed, -2.0f, 2.0f);
+					//ImGui::SliderFloat("scanBorder", &mat.pbr.scanBorder, -10.0f, 10.0f);
+					//ImGui::SliderFloat("glowTiling", &mat.pbr.glowTiling, 0.01f, 1.0f);
+					//ImGui::SliderFloat("glowSpeed", &mat.pbr.glowSpeed, -10.0f, 10.0f);
+					//ImGui::SliderFloat("glowBorder", &mat.pbr.glowBorder, -10.0f, 10.0f);
+					////ImGui::SliderFloat("glitchSpeed", &mat.pbr.glitchSpeed, 0.0f, 50.0f);
+					////ImGui::SliderFloat("glitchIntensity", &mat.pbr.glitchIntensity, 0.0f, 1.0f);
+					////ImGui::SliderFloat("glitchSpeed", &mat.pbr.glitchSpeed, 1.0f, 10.0f);
+					//ImGui::SliderFloat("glitchSpeed", &mat.pbr.glitchSpeed, 1.0f, 50.0f);
+					//ImGui::SliderFloat("glitchIntensity", &mat.pbr.glitchIntensity, 0.0f, 1.0f);
+					//ImGui::SliderFloat("glitchScale", &mat.pbr.glitchScale, 1.0f, 50.0f);
+					//ImGui::SliderFloat("hologramBorder", &mat.pbr.hologramBorder, -10.0f, 10.0f);
+					ImGui::ColorEdit4("outlineColor", &mat.pbr.outlineColor.x);
+					ImGui::SliderFloat("outlineSize", &mat.pbr.outlineSize, 0.0f, 0.5f);
+					ImGui::TreePop();
+				}
+			}
+#endif
+		}
+	}
+}
+#endif

@@ -53,3 +53,25 @@ cbuffer SHADOW_CONSTANT_BUFFER : register(b5)
 {
     row_major float4x4 ShadowVP;
 };
+
+// サブセット用定数バッファ
+cbuffer SubsetConstantBuffer : register(b6)
+{
+    float	adjustMetalness;	// メタルネスの調整値
+    float	adjustSmoothness;	// 滑らかさの調整値
+    float emissiveStrength;
+    //float	hueShift;
+    //float4 emissiveColor;
+    //float timer;
+    //float scanTiling;
+    //float scanSpeed;
+    //float scanBorder;
+    //float glowTiling;
+    //float glowSpeed;
+    //float glowBorder;
+    //float glitchSpeed;
+    //float glitchIntensity;
+    //float glitchScale;
+    //float hologramBorder;
+    float dummy6;
+};

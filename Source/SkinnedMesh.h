@@ -288,29 +288,52 @@ public:
      std::vector<Mesh> meshes;
   
    
-     struct Material
-     {
-         uint64_t uniqueId{ 0 };
-         std::string name;
+    struct Material
+    {
+        uint64_t uniqueId{ 0 };
+        std::string name;
      
-         DirectX::XMFLOAT4 Ka{ 0.2f, 0.2f, 0.2f, 1.0f };
-         DirectX::XMFLOAT4 Kd{ 0.8f, 0.8f, 0.8f, 1.0f };
-         DirectX::XMFLOAT4 Ks{ 1.0f, 1.0f, 1.0f, 1.0f };
-     
-         std::string textureFilenames[5];
-         bool operator<(const Material& rhs) const { return uniqueId < rhs.uniqueId; }
-         template<class T>
-         void serialize(T& archive)
-         {
-             archive(uniqueId, name, Ka, Kd, Ks, textureFilenames);
-         }
-     };
-     std::set<Material> materials;
-     std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> shaderResourceViews;
+        DirectX::XMFLOAT4 Ka{ 0.2f, 0.2f, 0.2f, 1.0f };
+        DirectX::XMFLOAT4 Kd{ 0.8f, 0.8f, 0.8f, 1.0f };
+        DirectX::XMFLOAT4 Ks{ 1.0f, 1.0f, 1.0f, 1.0f };
+        struct PBR
+        {
+            float adjustMetalness = 0.0f;  // 金属度
+            float adjustSmoothness = 0.0f; // 粗さ
+            float emissiveStrength = 0.0f; // エミッシブ強度
+#if 0
+            float hueShift = 0;
+            DirectX::XMFLOAT4	emissiveColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+            float timer;
+            float scanTiling;
+            float scanSpeed;
+            float scanBorder;
+            float glowTiling;
+            float glowSpeed;
+            float glowBorder;
+            float glitchSpeed;
+            float glitchIntensity;
+            float glitchScale;
+            float hologramBorder;
+#endif
+            DirectX::XMFLOAT4	outlineColor = { 1.0f, 0.0f, 0.0f, 1.0f };
+            float outlineSize = 0.1f;
+            PBR() {}
+        }pbr;
+        std::string textureFilenames[5];
+        bool operator<(const Material& rhs) const { return uniqueId < rhs.uniqueId; }
+        template<class T>
+        void serialize(T& archive)
+        {
+            archive(uniqueId, name, Ka, Kd, Ks, textureFilenames);
+        }
+    };
+    std::set<Material> materials;
+    //std::vector<Material> materials;
+    //std::unordered_map<uint64_t, Material> materials;
+    std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> shaderResourceViews;
 
-     //std::vector<material> materials;
-     std::vector<Animation> AnimationClips;
-
+    std::vector<Animation> AnimationClips;
 
 private:
     // 頂点シェーダー
@@ -321,7 +344,6 @@ private:
     Microsoft::WRL::ComPtr<ID3D11InputLayout> inputLayout;
     // 定数バッファ
     Microsoft::WRL::ComPtr<ID3D11Buffer> constantBuffer;
-
     
 public:
     /// <summary>
@@ -337,8 +359,7 @@ public:
        /// </summary>
        /// <param name="immediate_context">デバイスコンテキスト</param>
        /// <param name="world">ワールド行列</param>
-       /// <param name="materialColor">マテリアルカラー</param>
-   
+       /// <param name="materialColor">マテリアルカラー</param>   
 
     void Serialize(const char* filename);
     bool AppendAnimations(const char* Animation_filename, float samplingRate);
@@ -364,6 +385,8 @@ public:
     const scene GetNodes() const { return scene_view; }
     const std::vector<Animation>& GetAnimations() const { return AnimationClips;}
     const std::set<Material>& GetMaterials() const { return materials; }
+    //const std::vector<Material>& GetMaterials() const { return materials; }
+    //const std::unordered_map<uint64_t, Material>& GetMaterials() const { return materials; }
 
 protected:
     // この fbx の親シーン
@@ -376,6 +399,8 @@ protected:
     void FetchMeshes(fbxsdk::FbxScene* fbx_scene, std::vector<Mesh>& meshes);
 
     void FetchMaterials(fbxsdk::FbxScene* fbx_scene, std::set<Material>& materials);
+    //void FetchMaterials(fbxsdk::FbxScene* fbx_scene, std::vector<Material>& materials);
+    //void FetchMaterials(fbxsdk::FbxScene* fbx_scene, std::unordered_map<uint64_t, Material>& materials);
 
     void FetchSkeleton(FbxMesh* fbx_mesh, Skeleton& bindPose);
 
@@ -398,6 +423,4 @@ private:
 
     // インデックスバッファを右手座標系から左手座標系へ変換する
     void ConvertIndexBufferFromRHtoLH(std::vector<UINT>& indices);
-    
-
 };

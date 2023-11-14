@@ -72,6 +72,8 @@ public:
 	// TODO 05_02 メッセージ受信関数を追加
 	bool OnMessage(const Telegram& msg);
 
+	void DrawDebugGUI() override;
+
 
 	//// ターゲットポジション設定
 	//void SetTargetPosition(DirectX::XMFLOAT3 position) { targetPosition = position; }
@@ -254,4 +256,8 @@ private:
 	std::unique_ptr<AudioSource> se[(int)EnemyBagSE::Max];
 	//ファイルボールマネージャー
 	ObjectManager objectManager;
+
+	float adjustMetalness = 0.0f;  // 金属度
+	float adjustSmoothness = 0.0f; // 粗さ
+	float emissiveStrength = 0.0f; // エミッシブ強度
 };

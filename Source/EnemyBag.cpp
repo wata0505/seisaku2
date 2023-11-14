@@ -522,6 +522,21 @@ void EnemyBag::ReMove()
 //void EnemyBag::UpdateVerticalMove(float elapsedTime) {
 //	position.y = 0;
 //}
+void EnemyBag::DrawDebugGUI()
+{
+	//トランスフォーム
+	if (ImGui::CollapsingHeader("EnemyBag", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		if (ImGui::TreeNode("Shader"))
+		{
+			ImGui::SliderFloat("adjustMetalness", &adjustMetalness, -1.0f, 1.0f);
+			ImGui::SliderFloat("adjustSmoothness", &adjustSmoothness, -1.0f, 1.0f);
+			ImGui::SliderFloat("emissiveStrength", &emissiveStrength, 0.0f, 1.0f);
+			ImGui::TreePop();
+		}
+	}
+	model->ModelImGuiRender(adjustMetalness, adjustSmoothness, emissiveStrength);
+}
 
 // TODO 05_05 メッセージを受信したときの処理を追加
 bool EnemyBag::OnMessage(const Telegram& telegram)

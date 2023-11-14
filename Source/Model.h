@@ -108,6 +108,10 @@ public:
 	Animation::Keyframe::node* FindNode(const char* name);
 
 	Animation::Keyframe GetKeyframe() { return keyframe; }
+
+	// デバッグ情報表示
+	void ModelImGuiRender(float adjustMetalness, float adjustSmoothness, float emissiveStrength);
+
 private:
 	std::shared_ptr<SkinnedMeshResouurce>	resource;
     Animation::Keyframe keyframe = {  };

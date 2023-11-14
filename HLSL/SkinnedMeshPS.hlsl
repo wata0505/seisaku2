@@ -131,10 +131,40 @@ float3 EnvBRDFApprox(float3 F0, float roughness, float NdotV)
     return	F0 * AB.x + AB.y;
 }
 
+// アウトライン
+float Outline(float2 uv, Texture2D Depth, Texture2D Normal, SamplerState Decal)
+{
+    float depth = Depth.Sample(Decal, uv).r;
+    float2 error1 = float2(0.001f, 0.0f);
+    float2 error2 = float2(0.0f, 0.0015f);
+    float dR = Depth.Sample(Decal, uv + error1).r;
+    float dD = Depth.Sample(Decal, uv + error2).r;
+
+    float d = abs(depth - dR);
+    float d2 = abs(depth - dD);
+    //if (d > 0.3 * depth) return 0;
+    //if (d2 > 0.3 * depth) return 0;
+    //法線に差がある→輪郭
+    float3 N = Normal.Sample(Decal, uv).xyz;
+    float3 NR = Normal.Sample(Decal, uv + error1).xyz;
+    float3 ND = Normal.Sample(Decal, uv + error2).xyz;
+    N = N * 2.0 - 1.0; //0-1 => -1 - +1
+    NR = NR * 2.0 - 1.0;
+    ND = ND * 2.0 - 1.0;
+    if (dot(N, NR) < 0.1) return 0;
+    if (dot(N, ND) < 0.1) return 0;
+    return 1;
+}
+
 PS_OUT main(VS_OUT pin)
 {
     // アルベドカラー(非金属部分)
     float4 color = texture_maps.Sample(sampler_states[ANISOTROPIC], pin.texcoord);
+    float maxColor = max(color.r, max(color.g, max(color.b, color.a)));
+    if (maxColor <= 0.0f)
+    {
+        color = pin.color;
+    }
 #if 1
     // Inverse gamma process
     const float GAMMA = 1.5;
@@ -147,10 +177,10 @@ PS_OUT main(VS_OUT pin)
     // 環境光遮蔽度
     float ambientOcculusion = AmbientOcclusionTexture.Sample(sampler_states[ANISOTROPIC], pin.texcoord).r;
     // 調整
-    //metallic = saturate(metallic + adjustMetalness);
-    //smoothness = saturate(smoothness + adjustSmoothness);
-    metallic = saturate(metallic);
-    smoothness = saturate(metallic);
+    metallic = saturate(metallic + adjustMetalness);
+    smoothness = saturate(smoothness + adjustSmoothness);
+    //metallic = saturate(metallic);
+    //smoothness = saturate(metallic);
     // 粗さ
     float roughness = 1.0f - smoothness;
     // 入射光のうち拡散反射になる割合
@@ -167,7 +197,7 @@ PS_OUT main(VS_OUT pin)
     float4 normal = Normal_maps.Sample(sampler_states[LINEAR], pin.texcoord);
     normal = (normal * 2.0) - 1.0;
     N = normalize((normal.x * T) + (normal.y * B) + (normal.z * N));
-
+    //N = float3(0, 1, 0);
     float3 V = normalize(camera_position.xyz - pin.world_position.xyz);
 
     // ライティング計算
@@ -187,8 +217,8 @@ PS_OUT main(VS_OUT pin)
     //float d = ShadowMap.Sample(ShadowSampler, uv).r;
     //float shadow =  1.0 - step(0.001, pin.ShadowParam.z - d) * 0.4;
     float3 shadow = CalcShadowColorPCFFilter(ShadowMap, ShadowSampler, pin.ShadowParam, float3(0.2, 0.2, 0.2), 0.001);
-    directDiffuse *= shadow;
-    directSpecular *= shadow;
+    //directDiffuse *= shadow;
+    //directSpecular *= shadow;
 
     float4 col = float4(directDiffuse + directSpecular, color.a);
 
@@ -200,6 +230,7 @@ PS_OUT main(VS_OUT pin)
     
     // エミッシブ
     float3 emissive = EmissionTexture.Sample(sampler_states[ANISOTROPIC], pin.texcoord).rgb;
+    emissive *= emissiveStrength;
     float emissiveMax = max(emissive.r, max(emissive.g, emissive.b));
     if (emissiveMax > 0)
     {
@@ -225,6 +256,9 @@ PS_OUT main(VS_OUT pin)
     //}
     PS_OUT ret;
     //ret.Color = float4((diffuse + specular) * shadow, alpha) * pin.color;
+    //アウトライン
+    //float rate = Outline(pin.texcoord, DepthTexture, NormalTexture, sampler_states[ANISOTROPIC]);
+    //color.rgb = lerp(float3(1, 1, 0), color.rgb, rate);
     ret.Color = col;
     ret.Depth = float4(dist, dist, dist, 1);
     ret.Normal = normal;
