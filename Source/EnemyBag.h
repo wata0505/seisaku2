@@ -22,6 +22,7 @@ public:
 	// エネミーアニメーション
 	enum  EnemyBagAnimation
 	{
+		NULLANI,
 		WalkFWD,
 		Attack01,
 		Attack02,
@@ -142,6 +143,11 @@ public:
 	DirectX::XMFLOAT3 SearchNodePos(const char* nodeName);
 
 	void ReMove();
+
+	int GetRootNo() { return rootNo; }
+	int GetMaxRootNo() { return MAX_ROOT_POINT; }
+
+	void SetRootNo(int no) { rootNo = no; }
 private:
 	void SeUpdate(float elapsedTime);
 
@@ -191,7 +197,12 @@ public:
 	};
 private:
 	std::shared_ptr<Model> model = nullptr;
-	
+
+	static const int MAX_ROOT_POINT{ 4 };
+
+	int rootNo = 0;
+	DirectX::XMFLOAT3 rootPoint[MAX_ROOT_POINT] = { {129,-2.5,41}, {128,-2.5,-8.5} ,{78,-2.5,-5} ,{80,-2.5,-45} };
+
 	//遠距離攻撃権
 	bool attackFireBallFlg = false;
 	float				moveSpeed = 4.5f;
@@ -231,7 +242,7 @@ private:
 	//攻撃アニメーション格納
 	int attackAnim[MAX_ATTACK_ANIM] = { static_cast<int>(EnemyBagAnimation::Attack01) ,static_cast<int>(EnemyBagAnimation::Attack02) ,static_cast<int>(EnemyBagAnimation::Attack03)};
 	//攻撃アニメーションノード格納
-	const char* attackNode[MAX_ATTACK_ANIM] = { "R_arm" ,"L_arm","R_arm" };
+	const char* attackNode[MAX_ATTACK_ANIM] = { "L_arm" ,"R_arm","R_arm" };
 	//攻撃アニメーションノード格納
     int attackNodeNo = 0;
 

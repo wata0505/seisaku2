@@ -6,14 +6,14 @@
 StageMain::StageMain()
 {
 
-	model = std::make_unique<Model>(".\\resources\\Stag\\Stage2.fbx", true, false);
-	model->ModelSerialize(".\\resources\\Stag\\Stage2.fbx");
+	model = std::make_unique<Model>(".\\resources\\Stag\\CyberStage4.fbx", true, false);
+	model->ModelSerialize(".\\resources\\Stag\\CyberStage4.fbx");
 	//model->ModelCreate(".\\resources\\ExampleStage\\ExampleStage.fbx");
-	model->ModelRegister(".\\resources\\Stag\\Stage2.fbx");
+	model->ModelRegister(".\\resources\\Stag\\CyberStage4.fbx");
 
 	// s—ñXV
 	//angle.y = 3;
-	position.y = -1.5;
+	position.y = -2.5;
 	scale.x = scale.y = scale.z = 100.0;
 	UpdateTransform();
     model->UpdateBufferDara(transform);

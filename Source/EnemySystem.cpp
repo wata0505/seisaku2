@@ -10,12 +10,13 @@ void EnemySystem::Start() {
 	EnemyManager& enemyManager = EnemyManager::Instance();
 	for (int i = 0; i < maxEnemyCount; i++) {
 		EnemyBag* bag = new EnemyBag();
-		float yaw = DirectX::XMConvertToRadians(rand() % 360);
-		DirectX::XMFLOAT2 dir;
-		dir.x = sinf(yaw);
-		dir.y = cosf(yaw);
+		//float yaw = DirectX::XMConvertToRadians(rand() % 360);
+		//DirectX::XMFLOAT2 dir;
+		//dir.x = sinf(yaw);
+		//dir.y = cosf(yaw);
+		DirectX::XMFLOAT2 pos = { 105 - float(rand() % 50), 40 };
 		int len = rand() % 100 + 5;
-		bag->SetPosition(DirectX::XMFLOAT3(dir.x * len, 0.0f, dir.y * len));
+		bag->SetPosition(DirectX::XMFLOAT3(pos.x, 0.0f, pos.y));
 		bag->SetTerritory(bag->GetPosition(), 10.0f);
 		bag->SetActiveflag(true);
 		//bag->SetId(0);

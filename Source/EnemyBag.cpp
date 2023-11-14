@@ -24,8 +24,8 @@ EnemyBag::EnemyBag(bool tutorial)
 	model->AppendAnimations(".\\resources\\enemy\\Enemy_damage.fbx", 0);
 	model->AppendAnimations(".\\resources\\enemy\\Enemy_Die.fbx", 0);
 	model->ModelSerialize(".\\resources\\enemy\\enemy.fbx");
+	//model->ModelCreate(".\\resources\\Slime\\Slime.fbx");
 	model->ModelRegister(".\\resources\\enemy\\enemy.fbx", "Texture\\all_low_lambert1.tif");
-	model->ModelRegister(".\\resources\\enemy\\enemy.fbx");
 	// モデルが大きいのでスケーリング
 	maxHealth = 30;
 	health = maxHealth;
@@ -64,7 +64,7 @@ EnemyBag::EnemyBag(bool tutorial)
 	se[(int)EnemyBagSE::Run] = Audio::Instance().LoadAudioSource("resources\\Audio\\run3.wav");
 	se[(int)EnemyBagSE::Roar] = Audio::Instance().LoadAudioSource("resources\\Audio\\bag1.wav");
 	//se[(int)EnemyBagSE::hit] = Audio::Instance().LoadAudioSource("resources\\Audio\\pannti.wav");
-	searchRange = 20.0f;
+	searchRange = 6.0f;
 
 	attackRange = 2.5f;
 	scale.x = scale.y = scale.z = 4.0f;
@@ -190,18 +190,27 @@ void EnemyBag::FireBallShoat()
 }
 
 void EnemyBag::TargetUpdate() {
-	switch (targetNo)
-	{
-	case BaseTarget:
-		targetPosition = Base::Instance().GetPos();
-		break;
-	case PlayerTarget:
-		targetPosition = Player::Instance().GetPosition();
-		break;
-	default:
-		break;
-	}
+	if (SearchPlayer()|| rootNo >= MAX_ROOT_POINT) {
+		switch (targetNo)
+		{
+		case BaseTarget:
+			targetPosition = Base::Instance().GetPos();
+			break;
+		case PlayerTarget:
+			targetPosition = Player::Instance().GetPosition();
+			break;
+		default:
+			break;
+		}
 
+	}
+	else
+	{
+	
+		targetPosition = rootPoint[rootNo];
+
+	}
+	
 }
 
 
@@ -337,8 +346,8 @@ void EnemyBag::MoveToTarget(float elapsedTime, float speedRate)
 bool EnemyBag::SearchPlayer()
 {
 	// プレイヤーとの高低差を考慮して3Dで距離判定をする
-	//const DirectX::XMFLOAT3& playerPosition = Player::Instance().GetPosition();
-	const DirectX::XMFLOAT3& playerPosition = Base::Instance().GetPos();
+	const DirectX::XMFLOAT3& playerPosition = Player::Instance().GetPosition();
+	//const DirectX::XMFLOAT3& playerPosition = Base::Instance().GetPos();
 	DirectX::XMFLOAT3 vec = Vector3::Subset(playerPosition, position);
 	float dist = Vector3::Lenght(vec);
 	//距離で視界に入っているか
@@ -355,9 +364,11 @@ bool EnemyBag::SearchPlayer()
 		float dot = (frontX * vec.x) + (frontZ * vec.z);
 		if (dot > 0.0f)
 		{
+			targetNo = 1;
 			return true;
 		}
 	}
+	targetNo = 0;
 	return false;
 }
 //プレイヤーへの方向を取得する
@@ -372,16 +383,16 @@ DirectX::XMFLOAT2 EnemyBag::ForwardToPlayer() {
 	return {vx,vz};
 }
 DirectX::XMFLOAT2 EnemyBag::ForwardToTarget() {
-	DirectX::XMFLOAT3 basePosition;
-	switch (targetNo)
-	{
-	case BaseTarget:
-		basePosition = Base::Instance().GetPos();
-		break;
-	case PlayerTarget:
-		basePosition = Player::Instance().GetPosition();
-		break;
-	}
+	DirectX::XMFLOAT3 basePosition = targetPosition;
+	//switch (targetNo)
+	//{
+	//case BaseTarget:
+	//	basePosition = Base::Instance().GetPos();
+	//	break;
+	//case PlayerTarget:
+	//	basePosition = Player::Instance().GetPosition();
+	//	break;
+	//}
 	float vx = basePosition.x - position.x;
 	float vz = basePosition.z - position.z;
 	float dist = sqrtf(vx * vx + vz * vz);
@@ -530,7 +541,9 @@ bool EnemyBag::OnMessage(const Telegram& telegram)
 		if (Vector3::Probability(5)) {
 			attackFireBallFlg = true;
 		}
-		attackFlg = true;
+		if (SearchPlayer() || rootNo >= MAX_ROOT_POINT ) {
+			attackFlg = true;
+		}
 		return true;
 	}
 	return false;

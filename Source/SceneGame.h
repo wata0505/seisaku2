@@ -93,7 +93,7 @@ private:
 	// ライトの方向
 	DirectX::XMFLOAT4 light_direction{ 1.0f, -1.0f, 0.0f, 0.0f };
 
-	float shadowDrawRect = 40.0f; // シャドウマップに描画する範囲
+	float shadowDrawRect = 1.0f; // シャドウマップに描画する範囲
 	DirectX::XMFLOAT4X4 lightViewProjection; // ライトビュープロジェクション行列
 
 	LuminanceExtractionData luminanceExtractionData;

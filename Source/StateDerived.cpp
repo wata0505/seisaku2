@@ -68,14 +68,14 @@ void BagIdleState::Enter()
 void BagIdleState::Execute(float elapsedTime)
 {
 	// タイマー処理
-	//owner->SetStateTimer(owner->GetStateTimer() - elapsedTime);
-	//if (owner->GetTutorialflag())return;
-	//if (owner->GetStateTimer() < 0.0f) {
-	//	owner->GetStateMachine()->ChangeSubState(static_cast<int>(EnemyBag::Search::Wander));
-	//}
-	//if (owner->SearchPlayer()) {
-	//	owner->GetStateMachine()->ChangeState(static_cast<int>(EnemyBag::BagState::Battle));
-	//}
+	owner->SetStateTimer(owner->GetStateTimer() - elapsedTime);
+	if (owner->GetTutorialflag())return;
+	if (owner->GetStateTimer() < 0.0f) {
+		owner->GetStateMachine()->ChangeSubState(static_cast<int>(EnemyBag::Search::Wander));
+	}
+	if (owner->SearchPlayer()) {
+		owner->GetStateMachine()->ChangeState(static_cast<int>(EnemyBag::BagState::Battle));
+	}
 }
 
 // 待機ステートから出ていくときのメソッド
@@ -125,16 +125,18 @@ void BagPursuitState::Enter()
 	//目的地が自分より前方向なら
 	if (1.0 - dot < 0.2) {
 		owner->GetModel()->PlayAnimation(static_cast<int>(EnemyBag::WalkFWD), true);
-		owner->SetMoveRate(1.5);
-		owner->PlaySe((int)EnemyBag::EnemyBagSE::Run, true);
+		owner->SetMoveRate(2.5);
+		owner->PlaySe((int)EnemyBag::EnemyBagSE::Walk, true);
 	}
 	else
 	{
 		owner->GetModel()->PlayAnimation(static_cast<int>(EnemyBag::WalkFWD), true);
-		owner->SetMoveRate(0.5);
+		owner->SetMoveRate(2.5);
 		owner->PlaySe((int)EnemyBag::EnemyBagSE::Walk, true);
 	}
-	Meta::Instance().SendMessaging(owner->GetId(), 0, MESSAGE_TYPE::MsgCallHelp);
+	if (owner->SearchPlayer() || owner->GetRootNo() >= owner->GetMaxRootNo()) {
+		Meta::Instance().SendMessaging(owner->GetId(), 0, MESSAGE_TYPE::MsgAskAttackRight);
+	}
 }
 
 // 追尾ステートで実行するメソッド
@@ -176,10 +178,24 @@ void BagPursuitState::Execute(float elapsedTime)
 	}
 	// 攻撃範囲に入ったとき攻撃ステートへ遷移しなさい
 	if (dist < owner->GetAttackRange() && owner->GetAttackFlg()) {
-		owner->GetStateMachine()->ChangeSubState(static_cast<int>(EnemyBag::Battle::Attack));
+		if (owner->SearchPlayer() || owner->GetRootNo() >= owner->GetMaxRootNo()) {
+			owner->GetStateMachine()->ChangeSubState(static_cast<int>(EnemyBag::Battle::Attack));
+		}
+		else
+		{
+			owner->SetRootNo(owner->GetRootNo() + 1);
+			owner->GetStateMachine()->ChangeSubState(static_cast<int>(EnemyBag::Battle::Pursuit));
+		}
 	}
 	else if (dist < owner->GetAttackRange()) {
-		owner->GetStateMachine()->ChangeSubState(static_cast<int>(EnemyBag::Battle::Standby));
+		if (owner->SearchPlayer() || owner->GetRootNo() >= owner->GetMaxRootNo()) {
+			owner->GetStateMachine()->ChangeSubState(static_cast<int>(EnemyBag::Battle::Standby));
+		}
+		else
+		{
+			owner->SetRootNo(owner->GetRootNo() + 1);
+			owner->GetStateMachine()->ChangeSubState(static_cast<int>(EnemyBag::Battle::Pursuit));
+		}
 	}
 
 }

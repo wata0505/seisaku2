@@ -52,7 +52,7 @@ void Enemy::UpdateVerticalMove(float elapsedTime) {
 		if (my < 0.0f)
 		{
 			
-			position.y = 0.4;
+			position.y = -2.5 + height/2;
 
 			// ’…’n‚µ‚½
 			if (!isGround && lowAltitude == 0)
@@ -158,18 +158,18 @@ void Enemy::UpdateHorizontalMove(float elapsedTime) {
 			position.z += mz;
 		}
 		//•‰‰×ŒyŒ¸‚Ì‚½‚ß’¼Ú’l‘ã“ü
-		if (position.x > eria) {
-			position.x = eria;
-		}
-		if (position.x < -eria) {
-			position.x = -eria;
-		}
-		if (position.z > eria) {
-			position.z = eria;
-		}
-		if (position.z < -eria) {
-			position.z = -eria;
-		}
+		//if (position.x > eria) {
+		//	position.x = eria;
+		//}
+		//if (position.x < -eria) {
+		//	position.x = -eria;
+		//}
+		//if (position.z > eria) {
+		//	position.z = eria;
+		//}
+		//if (position.z < -eria) {
+		//	position.z = -eria;
+		//}
 	}
 }
 void Enemy::UpdateRnderflag() {

@@ -24,7 +24,6 @@
 #include "ParticleSystem.h"
 #include "EnemySystem.h"
 
-
 void SceneGame::Initialize()
 {
 	Graphics& graphics = Graphics::Instance();
@@ -67,7 +66,7 @@ void SceneGame::Initialize()
 	stageManager.Register(stageMain);
 
 	DirectX::XMFLOAT2 dir = { 0,0 };
-	DirectX::XMFLOAT3 pos = { 0,0,10 };
+	DirectX::XMFLOAT3 pos = { 100,-2.5,-120 };
 	float angle = 0;
 	//for (int i = 0; i < 10; i++)
 	//{
@@ -261,10 +260,10 @@ void SceneGame::Render()
 	}
 	ModelShader* shader = graphics.GetShader(Graphics::ModelShaderId::ShadowmapCaster);
 	shader->Begin(immediate_context, rc);
-	player->render(immediate_context, shader);
-	base->Render(immediate_context,shader);
-	StageManager::Instance().Render(immediate_context, shader);
-	EnemyManager::Instance().Render(immediate_context, shader);
+	//player->render(immediate_context, shader);
+	//base->Render(immediate_context,shader);
+	//StageManager::Instance().Render(immediate_context, shader);
+	//EnemyManager::Instance().Render(immediate_context, shader);
 	StageManager::Instance().InstaningRender(immediate_context,shader);
 	shader->End(immediate_context);
 	shadowbuffer->deactivate(immediate_context);
@@ -412,10 +411,10 @@ void SceneGame::Render()
 		//•úŽËƒuƒ‰[
 		bit_block_transfer->blit(immediate_context, subframebuffers[3]->shaderResourceViews.GetAddressOf(), 0, 1, pixel_shaders[2].Get());
 	}
-	else
-	{
-		bit_block_transfer->blit(immediate_context, subframebuffers[3]->shaderResourceViews.GetAddressOf(), 0, 1);
-	}
+	//else
+	//{
+	//	bit_block_transfer->blit(immediate_context, subframebuffers[3]->shaderResourceViews.GetAddressOf(), 0, 1);
+	//}
 
 	subframebuffers[4]->Deactivate(immediate_context);
 
@@ -501,7 +500,7 @@ void SceneGame::projectImgui()
 	if (ImGui::TreeNode("MRT"))
 	{
 		ImGui::Text("texture");
-		ImGui::Image(subframebuffers[5]->shaderResourceViews.Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
+		ImGui::Image(framebuffers[0]->shaderResourceViews[0].Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
 		ImGui::Image(framebuffers[0]->shaderResourceViews[1].Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
 		ImGui::Image(framebuffers[0]->shaderResourceViews[2].Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
 		ImGui::Image(framebuffers[0]->shaderResourceViews[3].Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
@@ -513,6 +512,7 @@ void SceneGame::projectImgui()
 		ImGui::Image(subframebuffers[0]->shaderResourceViews.Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
 		ImGui::Image(subframebuffers[1]->shaderResourceViews.Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
 		ImGui::Image(subframebuffers[2]->shaderResourceViews.Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
+		ImGui::Image(subframebuffers[3]->shaderResourceViews.Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
 		ImGui::Image(subframebuffers[4]->shaderResourceViews.Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
 		ImGui::TreePop();
 	}

@@ -28,5 +28,5 @@ public:
 
 public:
 	int identity = 0;	// •t—^‚·‚éID‚Ì’l(‚±‚Ì’l‚ÉMetaAI::Identity::Enemy‚ð‰ÁŽZ‚µ‚Ä•t—^‚·‚é)
-	int maxEnemyCount = 20;
+	int maxEnemyCount = 10;
 };
