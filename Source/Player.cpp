@@ -536,30 +536,30 @@ void Player::PlayerKnockBack(DirectX::XMFLOAT3 mypos, DirectX::XMFLOAT3 targetpo
 }
 
 void Player::SpecialUpdate() {
-    if (InputGame::InputSpecial()) {
-        switch (weponType)//武器によって特殊攻撃
-        {
-        case WeponType::MainSword:
-            stateMachine->ChangeSubState(static_cast<int>(Player::State::Guard));
-            break;
-        case WeponType::Axe:
-            stateMachine->ChangeSubState(static_cast<int>(Player::State::Charge));
-            break;
-        case WeponType::Halberd:
-            if (mp > 0) {
-                mp--;
-                stateMachine->ChangeSubState(static_cast<int>(Player::State::Lance));
-            }
-            break;
-        case WeponType::SubSword:
-            if (mp > 0) {
-                mp--;
-                stateMachine->ChangeSubState(static_cast<int>(Player::State::Stinger));
-            }
-        default:
-            break;
-        }
-    }
+    //if (InputGame::InputSpecial()) {
+    //    switch (weponType)//武器によって特殊攻撃
+    //    {
+    //    case WeponType::MainSword:
+    //        stateMachine->ChangeSubState(static_cast<int>(Player::State::Guard));
+    //        break;
+    //    case WeponType::Axe:
+    //        stateMachine->ChangeSubState(static_cast<int>(Player::State::Charge));
+    //        break;
+    //    case WeponType::Halberd:
+    //        if (mp > 0) {
+    //            mp--;
+    //            stateMachine->ChangeSubState(static_cast<int>(Player::State::Lance));
+    //        }
+    //        break;
+    //    case WeponType::SubSword:
+    //        if (mp > 0) {
+    //            mp--;
+    //            stateMachine->ChangeSubState(static_cast<int>(Player::State::Stinger));
+    //        }
+    //    default:
+    //        break;
+    //    }
+    //}
 
 }
 void Player::BattleMoveUpdate() {
@@ -701,36 +701,36 @@ void Player::SwingInput() {
 }
 
 void Player::ChangeWepon() {
-    if (weponType == weponChangeType && wepon->GetDisslve() == 1) {//武器が描画され最低限武器が表現されたら
-        return;
-    }
-    if (timer % weponChangeTimer == 0) {
-        float hi = 0;
-        if (weponChangeType == WeponType::Shield)hi = 1;// 盾補正値
-        ProjectileStraite* projectile = new ProjectileStraite(&objectManager);
-        projectile->Launch(wepon->GetWeponModel(weponChangeType), hi, 1.0, angle.y, Type::ChangeWp, (int)EffectTexAll::EfTexAll::Thunder, 0.3, 0, 0.1);
-        weponChangeType++;//出現武器切り替え
-    }
-    if (weponChangeType > 4) weponChangeType = 0;
+    //if (weponType == weponChangeType && wepon->GetDisslve() == 1) {//武器が描画され最低限武器が表現されたら
+    //    return;
+    //}
+    //if (timer % weponChangeTimer == 0) {
+    //    float hi = 0;
+    //    if (weponChangeType == WeponType::Shield)hi = 1;// 盾補正値
+    //    ProjectileStraite* projectile = new ProjectileStraite(&objectManager);
+    //    projectile->Launch(wepon->GetWeponModel(weponChangeType), hi, 1.0, angle.y, Type::ChangeWp, (int)EffectTexAll::EfTexAll::Thunder, 0.3, 0, 0.1);
+    //    weponChangeType++;//出現武器切り替え
+    //}
+    //if (weponChangeType > 4) weponChangeType = 0;
 }
 void Player::ButtonWeponChange(int type) {
-    if (!wepon->GetBreakFlag(type) && weponType != type) {
-        wepon->SetRnderflag(false);
-        skillCoolTime[WeponChange] = skillCoolTimeDefault[WeponChange];
-        skillTime[WeponChange] = 0.3f;//継続時間
-        nextWepon = type;
-        weponChangeType = weponType;
-        weponChange = true;
-        if (state == State::Idle) {
-            player->PlayAnimation(AnimWeponChange, false, 0.2);
-        }
-        ParticleSprite* particleSprite = new ParticleSprite(wepon->GetPosition(), wepon->GetWeaponPoint(), ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Thunder), 5000, 2.0);
-        particleSprite = new ParticleSprite(wepon->GetWeaponPPoint(), wepon->GetWeaponPoint(), ParticleSprite::ParticleSoft, ParticleSprite::WeponConvergence, int(EffectTexAll::EfTexAll::Thunder), 5000, 2, 5);
-        AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Change)->Stop();
-        AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Change)->Play(false, SE);
-        AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Break)->Stop();
-        AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Break)->Play(false, SE);
-    }
+    //if (!wepon->GetBreakFlag(type) && weponType != type) {
+    //    wepon->SetRnderflag(false);
+    //    skillCoolTime[WeponChange] = skillCoolTimeDefault[WeponChange];
+    //    skillTime[WeponChange] = 0.3f;//継続時間
+    //    nextWepon = type;
+    //    weponChangeType = weponType;
+    //    weponChange = true;
+    //    if (state == State::Idle) {
+    //        player->PlayAnimation(AnimWeponChange, false, 0.2);
+    //    }
+    //    ParticleSprite* particleSprite = new ParticleSprite(wepon->GetPosition(), wepon->GetWeaponPoint(), ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Thunder), 5000, 2.0);
+    //    particleSprite = new ParticleSprite(wepon->GetWeaponPPoint(), wepon->GetWeaponPoint(), ParticleSprite::ParticleSoft, ParticleSprite::WeponConvergence, int(EffectTexAll::EfTexAll::Thunder), 5000, 2, 5);
+    //    AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Change)->Stop();
+    //    AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Change)->Play(false, SE);
+    //    AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Break)->Stop();
+    //    AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Break)->Play(false, SE);
+    //}
 }
 void Player::SetShakeInput(DirectX::XMFLOAT3 dir,float damage) {
     //カメラシェイク情報入力

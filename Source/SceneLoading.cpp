@@ -12,10 +12,10 @@ void SceneLoading::Initialize()
 
     sprite[1] = EffectTexAll::Instance().GetSprite(int(EffectTexAll::EfTexAll::Bock));
 
-    sousasetumei[0] = std::make_unique<Sprite>(L".\\resources\\UI\\setumei2.png");
+    //sousasetumei[0] = std::make_unique<Sprite>(L".\\resources\\UI\\setumei2.png");
     sousasetumei[1] = std::make_unique<Sprite>(L".\\resources\\UI\\button.png");
-    tips[0] = std::make_unique<Sprite>(L".\\resources\\UI\\tips1.png");
-    tips[1] = std::make_unique<Sprite>(L".\\resources\\UI\\tips2.png");
+    //tips[0] = std::make_unique<Sprite>(L".\\resources\\UI\\tips1.png");
+    //tips[1] = std::make_unique<Sprite>(L".\\resources\\UI\\tips2.png");
    
     //スレッド開始
     std::thread thread(LoadingThread, this);
@@ -95,15 +95,15 @@ void SceneLoading::Render()
                 0, 0, textureWidth, textureHeight,
                 angle,
                 1, 1, 1, 1);
-            shader->Draw(rc, sprite[0].get());
+            //shader->Draw(rc, sprite[0].get());
             
-            sousasetumei[0]->Render(dc,
-                0, 0, 1280, 720,
-                0, 0, sousasetumei[0]->GetTextureWidth(), sousasetumei[0]->GetTextureHeight(),
-                0.0f,
-                1.0f, 1.0f, 1.0f, 1.0f
-            );
-            shader->Draw(rc, sousasetumei[0].get());
+            //sousasetumei[0]->Render(dc,
+            //    0, 0, 1280, 720,
+            //    0, 0, sousasetumei[0]->GetTextureWidth(), sousasetumei[0]->GetTextureHeight(),
+            //    0.0f,
+            //    1.0f, 1.0f, 1.0f, 1.0f
+            //);
+            //shader->Draw(rc, sousasetumei[0].get());
             if (nextScene->IsReady()) {
                 sousasetumei[1]->Render(dc,
                     500, 650, 700, 100,
@@ -113,13 +113,13 @@ void SceneLoading::Render()
                 );
                 shader->Draw(rc, sousasetumei[1].get());
             }
-            tips[tipsNo]->Render(dc,
-                300, 0, tips[tipsNo]->GetTextureWidth(), tips[tipsNo]->GetTextureHeight(),
-                0, 0, tips[tipsNo]->GetTextureWidth(), tips[tipsNo]->GetTextureHeight(),
-                0.0f,
-                1.0f, 1.0f, 1.0f, 1.0f
-            );
-            shader->Draw(rc, tips[tipsNo].get());
+            //tips[tipsNo]->Render(dc,
+            //    300, 0, tips[tipsNo]->GetTextureWidth(), tips[tipsNo]->GetTextureHeight(),
+            //    0, 0, tips[tipsNo]->GetTextureWidth(), tips[tipsNo]->GetTextureHeight(),
+            //    0.0f,
+            //    1.0f, 1.0f, 1.0f, 1.0f
+            //);
+            //shader->Draw(rc, tips[tipsNo].get());
 
             shader->End(rc);
         }
