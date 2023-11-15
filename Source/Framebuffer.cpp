@@ -31,6 +31,10 @@ Framebuffer::Framebuffer(ID3D11Device* device, uint32_t width, uint32_t height)
     LightManager::Instance().Register(light);
     light = new Light({ -1.0f, -1.0f, 0.0f }, 0.0f, 2.5f, 2.5f, 2.5f);
     LightManager::Instance().Register(light);
+    light = new Light({ 0.0f, -1.0f, 1.0f }, 0.0f, 2.0f, 2.0f, 2.0f);
+    LightManager::Instance().Register(light);
+    light = new Light({ 0.0f, -1.0f, -1.0f }, 0.0f, 2.5f, 2.5f, 2.5f);
+    LightManager::Instance().Register(light);
     light = new Light({ 1.0f, 1.0f, 1.0f }, 0.0f, 0.5f, 0.5f, 0.5f);
     LightManager::Instance().Register(light);
     //light->AddDirLight({ 1,-1,0 }, 2.0, 2.0, 2.0);
@@ -146,7 +150,6 @@ void Framebuffer::Lighting(ID3D11DeviceContext* immediate_context)
     immediate_context->PSSetShaderResources(0, 1, shaderResourceViews[(int)Buffer::Color].GetAddressOf());
     immediate_context->PSSetShaderResources(1, 1, shaderResourceViews[(int)Buffer::Nomal].GetAddressOf());
     immediate_context->PSSetShaderResources(2, 1, shaderResourceViews[(int)Buffer::Light].GetAddressOf());
-    immediate_context->PSSetShaderResources(3, 1, shaderResourceViews[(int)Buffer::Depth].GetAddressOf());
     //immediate_context->PSSetShaderResources(3, 1, shaderResourceViews[(int)Buffer::MetalSmoothness].GetAddressOf());
     //immediate_context->PSSetShaderResources(4, 1, shaderResourceViews[(int)Buffer::AmbientOcclusion].GetAddressOf());
     //immediate_context->PSSetShaderResources(7, 1, shaderResourceViews[(int)Buffer::Emission].GetAddressOf());
