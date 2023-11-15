@@ -62,7 +62,7 @@ public:
 
 	void SetLowAltitude(float low) { lowAltitude = low; }
 
-	void SetHealth(float heal) { health = heal; }
+	void SetHealth(float heal) { health = static_cast<int>(heal); }
 
 	Animation::Keyframe GetEnemyKeyframe() { return enemyKeyframe; };
 
@@ -109,13 +109,13 @@ protected:
 	//Ä‹N“®
 	bool  reMoveflag = false;
 	//‰º~ŒÀŠE
-	float lowAltitude = 2.1;
-	float efLife = 0.3;
-	float efMax = 1;
-	float eria = 50;
+	float lowAltitude = 2.1f;
+	float efLife = 0.3f;
+	float efMax = 1.0f;
+	float eria = 50.0f;
 	bool renderflag = true;
 	//ƒm[ƒh“–‚½‚è”»’è
-	float nodeRudius = 1.0;
+	float nodeRudius = 1.0f;
 	DirectX::XMFLOAT3	territoryOrigin = { 0.0f,0.0f,0.0f };
 	float				territoryRange = 10.0f;
 	int enemyTimer = 0;

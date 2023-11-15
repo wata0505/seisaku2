@@ -199,29 +199,26 @@ void DefaultShader::Draw(ID3D11DeviceContext* dc, Model* model, const DirectX::X
 			{
 				// マテリアルの識別ID からマテリアルを取得し参照として設定
 				const SkinnedMeshResouurce::Material& material{ resource->materials.find({subset.materialUniqueId}).operator*() };
-				//const SkinnedMeshResouurce::Material& material{ resource->materials.at(subset.materialUniqueId) };
+				
 				SubsetConstantBuffer cbSubset;
+				// PBR情報
 				cbSubset.adjustMetalness = material.pbr.adjustMetalness;
 				cbSubset.adjustSmoothness = material.pbr.adjustSmoothness;
 				cbSubset.emissiveStrength = material.pbr.emissiveStrength;
-#if 0
-				cbSubset.emissiveColor = subset.material->pbr.emissiveColor;
-				cbSubset.hueShift = subset.material->pbr.hueShift;
-				cbSubset.hemisphereLightData = renderContext.hemisphereLightData;
-				//cbSubset.timer = subset.material->pbr.timer;
-				cbSubset.timer = renderContext.timer / 60;
-				cbSubset.scanTiling = subset.material->pbr.scanTiling;
-				cbSubset.scanSpeed = subset.material->pbr.scanSpeed;
-				cbSubset.scanBorder = subset.material->pbr.scanBorder;
-				cbSubset.glowTiling = subset.material->pbr.glowTiling;
-				cbSubset.glowSpeed = subset.material->pbr.glowSpeed;
-				cbSubset.glowBorder = subset.material->pbr.glowBorder;
-				cbSubset.glitchSpeed = subset.material->pbr.glitchSpeed;
-				cbSubset.glitchIntensity = subset.material->pbr.glitchIntensity;
-				//cbSubset.glitchIntensity = static_cast<float>(rand() / RAND_MAX) * 3.0f - 1.5f;
-				cbSubset.glitchScale = subset.material->pbr.glitchScale;
-				cbSubset.hologramBorder = subset.material->pbr.hologramBorder;
-#endif
+				// ホログラム情報
+				cbSubset.timer = material.pbr.timer;
+				cbSubset.scanTiling = material.pbr.scanTiling;
+				cbSubset.scanSpeed = material.pbr.scanSpeed;
+				cbSubset.scanBorder = material.pbr.scanBorder;
+				cbSubset.glowTiling = material.pbr.glowTiling;
+				cbSubset.glowSpeed = material.pbr.glowSpeed;
+				cbSubset.glowBorder = material.pbr.glowBorder;
+				cbSubset.hologramBorder = material.pbr.hologramBorder;
+				cbSubset.rimStrength = material.pbr.rimStrength;
+				// グリッチ情報
+				cbSubset.glitchSpeed = material.pbr.glitchSpeed;
+				cbSubset.glitchIntensity = material.pbr.glitchIntensity;
+				cbSubset.glitchScale = material.pbr.glitchScale;
 				dc->UpdateSubresource(subsetConstantBuffer.Get(), 0, 0, &cbSubset, 0, 0);
 #if 0
 				// アウトライン用定数バッファ更新
@@ -289,8 +286,7 @@ void DefaultShader::Draw(ID3D11DeviceContext* dc, const Model* model,InstancingC
 		for (const SkinnedMeshResouurce::Mesh::subset& subset : mesh.subsets)
 		{
 			// マテリアルの識別ID からマテリアルを取得し参照として設定
-			const SkinnedMeshResouurce::Material& material{ resource->materials.find({subset.materialUniqueId}).operator*() };
-			//const SkinnedMeshResouurce::Material& material{ resource->materials.at(subset.materialUniqueId) };
+			const SkinnedMeshResouurce::Material& material{ resource->materials.find({subset.materialUniqueId}).operator*() };			
 
 			//XMStoreFloat4(&buffer.materialColor, XMLoadFloat4(&color));
 			//constantbuffer = modle-Getconstant_buffer();

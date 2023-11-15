@@ -57,21 +57,20 @@ cbuffer SHADOW_CONSTANT_BUFFER : register(b5)
 // サブセット用定数バッファ
 cbuffer SubsetConstantBuffer : register(b6)
 {
-    float	adjustMetalness;	// メタルネスの調整値
-    float	adjustSmoothness;	// 滑らかさの調整値
-    float emissiveStrength;
-    //float	hueShift;
-    //float4 emissiveColor;
-    //float timer;
-    //float scanTiling;
-    //float scanSpeed;
-    //float scanBorder;
-    //float glowTiling;
-    //float glowSpeed;
-    //float glowBorder;
-    //float glitchSpeed;
-    //float glitchIntensity;
-    //float glitchScale;
-    //float hologramBorder;
+    float adjustMetalness;	// 金属度
+    float adjustSmoothness;	// 粗さ
+    float emissiveStrength;	// エミッシブ強度
+    float timer;			// 更新時間
+    float scanTiling;		// 解像度
+    float scanSpeed;		// スクロール速度
+    float scanBorder;		// 描画範囲
+    float glowTiling;		// 解像度
+    float glowSpeed;		// スクロール速度
+    float glowBorder;		// 描画範囲
+    float hologramBorder;	// 描画範囲
+    float rimStrength;		// リムライト強度
+    float glitchSpeed;		// スクロール速度
+    float glitchIntensity;	// 強度
+    float glitchScale;		// 振れ幅
     float dummy6;
 };

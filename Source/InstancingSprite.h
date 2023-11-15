@@ -36,7 +36,7 @@ public:
 
 	DirectX::XMFLOAT4 GetSpriteSize() { return scale; }
 
-	int GetTexTimer() { return texTimer; }
+	float GetTexTimer() { return texTimer; }
 
 	DirectX::XMFLOAT4 GetUvStatus() { return uvStatus; };
 	//前方向、位置、動き、形、時間、速度、色
@@ -45,7 +45,7 @@ public:
 
 	int GetSpriteType() { return spriteType; }
 
-	int GetRadius() { return radius; }
+	float GetRadius() { return radius; }
 private:
 	void FlameBreathUpdate(float elapsedTime);
 

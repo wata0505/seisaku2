@@ -43,7 +43,7 @@ void InstancingSpriteManager::Update(float elapsedTime)
 			data[type].world[instancingSpriteNo[type]] = instancingSprite->GetPosition();
 			data[type].materialColor[instancingSpriteNo[type]] = instancingSprite->GetMaterialColor();
 			data[type].spriteSize[instancingSpriteNo[type]] = instancingSprite->GetSpriteSize();
-			data[type].timer[instancingSpriteNo[type]] = { (float)instancingSprite->GetTexTimer(),0,0,0};
+			data[type].timer[instancingSpriteNo[type]] = { instancingSprite->GetTexTimer(),0,0,0};
 			data[type].dissolve[instancingSpriteNo[type]] = instancingSprite->GetUvStatus();
 			instancingSpriteNo[type]++;
 		}

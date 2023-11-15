@@ -298,24 +298,21 @@ public:
         DirectX::XMFLOAT4 Ks{ 1.0f, 1.0f, 1.0f, 1.0f };
         struct PBR
         {
-            float adjustMetalness = 0.0f;  // 金属度
-            float adjustSmoothness = 0.0f; // 粗さ
-            float emissiveStrength = 0.0f; // エミッシブ強度
-#if 0
-            float hueShift = 0;
-            DirectX::XMFLOAT4	emissiveColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-            float timer;
-            float scanTiling;
-            float scanSpeed;
-            float scanBorder;
-            float glowTiling;
-            float glowSpeed;
-            float glowBorder;
-            float glitchSpeed;
-            float glitchIntensity;
-            float glitchScale;
-            float hologramBorder;
-#endif
+            float adjustMetalness = 0.0f;	// 金属度
+            float adjustSmoothness = 0.0f;	// 粗さ
+            float emissiveStrength = 1.0f;	// エミッシブ強度
+            float timer = 0.0f;				// 更新時間
+            float scanTiling = 20.0f;		// 解像度
+            float scanSpeed = -2.0f;		// スクロール速度
+            float scanBorder = 10.0f;		// 描画範囲
+            float glowTiling = 1.0f;		// 解像度
+            float glowSpeed = 2.0f;			// スクロール速度
+            float glowBorder = 10.0f;		// 描画範囲
+            float hologramBorder = -10.0f;	// 描画範囲
+            float rimStrength = 3.0f;		// リムライト強度
+            float glitchSpeed = 0.0f;		// スクロール速度
+            float glitchIntensity = 0.0f;	// 強度
+            float glitchScale = 50.0f;		// 振れ幅
             DirectX::XMFLOAT4	outlineColor = { 1.0f, 0.0f, 0.0f, 1.0f };
             float outlineSize = 0.1f;
             PBR() {}
@@ -329,8 +326,6 @@ public:
         }
     };
     std::set<Material> materials;
-    //std::vector<Material> materials;
-    //std::unordered_map<uint64_t, Material> materials;
     std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> shaderResourceViews;
 
     std::vector<Animation> AnimationClips;
@@ -385,8 +380,6 @@ public:
     const scene GetNodes() const { return scene_view; }
     const std::vector<Animation>& GetAnimations() const { return AnimationClips;}
     const std::set<Material>& GetMaterials() const { return materials; }
-    //const std::vector<Material>& GetMaterials() const { return materials; }
-    //const std::unordered_map<uint64_t, Material>& GetMaterials() const { return materials; }
 
 protected:
     // この fbx の親シーン
@@ -399,8 +392,6 @@ protected:
     void FetchMeshes(fbxsdk::FbxScene* fbx_scene, std::vector<Mesh>& meshes);
 
     void FetchMaterials(fbxsdk::FbxScene* fbx_scene, std::set<Material>& materials);
-    //void FetchMaterials(fbxsdk::FbxScene* fbx_scene, std::vector<Material>& materials);
-    //void FetchMaterials(fbxsdk::FbxScene* fbx_scene, std::unordered_map<uint64_t, Material>& materials);
 
     void FetchSkeleton(FbxMesh* fbx_mesh, Skeleton& bindPose);
 

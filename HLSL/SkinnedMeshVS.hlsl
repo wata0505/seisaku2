@@ -1,26 +1,51 @@
 #include "SkinnedMesh.hlsli"
+
+float random(float2 seeds)
+{
+    return frac(sin(dot(seeds, float2(12.9898, 78.233))) * 43758.5453);
+}
+
+float blockNoise(float2 seeds)
+{
+    return random(floor(seeds));
+}
+
+float noiserandom(float2 seeds)
+{
+    return -1.0 + 2.0 * blockNoise(seeds);
+}
+
 VS_OUT main(VS_IN vin)
 {
-    vin.normal.w = 0;
+    vin.normal.w = 0.0f;
     float sigma = vin.tangent.w;
-    vin.tangent.w = 0;
+    vin.tangent.w = 0.0f;
 
-    float4 blended_position = { 0, 0, 0, 1 };
-    float4 blended_normal = { 0, 0, 0, 0 };
-    float4 blended_tangent = { 0,0,0,0 };
+    float4 blended_position = { 0.0f, 0.0f, 0.0f, 1.0f };
+    float4 blended_normal = { 0.0f, 0.0f, 0.0f, 0.0f };
+    float4 blended_tangent = { 0.0f, 0.0f, 0.0f, 0.0f };
     for (int bone_index = 0; bone_index < 4; ++bone_index)
     {
         blended_position += vin.bone_weights[bone_index] * mul(vin.position, boneTransforms[vin.bone_indices[bone_index]]);
         blended_normal   += vin.bone_weights[bone_index] * mul(vin.normal, boneTransforms[vin.bone_indices[bone_index]]);
         blended_tangent  += vin.bone_weights[bone_index] * mul(vin.tangent, boneTransforms[vin.bone_indices[bone_index]]);
-      
     }
+
     vin.position = float4(blended_position.xyz, 1.0f);
     vin.normal = float4(blended_normal.xyz, 0.0f);
     vin.tangent = float4(blended_tangent.xyz, 0.0f);
 
     VS_OUT vout;
-    vout.position = mul(vin.position, mul(world, view_projection));
+    float4 pos = mul(vin.position, mul(world, view_projection));
+    if (glitchIntensity > 0.0f)
+    {
+        float noise = blockNoise(pos.y * (glitchIntensity + 1.0f) * glitchScale);
+        noise += random(pos.x) * 0.3f;
+        float2 randomvalue = noiserandom(float2(pos.y, timer * glitchSpeed));
+        pos.x += randomvalue * sin(sin(glitchIntensity) * 0.5f) * sin(-sin(noise) * 0.2f) * frac(timer);
+    }
+    //vout.position = mul(vin.position, mul(world, view_projection));
+    vout.position = pos;
 
     vout.world_position = mul(vin.position, world);
     //vin.normal.w = 0;

@@ -150,6 +150,7 @@ void Framebuffer::Lighting(ID3D11DeviceContext* immediate_context)
     immediate_context->PSSetShaderResources(0, 1, shaderResourceViews[(int)Buffer::Color].GetAddressOf());
     immediate_context->PSSetShaderResources(1, 1, shaderResourceViews[(int)Buffer::Nomal].GetAddressOf());
     immediate_context->PSSetShaderResources(2, 1, shaderResourceViews[(int)Buffer::Light].GetAddressOf());
+    immediate_context->PSSetShaderResources(3, 1, shaderResourceViews[(int)Buffer::Depth].GetAddressOf());
     //immediate_context->PSSetShaderResources(3, 1, shaderResourceViews[(int)Buffer::MetalSmoothness].GetAddressOf());
     //immediate_context->PSSetShaderResources(4, 1, shaderResourceViews[(int)Buffer::AmbientOcclusion].GetAddressOf());
     //immediate_context->PSSetShaderResources(7, 1, shaderResourceViews[(int)Buffer::Emission].GetAddressOf());

@@ -120,10 +120,50 @@ void EnemyBag::Update(float elapsedTime)
 	//ヒットストップ
 	if (Player::Instance().GetAttackHitflag()) ElapsedTime *= hitStop;
 	TargetUpdate();
+	//stateMachine->SetState(static_cast<int>(BagState::Search));
 	//ステートマシン更新
 	stateMachine->Update(elapsedTime);
 
-
+	timer += elapsedTime;
+#if 0
+	// 現在のステート番号に合わせてデバッグ文字列をstrに格納
+	switch (static_cast<BagState>(stateMachine->GetStateNum())) {
+	case BagState::Search:
+		str = "Search";
+		if (stateMachine->GetState()->GetSubStateNum() == static_cast<int>(EnemyBag::Search::Wander))
+		{
+			subStr = "Wander";
+		}
+		if (stateMachine->GetState()->GetSubStateNum() == static_cast<int>(EnemyBag::Search::Idle))
+		{
+			subStr = "Idle";
+		}
+		break;
+	case BagState::Battle:
+		str = "Battle";
+		// Battleステートの表示はSearchを参考に考えてください。
+		if (stateMachine->GetState()->GetSubStateNum() == static_cast<int>(EnemyBag::Battle::Pursuit))
+		{
+			subStr = "Pursuit";
+		}
+		if (stateMachine->GetState()->GetSubStateNum() == static_cast<int>(EnemyBag::Battle::Attack))
+		{
+			subStr = "Attack";
+		}
+		if (stateMachine->GetState()->GetSubStateNum() == static_cast<int>(EnemyBag::Battle::Standby))
+		{
+			subStr = "Stanby";
+		}
+		break;
+	case BagState::Recieve:
+		str = "Recieve";
+		if (stateMachine->GetState()->GetSubStateNum() == static_cast<int>(EnemyBag::Recieve::Called))
+		{
+			subStr = "Called";
+		}
+		break;
+	}
+#endif
 
 	// 速力処理更新
 	UpdateVelocity(ElapsedTime);
@@ -167,10 +207,10 @@ void EnemyBag::OnDamaged()
 	if (!barrierFlg || saveDamage >= 4) {
 		stateMachine->ChangeState(static_cast<int>(EnemyBag::BagState::ReDamage));
 	}
-	barrierHP -= (--saveDamage) ;
+	barrierHP -= (--saveDamage);
 	if (barrierHP < 0 && barrierFlg) {
 		barrierFlg = false;
-		ParticleSprite* particleSprite = new ParticleSprite(GetEfPos(), { NULL,NULL,NULL }, ParticleSprite::ParticleTriangle, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Flame), 5000, 1.5, 0.2);
+		ParticleSprite* particleSprite = new ParticleSprite(GetEfPos(), { NULL,NULL,NULL }, ParticleSprite::ParticleTriangle, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Flame), 5000, 1.5f, 0.2f);
 	}
 	if(tutorialflag)health = maxHealth;
 }
@@ -180,7 +220,7 @@ void EnemyBag::FireBallShoat()
     
 	// ターゲット方向への進行ベクトルを算出
 	//DirectX::XMFLOAT3 dir;
-	FireBall* projectile = new FireBall(&objectManager,0.05);
+	FireBall* projectile = new FireBall(&objectManager, 0.05f);
 	DirectX::XMFLOAT3 dir{};
 	dir.x = sinf(angle.y);
 	dir.y = 0;
@@ -241,7 +281,7 @@ void EnemyBag::CollisionFireBallVSPlayer()
 			}
 			if (player.GetCounterflag())return;
 			if (player.GetState() == Player::State::Guard && player.GetInvincibleTimer() < 0) {
-				ParticleSprite* particleSprite = new ParticleSprite(nodePosition, { NULL,NULL,NULL }, ParticleSprite::ParticleImpact, ParticleSprite::Expansion, (int)EffectTexAll::EfTexAll::Impact, efMax, efLife);
+				ParticleSprite* particleSprite = new ParticleSprite(nodePosition, { NULL,NULL,NULL }, ParticleSprite::ParticleImpact, ParticleSprite::Expansion, (int)EffectTexAll::EfTexAll::Impact, static_cast<int>(efMax), efLife);
 				player.PlayerKnockBack(this->position, player.GetPosition(), 20, 0, 1);
 				player.SetInvincibleTime(object->GetInvincibleTime());
 				return;
@@ -253,7 +293,7 @@ void EnemyBag::CollisionFireBallVSPlayer()
 				player.PlayerKnockBack(this->position, player.GetPosition(), 20, 0, 1);
 				//EffectAll::Instance().swordEffect->Play(player.GetPosition(), 0.2);
 				//弾丸破棄
-				AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Hit)->Play(false, SE);
+				AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Hit)->Play(false, static_cast<float>(SE));
 			}
 		}
 
@@ -527,15 +567,37 @@ void EnemyBag::DrawDebugGUI()
 	//トランスフォーム
 	if (ImGui::CollapsingHeader("EnemyBag", ImGuiTreeNodeFlags_DefaultOpen))
 	{
-		if (ImGui::TreeNode("Shader"))
+		if (ImGui::TreeNode("PBR"))
 		{
 			ImGui::SliderFloat("adjustMetalness", &adjustMetalness, -1.0f, 1.0f);
 			ImGui::SliderFloat("adjustSmoothness", &adjustSmoothness, -1.0f, 1.0f);
 			ImGui::SliderFloat("emissiveStrength", &emissiveStrength, 0.0f, 1.0f);
 			ImGui::TreePop();
 		}
+		if (ImGui::TreeNode("Hologram"))
+		{
+			ImGui::SliderFloat("scanTiling", &scanTiling, 0.01f, 10.0f);
+			ImGui::SliderFloat("scanSpeed", &scanSpeed, -2.0f, 2.0f);
+			ImGui::SliderFloat("scanBorder", &scanBorder, -10.0f, 10.0f);
+			ImGui::SliderFloat("glowTiling", &glowTiling, 0.01f, 1.0f);
+			ImGui::SliderFloat("glowSpeed", &glowSpeed, -10.0f, 10.0f);
+			ImGui::SliderFloat("glowBorder", &glowBorder, -10.0f, 10.0f);
+			ImGui::SliderFloat("hologramBorder", &hologramBorder, -10.0f, 10.0f);
+			ImGui::SliderFloat("rimStrength", &rimStrength, 0.0f, 10.0f);
+			ImGui::TreePop();
+		}
+		if (ImGui::TreeNode("Glitch"))
+		{
+			//ImGui::SliderFloat("glitchSpeed", &glitchSpeed, 0.0f, 10.0f);
+			ImGui::SliderFloat("glitchSpeed", &glitchSpeed, 1.0f, 50.0f);
+			ImGui::SliderFloat("glitchIntensity", &glitchIntensity, 0.0f, 1.0f);
+			ImGui::SliderFloat("glitchScale", &glitchScale, 1.0f, 50.0f);
+			ImGui::TreePop();
+		}
 	}
-	model->ModelImGuiRender(adjustMetalness, adjustSmoothness, emissiveStrength);
+	model->PBRAdjustment(adjustMetalness, adjustSmoothness, emissiveStrength);
+	model->HologramAdjustment(timer, scanTiling, scanSpeed, scanBorder, glowTiling, glowSpeed, glowBorder, hologramBorder, rimStrength);
+	model->GlitchAdjustment(timer, glitchSpeed, glitchIntensity, glitchScale);
 }
 
 // TODO 05_05 メッセージを受信したときの処理を追加

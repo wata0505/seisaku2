@@ -159,17 +159,31 @@ float Outline(float2 uv, Texture2D Depth, Texture2D Normal, SamplerState Decal)
 PS_OUT main(VS_OUT pin)
 {
     // アルベドカラー(非金属部分)
-    float4 color = texture_maps.Sample(sampler_states[ANISOTROPIC], pin.texcoord);
-    float maxColor = max(color.r, max(color.g, max(color.b, color.a)));
+    float4 albedo = texture_maps.Sample(sampler_states[ANISOTROPIC], pin.texcoord);
+    // アルベドカラーの最大値
+    float maxColor = max(albedo.r, max(albedo.g, max(albedo.b, albedo.a)));
+    // エミッシブ
+    float3 emissive = EmissionTexture.Sample(sampler_states[ANISOTROPIC], pin.texcoord).rgb;
+    emissive *= emissiveStrength;
+    // エミッシブカラーの最大値
+    float emissiveMax = max(emissive.r, max(emissive.g, emissive.b));
+    // 最大値が0なら透明ピクセルやからマテリアルカラーを代入(後にエミッシブも追加で判定)
     if (maxColor <= 0.0f)
     {
-        color = pin.color;
+        if (emissiveMax <= 0.0f)
+        {
+            albedo = pin.color;
+        }
+        else
+        {
+            albedo.rgb = emissive;
+            albedo.a = 1.0f;
+        }
     }
-#if 1
     // Inverse gamma process
-    const float GAMMA = 1.5;
-    color.rgb = pow(color.rgb, GAMMA);
-#endif
+    const float GAMMA = 1.5f;
+    albedo.rgb = pow(albedo.rgb, GAMMA);
+
     // 金属度
     float metallic = MetalSmoothnessTexture.Sample(sampler_states[ANISOTROPIC], pin.texcoord).r;
     // 滑らかさ
@@ -179,14 +193,13 @@ PS_OUT main(VS_OUT pin)
     // 調整
     metallic = saturate(metallic + adjustMetalness);
     smoothness = saturate(smoothness + adjustSmoothness);
-    //metallic = saturate(metallic);
-    //smoothness = saturate(metallic);
+
     // 粗さ
     float roughness = 1.0f - smoothness;
     // 入射光のうち拡散反射になる割合
-    float3 diffuseReflectance = lerp(color.rgb, 0.02f, metallic);
+    float3 diffuseReflectance = lerp(albedo.rgb, 0.02f, metallic);
     // 垂直反射時のフレネル反射率
-    float3 F0 = lerp(Dielectric, color.rgb, metallic);
+    float3 F0 = lerp(Dielectric, albedo.rgb, metallic);
 
     // 法線マップからxyz成分を取得して( -1 ～ +1 )の間にスケーリング
     float3 N = normalize(pin.world_normal.xyz);
@@ -197,48 +210,113 @@ PS_OUT main(VS_OUT pin)
     float4 normal = Normal_maps.Sample(sampler_states[LINEAR], pin.texcoord);
     normal = (normal * 2.0) - 1.0;
     N = normalize((normal.x * T) + (normal.y * B) + (normal.z * N));
-    //N = float3(0, 1, 0);
     float3 V = normalize(camera_position.xyz - pin.world_position.xyz);
+    float3 L = normalize(-light_direction.xyz);
 
     // ライティング計算
-    float3 directDiffuse = 0, directSpecular = 0;
+    float3 directDiffuse = 0.0f, directSpecular = 0.0f;
     float3 LightColor = float3(1.0f, 1.0f, 1.0f);
     // 平行光源の処理
-    DirectBDRF(diffuseReflectance, F0, N, V, light_direction.xyz, LightColor.rgb, roughness, directDiffuse, directSpecular);
+    DirectBDRF(diffuseReflectance, F0, N, V, L, LightColor.rgb, roughness, directDiffuse, directSpecular);
 
-    float3 L = normalize(-light_direction.xyz);
-    float3 diffuse = color.rgb * max(0.8, dot(N, L));
+    //float3 diffuse = albedo.rgb * max(0.8f, dot(N, L));
+    //float3 specular = pow(max(0, dot(N, normalize(V + L))), 128);
 
-    float3 specular = pow(max(0, dot(N, normalize(V + L))), 128);
-    //float2 uv = pin.ShadowParam.xy;
-    //uv.y = -uv.y;
-    //uv = uv * 0.5 + 0.5;
-    ////ShadowMapから距離Get
-    //float d = ShadowMap.Sample(ShadowSampler, uv).r;
-    //float shadow =  1.0 - step(0.001, pin.ShadowParam.z - d) * 0.4;
-    float3 shadow = CalcShadowColorPCFFilter(ShadowMap, ShadowSampler, pin.ShadowParam, float3(0.2, 0.2, 0.2), 0.001);
+    float3 shadow = CalcShadowColorPCFFilter(ShadowMap, ShadowSampler, pin.ShadowParam, float3(0.2f, 0.2f, 0.2f), 0.001);
     //directDiffuse *= shadow;
     //directSpecular *= shadow;
 
-    float4 col = float4(directDiffuse + directSpecular, color.a);
-
-
-    float4 dissolves = dissolve_map.Sample(sampler_states[ANISOTROPIC], pin.texcoord);
-    float alpha = color.a;
+    float4 directColor = float4(directDiffuse + directSpecular, albedo.a);
+    float alpha = albedo.a;
     
-    float d = (dissolves.x + dissolves.y + dissolves.z)/3;       
-    
-    // エミッシブ
-    float3 emissive = EmissionTexture.Sample(sampler_states[ANISOTROPIC], pin.texcoord).rgb;
-    emissive *= emissiveStrength;
-    float emissiveMax = max(emissive.r, max(emissive.g, emissive.b));
-    if (emissiveMax > 0)
+    if (emissiveMax > 0.0f)
     {
-        col.rgb += emissive;
+        directColor.rgb += emissive;
     }
+#if 1
+#if 0
+    //float4 texColor = texture_maps.Sample(sampler_states[ANISOTROPIC], pin.texcoord) * pin.color;
+    float4 texColor = albedo;
 
+    float3 direction = float3(0, 1, 0);
+    float dirVertex = (dot(pin.world_position, normalize(float4(direction, 1.0))) + 1) / 2;
+
+    // Scanlines
+    float scan = step(frac(dirVertex * scanTiling + timer * scanSpeed), 0.5) * 0.65;
+
+    // Glow
+    float glow = frac(dirVertex * glowTiling - timer * glowSpeed);
+
+    // Rim Light
+    //float3 red = float3(0, 1, 0);
+    //L = V;
+    //L.y -= 0.1f;
+    //float3 rim = CalcRimLight(N, V, L, red, glowBorder);
+    //float maxRim = max(rim.r, max(rim.g, rim.b));
+    //col2.rgb += maxRim * 1;
+    //col2.a = 1.0f;
+    //col2.a = m;
+
+    //fixed4 col = texColor * _MainColor + (glow * 0.35 * _MainColor) + rimColor;
+    //col.a = texColor.a * _Alpha * (scan + rim + glow) * flicker;
+    //float4 edgeColor = float4(1, 0, 0, 1);
+    //float4 edgeColor2 = float4(1, 0.25, 0.25, 1);
+    float4 edgeColor = pin.color;
+    float4 edgeColor2 = pin.color;
+    float4 col2 = texColor + (glow * 0.35 * pin.color);
+    scan *= step(scanBorder, -pin.world_position.y);
+    glow *= step(glowBorder, -pin.world_position.y);
+    float alpha2 = step(hologramBorder, -pin.world_position.y);
+    col2.rgb = directColor * alpha + (1.0f - alpha) * (scan * edgeColor + glow * edgeColor2);
+    //texColor.a *= step(glitchSpeed, -pin.worldPosition.y);
+    //col.a = texColor.a * (scan);
+    //col.a = scan;
+    //col.a = glow;
+    // ディゾルブの淵表現
+    float edgeValue = saturate(1 - abs(hologramBorder - (-pin.world_position.y)) * (1 / 0.4));
+    col2.rgb += edgeColor.rgb * edgeValue;
+    //alpha = saturate(alpha + edgeValue);
+    col2.a = alpha * (scan + glow + alpha2);
+    //float alpha = step(pin.worldPosition.y * glitchSpeed, pin.position.y);
+    //float alpha = step(glitchIntensity, pin.position.y + glitchSpeed);
+    //float alpha = step(glitchSpeed, -pin.worldPosition.y);
+    //col.a += pin.worldPosition.y * glitchSpeed;
+    //col.a *= alpha;
+#endif
+    //float alp = emissiveStrength * (emissiveMax * sin(pin.world_position.z / glitchSpeed + timer));
+    float alp = emissiveStrength * (emissiveMax * sin(pin.world_position.z / 25.0f + timer));
+#if 0
+    if (emissiveStrength > 0.0)
+    {
+        if (glitchSpeed < 20.0)
+        {
+            float leng = length(camera_position.xyz - pin.world_position.xyz);
+            float len = 10.0f;
+            if (leng < len)
+            {
+                alp = 1.0 - leng / len;
+            }
+        }
+    }
+    else
+    {
+        alp = 1.0f;
+    }
+#endif
+
+    //directColor.a = alpha + alp;
+#endif
+    if (directColor.a <= 0.9f)
+    {
+        directColor.rgb = emissive;
+        directColor.a = 1.0f;
+    }
+    
     float dist = length(pin.world_position.xyz - camera_position.xyz);
     normal = float4(normalize(pin.world_normal.xyz) * 0.5 + 0.5, 1);
+
+    float4 dissolves = dissolve_map.Sample(sampler_states[ANISOTROPIC], pin.texcoord);
+    float d = (dissolves.x + dissolves.y + dissolves.z) / 3;
     //if (dist < 4 && pin.world_position.y > 0) 
     //{
     //    alpha = dist / 10;
@@ -259,15 +337,12 @@ PS_OUT main(VS_OUT pin)
     //アウトライン
     //float rate = Outline(pin.texcoord, DepthTexture, NormalTexture, sampler_states[ANISOTROPIC]);
     //color.rgb = lerp(float3(1, 1, 0), color.rgb, rate);
-    ret.Color = col;
+    //ret.Color = col2;
+    //ret.Color = float4(col2.rgb, 1.0f);
+    ret.Color = directColor;
     ret.Depth = float4(dist, dist, dist, 1);
     ret.Normal = normal;
     ret.Position = float4(pin.world_position.xyz, 1);
-    //float4 metalSmoothness = MetalSmoothnessTexture.Sample(sampler_states[LINEAR], pin.texcoord);
-    //float4 ambientOcculusion = AmbientOcclusionTexture.Sample(sampler_states[LINEAR], pin.texcoord);
-    //float4 emission = EmissionTexture.Sample(sampler_states[LINEAR], pin.texcoord);
-    //ret.MetalSmoothness = float4(metalSmoothness.r, 0.0f, 0.0f, metalSmoothness.a);
-    //ret.AmbientOcclusion = float4(ambientOcculusion.r, 0.0f, 0.0f, 1.0f);
     ret.MetalSmoothness = float4(metallic, 0.0f, 0.0f, smoothness);
     ret.AmbientOcclusion = float4(ambientOcculusion, 0.0f, 0.0f, 1.0f);
     ret.Emission = float4(emissive, 1.0f);

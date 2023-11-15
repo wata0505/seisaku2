@@ -3,7 +3,6 @@
 #include "Model.h"
 #include "Mathf.h"
 #include"ResourceManager.h"
-#include <imgui.h>
 
 using namespace DirectX;
 // コンストラクタ
@@ -619,9 +618,25 @@ Animation::Keyframe::node* Model::FindNode(const char* name)
 	// 見つからなかった
 	return nullptr;
 }
-#if 1
-// デバッグ情報表示
-void Model::ModelImGuiRender(float adjustMetalness, float adjustSmoothness, float emissiveStrength)
+
+// 物理ベース情報調整
+void Model::PBRAdjustment(float adjustMetalness, float adjustSmoothness, float emissiveStrength)
+{
+	for (const SkinnedMeshResouurce::Mesh& mesh : resource->GetMeshes())
+	{
+		for (const SkinnedMeshResouurce::Mesh::subset& subset : mesh.subsets)
+		{
+			// マテリアルの識別ID からマテリアルを取得し参照として設定
+			const SkinnedMeshResouurce::Material& material{ resource->materials.find({subset.materialUniqueId}).operator*() };			
+			SkinnedMeshResouurce::Material& mat = const_cast<SkinnedMeshResouurce::Material&>(material);
+			mat.pbr.adjustMetalness = adjustMetalness;		// 金属度
+			mat.pbr.adjustSmoothness = adjustSmoothness;	// 粗さ
+			mat.pbr.emissiveStrength = emissiveStrength;	// エミッシブ強度
+		}
+	}
+}
+// ホログラム情報調整
+void Model::HologramAdjustment(float timer, float scanTiling, float scanSpeed, float scanBorder, float glowTiling, float glowSpeed, float glowBorder, float hologramBorder, float rimStrength)
 {
 	for (const SkinnedMeshResouurce::Mesh& mesh : resource->GetMeshes())
 	{
@@ -629,45 +644,33 @@ void Model::ModelImGuiRender(float adjustMetalness, float adjustSmoothness, floa
 		{
 			// マテリアルの識別ID からマテリアルを取得し参照として設定
 			const SkinnedMeshResouurce::Material& material{ resource->materials.find({subset.materialUniqueId}).operator*() };
-			//const SkinnedMeshResouurce::Material& material{ resource->materials.at(subset.materialUniqueId) };
 			SkinnedMeshResouurce::Material& mat = const_cast<SkinnedMeshResouurce::Material&>(material);
-			mat.pbr.adjustMetalness = adjustMetalness;  // 金属度
-			mat.pbr.adjustSmoothness = adjustSmoothness; // 粗さ
-			mat.pbr.emissiveStrength = emissiveStrength; // エミッシブ強度
-#if 0
-				//const SkinnedMeshResouurce::Material& mat{ resource->materials.find({subset.materialUniqueId}) };
-				//	材質変更
-				//for (const SkinnedMeshResouurce::Material& mat : resource->GetMaterials())
-			{
-				//ModelResource::Material& mat = const_cast<ModelResource::Material&>(material);
-				if (ImGui::TreeNode(mat.name.c_str()))
-				{
-					//ImGui::SliderFloat("adjustMetalness", &mat.pbr.adjustMetalness, -1.0f, 1.0f);
-					//ImGui::SliderFloat("adjustSmoothness", &mat.pbr.adjustSmoothness, -1.0f, 1.0f);
-					//ImGui::SliderFloat("emissive", &mat.pbr.emissiveStrength, 0.0f, 30.0f);
-					//ImGui::SliderFloat("emissive", &mat.pbr.emissiveStrength, 0.0f, 1.0f);
-					//ImGui::SliderFloat("hueShift", &mat.pbr.hueShift, 0.0f, 360.0f);
-					//ImGui::ColorEdit3("emissiveColor", &mat.pbr.emissiveColor.x);
-					//ImGui::SliderFloat("scanTiling", &mat.pbr.scanTiling, 0.01f, 10.0f);
-					//ImGui::SliderFloat("scanSpeed", &mat.pbr.scanSpeed, -2.0f, 2.0f);
-					//ImGui::SliderFloat("scanBorder", &mat.pbr.scanBorder, -10.0f, 10.0f);
-					//ImGui::SliderFloat("glowTiling", &mat.pbr.glowTiling, 0.01f, 1.0f);
-					//ImGui::SliderFloat("glowSpeed", &mat.pbr.glowSpeed, -10.0f, 10.0f);
-					//ImGui::SliderFloat("glowBorder", &mat.pbr.glowBorder, -10.0f, 10.0f);
-					////ImGui::SliderFloat("glitchSpeed", &mat.pbr.glitchSpeed, 0.0f, 50.0f);
-					////ImGui::SliderFloat("glitchIntensity", &mat.pbr.glitchIntensity, 0.0f, 1.0f);
-					////ImGui::SliderFloat("glitchSpeed", &mat.pbr.glitchSpeed, 1.0f, 10.0f);
-					//ImGui::SliderFloat("glitchSpeed", &mat.pbr.glitchSpeed, 1.0f, 50.0f);
-					//ImGui::SliderFloat("glitchIntensity", &mat.pbr.glitchIntensity, 0.0f, 1.0f);
-					//ImGui::SliderFloat("glitchScale", &mat.pbr.glitchScale, 1.0f, 50.0f);
-					//ImGui::SliderFloat("hologramBorder", &mat.pbr.hologramBorder, -10.0f, 10.0f);
-					ImGui::ColorEdit4("outlineColor", &mat.pbr.outlineColor.x);
-					ImGui::SliderFloat("outlineSize", &mat.pbr.outlineSize, 0.0f, 0.5f);
-					ImGui::TreePop();
-				}
-			}
-#endif
+			mat.pbr.timer = timer;						// 更新時間
+			mat.pbr.scanTiling = scanTiling;			// 解像度
+			mat.pbr.scanSpeed = scanSpeed;				// スクロール速度
+			mat.pbr.scanBorder = scanBorder;			// 描画範囲
+			mat.pbr.glowTiling = glowTiling;			// 解像度
+			mat.pbr.glowSpeed = glowSpeed;				// スクロール速度
+			mat.pbr.glowBorder = glowBorder;			// 描画範囲
+			mat.pbr.hologramBorder = hologramBorder;	// 描画範囲
+			mat.pbr.rimStrength = rimStrength;			// リムライト強度
 		}
 	}
 }
-#endif
+// グリッチ情報調整
+void Model::GlitchAdjustment(float timer, float glitchSpeed, float glitchIntensity, float glitchScale)
+{
+	for (const SkinnedMeshResouurce::Mesh& mesh : resource->GetMeshes())
+	{
+		for (const SkinnedMeshResouurce::Mesh::subset& subset : mesh.subsets)
+		{
+			// マテリアルの識別ID からマテリアルを取得し参照として設定
+			const SkinnedMeshResouurce::Material& material{ resource->materials.find({subset.materialUniqueId}).operator*() };
+			SkinnedMeshResouurce::Material& mat = const_cast<SkinnedMeshResouurce::Material&>(material);
+			mat.pbr.timer = timer;				// 更新時間
+			mat.pbr.glitchSpeed = glitchSpeed;			// スクロール速度
+			mat.pbr.glitchIntensity = glitchIntensity;	// 強度
+			mat.pbr.glitchScale = glitchScale;			// 振れ幅
+		}
+	}
+}

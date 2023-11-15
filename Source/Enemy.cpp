@@ -52,7 +52,7 @@ void Enemy::UpdateVerticalMove(float elapsedTime) {
 		if (my < 0.0f)
 		{
 			
-			position.y = -2.5 + height/2;
+			position.y = -2.5f + height * 0.5f;
 
 			// ’…’n‚µ‚½
 			if (!isGround && lowAltitude == 0)
@@ -238,7 +238,7 @@ void Enemy::CollisionNodeVsBase(const char* nodeName, float nodeRadius, DirectX:
 		base.GetPos(), base.GetRadius(), base.GetHeight(),
 		outPosition))
 	{
-		base.InputDamage(damage);
+		base.InputDamage(static_cast<int>(damage));
 	}
 }
 void Enemy::HitInpnt(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT2 pow, float damage, float invincibleTime) {
@@ -251,22 +251,22 @@ void Enemy::HitInpnt(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT2 pow, float damage,
 	}
 	if (player.GetCounterflag())return;
 	if (player.GetState() == Player::State::Guard && player.GetInvincibleTimer() < 0) {
-		ParticleSprite* particleSprite = new ParticleSprite(nodePosition, { NULL,NULL,NULL }, ParticleSprite::ParticleImpact, ParticleSprite::Expansion, (int)EffectTexAll::EfTexAll::Impact, efMax, efLife);
+		ParticleSprite* particleSprite = new ParticleSprite(nodePosition, { NULL,NULL,NULL }, ParticleSprite::ParticleImpact, ParticleSprite::Expansion, (int)EffectTexAll::EfTexAll::Impact, static_cast<int>(efMax), efLife);
 		player.PlayerKnockBack(this->position, player.GetPosition(), pow.x, pow.y, damage);
 		player.SetInvincibleTime(invincibleTime);
 		return;
 	}
-	if (player.ApplyDamage(damage, invincibleTime, true))
+	if (player.ApplyDamage(static_cast<int>(damage), invincibleTime, true))
 	{
 		float power = 10;
 		//‚«”ò‚Î‚·
 		if (player.GetState() != Player::State::Attack) {
 			player.PlayerKnockBack(this->position, player.GetPosition(), pow.x, pow.y, damage);
 			//EffectAll::Instance().hitEffect->Play(player.GetEfPos(), 0.1);
-			ParticleSprite* particleSprite = new ParticleSprite(pos, { NULL,NULL,NULL }, ParticleSprite::ParticleImpact, ParticleSprite::Expansion, (int)EffectTexAll::EfTexAll::Impact, efMax, efLife);
+			ParticleSprite* particleSprite = new ParticleSprite(pos, { NULL,NULL,NULL }, ParticleSprite::ParticleImpact, ParticleSprite::Expansion, (int)EffectTexAll::EfTexAll::Impact, static_cast<int>(efMax), efLife);
 
 		}
-		AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Hit)->Play(false, SE);
+		AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Hit)->Play(false, static_cast<float>(SE));
 
 	}
 

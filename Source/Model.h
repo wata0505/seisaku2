@@ -109,8 +109,12 @@ public:
 
 	Animation::Keyframe GetKeyframe() { return keyframe; }
 
-	// デバッグ情報表示
-	void ModelImGuiRender(float adjustMetalness, float adjustSmoothness, float emissiveStrength);
+	// 物理ベース情報調整
+	void PBRAdjustment(float adjustMetalness, float adjustSmoothness, float emissiveStrength);
+	// ホログラム情報調整
+	void HologramAdjustment(float timer, float scanTiling, float scanSpeed, float scanBorder, float glowTiling, float glowSpeed, float glowBorder, float hologramBorder, float rimStrength);
+	// グリッチ情報調整
+	void GlitchAdjustment(float timer, float glitchSpeed, float glitchIntensity, float glitchScale);
 
 private:
 	std::shared_ptr<SkinnedMeshResouurce>	resource;

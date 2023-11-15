@@ -453,23 +453,19 @@ void SkinnedMeshResouurce::CreateComObjects(ID3D11Device* device, const char* fb
     hr = device->CreateBuffer(&buffer_desc, nullptr, constantBuffer.ReleaseAndGetAddressOf());
     _ASSERT_EXPR(SUCCEEDED(hr), HRTrace(hr));
 
-    for (const Material& material : materials)
-    //for (std::unordered_map<uint64_t, Material>::iterator iterator = materials.begin(); iterator != materials.end(); ++iterator)
+    for (const Material& material : materials)    
      {
         for (size_t texture_index = 0; texture_index < 5; ++texture_index)
         {
             Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> shader_resource_view;
             D3D11_TEXTURE2D_DESC texture2d_desc;
             if (!texfilename && material.textureFilenames[texture_index].size() > 0)
-            //if (iterator->second.textureFilenames[texture_index].size() > 0)
             {
                 std::filesystem::path path(fbx_filename);
                 path.replace_filename(material.textureFilenames[texture_index]);
-                //path.replace_filename(iterator->second.textureFilenames[texture_index]);
                 D3D11_TEXTURE2D_DESC texture2d_desc;
 
                 if(material.textureFilenames[texture_index] == "dummy_normal_map" || material.textureFilenames[texture_index] == "dummy_diffuse_map")
-                //if (iterator->second.textureFilenames[texture_index] == "dummy_normal_map" || iterator->second.textureFilenames[texture_index] == "dummy_diffuse_map")
                 {
                     MakeDummyTexture(device, shader_resource_view.GetAddressOf(), texture_index == 1 ? 0xFFFF7F7F : 0xFFFFFFFF, 16);
                     break;
@@ -572,7 +568,6 @@ void SkinnedMeshResouurce::CreateComObjects(ID3D11Device* device, const char* fb
                 if (dummyflag) 
                 {
                     const_cast<std::string*>(&material.textureFilenames[texture_index])->assign
-                    //const_cast<std::string*>(&iterator->second.textureFilenames[texture_index])->assign
                     (texture_index == 1 ? "dummy_normal_map" : "dummy_diffuse_map");
                     MakeDummyTexture(device, shader_resource_view.GetAddressOf(), texture_index == 1 ? 0xFFFF7F7F : 0x00000000, 16);
                 }
@@ -580,12 +575,10 @@ void SkinnedMeshResouurce::CreateComObjects(ID3D11Device* device, const char* fb
             else
             {
                 const_cast<std::string*>(&material.textureFilenames[texture_index])->assign
-                //const_cast<std::string*>(&iterator->second.textureFilenames[texture_index])->assign
                 (texture_index == 1 ? "dummy_normal_map" : "dummy_diffuse_map");
                 MakeDummyTexture(device, shader_resource_view.GetAddressOf(),texture_index == 1 ? 0xFFFF7F7F : 0x00000000, 16);
             }
             shaderResourceViews.insert(std::make_pair(material.textureFilenames[texture_index], shader_resource_view));
-            //shaderResourceViews.insert(std::make_pair(iterator->second.textureFilenames[texture_index], shader_resource_view));
         }
      }
 
@@ -597,7 +590,6 @@ void SkinnedMeshResouurce::CreateComObjects(ID3D11Device* device, const char* fb
 
 
 void SkinnedMeshResouurce::FetchMaterials(fbxsdk::FbxScene* fbx_scene, std::set<Material>& materials)
-//void SkinnedMeshResouurce::FetchMaterials(fbxsdk::FbxScene* fbx_scene, std::unordered_map<uint64_t, Material>& materials)
 {
     const size_t node_count{ scene_view.nodes.size() };
     for (size_t node_index = 0; node_index < node_count; ++node_index)
@@ -673,10 +665,8 @@ void SkinnedMeshResouurce::FetchMaterials(fbxsdk::FbxScene* fbx_scene, std::set<
 
             // 取得したマテリアルの情報を設定する
             materials.insert(std::move(material));
-            //materials.emplace(material.uniqueId, std::move(material));
         }
     }
-    //materials.emplace();
 #if 1
     // ダミーのマテリアルを挿入
     Material material;
