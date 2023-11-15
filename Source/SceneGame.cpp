@@ -139,8 +139,8 @@ void SceneGame::Initialize()
 	subframebuffers[5] = std::make_unique<SubFramebuffer>(device.Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
 	jitterDriftSubFramebuffer = std::make_unique<SubFramebuffer>(device.Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
 	shadowbuffer = std::make_unique<Shadowbuffer>(device.Get(), ShadowMapSize, ShadowMapSize);
-	luminanceExtractionData.threshold = 0.3;
-	luminanceExtractionData.intensity = 5;
+	luminanceExtractionData.threshold = 0.03;
+	luminanceExtractionData.intensity = 3;
 	
 	meta = std::make_unique<Meta>(player.get(), &enemyManager);
 	UIManager& uiManager = UIManager::Instance();

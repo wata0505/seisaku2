@@ -9,12 +9,12 @@ float4 main(VS_OUT pin) : SV_TARGET
 	float4 color = texture_maps[0].Sample(sampler_states[ANISOTROPIC], pin.texcoord) * pin.color;
 	if (color.x >= 0.7 || color.y >= 0.7 || color.z >= 0.7) {
 		if (color.x >= 0.3 && color.y >= 0.3 && color.z >= 0.3) {
-			color = float4(1.0, 1.0, 1.0, 1.0);
-			return  color;
+			//color = float4(1.0, 1.0, 1.0, 1.0);
+			//return  color;
 		}
 		else {
-			color.rgb *= intensity;
-			return  color;
+			//color.rgb *= intensity;
+			//return  color;
 		}
 	}
 	// RGB > ‹P“x’l‚É•ÏŠ·
@@ -30,7 +30,7 @@ float4 main(VS_OUT pin) : SV_TARGET
 	contribution /= luminance;
 	color.rgb *= contribution * intensity;
 	if (color.x >= 0.1 && color.y >= 0.1&& color.z >= 0.1) {
-		color = float4(0.1, 0.1, 0.1, 1);
+		color = float4(0.1, 0.1, 0.1, 0);
 		return  color;
 	}
 	return color;
