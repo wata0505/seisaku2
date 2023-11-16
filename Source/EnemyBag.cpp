@@ -32,6 +32,7 @@ EnemyBag::EnemyBag(bool tutorial)
 	radius = 0.5f;
 	height = 2.0f;
 	activeflag = true;
+	isActiveStart = false;
 	
 	//StateMachineを生成し、階層型ステートマシンに対応するように登録ステートを変更していく。
 	stateMachine = std::make_unique<StateMachine<EnemyBag>>();
@@ -98,6 +99,7 @@ void EnemyBag::Update(float elapsedTime)
 	if (!activeflag)return;
 	UpdateRnderflag();
 	float ElapsedTime = elapsedTime;
+	timer += elapsedTime;
 	if (Player::Instance().GetQuickflag()) {
 		ElapsedTime *= 0.5;
 	}
@@ -109,14 +111,81 @@ void EnemyBag::Update(float elapsedTime)
 			renderflag = false;
 			//position.y = -2000;
 		}
+		ElapsedTime *= 0.3;
 		UpdateTransform((int)Character::AxisType::RHSYUP, (int)Character::LengthType::Cm);
 		model->UpdateAnimation(ElapsedTime,"pelvis");
 		// モデル行列更新
 		model->UpdateBufferDara(transform);
 		//renderdata = model->GetBufferData();
+#if 1
+		deathTimer += elapsedTime;
+		//if (deathTimer <= 1.0f)
+		//{
+		//	alpha = 1.0f;
+		//	glitchIntensity = 0.0f;
+		//	scanBorder = 10.0f;
+		//	hologramBorder = -10.0f;
+		//}
+		//else if (deathTimer >= 1.0f && deathTimer <= 1.5f)
+		if (deathTimer >= 0.0f && deathTimer <= 0.5f)
+		{
+			//alpha -= elapsedTime;
+			glitchIntensity = 1.0f;
+			scanBorder = -10.0f;
+			glowBorder = 10.0f;
+			hologramBorder = 10.0f;
+		}
+		else if (deathTimer >= 1.5f && deathTimer <= 2.0f)
+		{
+			//alpha = 0.5f;
+		}
+		else if (deathTimer >= 2.0f && deathTimer <= 2.5f)
+		{
+			//alpha -= elapsedTime;
+		}
+		else if (deathTimer >= 2.5f)
+		{
+			//alpha = 0.0f;
+		}
+		model->PBRAdjustment(adjustMetalness, adjustSmoothness, emissiveStrength);
+		model->HologramAdjustment(timer, scanTiling, scanSpeed, scanBorder, glowTiling, glowSpeed, glowBorder, hologramBorder, rimStrength);
+		model->GlitchAdjustment(timer, glitchSpeed, glitchIntensity, glitchScale);
+#endif
 		return;
 	}
 	
+	if (!isActiveStart)
+	{
+		activeTimer += elapsedTime;
+		float moveTimer = elapsedTime * 20.0f;
+		if (activeTimer <= 0.9f)
+		{
+			scanBorder -= moveTimer;
+		}
+		else if (activeTimer >= 0.9f && activeTimer <= 1.8f)
+		{
+			glowBorder -= moveTimer;
+		}
+		else if (activeTimer >= 2.1f && activeTimer <= 4.0f)
+		{
+			hologramBorder -= moveTimer * 0.5f;
+			if (activeTimer >= 3.3f)
+			{
+				//outlineData.outlineSize -= elapsedTime * 0.25f;
+				//if (outlineData.outlineSize <= 0.006f)
+				{
+					//outlineData.outlineSize = 0.006f;
+					isActiveStart = true;
+				}
+			}
+		}
+		model->PBRAdjustment(adjustMetalness, adjustSmoothness, emissiveStrength);
+		model->HologramAdjustment(timer, scanTiling, scanSpeed, scanBorder, glowTiling, glowSpeed, glowBorder, hologramBorder, rimStrength);
+		model->GlitchAdjustment(timer, glitchSpeed, glitchIntensity, glitchScale);		
+		ElapsedTime = 0.0f;
+	}
+	
+
 	//ヒットストップ
 	if (Player::Instance().GetAttackHitflag()) ElapsedTime *= hitStop;
 	TargetUpdate();
@@ -124,7 +193,6 @@ void EnemyBag::Update(float elapsedTime)
 	//ステートマシン更新
 	stateMachine->Update(elapsedTime);
 
-	timer += elapsedTime;
 #if 0
 	// 現在のステート番号に合わせてデバッグ文字列をstrに格納
 	switch (static_cast<BagState>(stateMachine->GetStateNum())) {
@@ -308,7 +376,6 @@ void EnemyBag::Render(ID3D11DeviceContext* dc, ModelShader* shader)
 	if(renderflag)shader->Draw(dc, model.get());
 }
 
-
 void EnemyBag::DrawDebugPrimitive()
 {
 	// 基底クラスのデバッグプリミティブ描画
@@ -327,10 +394,6 @@ void EnemyBag::DrawDebugPrimitive()
 	// 索敵範囲をデバッグ円柱描画
 	debugRenderer->DrawCylinder(position, searchRange, 1.0f, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
 }
-
-
-
-
 
 // プレイヤーの周りを回る
 void EnemyBag::BattleMove(bool leftflag,float elapsedTime, float speedRate)
@@ -358,7 +421,6 @@ void EnemyBag::FacePlayer(float elapsedTime, float speedRate)
 	Turn(elapsedTime, dir.x, dir.y, turnSpeed * speedRate);
 
 }
-
 
 void EnemyBag::MoveToTarget(float elapsedTime, float speedRate)
 {
@@ -567,6 +629,19 @@ void EnemyBag::DrawDebugGUI()
 	//トランスフォーム
 	if (ImGui::CollapsingHeader("EnemyBag", ImGuiTreeNodeFlags_DefaultOpen))
 	{
+		if (ImGui::Button(u8"Start"))
+		{
+			isActiveStart = false;
+			activeTimer = 0.0f;
+			scanBorder = 10.0f;
+			glowBorder = 10.0f;
+			hologramBorder = 10.0f;
+		}
+		if (ImGui::Button(u8"Death"))
+		{
+			health = 0;
+			stateMachine->ChangeState(static_cast<int>(EnemyBag::BagState::ReDamage));
+		}
 		if (ImGui::TreeNode("PBR"))
 		{
 			ImGui::SliderFloat("adjustMetalness", &adjustMetalness, -1.0f, 1.0f);
@@ -595,9 +670,6 @@ void EnemyBag::DrawDebugGUI()
 			ImGui::TreePop();
 		}
 	}
-	model->PBRAdjustment(adjustMetalness, adjustSmoothness, emissiveStrength);
-	model->HologramAdjustment(timer, scanTiling, scanSpeed, scanBorder, glowTiling, glowSpeed, glowBorder, hologramBorder, rimStrength);
-	model->GlitchAdjustment(timer, glitchSpeed, glitchIntensity, glitchScale);
 }
 
 // TODO 05_05 メッセージを受信したときの処理を追加

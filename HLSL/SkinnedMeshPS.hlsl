@@ -163,23 +163,30 @@ PS_OUT main(VS_OUT pin)
     // アルベドカラーの最大値
     float maxColor = max(albedo.r, max(albedo.g, max(albedo.b, albedo.a)));
     // エミッシブ
-    float3 emissive = EmissionTexture.Sample(sampler_states[ANISOTROPIC], pin.texcoord).rgb;
-    emissive *= emissiveStrength;
+    float4 emissive = EmissionTexture.Sample(sampler_states[ANISOTROPIC], pin.texcoord);
+    emissive.rgb *= emissiveStrength;
     // エミッシブカラーの最大値
+    //float emissiveMax = max(emissive.r, max(emissive.g, max(emissive.b, emissive.a)));
     float emissiveMax = max(emissive.r, max(emissive.g, emissive.b));
     // 最大値が0なら透明ピクセルやからマテリアルカラーを代入(後にエミッシブも追加で判定)
-    if (maxColor <= 0.0f)
+    if (albedo.a < 0.9f)
     {
-        if (emissiveMax <= 0.0f)
+        if (emissiveMax <= 0.0f && emissive.a <= 0.0f)
         {
-            albedo = pin.color;
-        }
-        else
-        {
-            albedo.rgb = emissive;
-            albedo.a = 1.0f;
+            float maxMaterialColor = min(pin.color.r, min(pin.color.g, pin.color.b));
+            if (maxMaterialColor < 0.79f)
+            {
+                albedo = pin.color;
+            }
+            else
+            {
+                float3 emissiveColor = float3(0.0f, 0.5f, 1.0f);
+                emissive.rgb = emissiveColor;
+                albedo.rgb = emissive.rgb;
+            }
         }
     }
+
     // Inverse gamma process
     const float GAMMA = 1.5f;
     albedo.rgb = pow(albedo.rgb, GAMMA);
@@ -217,7 +224,7 @@ PS_OUT main(VS_OUT pin)
     float3 directDiffuse = 0.0f, directSpecular = 0.0f;
     float3 LightColor = float3(1.0f, 1.0f, 1.0f);
     // 平行光源の処理
-    DirectBDRF(diffuseReflectance, F0, N, V, L, LightColor.rgb, roughness, directDiffuse, directSpecular);
+    DirectBDRF(diffuseReflectance, F0, N, V, -L, LightColor.rgb, roughness, directDiffuse, directSpecular);
 
     //float3 diffuse = albedo.rgb * max(0.8f, dot(N, L));
     //float3 specular = pow(max(0, dot(N, normalize(V + L))), 128);
@@ -227,90 +234,53 @@ PS_OUT main(VS_OUT pin)
     //directSpecular *= shadow;
 
     float4 directColor = float4(directDiffuse + directSpecular, albedo.a);
-    float alpha = albedo.a;
     
+    // エミッシブ適応可能値なら加算
     if (emissiveMax > 0.0f)
     {
-        directColor.rgb += emissive;
+        directColor.rgb += emissive.rgb;
     }
 #if 1
-#if 0
-    //float4 texColor = texture_maps.Sample(sampler_states[ANISOTROPIC], pin.texcoord) * pin.color;
-    float4 texColor = albedo;
-
-    float3 direction = float3(0, 1, 0);
-    float dirVertex = (dot(pin.world_position, normalize(float4(direction, 1.0))) + 1) / 2;
-
-    // Scanlines
-    float scan = step(frac(dirVertex * scanTiling + timer * scanSpeed), 0.5) * 0.65;
-
-    // Glow
-    float glow = frac(dirVertex * glowTiling - timer * glowSpeed);
-
-    // Rim Light
-    //float3 red = float3(0, 1, 0);
-    //L = V;
-    //L.y -= 0.1f;
-    //float3 rim = CalcRimLight(N, V, L, red, glowBorder);
-    //float maxRim = max(rim.r, max(rim.g, rim.b));
-    //col2.rgb += maxRim * 1;
-    //col2.a = 1.0f;
-    //col2.a = m;
-
-    //fixed4 col = texColor * _MainColor + (glow * 0.35 * _MainColor) + rimColor;
-    //col.a = texColor.a * _Alpha * (scan + rim + glow) * flicker;
-    //float4 edgeColor = float4(1, 0, 0, 1);
-    //float4 edgeColor2 = float4(1, 0.25, 0.25, 1);
-    float4 edgeColor = pin.color;
-    float4 edgeColor2 = pin.color;
-    float4 col2 = texColor + (glow * 0.35 * pin.color);
-    scan *= step(scanBorder, -pin.world_position.y);
-    glow *= step(glowBorder, -pin.world_position.y);
-    float alpha2 = step(hologramBorder, -pin.world_position.y);
-    col2.rgb = directColor * alpha + (1.0f - alpha) * (scan * edgeColor + glow * edgeColor2);
-    //texColor.a *= step(glitchSpeed, -pin.worldPosition.y);
-    //col.a = texColor.a * (scan);
-    //col.a = scan;
-    //col.a = glow;
-    // ディゾルブの淵表現
-    float edgeValue = saturate(1 - abs(hologramBorder - (-pin.world_position.y)) * (1 / 0.4));
-    col2.rgb += edgeColor.rgb * edgeValue;
-    //alpha = saturate(alpha + edgeValue);
-    col2.a = alpha * (scan + glow + alpha2);
-    //float alpha = step(pin.worldPosition.y * glitchSpeed, pin.position.y);
-    //float alpha = step(glitchIntensity, pin.position.y + glitchSpeed);
-    //float alpha = step(glitchSpeed, -pin.worldPosition.y);
-    //col.a += pin.worldPosition.y * glitchSpeed;
-    //col.a *= alpha;
-#endif
-    //float alp = emissiveStrength * (emissiveMax * sin(pin.world_position.z / glitchSpeed + timer));
-    float alp = emissiveStrength * (emissiveMax * sin(pin.world_position.z / 25.0f + timer));
-#if 0
-    if (emissiveStrength > 0.0)
+    // キャラ
+    if (glitchScale > 0.0f)
     {
-        if (glitchSpeed < 20.0)
+        float3 direction = float3(0.0f, 1.0f, 0.0f);
+        float dirVertex = (dot(pin.world_position, normalize(float4(direction, 1.0f))) + 1.0f) * 0.5f;
+
+        // Scanlines
+        float scan = step(frac(dirVertex * scanTiling + timer * scanSpeed), 0.5f) * 0.65f;
+
+        // Glow
+        float glow = frac(dirVertex * glowTiling - timer * glowSpeed);
+
+        float3 red = float3(1.0f, 0.0f, 0.0f);
+        float3 lightRed = float3(1.0f, 0.2f, 0.2f);
+        //directColor.rgb = (glow * 0.35f * edgeColor.rgb);
+        scan *= step(scanBorder, -pin.world_position.y);
+        glow *= step(glowBorder, -pin.world_position.y);
+        float hologram = step(hologramBorder, -pin.world_position.y);
+        if (glitchIntensity >= 1.0f)
         {
-            float leng = length(camera_position.xyz - pin.world_position.xyz);
-            float len = 10.0f;
-            if (leng < len)
-            {
-                alp = 1.0 - leng / len;
-            }
+            directColor.rgb *= scan;
         }
+        else
+        {
+            directColor.rgb = directColor.rgb * hologram + ((1.0f - hologram) * (scan * red + glow * lightRed));
+        }
+        // ディゾルブの淵表現
+        float edgeValue = saturate(1.0f - abs(hologramBorder - (-pin.world_position.y)) * (1.0f / 0.4f));
+        directColor.rgb += red * edgeValue;
+        directColor.a = albedo.a * (scan + glow + hologram);
     }
-    else
+    
+    // ステージ
+    //float alp = emissiveStrength * (emissiveMax * sin(pin.world_position.z / glitchSpeed + timer));
+    float alp = emissiveStrength * (sin(pin.world_position.z / glitchSpeed + timer));
+    if (albedo.a < 0.9f && glitchSpeed > 0.0f)
     {
-        alp = 1.0f;
+        directColor.a = alp;
     }
 #endif
-
-    //directColor.a = alpha + alp;
-#endif
-    if (directColor.a <= 0.9f)
-    {
-        directColor.rgb = emissive;
-        directColor.a = 1.0f;
-    }
     
     float dist = length(pin.world_position.xyz - camera_position.xyz);
     normal = float4(normalize(pin.world_normal.xyz) * 0.5 + 0.5, 1);
@@ -337,14 +307,12 @@ PS_OUT main(VS_OUT pin)
     //アウトライン
     //float rate = Outline(pin.texcoord, DepthTexture, NormalTexture, sampler_states[ANISOTROPIC]);
     //color.rgb = lerp(float3(1, 1, 0), color.rgb, rate);
-    //ret.Color = col2;
-    //ret.Color = float4(col2.rgb, 1.0f);
     ret.Color = directColor;
     ret.Depth = float4(dist, dist, dist, 1);
     ret.Normal = normal;
     ret.Position = float4(pin.world_position.xyz, 1);
     ret.MetalSmoothness = float4(metallic, 0.0f, 0.0f, smoothness);
     ret.AmbientOcclusion = float4(ambientOcculusion, 0.0f, 0.0f, 1.0f);
-    ret.Emission = float4(emissive, 1.0f);
+    ret.Emission = float4(emissive.rgb, 1.0f);
     return ret;
 }

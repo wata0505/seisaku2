@@ -312,7 +312,7 @@ public:
             float rimStrength = 3.0f;		// リムライト強度
             float glitchSpeed = 0.0f;		// スクロール速度
             float glitchIntensity = 0.0f;	// 強度
-            float glitchScale = 50.0f;		// 振れ幅
+            float glitchScale = 0.0f;		// 振れ幅
             DirectX::XMFLOAT4	outlineColor = { 1.0f, 0.0f, 0.0f, 1.0f };
             float outlineSize = 0.1f;
             PBR() {}

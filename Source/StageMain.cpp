@@ -10,11 +10,11 @@ StageMain::StageMain()
 	model->ModelSerialize(".\\resources\\Stag\\CyberStage4.fbx");
 	//model->ModelCreate(".\\resources\\ExampleStage\\ExampleStage.fbx");
 	model->ModelRegister(".\\resources\\Stag\\CyberStage4.fbx");
-
+	//model->ModelRegister(".\\resources\\Stag\\CyberStage.fbx", "Texture\\HoneycombStructure.DDS");
 	// 行列更新
 	//angle.y = 3;
-	position.y = -2.5;
-	scale.x = scale.y = scale.z = 100.0;
+	position.y = -2.5f;
+	scale.x = scale.y = scale.z = 100.0f;
 	UpdateTransform();
     model->UpdateBufferDara(transform);
 }
@@ -28,7 +28,10 @@ StageMain::~StageMain()
 //更新処理
 void StageMain::Update(float elapseTime)
 {
-	
+	timer += elapseTime * 3.0f;
+	model->PBRAdjustment(0.0f, 0.0f, 1.0f);
+	model->HologramAdjustment(timer, 20.0f, 0.0f, -100.0f, 20.0f, 0.0f, -100.0f, -100.0f, 3.0f);
+	model->GlitchAdjustment(timer, 50.0f, 0.0f, 0.0f);
 }
 
 void StageMain::Render(ID3D11DeviceContext* dc, ModelShader* shader)
@@ -75,5 +78,4 @@ void StageMain::UpdateTransform()
 	DirectX::XMMATRIX W = C * S * R * T;
 	//計算したワールド行列を取り出す
 	DirectX::XMStoreFloat4x4(&transform, W);
-
 }

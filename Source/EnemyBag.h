@@ -257,9 +257,9 @@ private:
 	//ファイルボールマネージャー
 	ObjectManager objectManager;
 
-	float adjustMetalness = 0.0f;  // 金属度
-	float adjustSmoothness = 0.0f; // 粗さ
-	float emissiveStrength = 0.0f; // エミッシブ強度
+	float adjustMetalness = 0.0f;	// 金属度
+	float adjustSmoothness = 0.0f;	// 粗さ
+	float emissiveStrength = 1.0f;	// エミッシブ強度
 	float timer = 0.0f;				// 更新時間
 	float scanTiling = 20.0f;		// 解像度
 	float scanSpeed = -2.0f;		// スクロール速度
@@ -272,4 +272,7 @@ private:
 	float glitchSpeed = 50.0f;		// スクロール速度
 	float glitchIntensity = 0.0f;	// 強度
 	float glitchScale = 50.0f;		// 振れ幅
+	bool isActiveStart = false;
+	float activeTimer = 0.0f;		// 行動開始時間
+	float deathTimer = 0.0f;		// 死亡時間
 };

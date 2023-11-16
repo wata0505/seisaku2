@@ -97,7 +97,6 @@ void SceneGame::Initialize()
 	//カメラコントローラー初期化
 	//cameraController = std::make_unique <CameraController>();
 	
-
 	player = std::make_unique<Player>();
 	base = std::make_unique<Base>(pos);
 	//ピクセルシェーダーオブジェクト
@@ -139,14 +138,14 @@ void SceneGame::Initialize()
 	subframebuffers[5] = std::make_unique<SubFramebuffer>(device.Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
 	jitterDriftSubFramebuffer = std::make_unique<SubFramebuffer>(device.Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
 	shadowbuffer = std::make_unique<Shadowbuffer>(device.Get(), ShadowMapSize, ShadowMapSize);
-	luminanceExtractionData.threshold = 0.03;
-	luminanceExtractionData.intensity = 3;
+	luminanceExtractionData.threshold = 0.03f;
+	luminanceExtractionData.intensity = 3.0f;
 	
 	meta = std::make_unique<Meta>(player.get(), &enemyManager);
 	UIManager& uiManager = UIManager::Instance();
 	float gaugeWidth = 500.0f;
 	float gaugeHeight = 50.0f;
-	BaseUI* hpWaku    = new BaseUI(L".\\resources\\kaba.png", 10, 595, gaugeWidth * 1.1, gaugeHeight * 1.1);
+	BaseUI* hpWaku    = new BaseUI(L".\\resources\\kaba.png", 10, 595, gaugeWidth * 1.1f, gaugeHeight * 1.1f);
 	//BaseUI* mpWaku    = new BaseUI(L".\\resources\\Mpwaku3.png", 10, 650, gaugeWidth * 1.1, gaugeHeight * 0.5);
 	gaugeWidth = 65.0f;
 	gaugeHeight = 100.0f;
@@ -297,11 +296,11 @@ void SceneGame::Render()
 
 	shader2->Begin(rc);
 	sprite_batchs->Render(immediate_context,
-		0, 0, 1280, 720,
-		0, 0, sprite_batchs->GetTextureWidth(), sprite_batchs->GetTextureHeight(),
+		0.0f, 0.0f, 1280.0f, 720.0f,
+		0.0f, 0.0f, static_cast<float>(sprite_batchs->GetTextureWidth()), static_cast<float>(sprite_batchs->GetTextureHeight()),
 		0.0f,
 		1.0f, 1.0f, 1.0f, 1.0f,
-		0, haikeiTimer,0
+		0.0f, haikeiTimer, 0.0f
 	);
 	//sprite_batchs[0]->SetShaderResourceView(framebuffers[0]->shaderResourceViews[2], 1280, 720);
 	shader2->Draw(rc, sprite_batchs.get());
@@ -313,7 +312,7 @@ void SceneGame::Render()
 	StageManager::Instance().Render(immediate_context, shader);
 	shader->Begin(immediate_context, rc);
 	player->render(immediate_context, shader);
-	base->Render(immediate_context, shader);
+	//base->Render(immediate_context, shader);
 	EnemyManager::Instance().Render(immediate_context, shader);
 	StageManager::Instance().InstaningRender(immediate_context, shader);
 	shader->End(immediate_context);
@@ -430,29 +429,29 @@ void SceneGame::Render()
 	//sprite_batchs2->SetShaderResourceView(subframebuffers[4]->shaderResourceViews.Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
 	sprite_batchs2->SetShaderResourceView(jitterDriftSubFramebuffer->shaderResourceViews.Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
 	sprite_batchs2->Render(immediate_context,
-		0, 0, 1280, 720,
-		0, 0, sprite_batchs2->GetTextureWidth(), sprite_batchs2->GetTextureHeight(),
+		0.0f, 0.0f, 1280.0f, 720.0f,
+		0.0f, 0.0f, static_cast<float>(sprite_batchs2->GetTextureWidth()), static_cast<float>(sprite_batchs2->GetTextureHeight()),
 		0.0f,
 		1.0f, 1.0f, 1.0f, 1.0f,
-		0, 0, 0
+		0.0f, 0.0f, 0.0f
 	);
 	shader2->Draw(rc, sprite_batchs2.get());
 	//player->Sprite2DRender(immediate_context, rc, shader2);
 	UIManager::Instance().Render(rc,shader2);
 	base->HpDisplay(rc, shader2);
 	claerSprite->Render(immediate_context,
-		200, 120, 1000, 200,
-		0, 0, claerSprite->GetTextureWidth(), claerSprite->GetTextureHeight(),
+		200.0f, 120.0f, 1000.0f, 200.0f,
+		0.0f, 0.0f, static_cast<float>(claerSprite->GetTextureWidth()), static_cast<float>(claerSprite->GetTextureHeight()),
 		0.0f,
 		1.0f, 1.0f, 1.0f, 1.0f,
 		dissolveTimer
 	);
 	loodSprite->Render(immediate_context,
-		0, 0, 1280, 720,
-		0, 0, loodSprite->GetTextureWidth(), loodSprite->GetTextureHeight(),
+		0.0f, 0.0f, 1280.0f, 720.0f,
+		0.0f, 0.0f, static_cast<float>(loodSprite->GetTextureWidth()), static_cast<float>(loodSprite->GetTextureHeight()),
 		0.0f,
 		1.0f, 1.0f, 1.0f, 1.0f,
-		dissolveTimer,0,0
+		dissolveTimer, 0.0f, 0.0f
 	);
 	shader2->Draw(rc, loodSprite.get());
 	if (base->GetHP() == 0) {
@@ -527,6 +526,7 @@ void SceneGame::projectImgui()
 		ImGui::SliderFloat("JitterStrength", &jitterDriftData.jitterStrength, 0.0f, 1.0f);
 		ImGui::TreePop();
 	}
+	EnemyManager::Instance().DrawDebugGUI();
 	if (ImGui::TreeNode("enemy"))
 	{
 		if (ImGui::Button(u8"kill"))
