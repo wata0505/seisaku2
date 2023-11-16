@@ -210,6 +210,7 @@ PS_OUT main(VS_OUT pin)
 
     // 法線マップからxyz成分を取得して( -1 ～ +1 )の間にスケーリング
     float3 N = normalize(pin.world_normal.xyz);
+    N = float3(0.0f, 1.0f, 0.0f);
     float3 T = normalize(pin.world_tangent.xyz);
     float sigma = pin.world_tangent.w;
     T = normalize(T - dot(N, T));
@@ -256,16 +257,17 @@ PS_OUT main(VS_OUT pin)
         float3 red = float3(1.0f, 0.0f, 0.0f);
         float3 lightRed = float3(1.0f, 0.2f, 0.2f);
         //directColor.rgb = (glow * 0.35f * edgeColor.rgb);
-        scan *= step(scanBorder, -pin.world_position.y);
-        glow *= step(glowBorder, -pin.world_position.y);
         float hologram = step(hologramBorder, -pin.world_position.y);
+        scan *= step(scanBorder, -pin.world_position.y) * (1.0f - hologram);
+        glow *= step(glowBorder, -pin.world_position.y) * (1.0f - hologram);
         if (glitchIntensity >= 1.0f)
         {
             directColor.rgb *= scan;
         }
         else
         {
-            directColor.rgb = directColor.rgb * hologram + ((1.0f - hologram) * (scan * red + glow * lightRed));
+            //directColor.rgb = directColor.rgb * hologram + ((1.0f - hologram) * (scan * red + glow * lightRed));
+            directColor.rgb = directColor.rgb * hologram + (scan * red + glow * lightRed);
         }
         // ディゾルブの淵表現
         float edgeValue = saturate(1.0f - abs(hologramBorder - (-pin.world_position.y)) * (1.0f / 0.4f));
