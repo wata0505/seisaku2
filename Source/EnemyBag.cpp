@@ -27,7 +27,7 @@ EnemyBag::EnemyBag(bool tutorial)
 	//model->ModelCreate(".\\resources\\Slime\\Slime.fbx");
 	model->ModelRegister(".\\resources\\enemy\\enemy.fbx", "Texture\\all_low_lambert1.tif");
 	// モデルが大きいのでスケーリング
-	maxHealth = 30;
+	maxHealth = 5;
 	health = maxHealth;
 	radius = 0.5f;
 	height = 2.0f;
@@ -68,7 +68,7 @@ EnemyBag::EnemyBag(bool tutorial)
 	searchRange = 6.0f;
 
 	attackRange = 2.5f;
-	scale.x = scale.y = scale.z = 4.0f;
+	scale.x = scale.y = scale.z = 6.0f;
 	territoryRange = 10.0f;
 	angle.y = DirectX::XMConvertToRadians(180);
 	tutorialflag = tutorial;
@@ -373,7 +373,7 @@ void EnemyBag::Render(ID3D11DeviceContext* dc, ModelShader* shader)
 	//if (health <= 0) {
 	//	return;
 	//}
-	if(renderflag)shader->Draw(dc, model.get());
+	if (renderflag)shader->Draw(dc, model.get(), { glitchIntensity, scanBorder,glowBorder,hologramBorder});
 }
 
 void EnemyBag::DrawDebugPrimitive()
@@ -515,15 +515,20 @@ DirectX::XMFLOAT3 EnemyBag::SearchNodePos(const char* nodeName) {
 void EnemyBag::ReMove()
 {
 	activeflag = true;
-	health = 30;
-	float yaw = DirectX::XMConvertToRadians(rand() % 360);
-	DirectX::XMFLOAT2 dir;
-	dir.x = sinf(yaw);
-	dir.y = cosf(yaw);
-	int len = rand() % 100 + 5;
-	position = DirectX::XMFLOAT3(dir.x * len, 0.0f, dir.y * len);
+	health = maxHealth;
+	DirectX::XMFLOAT2 pos = { 105 - float(rand() % 50), 40 };
+	glitchIntensity = 0;
+	scanBorder = 10.0f;
+	glowBorder = 10.0f;
+	hologramBorder = 0.0f;
+	deathTimer = 0;
+	//model->PBRAdjustment(adjustMetalness, adjustSmoothness, emissiveStrength);
+	//model->HologramAdjustment(timer, scanTiling, scanSpeed, scanBorder, glowTiling, glowSpeed, glowBorder, hologramBorder, rimStrength);
+	//model->GlitchAdjustment(timer, glitchSpeed, glitchIntensity, glitchScale);
+	position = DirectX::XMFLOAT3(pos.x, 0.0f, pos.y);
 	SetTerritory(position, 10.0f);
 	reMoveflag = false;
+	rootNo = 0;
 	stateMachine->SetState(static_cast<int>(BagState::Search));
 }
 

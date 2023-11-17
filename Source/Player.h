@@ -53,77 +53,13 @@ public:
     enum Animations
     {
         AnimIdle,
-        AnimWorkFront,
-        AnimWorkFrontRight,
-        AnimWorkFrontLeft,
-        AnimWorkBack,
-        AnimWorkBackRight,
-        AnimWorkBackLeft,
-        AnimWorkRight,
-        AnimWorkLeft,
         AnimRunning,
-        AnimAxeRunning,
-        AnimExRunning,
-        AnimNoWPRunning,
-        Anim1Combo1,
-        Anim1Combo2,
-        Anim1Combo3,
-        Anim1Combo4,
-        Anim2Combo1,
-        Anim2Combo2,
-        Anim2Combo3,
-        Anim2Combo4,
-        AnimJumpCombo1,
-        AnimJumpCombo2,
-        AnimJumpCombo3,
-        AnimJumpCombo4,
-        AnimAxeCombo1,
-        AnimAxeCombo2,
-        AnimAxeCombo3,
-        AnimESCombo1,
-        AnimESCombo2,
-        AnimESCombo3,
-        AnimHBCombo1,
-        AnimHBCombo2,
-        AnimHBCombo3,
-        AnimGuardbreak,
-        AnimGuard,
-        AnimRoll,
         AnimJump1,
         AnimJump2,
         AnimJump3,
-        AnimJumpAttack,
-        AnimRansuJumpAttack,
-        AnimRansuJumpAttackLoud,
-        AnimStrikeAttack,
-        AnimHit1,
-        AnimHit2,
-        AnimHit3,
-        AnimHit4,
-        AnimGuardhit,
-        AnimCounter,
-        AnimCharge,
-        AnimCharging,
-        AnimChargeAttack,
-        AnimShift_jump,
-        AnimShift,
-        AnimAxeShift,
-        AnimHBShift,
-        AnimESShift,
-        AnimAXShAttack,
-        AnimStamp,
-        AnimWeponChange,
-        AnimWeponChange_Silb,
-        AnimDown,
-        AnimDownHit,
-        AnimDownCUp,
-        AnimDownUp,
-        AnimDownUpRight,
-        AnimDownUpLeft,
-        AnimDead1,
-        AnimDead2,
-        AnimDead3,
-        AnimDead4,
+        Anim1Combo1,
+        Anim1Combo2,
+        Anim1Combo3,
     };
     
     enum AttackNo
@@ -245,7 +181,7 @@ public:
     //死亡タイマー
     float GetDidTimer() { return disslveTimer; }
     //プレイヤー用の当たり判定位置
-    DirectX::XMFLOAT3 GetHitPos() { return { position.x,(SearchNodePos("root_x").y - (height / 2)),position.z }; }
+    DirectX::XMFLOAT3 GetHitPos() { return { position.x,(position.y - (height / 2)),position.z }; }
     //盾描画フラグ
     bool GetShildFlag() { return shildFlag; };
     //ロックオンエネミーIｄ
@@ -498,20 +434,10 @@ public://変更又取得が多い変数
     int chargeMax = 3;
 
     //武器ごとのアニメーション
-    int WeponCombo[5][4] = { {Anim1Combo1,Anim1Combo2,Anim1Combo3,Anim1Combo4 },
-                             {AnimAxeCombo1,AnimAxeCombo2,AnimAxeCombo3,-1},
-                             {AnimHBCombo1, AnimHBCombo2, AnimHBCombo3,-1},
-                             {AnimESCombo1, AnimESCombo2, AnimESCombo3,-1},
-                             {-1,-1,-1,-1} };
-    //デフォルト剣アニメーション
-    int MinSword[4] = { Anim2Combo1,Anim2Combo2,Anim2Combo3,Anim2Combo4 };
-    //シフトアニメーション
-    int WeponShift[WeponType::WeponMax] = { AnimShift,AnimAxeShift,AnimHBShift,AnimESShift,-1 };
-    //シフトアタックアニメーション
-    int WeponShiftAttack[WeponType::WeponMax] = { Anim1Combo4,AnimAXShAttack,AnimChargeAttack,AnimJumpCombo4,-1 };
+    int WeponCombo[3] = { Anim1Combo1,Anim1Combo2,Anim1Combo3 };
     //武器のアクションステータス
     DirectX::XMFLOAT4 WeponComboStatus[WeponType::WeponMax][4] = {
-        {{1, 0, 0.1f, 0.5f},{1, 0, 0.6f, 0.7f},{1, 0, 0.8f, 0.9f},{0.2, 0, 0.1f, 1.0f},},
+        {{1, 0, 0.1f, 0.3f},{1, 0, 0.1f, 0.3f},{1, 0, 0.2f, 0.3f},{0.2, 0, 0.1f, 1.0f},},
         {{0.6, 0, 0.5f,0.8f},{0.8, 0, 0.9f, 1.32f},{0.8, 0, 1.1f, 1.5f},{ 0,  0,0.0f, 0.0f},},
         {{1, 0, 0.1f, 1.3f},{1, 0, 0.2f, 1.2f},{0.5, 0, 0.5f, 2.5f},{ 0,  0,0.0f, 0.0f},},
         {{1, 0, 0.4f, 0.75f},{1, 0, 0.75f, 1.05f},{1, 0, 1.08f, 1.38f},{ 0,  0,0.0f, 0.0f},},
@@ -526,44 +452,9 @@ public://変更又取得が多い変数
         {{10, 0,0,0.5},{10, 0,1,0.5},{10, 0,1,0.5},{20, 0,1,0.5},},
 
     };
-    //シフトアタックステータス
-    DirectX::XMFLOAT4 WSAStatus[WeponType::WeponMax] = {
-        {0, 0,0.1f, 1.0f},{0,0, 0.0f, 1.9f},{0, 0, 0.4f, 0.9f},{0, 0, 0.2f, 1.3f} ,{0,0,0,0},
-    };
-    //シフト
-    DirectX::XMFLOAT4 WSStatus[WeponType::WeponMax] = {
-       {0, 0,0.1f, 0.5f},{0,0, 0.0f, 0.7f},{0, 0, 0.4f, 0.7f},{10, 0, 0.2f, 0.8f},{0,0,0,0},
-    };
-    //シフトアタックパワー
-    DirectX::XMFLOAT4 WSAPow[WeponType::WeponMax] = {
-        {10, 0,1,0.1},{0, 0,1,0.1},{20,20,2,1.0},{0, 0,1,0.2},{0,0,0,0},
-    };
-    //特殊アタック
-    DirectX::XMFLOAT4 WSpStatus[WeponType::WeponMax] = {
-      {30, 0, 0.2f, 0.9f},{ 0, 0, 0.5f, 0.9f},{0,-50, 0.1f, 1.9f},{5, 0, 0.6f, 0.9f} ,{0,0,0,0.9}
-    };
-    //特殊アタックパワー
-    DirectX::XMFLOAT4 WSpPow[WeponType::WeponMax] = {
-        {10, 0,1,0.1},{40,40,2,1.0},{30,50,2,1.0},{20, 0,1,0.1} ,{0,0,0,0}
-    };
-    //カウンター
-    DirectX::XMFLOAT4 CounterStatus = { 1.2, 0, 0.5f, 1.1f };
-
-    //カウンター
-    DirectX::XMFLOAT4 CounterStandbyStatus = { 1, 0, 1.2f, 1.9f };
-
-    //カウンターパワー
-    DirectX::XMFLOAT4 CounterPow = { 70, 0,6,0.5 };
-    DirectX::XMFLOAT4 FallAttackStatus[2] = {
-        {-40,0, 0.4f, 2.8f},
-        {-20,0, 0.4f, 1.0f},
-    };
-    DirectX::XMFLOAT4 FallAttackPow[2] = {
-        {40, 0,2,0.2},
-        {30,40,2,1.0},
-    };
+   
     //武器ごとのコンボ最大数
-    int WeponComboMax[5] = { 3,2,2,2,0 };
+    int WeponComboMax[5] = { 2,2,2,2,0 };
 
     DirectX::XMFLOAT4 ShifPow = { 0, 0,1,0.3 };
 

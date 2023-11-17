@@ -43,83 +43,19 @@ Player::Player() {
     // インスタンスポイント設定
     instance = this;
 
-    player = std::make_unique<Model>(".\\resources\\Knight Errant\\Knight_Errant4.fbx", true);
-    player->AppendAnimations(".\\resources\\Knight Errant\\Idle.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\walk_strafe_front.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\walk_strafe_frontright.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\walk_strafe_frontleft.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\walk_strafe_back.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\walk_strafe_backright.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\walk_strafe_backleft.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\walk_strafe_right_1.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\walk_strafe_left_1.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\run_strafe_front2.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\AXErun_strafe_front.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\SSrun2.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\run_strafe_front_5.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\Combo_03_1.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\NewCombo_03_2.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\NewCombo_03_31.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\NewCombo_03_4.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\Combo_02_1.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\NewCombo_02_2.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\NewCombo_02_3.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\NewCombo_02_4.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\2Combo1_1_copy.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\2Combo1_2_copy.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\2Combo1_3_copy.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\Combo_01_4.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\NewAxeCombo1-1.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\NewAxeCombo2-2.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\NewAxeCombo3-3.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\NewEXCombo1.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\NewEXCombo2.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\NewEXCombo4_1.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\NewHBCombo1-1.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\NewHBCombo2_1.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\NewHBCombo3-4.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\2Gud_break5.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\2Gud_1.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\roll_front.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\new3jump.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\newjump.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\new2jump.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\NewjumpAttack.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\ransuJumpAttack.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\ransuJumpAttackLoud.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\Newstrike.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\hit_head_back.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\hit_head_front.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\hit_head_left.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\hit_head_right.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\2Gud_hit2.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\NewCounter.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\Newcharge.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\charging.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\NewchargeAttack1.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\NewShift_jump.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\SWSF2.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\AxeShift.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\HBSF2.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\EXShift.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\NewSftAttack.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\ransuAttack.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\weponChange_copy.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\weponChange_Silb.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\liedown_idle_up.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\liedown_hit.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\rise_01.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\rise_021.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\rise_right_up.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\rise_left_up.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\dead_01.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\dead_02.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\dead_04.fbx", 0);
-    player->AppendAnimations(".\\resources\\Knight Errant\\dead_05.fbx", 0);
-    player->ModelSerialize(".\\resources\\Knight Errant\\Knight_Errant4.fbx");
+    player = std::make_unique<Model>(".\\resources\\Player\\playermode5l.fbx", true);
+    player->AppendAnimations(".\\resources\\Player\\taiki.fbx", 0);
+    player->AppendAnimations(".\\resources\\Player\\dash.fbx", 0);
+    player->AppendAnimations(".\\resources\\Player\\jump3.fbx", 0);
+    player->AppendAnimations(".\\resources\\Player\\jump1.fbx", 0);
+    player->AppendAnimations(".\\resources\\Player\\jump2.fbx", 0);
+     player->AppendAnimations(".\\resources\\Player\\ATK1.fbx", 0);
+    player->AppendAnimations(".\\resources\\Player\\ATK2.fbx", 0);
+    player->AppendAnimations(".\\resources\\Player\\ATK3.fbx", 0);
+    player->ModelSerialize(".\\resources\\Player\\playermode5l.fbx");
    // player->ModelCreate(".\\resources\\AimTest\\GreatSword.fbx");
-    player->ModelRegister(".\\resources\\Knight Errant\\Knight_Errant4.fbx");
-	player->PlayAnimation(2, true);
+    player->ModelRegister(".\\resources\\Player\\playermode5l.fbx");
+	player->PlayAnimation(0, true);
 
     sword = std::make_unique<Model>(".\\resources\\Sword.fbx", true);
     sword->ModelSerialize(".\\resources\\Sword.fbx");
@@ -145,7 +81,8 @@ Player::Player() {
     //UI[UINo::Die] = std::make_unique<Sprite>(L".\\resources\\UI\\Die.png");
     swordTrail = std::make_unique<SwordTrail>(10, L".\\resources\\SwordTrail.jpg");
     cameraController = std::make_unique<CameraController>();
-    
+    moveSpeed = 20;
+    maxMoveSpeed = 20;
     player->UpdateBufferDara(transform);
     //renderdata = player->GetBufferData();
     for (int i = 0; i < 13; i++) {
@@ -178,7 +115,7 @@ Player::Player() {
     stateMachine->RegisterSubState(0, new DieState(this));
     // ステートをセット
     stateMachine->SetState(0);
-
+    scale.x = scale.y = scale.z = 1.5;
     position = { 100,0,-130 };
 }
 Player::~Player()
@@ -186,7 +123,7 @@ Player::~Player()
 }
 void Player::update(float elapsedTime) {
     //DrawDebugPrimitive();
-    SetWepon();
+    //SetWepon();
     float ElapsedTime = elapsedTime * modelSpeed;
     if (quickFlag) ElapsedTime *= 0.6;
     if (attackHitflag) ElapsedTime *= attackHitPow;
@@ -195,26 +132,27 @@ void Player::update(float elapsedTime) {
     ComeTerget(elapsedTime);
     //ステートマシン更新
     stateMachine->Update(elapsedTime);
+    //player->PlayAnimation(-1,false);
     //アニメーション更新
     player->UpdateAnimation(animeTimer, "root_x");
     player->UpdateSubAnimation(animeTimer, "root_x");
     
-    weponRenderUpdate();
+    //weponRenderUpdate();
     //速力処理更新
     UpdateVelocity(ElapsedTime);
     UpdateTransform((int)Character::AxisType::RHSYUP, (int)Character::LengthType::Cm);
     //描画情報更新
     player->UpdateBufferDara(transform);
     //武器情報入力
-    SetWepon();
+    //SetWepon();
     //武器更新
-    wepon->Update(elapsedTime);
+    //wepon->Update(elapsedTime);
     // スキル効果
     UpdateSkill(elapsedTime);
     //弾発射処理
     InputProjectile();
     //剣軌跡更新
-    swordTrail->Update();
+    //swordTrail->Update();
   
     AudioUpdate();
     //ヒットフラグ更新
@@ -260,7 +198,7 @@ void Player::SetWepon() {
         SearchNode(weponTransform, "hand_l");//左手ノード取得
         shieldHead = { weponTransform._41,weponTransform._42,weponTransform._43 };//盾の座標入力
     }
-    SearchNode(weponTransform, "Wp_Sword");//剣ノード取得
+    //SearchNode(weponTransform, "Wp_Sword");//剣ノード取得
     head = { weponTransform._41,weponTransform._42,weponTransform._43 };//腕の座標入力
     sworddir = { weponTransform._31,weponTransform._32,weponTransform._33 };//剣の向き取得
     sworddir = Vector3::Normalize(sworddir);//剣の向き正規化
@@ -436,8 +374,8 @@ void Player::ComeTerget(float elapsedTime) {
     //ロックオンしてるならカメラ設定
     DirectX::XMFLOAT3 camePos = position;
     if(state == Attack){
-      camePos.y = SearchNodePos("root_x").y;
-      camePos.y += height / 2;
+      //camePos.y = SearchNodePos("root_x").y;
+      camePos.y += height;
     }
     else
     {
@@ -470,7 +408,7 @@ void Player::OnLanding()
 void Player::OnDamaged()
 {
     // ダメージステートへ遷移
-    if (state != State::Guard) {
+    if (state != State::Attack) {
         stateMachine->ChangeSubState(static_cast<int>(Player::State::Damage));
     }
 }
@@ -487,44 +425,44 @@ void Player::PlayerKnockBack(DirectX::XMFLOAT3 mypos, DirectX::XMFLOAT3 targetpo
     DirectX::XMFLOAT3 inpulse = Vector3::Subset(position, mypos);//ベクトル生成
     inpulse = Vector3::Multip(Vector3::Normalize(inpulse),power);//正規化してノックバックパワーをかける
     SetShakeInput(inpulse, damage);//カメラシェイク
-    if (state == State::Guard) {
-        if (!guardFlag) {
-            wepon->Exhaustion(damage);//武器消耗
-        }
-        player->PlayAnimation(AnimGuardhit, false);
-        if (wepon->GetWeponLife(weponType) < 0) {//盾壊れたら
-            player->PlayAnimation(AnimGuardbreak, false);
-            invincibleTimer = 2.0;
-            guardDir.x = -inpulse.x;
-            guardDir.y = -inpulse.z;
-            guardDir = Vector2::Normalize(guardDir);
-            return;
-        }
-        inpulse.x *= guardKnockBack;
-        inpulse.z *= guardKnockBack;
-        AddImpulse(inpulse);//ノックバック
-        //くらった方向を向く
-        guardDir.x = -inpulse.x;
-        guardDir.y = -inpulse.z;
-        AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Gud)->Stop();
-        AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Gud)->Play(false, SE);
-        return;
-    }
-    else if (power > kbpow || health <= 0) {
-        player->PlayAnimation(AnimDead1, false);
+    //if (state == State::Guard) {
+    //    if (!guardFlag) {
+    //        //wepon->Exhaustion(damage);//武器消耗
+    //    }
+    //    //player->PlayAnimation(AnimGuardhit, false);
+    //    //if (wepon->GetWeponLife(weponType) < 0) {//盾壊れたら
+    //    //    player->PlayAnimation(AnimGuardbreak, false);
+    //    //    invincibleTimer = 2.0;
+    //    //    guardDir.x = -inpulse.x;
+    //    //    guardDir.y = -inpulse.z;
+    //    //    guardDir = Vector2::Normalize(guardDir);
+    //    //    return;
+    //    //}
+    //    inpulse.x *= guardKnockBack;
+    //    inpulse.z *= guardKnockBack;
+    //    AddImpulse(inpulse);//ノックバック
+    //    //くらった方向を向く
+    //    guardDir.x = -inpulse.x;
+    //    guardDir.y = -inpulse.z;
+    //    AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Gud)->Stop();
+    //    AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Gud)->Play(false, SE);
+    //    return;
+    //}
+    if (power > kbpow || health <= 0) {
+        player->PlayAnimation(0, false);
         AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Down)->Play(false, SE);
         downflag = true;//ダウン状態
         //コンボ初期化
         combo = 0;
     }
     else if (downflag) {
-        player->PlayAnimation(AnimDownHit, false);
+        player->PlayAnimation(0, false);
         AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Down)->Play(false, SE);
         downflag = true;//ダウン状態
     }
     else
     {
-        player->PlayAnimation(AnimHit1, false);
+        player->PlayAnimation(0, false);
         //コンボ初期化
         combo = 0;
     }
@@ -576,49 +514,49 @@ void Player::BattleMoveUpdate() {
     dot = acos(dot);
 
     // 歩きアニメーション再生
-    if (ax > 0 && dot > upSens && dot < disUpSens) {
-        if (player->GetCurrentSubAnimationIndex() != AnimWorkFrontLeft) {
-            player->PlaySubAnimation(AnimWorkFrontLeft, true,lowerBody);        
-        }
-    }
-    else if (ax < 0  && dot >  upSens && dot < disUpSens) {
-        if (player->GetCurrentSubAnimationIndex() != AnimWorkFrontRight) {
-            player->PlaySubAnimation(AnimWorkFrontRight, true,lowerBody);     
-        }
-    }
-    else if (ax > 0 && dot > disUpSens && dot < disDownSens) {
-        if (player->GetCurrentSubAnimationIndex() != AnimWorkLeft) {
-            player->PlaySubAnimation(AnimWorkLeft, true, lowerBody);
-           
-        }
-    }
-    else if (ax < 0 && dot >  disUpSens && dot < disDownSens) {
-        if (player->GetCurrentSubAnimationIndex() != AnimWorkRight) {
-            player->PlaySubAnimation(AnimWorkRight, true,lowerBody);  
-        }
-    }
-    else if (ax > 0 && dot > disDownSens && dot < downSens) {
-        if (player->GetCurrentSubAnimationIndex() != AnimWorkBackLeft) {
-            player->PlaySubAnimation(AnimWorkBackLeft, true, lowerBody);
-        }
-    }
-    else if (ax < 0 && dot >  disDownSens && dot < downSens) {
-        if (player->GetCurrentSubAnimationIndex() != AnimWorkBackRight) {
-            player->PlaySubAnimation(AnimWorkBackRight, true, lowerBody);
-        }
-    }
-    else if (ay > 0 ) {
-        if (player->GetCurrentSubAnimationIndex() != AnimWorkFront) {
-            player->PlaySubAnimation(AnimWorkFront, true, lowerBody);
-           
-        }
-    }
-    else {
-        if (player->GetCurrentSubAnimationIndex() != AnimWorkBack) {
-            player->PlaySubAnimation(AnimWorkBack, true, lowerBody);
-           
-        }
-    }
+    //if (ax > 0 && dot > upSens && dot < disUpSens) {
+    //    if (player->GetCurrentSubAnimationIndex() != AnimWorkFrontLeft) {
+    //        player->PlaySubAnimation(AnimWorkFrontLeft, true,lowerBody);        
+    //    }
+    //}
+    //else if (ax < 0  && dot >  upSens && dot < disUpSens) {
+    //    if (player->GetCurrentSubAnimationIndex() != AnimWorkFrontRight) {
+    //        player->PlaySubAnimation(AnimWorkFrontRight, true,lowerBody);     
+    //    }
+    //}
+    //else if (ax > 0 && dot > disUpSens && dot < disDownSens) {
+    //    if (player->GetCurrentSubAnimationIndex() != AnimWorkLeft) {
+    //        player->PlaySubAnimation(AnimWorkLeft, true, lowerBody);
+    //       
+    //    }
+    //}
+    //else if (ax < 0 && dot >  disUpSens && dot < disDownSens) {
+    //    if (player->GetCurrentSubAnimationIndex() != AnimWorkRight) {
+    //        player->PlaySubAnimation(AnimWorkRight, true,lowerBody);  
+    //    }
+    //}
+    //else if (ax > 0 && dot > disDownSens && dot < downSens) {
+    //    if (player->GetCurrentSubAnimationIndex() != AnimWorkBackLeft) {
+    //        player->PlaySubAnimation(AnimWorkBackLeft, true, lowerBody);
+    //    }
+    //}
+    //else if (ax < 0 && dot >  disDownSens && dot < downSens) {
+    //    if (player->GetCurrentSubAnimationIndex() != AnimWorkBackRight) {
+    //        player->PlaySubAnimation(AnimWorkBackRight, true, lowerBody);
+    //    }
+    //}
+    //else if (ay > 0 ) {
+    //    if (player->GetCurrentSubAnimationIndex() != AnimWorkFront) {
+    //        player->PlaySubAnimation(AnimWorkFront, true, lowerBody);
+    //       
+    //    }
+    //}
+    //else {
+    //    if (player->GetCurrentSubAnimationIndex() != AnimWorkBack) {
+    //        player->PlaySubAnimation(AnimWorkBack, true, lowerBody);
+    //       
+    //    }
+    //}
 }
 void Player::DownUpdate() {
     if (!downflag)return;
@@ -632,26 +570,26 @@ void Player::DownUpdate() {
     float dot = Vector2::Dot(moveVec, Vec);
     dot = acos(dot);
     // 復帰アニメーション再生
-    if (ax > 0 && dot > upSens && dot < disDownSens) {
-            player->PlayAnimation(AnimDownUpLeft, false);
-            velocity.x = moveVec.x * rollPow*returnPow;
-            velocity.z = moveVec.y * rollPow*returnPow;
-            downflag = false;
-    }
-    else if (ax < 0 && dot >  upSens && disDownSens) {
-            player->PlayAnimation(AnimDownUpRight, false);
-            velocity.x = moveVec.x * rollPow * returnPow;
-            velocity.z = moveVec.y * rollPow * returnPow;
-            downflag = false;
-    }
-    else if (ay > 0) {
-            player->PlayAnimation(AnimDownCUp, false);
-            downflag = false;
-    }
-    else if (ay < 0 ){
-         player->PlayAnimation(AnimDownUp, false);
-         downflag = false;
-    }
+    //if (ax > 0 && dot > upSens && dot < disDownSens) {
+    //        player->PlayAnimation(AnimDownUpLeft, false);
+    //        velocity.x = moveVec.x * rollPow*returnPow;
+    //        velocity.z = moveVec.y * rollPow*returnPow;
+    //        downflag = false;
+    //}
+    //else if (ax < 0 && dot >  upSens && disDownSens) {
+    //        player->PlayAnimation(AnimDownUpRight, false);
+    //        velocity.x = moveVec.x * rollPow * returnPow;
+    //        velocity.z = moveVec.y * rollPow * returnPow;
+    //        downflag = false;
+    //}
+    //else if (ay > 0) {
+    //        player->PlayAnimation(AnimDownCUp, false);
+    //        downflag = false;
+    //}
+    //else if (ay < 0 ){
+    //     player->PlayAnimation(AnimDownUp, false);
+    //     downflag = false;
+    //}
 }
 DirectX::XMFLOAT3 Player::GetSlashDir() {
     DirectX::XMFLOAT2 trailPos = Vector3::C3Dor2D(swordTrail->GetTrail(swordFlame));//変数＋１フレーム前の剣先
@@ -663,7 +601,7 @@ DirectX::XMFLOAT3 Player::GetSlashDir() {
 }
 void Player::SlashInput() {
     if (slashCombo != combo ) {
-        wepon->Exhaustion(attackDamage);
+        //wepon->Exhaustion(attackDamage);
         AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::SlashFly)->Stop();
         AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::SlashFly)->Play(false, SE);
         //二元で斬撃方向と上方向で内積を取ってその分角度をとる
@@ -750,7 +688,7 @@ void Player::HitInput(float damage, float invincibleTime) {
 
     }
     attackHitflag = true;
-    wepon->Exhaustion(damage);//消耗
+    //wepon->Exhaustion(damage);//消耗
     hitInvincibleTime = damage*0.05;
     //攻撃方向にカメラシェイク
     DirectX::XMFLOAT3 hitdir = Vector3::Subset(swordTrail->GetTrail(swordFlame), wepon->GetWeaponEFPoint());
@@ -980,7 +918,7 @@ void Player::UpdateWeponChange(float elapsedTime)
     if (!weponChange)return;
     if (skillTime[WeponChange] < 0) {
         weponType = nextWepon;//次の武器を設定
-        wepon->SetWeponType(weponType);
+        //wepon->SetWeponType(weponType);
         if (InputMove(elapsedTime)) {
             wepon->SetRnderflag(true);
             stateMachine->ChangeSubState(static_cast<int>(Player::State::Move));
@@ -1189,41 +1127,12 @@ void Player::CollisionNodeVsEnemies(float nodeRadius,DirectX::XMFLOAT2 pow, floa
     {
         Enemy* enemy = enemyManager.GetEnemy(enemyindex);
         DirectX::XMFLOAT3 enemyPosition, impulse;
-        if (enemy->GetEnemyKeyframe().nodes.size() > 0) {
-            for (Animation::Keyframe::node& node : enemy->GetEnemyKeyframe().nodes)
-            {
-                if (Collision::IntersectCapsuleVsSphere(
-                    wepon->GetWeaponEFPoint(),
-                    wepon->GetWeaponEPoint(),
-                    wepon->GetRadius() * nodeRadius,
-                    node.translation,
-                    1.0))
-                {
-                    if (enemy->ApplyDamage(Damage, InvincibleTime) && wepon->GetSwordState() != SwordState::Stop) {
-                        //ノックバック
-                        KnockBack(*enemy, this->position, enemy->GetPosition(), pow.x, pow.y);
-                        //ヒット情報入力処理
-                        HitInput(Damage, InvincibleTime);
-                        DirectX::XMFLOAT3 trailDir = GetSlashDir();
-                        //ヒットエフェクト
-                        // particleSprite = new ParticleSprite(wepon->GetWeaponEFPoint(), trailDir, ParticleSprite::ParticleLine, ParticleSprite::Slash, int(EffectTexAll::EfTexAll::Distortion), 1, 0.5);
-                        ParticleSprite* particleSprite = new ParticleSprite(wepon->GetWeaponEFPoint(), trailDir, ParticleSprite::ParticleImpact, ParticleSprite::Expansion, int(EffectTexAll::EfTexAll::Impact), 1, 0.3);
-                        particleSprite = new ParticleSprite(enemyPosition, wepon->GetWeaponEFPoint(), ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Distortion), 1000, 0.5);
-                       
-                    }
-                }
-                
-            }
-        }
-        else
-        {
             enemyPosition = { enemy->GetPosition().x,enemy->GetPosition().y,enemy->GetPosition().z };
-            if (Collision::IntersectCapsuleVsSphere(
-                wepon->GetWeaponEFPoint(),
-                wepon->GetWeaponHPoint(),
-                wepon->GetRadius() * nodeRadius,
+            if (Collision::IntersectSphereVsSphere(
+                SearchNodePos("te_R_1"),
+                 2.0,
                 enemyPosition,
-                enemy->GetRadius()))
+                enemy->GetRadius(),impulse))
             {
                 if (enemy->ApplyDamage(Damage, InvincibleTime) && wepon->GetSwordState() != SwordState::Stop) {
                     //ノックバック
@@ -1241,7 +1150,7 @@ void Player::CollisionNodeVsEnemies(float nodeRadius,DirectX::XMFLOAT2 pow, floa
                     }
                 }
             }
-        }
+        
     }
 }
 

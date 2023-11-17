@@ -30,6 +30,7 @@ void CameraController::Update(float elapsedTime)
 	//カメラの回転速度
 	float speed = rollSpeed * elapsedTime;
 
+
 	//スティックの入力値に合わせてX軸とY軸を回転
 	angle.x += ay * speed;
 	angle.y += ax * speed;
@@ -55,12 +56,37 @@ void CameraController::Update(float elapsedTime)
 	}
 	//カメラ回転値を回転行列に変換
 	DirectX::XMMATRIX Transform = DirectX::XMMatrixRotationRollPitchYaw(angle.x, angle.y, angle.z);
+	float guard = 2.4f;
+	if (Player::Instance().IsGround()) {
+		guard = -Player::Instance().GetPosition().y;
+	}
+	float height = target.y + guard;
+
+	//高さでｘ軸最大値決定
+	//float maxAngle = maxAngleX + DirectX::XMConvertToRadians(lengthMax - Length);
+	//float minAngle = minAngleX;
+	//距離定数
+	float rangemax = rangeMax;
+	//敵が自分より上か判定
+	if (height > NULL) {
+		if (height > 10) {
+			height = 10;
+		}
+		//高さでｘ軸最小値決定
+		rangemax += height;
+	}
+	else
+	{
+		//angle.x += elapsedTime;
+		minAngle += DirectX::XMConvertToRadians(height * 4);
+		maxAngle = minAngle;
+	}
 
 	//回転行列から前方向ベクトルを取り出す
 	DirectX::XMVECTOR Front = Transform.r[2];
 	DirectX::XMFLOAT3 front;
 	DirectX::XMStoreFloat3(&front, Front);
-	range = Mathf::Lerp(range, rangeMax, 0.03f);
+	range = Mathf::Lerp(range, rangemax, 0.03f);
 	//注視点から後ろベクトル方向に一定距離離れたカメラ視点を求める
 	DirectX::XMFLOAT3 eye;
 	eye.x = target.x - (front.x * range);
@@ -78,16 +104,16 @@ void CameraController::Update(float elapsedTime)
 	DirectX::XMFLOAT3 end = { eye.x,eye.y-1,eye.z };
 
 	// レイキャストによる地面判定
-	HitResult hit;
-	//if (health > 0) {
-	if (StageManager::Instance().RayCast(start, end, hit))
-	{
-		eye.y = hit.position.y + 1;
-	}
+	//HitResult hit;
+	////if (health > 0) {
+	//if (StageManager::Instance().RayCast(start, end, hit))
+	//{
+	//	eye.y = hit.position.y + 1;
+	//}
 	//最小値で線形補完
 	cameraEye.x = Mathf::Lerp(cameraEye.x, eye.x, correction * 20);
 	//最小値で線形補完
-	cameraEye.y = Mathf::Lerp(cameraEye.y, eye.y, correction * 5);
+	cameraEye.y = Mathf::Lerp(cameraEye.y, eye.y, correction * 20);
 	//最小値で線形補完
 	cameraEye.z = Mathf::Lerp(cameraEye.z, eye.z, correction * 20);
 	ShakeUpdate(cameraEye, elapsedTime);
@@ -275,16 +301,16 @@ void CameraController::Update2(float elapsedTime, DirectX::XMFLOAT3 front, float
 	DirectX::XMFLOAT3 end = { eye.x,eye.y - 1,eye.z };
 
 	// レイキャストによる地面判定
-	HitResult hit;
-	 //if (health > 0) {
-	 if (StageManager::Instance().RayCast(start, end, hit))
-	 {
-	 	eye.y = hit.position.y + 1;
-	 }
-	if (eye.y < 0)
-	 {
-	 	eye.y = 1;
-	 }
+	//HitResult hit;
+	// //if (health > 0) {
+	// if (StageManager::Instance().RayCast(start, end, hit))
+	// {
+	// 	eye.y = hit.position.y + 1;
+	// }
+	//if (eye.y < 0)
+	// {
+	// 	eye.y = 1;
+	// }
 	//最小値で線形補完
 	cameraEye.x = Mathf::Lerp(cameraEye.x, eye.x, correction * 20);
 	//最小値で線形補完

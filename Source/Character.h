@@ -176,7 +176,7 @@ protected:
 	//–³“GŽžŠÔ
 	float invincibleTimer = 1.0f;
 	//–€ŽC
-	float friction = 0.6f;
+	float friction = 0.9f;
 	//‰Á‘¬—Í
 	float	acceleration = 1.5f;
 	bool jumpflag = false;

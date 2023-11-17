@@ -32,9 +32,9 @@ void IdleState::Execute(float elapsedTime)
     {
         owner->GetStateMachine()->ChangeSubState(static_cast<int>(Player::State::JumpStandby)); // ジャンプ準備ステートへ遷移
     }
-    if (InputGame::InputRoll()) {
-        owner->GetStateMachine()->ChangeSubState(static_cast<int>(Player::State::Roll)); // 回避ステートへ遷移
-    }
+    //if (InputGame::InputRoll()) {
+    //    owner->GetStateMachine()->ChangeSubState(static_cast<int>(Player::State::Roll)); // 回避ステートへ遷移
+    //}
     owner->Turn(elapsedTime, owner->dir.x, owner->dir.z, owner->turnSpeed);
     if (owner->GetWepon()->GetBreakFlag(owner->weponType))return;
     if (owner->InputAttack())
@@ -44,9 +44,9 @@ void IdleState::Execute(float elapsedTime)
         //TransitionAttackState(WeponCombo[weponType][combo], WeponComboStatus[weponType][combo], WeponComboPow[weponType][combo]);
     }
     owner->SpecialUpdate();
-    if (InputGame::InputShift() &&owner->weponType != WeponType::Shield) {
-        owner->GetStateMachine()->ChangeSubState(static_cast<int>(Player::State::Shift));// シフトステートへ遷移
-    }
+    //if (InputGame::InputShift() &&owner->weponType != WeponType::Shield) {
+    //    owner->GetStateMachine()->ChangeSubState(static_cast<int>(Player::State::Shift));// シフトステートへ遷移
+    //}
 }
 // 待機ステートから出ていくときのメソッド
 void IdleState::Exit(){}
@@ -56,24 +56,13 @@ void MoveState::Enter()
 {
     owner->SetState(Player::State::Move);
     // 走りアニメーション再生武器ごと
-    if (owner->weponType == WeponType::MainSword || owner->weponType == WeponType::Shield) {
-        owner->GetModel()->PlayAnimation(static_cast<int>(Player::AnimRunning), true);
-    }
-    else if (owner->weponType == WeponType::SubSword)
-    {
-        owner->GetModel()->PlayAnimation(static_cast<int>(Player::AnimExRunning), true);
-    }
-    else
-    {
-        owner->GetModel()->PlayAnimation(static_cast<int>(Player::AnimAxeRunning), true);
-    }
-    if (owner->GetWepon()->GetBreakFlag(owner->weponType)) {
-        owner->GetModel()->PlayAnimation(static_cast<int>(Player::AnimNoWPRunning), true);
-    }
+   
+    owner->GetModel()->PlayAnimation(static_cast<int>(Player::AnimRunning), true);
+  
     owner->slashCombo = -1;//斬撃初期化
     AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Run)->Play(true, SE);
     owner->GetModel()->ClearSubAnimation();
-    owner->shildFlag = true;
+    
 }
 // 移動ステートで実行するメソッド
 void MoveState::Execute(float elapsedTime)
@@ -93,9 +82,9 @@ void MoveState::Execute(float elapsedTime)
     {
         owner->GetStateMachine()->ChangeSubState(static_cast<int>(Player::State::JumpStandby));// ジャンプ準備ステートへ遷移
     }
-    if (InputGame::InputRoll()) {
-        owner->GetStateMachine()->ChangeSubState(static_cast<int>(Player::State::Roll));// 回避ステートへ遷移
-    }
+    //if (InputGame::InputRoll()) {
+    //    owner->GetStateMachine()->ChangeSubState(static_cast<int>(Player::State::Roll));// 回避ステートへ遷移
+    //}
     if (owner->GetWepon()->GetBreakFlag(owner->weponType))return;
     if (owner->InputAttack())
     {
@@ -103,9 +92,9 @@ void MoveState::Execute(float elapsedTime)
         owner->GetStateMachine()->ChangeSubState(static_cast<int>(Player::State::Attack));
     }
     owner->SpecialUpdate();
-    if (InputGame::InputShift() && owner->weponType != WeponType::Shield) {
-        owner->GetStateMachine()->ChangeSubState(static_cast<int>(Player::State::Shift));// シフトステートへ遷移
-    }
+    //if (InputGame::InputShift() && owner->weponType != WeponType::Shield) {
+    //    owner->GetStateMachine()->ChangeSubState(static_cast<int>(Player::State::Shift));// シフトステートへ遷移
+    //}
 }
 // 移動ステートから出ていくときのメソッド
 void MoveState::Exit(){}
@@ -161,7 +150,7 @@ void JumpState::Execute(float elapsedTime)
     if (owner->InputAttack())
     {
         // 攻撃ステートへ遷移   
-        owner->GetStateMachine()->ChangeSubState(static_cast<int>(Player::State::FallAttack));
+        //owner->GetStateMachine()->ChangeSubState(static_cast<int>(Player::State::FallAttack));
     }
 }
 // ジャンプステートから出ていくときのメソッド
@@ -174,31 +163,31 @@ void LandState::Enter()
     owner->combo = 0;
     float g = GRAVITY;
     owner->SetGravity(g);
-    if (owner->weponType == WeponType::Halberd && owner->GetVelocity().y < owner->WSpStatus[WeponType::Halberd].y) {//一定以上の落下速度でハルバートなら
-        owner->GetModel()->PlayAnimation(Player::AnimRansuJumpAttackLoud, false);
-        owner->stingerEffect = EffectAll::Instance().stampEffect->Play(owner->GetPosition(), 1, 0);
-        EffectAll::Instance().stampEffect->SetSpeed(owner->stingerEffect, owner->effectSpeed);
-        ParticleSystem::Instance().LanceEffect(owner->GetPosition());
-        owner->combo = 1;
-    }
+    //if (owner->weponType == WeponType::Halberd && owner->GetVelocity().y < owner->WSpStatus[WeponType::Halberd].y) {//一定以上の落下速度でハルバートなら
+    //    owner->GetModel()->PlayAnimation(Player::AnimRansuJumpAttackLoud, false);
+    //    owner->stingerEffect = EffectAll::Instance().stampEffect->Play(owner->GetPosition(), 1, 0);
+    //    EffectAll::Instance().stampEffect->SetSpeed(owner->stingerEffect, owner->effectSpeed);
+    //    ParticleSystem::Instance().LanceEffect(owner->GetPosition());
+    //    owner->combo = 1;
+    //}
     AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Lund)->Stop();
     AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Lund)->Play(false, SE);
 }
 // 着地ステートで実行するメソッド
 void LandState::Execute(float elapsedTime)
 {
-    if (owner->weponType == WeponType::Halberd && owner->combo == 1) {
-        if (!owner->GetModel()->IsPlayAnimation()) {
-            AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::boom1)->Stop();
-            owner->GetStateMachine()->ChangeSubState(static_cast<int>(Player::State::Idle));
-        }
-        AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::boom1)->Play(false, SE);
-        owner->CollisionNodeVsEnemies(owner->weponRadius + owner->lanceRudius, owner->knockBackpow, owner->attackDamage, owner->attackInvincibleTime);
-    }
-    else
-    {
+    //if (owner->weponType == WeponType::Halberd && owner->combo == 1) {
+    //    if (!owner->GetModel()->IsPlayAnimation()) {
+    //        AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::boom1)->Stop();
+    //        owner->GetStateMachine()->ChangeSubState(static_cast<int>(Player::State::Idle));
+    //    }
+    //    AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::boom1)->Play(false, SE);
+    //    owner->CollisionNodeVsEnemies(owner->weponRadius + owner->lanceRudius, owner->knockBackpow, owner->attackDamage, owner->attackInvincibleTime);
+    //}
+    //else
+    //{
         owner->GetStateMachine()->ChangeSubState(static_cast<int>(Player::State::Idle));
-    }
+    //}
 }
 // 着地ステートから出ていくときのメソッド
 void LandState::Exit() {}
@@ -210,7 +199,7 @@ void RollState::Enter()
     owner->quickFlag = false;
     owner->GetWepon()->SetSwordState(SwordState::Nomal);
     // 着地アニメーション再生
-    owner->GetModel()->PlayAnimation(Player::AnimRoll, false);
+    //owner->GetModel()->PlayAnimation(Player::AnimRoll, false);
     owner->landflag = false;
     DirectX::XMFLOAT3 moveVec = owner->GetMoveVec();
     DirectX::XMFLOAT2 dir;
@@ -252,8 +241,8 @@ void StingerState::Enter()
 {
     owner->SetState(Player::State::Stinger);
     // 着地アニメーション再生
-    owner->GetModel()->PlayAnimation(Player::AnimStrikeAttack, false);
-    owner->SetAttackStatus(owner->WSpStatus[owner->weponType], owner->WSpPow[owner->weponType]);
+    //owner->GetModel()->PlayAnimation(Player::AnimStrikeAttack, false);
+    //owner->SetAttackStatus(owner->WSpStatus[owner->weponType], owner->WSpPow[owner->weponType]);
     owner->attackDir.x = owner->dir.x * owner->attackMove;
     owner->attackDir.z = owner->dir.z * owner->attackMove;
     //エフェクト用剣
@@ -321,15 +310,15 @@ void ShiftState::Enter()
 {
     owner->SetState(Player::State::Shift);
     // 武器ごとのシフトアニメーション再生
-    owner->GetModel()->PlayAnimation(owner->WeponShift[owner->weponType], false);
-    if (!owner->IsGround()) {
-        owner->GetModel()->PlayAnimation(Player::AnimShift_jump, false);
-    }
-    owner->SetAttackStatus(owner->WSStatus[owner->weponType], owner->ShifPow);
-    owner->attackDir.x = owner->dir.x;
-    owner->attackDir.z = owner->dir.z;
-    owner->attackTime = owner->shiftTime;
-    owner->shiftAttackflag = false;
+    //owner->GetModel()->PlayAnimation(owner->WeponShift[owner->weponType], false);
+    //if (!owner->IsGround()) {
+    //    owner->GetModel()->PlayAnimation(Player::AnimShift_jump, false);
+    //}
+    //owner->SetAttackStatus(owner->WSStatus[owner->weponType], owner->ShifPow);
+    //owner->attackDir.x = owner->dir.x;
+    //owner->attackDir.z = owner->dir.z;
+    //owner->attackTime = owner->shiftTime;
+    //owner->shiftAttackflag = false;
 
 }
 // シフトステートで実行するメソッド
@@ -384,8 +373,8 @@ void ShiftAttackState::Enter()
     }
     owner->GetWepon()->SetWeponType(owner->weponType);
     // シフト攻撃アニメーション再生
-    owner->GetModel()->PlayAnimation(owner->WeponShiftAttack[owner->weponType], false);
-    owner->SetAttackStatus(owner->WSAStatus[owner->weponType], owner->WSAPow[owner->weponType]);
+    //owner->GetModel()->PlayAnimation(owner->WeponShiftAttack[owner->weponType], false);
+    //owner->SetAttackStatus(owner->WSAStatus[owner->weponType], owner->WSAPow[owner->weponType]);
     Enemy* enemy = owner->CloseEnemy(100);
     XMFLOAT3 enemydir = owner->dir;
     if (enemy) {
@@ -430,9 +419,9 @@ void LanceState::Enter()
 {
     owner->SetState(Player::State::Lance);
     // アニメーション再生
-    owner->GetModel()->PlayAnimation(Player::AnimStamp, false);
-    DirectX::XMFLOAT2 dir;
-    owner->SetAttackStatus(owner->WSpStatus[owner->weponType], owner->WSpPow[owner->weponType]);
+    //owner->GetModel()->PlayAnimation(Player::AnimStamp, false);
+    //DirectX::XMFLOAT2 dir;
+    //owner->SetAttackStatus(owner->WSpStatus[owner->weponType], owner->WSpPow[owner->weponType]);
     owner->attackTime = owner->lanceTimer;
     owner->stingerEffect = EffectAll::Instance().stampEffect->Play(owner->GetPosition(), 1.0);
     EffectAll::Instance().stampEffect->SetSpeed(owner->stingerEffect, owner->effectSpeed);
@@ -457,7 +446,7 @@ void ChargeState::Enter()
 {
     owner->SetState(Player::State::Charge);
     // アニメーション再生
-    owner->GetModel()->PlayAnimation(Player::AnimCharge, false);
+    //owner->GetModel()->PlayAnimation(Player::AnimCharge, false);
     owner->chargeCount = NULL;
 }
 // チャージステートで実行するメソッド
@@ -489,8 +478,8 @@ void ChargeAttackState::Enter()
 {
     owner->SetState(Player::State::ChargeAttack);
     // アニメーション再生
-    owner->GetModel()->PlayAnimation(Player::AnimChargeAttack, false);
-    owner->SetAttackStatus(owner->WSpStatus[owner->weponType], owner->WSpPow[owner->weponType]);
+    //owner->GetModel()->PlayAnimation(Player::AnimChargeAttack, false);
+    //owner->SetAttackStatus(owner->WSpStatus[owner->weponType], owner->WSpPow[owner->weponType]);
     owner->attackTime = owner->chargeAttackTimer;
     owner->effectflag = false;
     owner->attackDir = owner->dir;
@@ -533,8 +522,8 @@ void AttackState::Enter()
 {
     owner->SetState(Player::State::Attack);
     // アニメーション再生
-    owner->GetModel()->PlayAnimation(owner->WeponCombo[owner->weponType][owner->combo], false);
-    owner->SetAttackStatus(owner->WeponComboStatus[owner->weponType][owner->combo], owner->WeponComboPow[owner->weponType][owner->combo]);
+    owner->GetModel()->PlayAnimation(owner->WeponCombo[owner->combo], false);
+    owner->SetAttackStatus(owner->WeponComboStatus[0][owner->combo], owner->WeponComboPow[0][owner->combo]);
     owner->landflag = true;//着地ステートに入らない
     owner->attackDir = owner->dir;
     AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Swing1)->Stop();
@@ -581,10 +570,10 @@ void AttackState::Execute(float elapsedTime)
     owner->Turn(elapsedTime, owner->attackDir.x, owner->attackDir.z, owner->turnSpeed * 10);
     // 任意のアニメーション再生区間でのみ衝突判定処理をする
     if (animationTime >= owner->attackStart && animationTime <= owner->attackEnd)owner->SwingInput();//スウィングSE
-    if (owner->InputAttack() && owner->combo < owner->WeponComboMax[owner->weponType]) {
+    if (owner->InputAttack() && owner->combo < owner->WeponComboMax[0]) {
         owner->comboflag = true;//コンボ先行入力
     }
-    if (animationTime >= owner->attackEnd && owner->weponType == WeponType::SubSword) {
+    if (animationTime >= owner->attackEnd && owner->combo == 2 ) {
         owner->SlashInput();//飛ぶ斬撃
     }
     if (owner->comboflag && animationTime >= owner->attackEnd) {//攻撃判定が終わったら次のコンボへ
@@ -624,17 +613,17 @@ void FallAttackState::Enter()
     owner->SetState(Player::State::FallAttack);
     // アニメーション再生
    // 落下攻撃アニメーション
-    if (owner->weponType != WeponType::Halberd) {
-        owner->GetModel()->PlayAnimation(Player::AnimJumpAttack, false, 0.0);
-        owner->SetAttackStatus(owner->FallAttackStatus[owner->FallMain], owner->FallAttackPow[owner->FallMain]);
-        owner->landflag = false;
-    }
-    else {
-        owner->GetModel()->PlayAnimation(Player::AnimRansuJumpAttack, false, 0.0);
-        owner->SetAttackStatus(owner->FallAttackStatus[owner->FallHB], owner->FallAttackPow[owner->FallHB]);
-        owner->landflag = true;
-
-    }
+    //if (owner->weponType != WeponType::Halberd) {
+    //    owner->GetModel()->PlayAnimation(Player::AnimJumpAttack, false, 0.0);
+    //    owner->SetAttackStatus(owner->FallAttackStatus[owner->FallMain], owner->FallAttackPow[owner->FallMain]);
+    //    owner->landflag = false;
+    //}
+    //else {
+    //    owner->GetModel()->PlayAnimation(Player::AnimRansuJumpAttack, false, 0.0);
+    //    owner->SetAttackStatus(owner->FallAttackStatus[owner->FallHB], owner->FallAttackPow[owner->FallHB]);
+    //    owner->landflag = true;
+    //
+    //}
     Enemy* enemy = owner->CloseEnemy(10);
     XMFLOAT3 enemydir = owner->dir;
     if (enemy) {
@@ -687,7 +676,7 @@ void GuardState::Enter()
 {
     owner->SetState(Player::State::Guard);
     // アニメーション再生
-    owner->GetModel()->PlayAnimation(Player::AnimGuard, false, 0.0);
+    //owner->GetModel()->PlayAnimation(Player::AnimGuard, false, 0.0);
     owner->attackTime = 1.5;
     owner->pGuardFlag = true;
     owner->guardFlag = true;
@@ -738,8 +727,8 @@ void CounterStandbyState::Enter()
 {
     owner->SetState(Player::State::CounterStandby);
     // アニメーション再生
-    owner->GetModel()->PlayAnimation(Player::AnimGuardbreak, false, 0.0);
-    owner->SetAttackStatus(owner->CounterStatus, owner->CounterPow);
+    //owner->GetModel()->PlayAnimation(Player::AnimGuardbreak, false, 0.0);
+    //owner->SetAttackStatus(owner->CounterStatus, owner->CounterPow);
     owner->shildFlag = false;
     Enemy* enemy = owner->CloseEnemy(1000);
     owner->attackMoveID = enemy->GetId();
@@ -770,8 +759,8 @@ void CounterState::Enter()
 {
     owner->SetState(Player::State::Counter);
     // アニメーション再生
-    owner->GetModel()->PlayAnimation(Player::AnimCounter, false, 0.4);
-    owner->SetAttackStatus(owner->CounterStatus, owner->CounterPow);
+    //owner->GetModel()->PlayAnimation(Player::AnimCounter, false, 0.4);
+    //owner->SetAttackStatus(owner->CounterStatus, owner->CounterPow);
     owner->attackTime = 0.1;
     EnemyManager& enemyManager = EnemyManager::Instance();
     DirectX::XMFLOAT3 enemydir = {};
@@ -842,12 +831,12 @@ void TeleportState::Execute(float elapsedTime)
         owner->renderflag = true;
         velocity.x = velocity.z = velocity.y = 0;
         owner->SetVelocity(velocity);
-        if (!owner->shiftAttackflag) {//シフト攻撃が当たっているか
-            owner->GetStateMachine()->ChangeSubState(static_cast<int>(Player::State::Roll));
-            return;
-        }
-        owner->GetWepon()->SetSwordState(SwordState::Nomal);
-        owner->GetStateMachine()->ChangeSubState(static_cast<int>(Player::State::ShiftAttack));
+        //if (!owner->shiftAttackflag) {//シフト攻撃が当たっているか
+        //    owner->GetStateMachine()->ChangeSubState(static_cast<int>(Player::State::Roll));
+        //    return;
+        //}
+        //owner->GetWepon()->SetSwordState(SwordState::Nomal);
+        //owner->GetStateMachine()->ChangeSubState(static_cast<int>(Player::State::ShiftAttack));
     }
     if (owner->shiftAttackflag)owner->ChangeWepon();
 
@@ -886,7 +875,7 @@ void DownState::Enter()
 {
     owner->SetState(Player::State::Down);
     // アニメーション再生
-    owner->GetModel()->PlayAnimation(Player::AnimDown, true);
+    //owner->GetModel()->PlayAnimation(Player::AnimDown, true);
     owner->landflag = false;
 }
 // ダウンステートで実行するメソッド

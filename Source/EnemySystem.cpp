@@ -15,7 +15,6 @@ void EnemySystem::Start() {
 		//dir.x = sinf(yaw);
 		//dir.y = cosf(yaw);
 		DirectX::XMFLOAT2 pos = { 105 - float(rand() % 50), 40 };
-		int len = rand() % 100 + 5;
 		bag->SetPosition(DirectX::XMFLOAT3(pos.x, 0.0f, pos.y));
 		bag->SetTerritory(bag->GetPosition(), 10.0f);
 		bag->SetActiveflag(true);
@@ -27,7 +26,8 @@ void EnemySystem::Start() {
 }
 
 void EnemySystem::Update(float elapsedTime) {
-	for (int i = 0; i < maxEnemyCount; i++) {
+	EnemyManager& enemyManager = EnemyManager::Instance();
+	for (int i = 0; i < enemyManager.GetEnemyCount(); i++) {
 		if (!EnemyManager::Instance().GetEnemy(i)->GetActiveflag()) {
 			EnemyManager::Instance().GetEnemy(i)->SetReMoveflag(true);
 			//EnemyManager::Instance().GetEnemy(i)->SetHealth(EnemyManager::Instance().GetEnemy(i)->GetMaxHealth());

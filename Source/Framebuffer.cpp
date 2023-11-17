@@ -27,16 +27,19 @@ Framebuffer::Framebuffer(ID3D11Device* device, uint32_t width, uint32_t height)
     Microsoft::WRL::ComPtr<ID3D11Texture2D> depth_stencil_buffer;
     DsvBuffer(device, width, height, &depth_stencil_buffer, &depthStencilView, &shaderResourceViews[1]);
     
-    Light* light = new Light({ 1.0f, -1.0f, 0.0f }, 0.0f, 2.0f, 2.0f, 2.0f);
+    Light* light = new Light({ 1.0f, -1.0f, 1.0f }, 0.0f, 1.0f, 1.0f, 1.0f);
     LightManager::Instance().Register(light);
-    light = new Light({ -1.0f, -1.0f, 0.0f }, 0.0f, 2.5f, 2.5f, 2.5f);
+    light = new Light({ -1.0f, -1.0f, 1.0f }, 0.0f, 1.5f, 1.5f, 1.5f);
     LightManager::Instance().Register(light);
-    light = new Light({ 0.0f, -1.0f, 1.0f }, 0.0f, 2.0f, 2.0f, 2.0f);
+    light = new Light({ 1.0f, -1.0f, -1.0f }, 0.0f, 2.0f, 2.0f, 2.0f);
     LightManager::Instance().Register(light);
-    light = new Light({ 0.0f, -1.0f, -1.0f }, 0.0f, 2.5f, 2.5f, 2.5f);
+    light = new Light({ -1.0f, -1.0f, -1.0f }, 0.0f, 1.5f, 1.5f, 1.5f);
     LightManager::Instance().Register(light);
-    light = new Light({ 1.0f, 1.0f, 1.0f }, 0.0f, 0.5f, 0.5f, 0.5f);
+    light = new Light({ 1.0f, -1.0f, 0.0f }, 0.0f, 1.0f, 1.0f, 1.0f);
     LightManager::Instance().Register(light);
+    light = new Light({ -1.0f, -1.0f, 0.0f }, 0.0f, 1.5f, 1.5f, 1.5f);
+    LightManager::Instance().Register(light);
+    light = new Light({ 0.0f, 1.0f, 0.0f }, 0.0f, 0.5f, 0.5f, 0.5f);
     //light->AddDirLight({ 1,-1,0 }, 2.0, 2.0, 2.0);
     //light->AddDirLight({ 1,1,1 }, 0.2, 0.2, 0.2);
     //for (int i = 0; i < 5; i++) {
