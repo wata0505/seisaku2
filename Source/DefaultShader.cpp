@@ -209,15 +209,15 @@ void DefaultShader::Draw(ID3D11DeviceContext* dc, Model* model, const DirectX::X
 				cbSubset.timer = material.pbr.timer;
 				cbSubset.scanTiling = material.pbr.scanTiling;
 				cbSubset.scanSpeed = material.pbr.scanSpeed;
-				cbSubset.scanBorder = material.pbr.scanBorder;
+				cbSubset.scanBorder = uvstatus.y;
 				cbSubset.glowTiling = material.pbr.glowTiling;
 				cbSubset.glowSpeed = material.pbr.glowSpeed;
-				cbSubset.glowBorder = material.pbr.glowBorder;
-				cbSubset.hologramBorder = material.pbr.hologramBorder;
+				cbSubset.glowBorder = uvstatus.z;
+				cbSubset.hologramBorder = uvstatus.w;
 				cbSubset.rimStrength = material.pbr.rimStrength;
 				// グリッチ情報
 				cbSubset.glitchSpeed = material.pbr.glitchSpeed;
-				cbSubset.glitchIntensity = material.pbr.glitchIntensity;
+				cbSubset.glitchIntensity = uvstatus.x;
 				cbSubset.glitchScale = material.pbr.glitchScale;
 				dc->UpdateSubresource(subsetConstantBuffer.Get(), 0, 0, &cbSubset, 0, 0);
 #if 0
@@ -239,7 +239,7 @@ void DefaultShader::Draw(ID3D11DeviceContext* dc, Model* model, const DirectX::X
 				dc->UpdateSubresource(constantBuffer.Get(), 0, 0, &buffers, 0, 0);
 				dc->VSSetConstantBuffers(0, 1, constantBuffer.GetAddressOf());
 				dc->PSSetConstantBuffers(0, 1, constantBuffer.GetAddressOf());
-				uv.uvStatus = uvstatus;
+				uv.uvStatus = DirectX::XMFLOAT4(0,0,0,0);
 				dc->UpdateSubresource(uvBuffer.Get(), 0, 0, &uv, 0, 0);
 				dc->PSSetConstantBuffers(2, 1, uvBuffer.GetAddressOf());
 				//テクスチャ
