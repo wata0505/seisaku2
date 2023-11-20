@@ -300,19 +300,12 @@ public:
         {
             float adjustMetalness = 0.0f;	// 金属度
             float adjustSmoothness = 0.0f;	// 粗さ
-            float emissiveStrength = 1.0f;	// エミッシブ強度
-            float timer = 0.0f;				// 更新時間
-            float scanTiling = 20.0f;		// 解像度
-            float scanSpeed = -2.0f;		// スクロール速度
-            float scanBorder = 10.0f;		// 描画範囲
-            float glowTiling = 1.0f;		// 解像度
-            float glowSpeed = 2.0f;			// スクロール速度
-            float glowBorder = 10.0f;		// 描画範囲
-            float hologramBorder = -10.0f;	// 描画範囲
-            float rimStrength = 3.0f;		// リムライト強度
-            float glitchSpeed = 0.0f;		// スクロール速度
             float glitchIntensity = 0.0f;	// 強度
             float glitchScale = 0.0f;		// 振れ幅
+            float timer = 0.0f;				// 更新時間
+            float scanBorder = 10.0f;		// 描画範囲
+            float glowBorder = 10.0f;		// 描画範囲
+            float hologramBorder = -10.0f;	// 描画範囲
             DirectX::XMFLOAT4	outlineColor = { 1.0f, 0.0f, 0.0f, 1.0f };
             float outlineSize = 0.1f;
             PBR() {}

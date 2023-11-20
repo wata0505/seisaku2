@@ -29,9 +29,7 @@ StageMain::~StageMain()
 void StageMain::Update(float elapseTime)
 {
 	timer += elapseTime * 3.0f;
-	model->PBRAdjustment(0.0f, 0.0f, 1.0f);
-	model->HologramAdjustment(timer, 20.0f, 0.0f, -100.0f, 20.0f, 0.0f, -100.0f, -100.0f, 3.0f);
-	model->GlitchAdjustment(timer, 50.0f, 0.0f, 0.0f);
+	model->ShaderAdjustment(0.0f, 0.0f, 0.0f, timer);
 }
 
 void StageMain::Render(ID3D11DeviceContext* dc, ModelShader* shader)

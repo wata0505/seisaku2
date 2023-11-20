@@ -59,18 +59,11 @@ cbuffer SubsetConstantBuffer : register(b6)
 {
     float adjustMetalness;	// 金属度
     float adjustSmoothness;	// 粗さ
-    float emissiveStrength;	// エミッシブ強度
-    float timer;			// 更新時間
-    float scanTiling;		// 解像度
-    float scanSpeed;		// スクロール速度
-    float scanBorder;		// 描画範囲
-    float glowTiling;		// 解像度
-    float glowSpeed;		// スクロール速度
-    float glowBorder;		// 描画範囲
-    float hologramBorder;	// 描画範囲
-    float rimStrength;		// リムライト強度
-    float glitchSpeed;		// スクロール速度
     float glitchIntensity;	// 強度
     float glitchScale;		// 振れ幅
-    float dummy6;
+    float timer;			// 更新時間
+    float scanBorder;		// 描画範囲
+    float glowBorder;		// 描画範囲
+    float hologramBorder;	// 描画範囲
+    //float3 dummy6;
 };

@@ -13,6 +13,8 @@
 #include "ParticleSystem.h"
 #include "ParticleSprite.h"
 #include"Base.h"
+#include "Mathf.h"
+
 // コンストラクタ
 EnemyBag::EnemyBag(bool tutorial)
 {
@@ -94,14 +96,30 @@ float EnemyBag::MovePow() {
 }
 void EnemyBag::Update(float elapsedTime)
 {
+	timer += elapsedTime;
+	if (stateMachine->GetStateNum() == static_cast<int>(EnemyBag::BagState::ReDamage))
+	{
+		lerpGlitchIntensity = 1.0f;
+		//scanBorder = -10.0f;
+		//glowBorder = 10.0f;
+		//hologramBorder = 10.0f;
+	}
+	else
+	{
+		lerpGlitchIntensity = 0.0f;
+	}
+	glitchIntensity = Mathf::Lerp(glitchIntensity, lerpGlitchIntensity, elapsedTime * 20.0f);
+	model->ShaderAdjustment(adjustMetalness, adjustSmoothness, glitchScale, timer);
+
 	//描画判定
 	if (reMoveflag)ReMove();
 	if (!activeflag)return;
 	UpdateRnderflag();
 	float ElapsedTime = elapsedTime;
-	timer += elapsedTime;
-	if (Player::Instance().GetQuickflag()) {
-		ElapsedTime *= 0.5;
+	
+	if (Player::Instance().GetQuickflag()) 
+	{
+		ElapsedTime *= 0.5f;
 	}
 	if (health <= 0) {
 		if (!model->IsPlayAnimation()) {
@@ -111,51 +129,26 @@ void EnemyBag::Update(float elapsedTime)
 			renderflag = false;
 			//position.y = -2000;
 		}
-		ElapsedTime *= 0.3;
+		ElapsedTime *= 0.3f;
 		UpdateTransform((int)Character::AxisType::RHSYUP, (int)Character::LengthType::Cm);
 		model->UpdateAnimation(ElapsedTime,"pelvis");
 		// モデル行列更新
 		model->UpdateBufferDara(transform);
 		//renderdata = model->GetBufferData();
 #if 1
-		deathTimer += elapsedTime;
-		//if (deathTimer <= 1.0f)
-		//{
-		//	alpha = 1.0f;
-		//	glitchIntensity = 0.0f;
-		//	scanBorder = 10.0f;
-		//	hologramBorder = -10.0f;
-		//}
-		//else if (deathTimer >= 1.0f && deathTimer <= 1.5f)
-		if (deathTimer >= 0.0f && deathTimer <= 0.5f)
-		{
-			//alpha -= elapsedTime;
-			glitchIntensity = 1.0f;
-			scanBorder = -10.0f;
-			glowBorder = 10.0f;
-			hologramBorder = 10.0f;
-		}
-		else if (deathTimer >= 1.5f && deathTimer <= 2.0f)
-		{
-			//alpha = 0.5f;
-		}
-		else if (deathTimer >= 2.0f && deathTimer <= 2.5f)
-		{
-			//alpha -= elapsedTime;
-		}
-		else if (deathTimer >= 2.5f)
-		{
-			//alpha = 0.0f;
-		}
-		model->PBRAdjustment(adjustMetalness, adjustSmoothness, emissiveStrength);
-		model->HologramAdjustment(timer, scanTiling, scanSpeed, scanBorder, glowTiling, glowSpeed, glowBorder, hologramBorder, rimStrength);
-		model->GlitchAdjustment(timer, glitchSpeed, glitchIntensity, glitchScale);
+		hologramBorder = 20.0f;
+		//glitchIntensity = 1.0f;
+		//model->ShaderAdjustment(adjustMetalness, adjustSmoothness, glitchScale, timer);
 #endif
 		return;
 	}
 	
 	if (!isActiveStart)
 	{
+		if (activeTimer > 0.0f)
+		{
+			ElapsedTime = 0.0f;
+		}
 		activeTimer += elapsedTime;
 		float moveTimer = elapsedTime * 20.0f;
 		if (activeTimer <= 0.9f)
@@ -179,59 +172,16 @@ void EnemyBag::Update(float elapsedTime)
 				}
 			}
 		}
-		model->PBRAdjustment(adjustMetalness, adjustSmoothness, emissiveStrength);
-		model->HologramAdjustment(timer, scanTiling, scanSpeed, scanBorder, glowTiling, glowSpeed, glowBorder, hologramBorder, rimStrength);
-		model->GlitchAdjustment(timer, glitchSpeed, glitchIntensity, glitchScale);		
-		ElapsedTime = 0.0f;
+		//model->ShaderAdjustment(adjustMetalness, adjustSmoothness, glitchScale, timer);
+		
 	}
 	
-
 	//ヒットストップ
 	if (Player::Instance().GetAttackHitflag()) ElapsedTime *= hitStop;
 	TargetUpdate();
 	//stateMachine->SetState(static_cast<int>(BagState::Search));
 	//ステートマシン更新
-	stateMachine->Update(elapsedTime);
-
-#if 0
-	// 現在のステート番号に合わせてデバッグ文字列をstrに格納
-	switch (static_cast<BagState>(stateMachine->GetStateNum())) {
-	case BagState::Search:
-		str = "Search";
-		if (stateMachine->GetState()->GetSubStateNum() == static_cast<int>(EnemyBag::Search::Wander))
-		{
-			subStr = "Wander";
-		}
-		if (stateMachine->GetState()->GetSubStateNum() == static_cast<int>(EnemyBag::Search::Idle))
-		{
-			subStr = "Idle";
-		}
-		break;
-	case BagState::Battle:
-		str = "Battle";
-		// Battleステートの表示はSearchを参考に考えてください。
-		if (stateMachine->GetState()->GetSubStateNum() == static_cast<int>(EnemyBag::Battle::Pursuit))
-		{
-			subStr = "Pursuit";
-		}
-		if (stateMachine->GetState()->GetSubStateNum() == static_cast<int>(EnemyBag::Battle::Attack))
-		{
-			subStr = "Attack";
-		}
-		if (stateMachine->GetState()->GetSubStateNum() == static_cast<int>(EnemyBag::Battle::Standby))
-		{
-			subStr = "Stanby";
-		}
-		break;
-	case BagState::Recieve:
-		str = "Recieve";
-		if (stateMachine->GetState()->GetSubStateNum() == static_cast<int>(EnemyBag::Recieve::Called))
-		{
-			subStr = "Called";
-		}
-		break;
-	}
-#endif
+	stateMachine->Update(ElapsedTime);
 
 	// 速力処理更新
 	UpdateVelocity(ElapsedTime);
@@ -373,7 +323,7 @@ void EnemyBag::Render(ID3D11DeviceContext* dc, ModelShader* shader)
 	//if (health <= 0) {
 	//	return;
 	//}
-	if (renderflag)shader->Draw(dc, model.get(), { glitchIntensity, scanBorder,glowBorder,hologramBorder});
+	if (renderflag)shader->Draw(dc, model.get(), { glitchIntensity, scanBorder, glowBorder, hologramBorder});
 }
 
 void EnemyBag::DrawDebugPrimitive()

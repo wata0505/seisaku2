@@ -619,8 +619,8 @@ Animation::Keyframe::node* Model::FindNode(const char* name)
 	return nullptr;
 }
 
-// 物理ベース情報調整
-void Model::PBRAdjustment(float adjustMetalness, float adjustSmoothness, float emissiveStrength)
+// シェーダー情報調整
+void Model::ShaderAdjustment(float adjustMetalness, float adjustSmoothness, float glitchScale, float timer)
 {
 	for (const SkinnedMeshResouurce::Mesh& mesh : resource->GetMeshes())
 	{
@@ -631,46 +631,8 @@ void Model::PBRAdjustment(float adjustMetalness, float adjustSmoothness, float e
 			SkinnedMeshResouurce::Material& mat = const_cast<SkinnedMeshResouurce::Material&>(material);
 			mat.pbr.adjustMetalness = adjustMetalness;		// 金属度
 			mat.pbr.adjustSmoothness = adjustSmoothness;	// 粗さ
-			mat.pbr.emissiveStrength = emissiveStrength;	// エミッシブ強度
-		}
-	}
-}
-// ホログラム情報調整
-void Model::HologramAdjustment(float timer, float scanTiling, float scanSpeed, float scanBorder, float glowTiling, float glowSpeed, float glowBorder, float hologramBorder, float rimStrength)
-{
-	for (const SkinnedMeshResouurce::Mesh& mesh : resource->GetMeshes())
-	{
-		for (const SkinnedMeshResouurce::Mesh::subset& subset : mesh.subsets)
-		{
-			// マテリアルの識別ID からマテリアルを取得し参照として設定
-			const SkinnedMeshResouurce::Material& material{ resource->materials.find({subset.materialUniqueId}).operator*() };
-			SkinnedMeshResouurce::Material& mat = const_cast<SkinnedMeshResouurce::Material&>(material);
-			mat.pbr.timer = timer;						// 更新時間
-			mat.pbr.scanTiling = scanTiling;			// 解像度
-			mat.pbr.scanSpeed = scanSpeed;				// スクロール速度
-			mat.pbr.scanBorder = scanBorder;			// 描画範囲
-			mat.pbr.glowTiling = glowTiling;			// 解像度
-			mat.pbr.glowSpeed = glowSpeed;				// スクロール速度
-			mat.pbr.glowBorder = glowBorder;			// 描画範囲
-			mat.pbr.hologramBorder = hologramBorder;	// 描画範囲
-			mat.pbr.rimStrength = rimStrength;			// リムライト強度
-		}
-	}
-}
-// グリッチ情報調整
-void Model::GlitchAdjustment(float timer, float glitchSpeed, float glitchIntensity, float glitchScale)
-{
-	for (const SkinnedMeshResouurce::Mesh& mesh : resource->GetMeshes())
-	{
-		for (const SkinnedMeshResouurce::Mesh::subset& subset : mesh.subsets)
-		{
-			// マテリアルの識別ID からマテリアルを取得し参照として設定
-			const SkinnedMeshResouurce::Material& material{ resource->materials.find({subset.materialUniqueId}).operator*() };
-			SkinnedMeshResouurce::Material& mat = const_cast<SkinnedMeshResouurce::Material&>(material);
-			mat.pbr.timer = timer;				// 更新時間
-			mat.pbr.glitchSpeed = glitchSpeed;			// スクロール速度
-			mat.pbr.glitchIntensity = glitchIntensity;	// 強度
-			mat.pbr.glitchScale = glitchScale;			// 振れ幅
+			mat.pbr.glitchScale = glitchScale;				// 振れ幅
+			mat.pbr.timer = timer;							// 更新時間			
 		}
 	}
 }

@@ -39,10 +39,11 @@ VS_OUT main(VS_IN vin)
     float4 pos = mul(vin.position, mul(world, view_projection));
     if (glitchIntensity > 0.0f)
     {
+        float glitchSpeed = 50.0f;
         float noise = blockNoise(pos.y * (glitchIntensity + 1.0f) * glitchScale);
         noise += random(pos.x) * 0.3f;
         float2 randomvalue = noiserandom(float2(pos.y, timer * glitchSpeed));
-        pos.x += randomvalue * sin(sin(glitchIntensity) * 0.5f) * sin(-sin(noise) * 0.2f) * frac(timer);
+        pos.x += randomvalue * sin(sin(glitchIntensity) * 0.5f) * sin(-sin(noise) * 0.2f) * frac(timer) * 10.0f;
     }
     //vout.position = mul(vin.position, mul(world, view_projection));
     vout.position = pos;

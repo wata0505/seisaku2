@@ -204,21 +204,15 @@ void DefaultShader::Draw(ID3D11DeviceContext* dc, Model* model, const DirectX::X
 				// PBR情報
 				cbSubset.adjustMetalness = material.pbr.adjustMetalness;
 				cbSubset.adjustSmoothness = material.pbr.adjustSmoothness;
-				cbSubset.emissiveStrength = material.pbr.emissiveStrength;
+				// グリッチ情報
+				cbSubset.glitchIntensity = uvstatus.x;
+				cbSubset.glitchScale = material.pbr.glitchScale;				
 				// ホログラム情報
 				cbSubset.timer = material.pbr.timer;
-				cbSubset.scanTiling = material.pbr.scanTiling;
-				cbSubset.scanSpeed = material.pbr.scanSpeed;
 				cbSubset.scanBorder = uvstatus.y;
-				cbSubset.glowTiling = material.pbr.glowTiling;
-				cbSubset.glowSpeed = material.pbr.glowSpeed;
 				cbSubset.glowBorder = uvstatus.z;
 				cbSubset.hologramBorder = uvstatus.w;
-				cbSubset.rimStrength = material.pbr.rimStrength;
-				// グリッチ情報
-				cbSubset.glitchSpeed = material.pbr.glitchSpeed;
-				cbSubset.glitchIntensity = uvstatus.x;
-				cbSubset.glitchScale = material.pbr.glitchScale;
+				
 				dc->UpdateSubresource(subsetConstantBuffer.Get(), 0, 0, &cbSubset, 0, 0);
 #if 0
 				// アウトライン用定数バッファ更新
