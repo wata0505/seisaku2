@@ -2,10 +2,10 @@
 #include "Camera.h"
 StageObj::StageObj(DirectX::XMFLOAT3 pos,float angle2)
 {
-	obj = std::make_unique<Model>(".\\resources\\cube4.fbx", true, false);
-	obj->ModelSerialize(".\\resources\\cube4.fbx");
+	obj = std::make_unique<Model>(".\\resources\\Box.fbx", true, false);
+	obj->ModelSerialize(".\\resources\\Box.fbx");
 	//model->ModelCreate(".\\resources\\ExampleStage\\ExampleStage.fbx");
-	obj->ModelRegister(".\\resources\\cube4.fbx","Stag\\Stage.fbm\\Tile.png");
+	obj->ModelRegister(".\\resources\\Box.fbx","Stag\\Stage.fbm\\Tile.png");
 	// çsóÒçXêV
 	angle.y = DirectX::XMConvertToRadians(angle2);
 	position = pos;
