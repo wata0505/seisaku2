@@ -96,12 +96,14 @@ void ProjectileStraite::StraightUpdate(float elapsedTime){
 	scale.z += elapsedTime*speed;
 	uvStatus.z = 0;
 	if (angle < 0) {
-		ParticleSprite* particleSprite = new ParticleSprite(position, direction, ParticleSprite::ParticleImpact, ParticleSprite::Expansion, int(EffectTexAll::EfTexAll::Impact), 1, 0.8);
+		ParticleSprite* particleSprite = new ParticleSprite(position, direction, ParticleSprite::ParticleImpact, ParticleSprite::Expansion, int(EffectTexAll::EfTexAll::Impact), 1, 0.8,rand() % 100 *0.001);
 		angle = 0.2;
-		ParticleSystem::Instance().RubbleEffect({ position.x,position.y -5,position.z }, 30, 100);
+		ParticleSystem::Instance().RubbleEffect({ position.x,position.y -5,position.z }, 10, 100);
+		ParticleSystem::Instance().Rubble2Effect({ position.x,position.y,position.z }, 5, 100);
 	}
 	angle -= elapsedTime;
-	light->SetPos(position, 50, 3, 3, 3);
+	//light->SetPos(position, 50, 3, 3, 3);
+	uvStatus.y = NULL;
 }
 void ProjectileStraite::RotateUpdate(float elapsedTime) {
 	Player& player = Player::Instance();
@@ -272,7 +274,9 @@ void ProjectileStraite::BeemUpdate(float elapsedTime) {
 //•`‰æˆ—
 void ProjectileStraite::Render(ID3D11DeviceContext* dc, ModelShader* shader)
 {
-	shader->Draw(dc, model.get(),uvStatus,materialColor);
+	if (type = Type::Straight) {
+		shader->Draw(dc, model.get(), uvStatus, materialColor);
+	}
 }
 
 void ProjectileStraite::TrailRender(RenderContext& rc, SwordTrailShader* shader)
@@ -308,9 +312,9 @@ void ProjectileStraite::Launch(std::shared_ptr <Model> buffer, float height, flo
 	}
 	if (type == Type::Straight) {
 		uvStatus.y = 0.0;
-		speed = 40;
-		light = new Light(position, 0, 1, 1, 1);
-		LightManager::Instance().Register(light);
+		speed = 60;
+		//light = new Light(position, 0, 1, 1, 1);
+		//LightManager::Instance().Register(light);
 		if (player.GetLockOnflag()) {
 			DirectX::XMVECTOR E = DirectX::XMLoadFloat3(&player.GetLockEnemyPos());
 			DirectX::XMVECTOR P = DirectX::XMLoadFloat3(&position);
@@ -318,7 +322,7 @@ void ProjectileStraite::Launch(std::shared_ptr <Model> buffer, float height, flo
 			DirectX::XMVECTOR N = DirectX::XMVector3Normalize(V);
 			DirectX::XMStoreFloat3(&direction, N);
 		}
-		radius = 1.0;
+		radius = 3.0;
 		ParticleSystem::Instance().ImpactEffect({ position.x,position.y,position.z },direction, int(EffectTexAll::EfTexAll::BlueThader), 80, { NULL,NULL,2,1 });
 	}
 	if (type == Type::Column) {

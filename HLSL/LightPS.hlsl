@@ -13,7 +13,7 @@ float4 main(VS_OUT pin) : SV_TARGET
 	// 点光源方向
 	float4 P = PositionTexture.Sample(sampler_states[ANISOTROPIC], pin.texcoord);
 	float uv = (P.x + P.y + P.z) / 3;
-	if (uv == 0 && LightDirection.w > 0)return tex;
+	//if (uv == 0 && LightDirection.w > 0)return tex;
 	float3 PLightPos = LightDirection.xyz;
 	float3 PLightDir = P.xyz - PLightPos;
 	// ライト種別
@@ -39,7 +39,7 @@ float4 main(VS_OUT pin) : SV_TARGET
 	d = saturate(d); // 0～1にクリッピング
 	tex.rgb = C * d; //ライト決定
 	if (NL > 1.3) tex = 1.0;
-	if (uv == 0)  tex = 0.7;
+	//if (uv == 0)  tex = 0.7;
 	//tex = {1,1,1,1};
 	return tex;
 }

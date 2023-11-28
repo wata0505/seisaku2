@@ -6,7 +6,7 @@
 #include"Player.h"
 
 // コンストラクタ
-ParticleSprite::ParticleSprite(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 dir, int spritetype, int movetype, int textype, int Max, float lifetimer,float lenght,bool lifeflag,float speed, DirectX::XMFLOAT4 materialColor)//基底クラスのコンストラクタ呼び出し
+ParticleSprite::ParticleSprite(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 dir, int spritetype, int movetype, int textype, int Max, float lifetimer,float lenght,bool lifeflag,float speed,float size, DirectX::XMFLOAT4 materialColor)//基底クラスのコンストラクタ呼び出し
 {
 	this->materialColor = materialColor;
 	this->lifeflag = lifeflag;
@@ -45,7 +45,7 @@ ParticleSprite::ParticleSprite(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 dir, int
 		CreateSlashingResource(pos, dir);
 		break;
 	case Diffusion:
-		CreateDiffusionResource(pos, dir,speed,lenght);
+		CreateDiffusionResource(pos, dir,speed,lenght,size);
 		break;
 	case Convergence:
 		CreateConvergenceResource(pos);
@@ -54,7 +54,7 @@ ParticleSprite::ParticleSprite(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 dir, int
 		CreateSlashResource(pos, dir);
 		break;
 	case Expansion:
-		CreateExpansionResource(pos, dir);
+		CreateExpansionResource(pos, dir,lenght);
 		break;
 	case WeponConvergence:
 		CreateWeponConvergenceResource(pos, dir);
@@ -105,7 +105,7 @@ ParticleSprite::~ParticleSprite()
 
 	
 }
-HRESULT ParticleSprite::CreateDiffusionResource(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 dir,float speed, float lenght) {
+HRESULT ParticleSprite::CreateDiffusionResource(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 dir,float speed, float lenght,float size) {
 	HRESULT hr;
 
 	//初期化用データ
@@ -138,11 +138,17 @@ HRESULT ParticleSprite::CreateDiffusionResource(DirectX::XMFLOAT3 pos, DirectX::
 		dir.z = cosf(pitch) * cosf(yaw);
 		posVertex[i].Position = Vector3::PosDir(posVertex[i].Position, dir, lenght);
 		posVertex[i].Velocity = dir;//速度
-		posVertex[i].Speed = ((rand() %50)+ 20 )* speed;//speed;//速度
+		if (i % 2) {
+			posVertex[i].Speed = (40) * speed;//speed;//速度
+		}
+		else
+		{
+			posVertex[i].Speed = (rand() % 50 + 20) * speed;//
+		}
 		//サイズ
-		posVertex[i].ParticleSize.x = posVertex[i].ParticleSize.y = posVertex[i].ParticleSize.z = posVertex[i].ParticleSize.w = 0.42;
+		posVertex[i].ParticleSize.x = posVertex[i].ParticleSize.y = posVertex[i].ParticleSize.z = posVertex[i].ParticleSize.w = size;
 		posVertex[i].type = Diffusion;
-		posVertex[i].Timer = rand() % 50 + 50;
+		posVertex[i].Timer = rand() % 50 + i;
 	}
 	uvStatus.x = 1.5;//ディゾルブのかけ具合０～３
 	// リソースの設定
@@ -263,14 +269,14 @@ HRESULT ParticleSprite::CreateSlashResource(DirectX::XMFLOAT3 pos, DirectX::XMFL
 	delete[] posVertex;
 	return S_OK;
 }
-HRESULT ParticleSprite::CreateExpansionResource(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 dir) {
+HRESULT ParticleSprite::CreateExpansionResource(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 dir,float leght) {
 	materialColor = { 1,1,1,0.4};
 	//初期化用データ
 	ID3D11Device* device = Graphics::Instance().GetDevice();
 	struct PVConstants* posVertex = new PVConstants[max];
 	for (int i = 0; i < max; ++i) {
 		posVertex[i].Position = pos;
-		float speed = 0.1 * i + 0.03;
+		float speed = 0.1 * i + leght;
 		posVertex[i].Velocity = dir;//速度
 		posVertex[i].Speed = speed;//速度
 		posVertex[i].ParticleSize.x = 0;
@@ -409,9 +415,9 @@ void ParticleSprite::Update(float elapsedTime)
 	case Corruption:
 		up =  player.GetTailPos();
 		down  = player.GetPatternPos();
-		if (player.GetWeponChange() || player.GetUseWeponBreak() || player.GetShiftAttackflag()) {
-			Destroy();
-		}
+		//if (player.GetWeponChange() || player.GetUseWeponBreak() || player.GetShiftAttackflag()) {
+		//	Destroy();
+		//}
 		break;
 	case Chile:
 		

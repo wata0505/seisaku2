@@ -99,17 +99,17 @@ void CameraController::Update(float elapsedTime)
 	//0に線形補完
 	eyeheight = Mathf::Lerp(eyeheight, 0, correction);
 	eye.y += eyeheight;
-	DirectX::XMFLOAT3 start = { eye.x,target.y + 100,eye.z };
+	DirectX::XMFLOAT3 start = { target.x,target.y,target.z };
 	// レイの終点位置は移動後の位置
-	DirectX::XMFLOAT3 end = { eye.x,eye.y-1,eye.z };
+	DirectX::XMFLOAT3 end = { eye.x,eye.y,eye.z };
 
 	// レイキャストによる地面判定
-	//HitResult hit;
-	////if (health > 0) {
-	//if (StageManager::Instance().RayCast(start, end, hit))
-	//{
-	//	eye.y = hit.position.y + 1;
-	//}
+	HitResult hit;
+	//if (health > 0) {
+	if (StageManager::Instance().RayCast(start, end, hit))
+	{
+		eye = hit.position;
+	}
 	//最小値で線形補完
 	cameraEye.x = Mathf::Lerp(cameraEye.x, eye.x, correction * 20);
 	//最小値で線形補完

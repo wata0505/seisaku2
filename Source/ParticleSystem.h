@@ -7,7 +7,18 @@
 class ParticleSystem
 {
 public:
-	ParticleSystem() {};
+	ParticleSystem() {
+		DirectX::XMFLOAT3 n(0, 1, 0);		//軸（正規化）
+		float angle = 0;			//角度（ラジアン）
+
+		orientation = {
+			sinf(angle / 2) * n.x,
+			sinf(angle / 2) * n.y,
+			sinf(angle / 2) * n.z,
+			cosf(angle / 2)
+		};
+	
+	};
 	~ParticleSystem() {};
 
 	// 更新処理
@@ -24,6 +35,8 @@ void BarrierEffect(const DirectX::XMFLOAT3& position, float size, int textype, D
 void BarrierEnemyEffect(float enemyID, int textype, DirectX::XMFLOAT4 color);
 //岩飛び散るエフェクト
 void RubbleEffect(DirectX::XMFLOAT3 position,int Max,int SpeedMax);
+//岩が飛び出るエフェクト
+void Rubble2Effect(DirectX::XMFLOAT3 position, int Max, int SpeedMax);
 //爆発エフェクト
 void BoomEffect(DirectX::XMFLOAT3 position,int max,int textype,float size,float liftimer,DirectX::XMFLOAT4 color);
 //衝撃エフェクト
@@ -32,8 +45,12 @@ void ImpactEffect(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 dir, int textype
 void FlameBreathBoomEffect(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 dir, int max, int textype, float size, DirectX::XMFLOAT4 color);
 //ブレスエフェクト
 void FlameBreathEffect(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 dir);
+//渦巻収束
+void SeirlConvergenceEffect(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 dir);
 
 private:
 	//岩のタイプ
 	int rockType[Particle::Rock3] = { Particle::Rock1,Particle::Rock2,Particle::Rock3 };
+	DirectX::XMFLOAT4	orientation = {};
+	const float PIDIV180 = 0.017452f;
 };

@@ -47,6 +47,9 @@ void Particle::Update(float elapsedTime)
 		case ParticleType::Rubble:
 			RubbleUpdate(elapsedTime);
 			break;
+		case ParticleType::Rubble2:
+			Rubble2Update(elapsedTime);
+			break;
 		case ParticleType::Boom:
 			BoomUpdate(elapsedTime);
 			break;
@@ -134,6 +137,24 @@ void Particle::RubbleUpdate(float elapsedTime) {
 		move.directionUp.y = 0;
 		move.directionUp.z = move.direction.x;
 		
+		move.direction.y += -elapsedTime;
+		//move.speed -= elapsedTime;
+	}
+}
+void Particle::Rubble2Update(float elapsedTime) {
+	//ŠâŠgŽU
+	for (MoveConstants& move : moves) {
+		float speed = move.speed * elapsedTime;
+		if (move.position.y > -2.5) return;
+		move.position.x += move.direction.x * speed;
+		move.position.y += move.direction.y * speed;
+		move.position.z += move.direction.z * speed;
+
+		DirectX::XMFLOAT3 up = { 0,0,0 };
+		move.directionUp.x = -move.direction.z;
+		move.directionUp.y = 0;
+		move.directionUp.z = move.direction.x;
+	    
 		move.direction.y += -elapsedTime;
 		//move.speed -= elapsedTime;
 	}

@@ -33,6 +33,7 @@ void main(point GS_INPUT In[1],
 		H = 0.5;
 	}
 	Out.Tex = float2(W, H);
+	if (In[0].Mer == -1) Out.Tex = float2(0, 0);
 	float3 wPos = posLT.xyz;
 	//Out.wPosition = wPos;
 	Out.Color = float2(0.0, 0.0);
@@ -51,6 +52,7 @@ void main(point GS_INPUT In[1],
 		H = 0.5;
 	}
 	Out.Tex = float2(W, H);
+	if (In[0].Mer == -1) Out.Tex = float2(1, 0);
 	wPos = posLB.xyz;
 	//Out.wPosition = wPos;
 	Out.Color = float2(1.0, 0.0);
@@ -67,8 +69,9 @@ void main(point GS_INPUT In[1],
 	if (In[0].Mer >= 60) {
 		H = 1.0;
 	}
+	
 	Out.Tex = float2(W, H);
-
+	if(In[0].Mer == -1) Out.Tex = float2(0, 1);
 	wPos = posRT.xyz;
 	//Out.wPosition = wPos;
 	Out.Color = float2(0.0, 1.0);
@@ -86,6 +89,7 @@ void main(point GS_INPUT In[1],
 		H = 1.0;
 	}
 	Out.Tex = float2(W, H);
+	if (In[0].Mer == -1) Out.Tex = float2(1, 1);
 	wPos = posRB.xyz;
 	//Out.wPosition = wPos;
 	Out.Color = float2(1.0, 1.0);

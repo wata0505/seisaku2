@@ -8,7 +8,7 @@
 class StageObj :public Stage
 {
 public:
-	StageObj(DirectX::XMFLOAT3 pos);
+	StageObj(DirectX::XMFLOAT3 pos,float angle2 = 0);
 	~StageObj()override;
 
 	//XVˆ—
@@ -42,5 +42,5 @@ private:
 	bool renderflag = true;
 	float radius = 5.0;
 	float height = 10;
-
+	DirectX::XMFLOAT4X4   transform2 = { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
 };

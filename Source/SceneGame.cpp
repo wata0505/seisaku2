@@ -66,22 +66,15 @@ void SceneGame::Initialize()
 	stageManager.Register(stageMain);
 
 	DirectX::XMFLOAT2 dir = { 0,0 };
-	DirectX::XMFLOAT3 pos = { 100,-2.5,-120 };
-	float angle = 0;
-	//for (int i = 0; i < 10; i++)
-	//{
-	//
-	//	angle = DirectX::XMConvertToRadians(36 * i);
-	//	dir.x = sinf(angle);
-	//	dir.y = cosf(angle);
-	//	pos.x = dir.x * 70;
-	//	pos.y = -1.5;
-	//	pos.z = dir.y * 70;
-	//	StageObj* stageObj = new StageObj(pos);
-	//	//stageObj->SetPosition(pos);
-	//	stageManager.Register(stageObj);
-	//}
+	DirectX::XMFLOAT3 pos[3] = { { 50,0,-50 },{60,0,17},{130,0,-70} };
+	float angle[3] = { 0,90,-45 };
 	
+	for (int i = 0; i < 3; i++) {
+		StageObj* stageObj = new StageObj(pos[i],angle[i]);
+		stageManager.Register(stageObj);
+	}
+	
+	pos[0] = { 100,-2.5,-120 };
 	Camera& camera = Camera::Instance();
 	camera.SetLookAt(
 		DirectX::XMFLOAT3(0, 0, -10),
@@ -99,7 +92,7 @@ void SceneGame::Initialize()
 	
 
 	player = std::make_unique<Player>();
-	base = std::make_unique<Base>(pos);
+	base = std::make_unique<Base>(pos[0]);
 	//ピクセルシェーダーオブジェクト
 	create_ps_from_cso(device.Get(), "Shader\\PostEffectPS.cso", pixel_shaders[0].GetAddressOf());
 	create_ps_from_cso(device.Get(), "Shader\\BlurPS.cso", pixel_shaders[1].GetAddressOf());
@@ -260,9 +253,10 @@ void SceneGame::Render()
 	}
 	ModelShader* shader = graphics.GetShader(Graphics::ModelShaderId::ShadowmapCaster);
 	shader->Begin(immediate_context, rc);
+	StageManager::Instance().Render(immediate_context, shader);
 	player->render(immediate_context, shader);
 	//base->Render(immediate_context,shader);
-	StageManager::Instance().Render(immediate_context, shader);
+
 	//EnemyManager::Instance().Render(immediate_context, shader);
 	StageManager::Instance().InstaningRender(immediate_context,shader);
 	shader->End(immediate_context);
@@ -309,13 +303,14 @@ void SceneGame::Render()
 
 	//デフォルトシェーダー
 	shader = graphics.GetShader(Graphics::ModelShaderId::ModelShaderDefault);
+	
 	shader->Begin(immediate_context, rc);
 	StageManager::Instance().Render(immediate_context, shader);
-	shader->Begin(immediate_context, rc);
 	player->render(immediate_context, shader);
 	base->Render(immediate_context, shader);
 	EnemyManager::Instance().Render(immediate_context, shader);
 	StageManager::Instance().InstaningRender(immediate_context, shader);
+	
 	shader->End(immediate_context);
 	//レンダーターゲット切り替え
 	immediate_context->OMSetRenderTargets(1, render_target_view.GetAddressOf(), graphics.GetDepthStencilView());
@@ -332,7 +327,7 @@ void SceneGame::Render()
 	framebuffers[0]->RenderActivate(immediate_context);
 	//デバック関係
 	projectImgui();
-	//player->DrawDebugGUI();
+	player->DrawDebugGUI();
 	//EnemyManager::Instance().DrawDebugGUI();
 	//graphics.GetDebugRenderer()->Render(immediate_context, rc.view, rc.projection);
 

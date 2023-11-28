@@ -1,10 +1,10 @@
 #include "StageManager.h"
 
 StageManager::StageManager() {
-	obj = std::make_unique<Model>(".\\resources\\Stag\\Pillar.fbx", true, false);
-	obj->ModelSerialize(".\\resources\\Stag\\Pillar.fbx");
+	obj = std::make_unique<Model>(".\\resources\\cube4.fbx", true, false);
+	obj->ModelSerialize(".\\resources\\cube4.fbx");
 	//model->ModelCreate(".\\resources\\ExampleStage\\ExampleStage.fbx");
-	obj->ModelRegister(".\\resources\\Stag\\Pillar.fbx");
+	obj->ModelRegister(".\\resources\\cube4.fbx", "Stag\\CyberStage5.fbm\\Emission.png");
 }
 
 void StageManager::Update(float elapsedTime)

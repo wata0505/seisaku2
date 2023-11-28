@@ -57,9 +57,12 @@ public:
         AnimJump1,
         AnimJump2,
         AnimJump3,
+        AnimJumpAttack,
+        AnimLound,
         Anim1Combo1,
         Anim1Combo2,
         Anim1Combo3,
+        Anim1Combo4,
     };
     
     enum AttackNo
@@ -171,7 +174,7 @@ public:
     //武器切り替え状態取得
     bool GetWeponChange() { return weponChange; }
     //使ってる武器が壊れているか
-    bool GetUseWeponBreak() { return wepon->GetBreakFlag(weponType); }
+    //bool GetUseWeponBreak() { return wepon->GetBreakFlag(weponType); }
     //描画しているか
     bool GetRenderflag() { return renderflag; }
     //シフト攻撃しているか
@@ -189,7 +192,7 @@ public:
     //敵との距離
     float GetEnemyLength() { return enemyLength; }
     //武器取得
-    MainWepon* GetWepon() { return wepon.get(); };
+   // MainWepon* GetWepon() { return wepon.get(); };
 
     //移動入力処理
     bool InputMove(float elapsedTime);
@@ -268,7 +271,7 @@ private:
     //SE更新
     void AudioUpdate();
     //ヒット斬撃方向取得
-    DirectX::XMFLOAT3 GetSlashDir();
+    //DirectX::XMFLOAT3 GetSlashDir();
     
     //ヒット情報入力
     void HitInput(float damge,float invincibleTime);
@@ -434,10 +437,10 @@ public://変更又取得が多い変数
     int chargeMax = 3;
 
     //武器ごとのアニメーション
-    int WeponCombo[3] = { Anim1Combo1,Anim1Combo2,Anim1Combo3 };
+    int WeponCombo[4] = { Anim1Combo1,Anim1Combo2,Anim1Combo3,Anim1Combo4 };
     //武器のアクションステータス
     DirectX::XMFLOAT4 WeponComboStatus[WeponType::WeponMax][4] = {
-        {{1, 0, 0.1f, 0.3f},{1, 0, 0.1f, 0.3f},{1, 0, 0.2f, 0.3f},{0.2, 0, 0.1f, 1.0f},},
+        {{3, 0, 0.1f, 0.4f},{3, 0, 0.1f, 0.4f},{1, 0, 0.2f, 0.8f},{0.2, 0, 0.1f, 0.8f},},
         {{0.6, 0, 0.5f,0.8f},{0.8, 0, 0.9f, 1.32f},{0.8, 0, 1.1f, 1.5f},{ 0,  0,0.0f, 0.0f},},
         {{1, 0, 0.1f, 1.3f},{1, 0, 0.2f, 1.2f},{0.5, 0, 0.5f, 2.5f},{ 0,  0,0.0f, 0.0f},},
         {{1, 0, 0.4f, 0.75f},{1, 0, 0.75f, 1.05f},{1, 0, 1.08f, 1.38f},{ 0,  0,0.0f, 0.0f},},
@@ -454,9 +457,15 @@ public://変更又取得が多い変数
     };
    
     //武器ごとのコンボ最大数
-    int WeponComboMax[5] = { 2,2,2,2,0 };
+    int WeponComboMax[5] = { 3,2,2,2,0 };
 
     DirectX::XMFLOAT4 ShifPow = { 0, 0,1,0.3 };
+
+    DirectX::XMFLOAT4 FallAttackStatus = { -20, 0,0.3,0.9 };
+    DirectX::XMFLOAT4 FallAttackPow = { 10, 0.1,1,0.9 };
+
+    //攻撃アニメーションノード格納
+    const char* attackNode[4] = { "te_R_1" ,"te_L_1","ashikubi_R","te_R_1" };
 
     //弾関係
     ObjectManager objectManager;
@@ -500,7 +509,7 @@ private:
     
     //武器関係
     std::shared_ptr<SwordTrail> swordTrail;
-    std::unique_ptr<MainWepon> wepon;
+    //std::unique_ptr<MainWepon> wepon;
     
     DirectX::XMFLOAT4X4		world = {
         1,0,0,0,

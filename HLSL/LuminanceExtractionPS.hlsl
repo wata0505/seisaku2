@@ -30,8 +30,8 @@ float4 main(VS_OUT pin) : SV_TARGET
 	contribution /= luminance;
 	color.rgb *= contribution * intensity;
 	if (color.x >= 0.1 && color.y >= 0.1&& color.z >= 0.1) {
-		color = float4(0.1, 0.1, 0.1, 0);
-		return  color;
+		//color = float4(0.1, 0.1, 0.1, 1);
+		//return  color;
 	}
 	return color;
 

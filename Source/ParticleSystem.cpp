@@ -131,6 +131,46 @@ void ParticleSystem::RubbleEffect(DirectX::XMFLOAT3 position, int Max, int Speed
     particleManager.Register(particle);
 }
 
+void ParticleSystem::Rubble2Effect(DirectX::XMFLOAT3 position, int Max, int SpeedMax) {
+    ParticleManager& particleManager = ParticleManager::Instance();
+    Particle::MoveConstants move;
+    std::vector<Particle::MoveConstants> moveConst;
+    for (int i = 0; i < Max; i++) {
+        float angle = DirectX::XMConvertToRadians(rand() % 360);
+        float length = rand() % 5;
+        DirectX::XMFLOAT3 Vec, pos;
+        Vec.x = sinf(angle);
+        Vec.z = cosf(angle);
+        pos.x = position.x;
+        pos.y = position.y - 6;
+        pos.z = position.z;
+        //ãŒü‚«ƒ‰ƒ“ƒ_ƒ€‚Å
+        float angleX = DirectX::XMConvertToRadians(90);
+        float angleY = 0;
+        if (i % 2) {
+            angleY = DirectX::XMConvertToRadians(90 - 35);
+        }
+        else
+        {
+            angleY = DirectX::XMConvertToRadians(90 + 35);
+        }
+        Vec.y = sin(angleY);
+        Vec.x = cosf(angleY) * sinf(angleX);
+        Vec.z = cosf(angleY) * cosf(angleX);
+        //Vec = Vector3::add({0,1,0}, Vec);
+        float speed = rand() % SpeedMax + 100;
+        move.position = pos;
+        move.direction = Vec;
+        move.speed = speed;
+        moveConst.push_back(move);
+
+    }
+    Particle* particle = new Particle;
+    //ƒ‰ƒ“ƒ_ƒ€‚ÌŠâƒ‚ƒfƒ‹
+    particle->Launch(moveConst, ParticleType::Rubble2, rockType[rand() % Particle::Rock3 + Particle::Lance], static_cast<int>(ParticleShader::ModelPSType::Default), NULL, 1.5, { 1,0,0,1 });
+    particleManager.Register(particle);
+}
+
 
 void ParticleSystem::BoomEffect(DirectX::XMFLOAT3 position, int max, int textype, float size, float liftimer, DirectX::XMFLOAT4 color) {
     ParticleManager& particleManager = ParticleManager::Instance();
@@ -214,5 +254,31 @@ void ParticleSystem::FlameBreathEffect(DirectX::XMFLOAT3 position, DirectX::XMFL
     particle->Launch(Vec, position, InstancingSprite::FlameBreath, InstancingSprite::FlameBreath, 1.5, speed, { 1,1,1,1 });
     particleManager.Register(particle);
     
+
+}
+
+void ParticleSystem::SeirlConvergenceEffect(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 dir) {
+    InstancingSpriteManager& particleManager = InstancingSpriteManager::Instance();
+    DirectX::XMVECTOR orientationVec = DirectX::XMLoadFloat4(&orientation);
+    DirectX::XMMATRIX m = DirectX::XMMatrixRotationQuaternion(orientationVec);
+    
+    DirectX::XMFLOAT3 pos;
+     float angle = 2.0;
+     pos.x = cosf(angle * PIDIV180) * 10;
+     pos.y = sinf(angle * PIDIV180) * 10;
+     pos.z = 0;
+
+     DirectX::XMVECTOR pVec = DirectX::XMLoadFloat3(&pos);
+     DirectX::XMStoreFloat3(&pos, DirectX::XMVector3Transform(pVec, m));
+
+     pos.x += position.x;
+     pos.y += position.y;
+     pos.z += position.z;
+    
+    float speed = 12.0;
+    InstancingSprite* particle = new InstancingSprite;
+    //particle->Launch(Vec, pos, InstancingSprite::FlameBreath, InstancingSprite::FlameBreath, 1.5, speed, { 1,1,1,1 });
+    //particleManager.Register(particle);
+
 
 }

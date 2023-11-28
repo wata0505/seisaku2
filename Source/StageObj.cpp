@@ -1,16 +1,17 @@
 #include"StageObj.h"
 #include "Camera.h"
-StageObj::StageObj(DirectX::XMFLOAT3 pos)
+StageObj::StageObj(DirectX::XMFLOAT3 pos,float angle2)
 {
-	obj = std::make_unique<Model>(".\\resources\\Stag\\Pillar.fbx", true, false);
-	obj->ModelSerialize(".\\resources\\Stag\\Pillar.fbx");
+	obj = std::make_unique<Model>(".\\resources\\cube4.fbx", true, false);
+	obj->ModelSerialize(".\\resources\\cube4.fbx");
 	//model->ModelCreate(".\\resources\\ExampleStage\\ExampleStage.fbx");
-	obj->ModelRegister(".\\resources\\Stag\\Pillar.fbx");
+	obj->ModelRegister(".\\resources\\cube4.fbx","Stag\\Stage.fbm\\Tile.png");
 	// 行列更新
-	
+	angle.y = DirectX::XMConvertToRadians(angle2);
 	position = pos;
-	scale.x = scale.y = scale.z = 3.0;
+	scale.x = scale.y = scale.z = 10.0;
 	UpdateTransform();
+	transform2 = transform;
 	obj->UpdateBufferDara(transform);
 	transform = obj->GetBufferTransform();
 	instsncing = true;//インスタンシング
@@ -25,13 +26,13 @@ StageObj::~StageObj()
 //更新処理
 void StageObj::Update(float elapseTime)
 {
-	//renderflag = Collision::IntersectFanVsSphere(
-	//	Camera::Instance().GetEye(),
-	//	Camera::Instance().GetFront(),
-	//	Camera::Instance().GetFovY(),
-	//	Camera::Instance().GetFarZ(),
-	//	position,
-	//	radius);
+	renderflag = Collision::IntersectFanVsSphere(
+		Camera::Instance().GetEye(),
+		Camera::Instance().GetFront(),
+		Camera::Instance().GetFovY(),
+		Camera::Instance().GetFarZ(),
+		position,
+		radius);
 
 }
 
@@ -41,12 +42,13 @@ void StageObj::Render(ID3D11DeviceContext* dc, ModelShader* shader)
 	//model->UpdateTransform(transform);
 
 	//シェーダーにモデルを描画してもらう
-	//if(renderflag)shader->Draw(dc, obj.get(), obj->GetBufferData());
+	//if(renderflag)shader->Draw(dc, obj.get());
 }
 
 bool StageObj::RayCast(const DirectX::XMFLOAT3& start, const DirectX::XMFLOAT3& end, HitResult& hit)
 {
-	return false;
+	float i = 0;
+	return Collision::IntersectRayVsModel(start, end, obj.get(), hit, transform2);
 }
 bool StageObj::PillarVS(const DirectX::XMFLOAT3& pos, const float radius, const float height, DirectX::XMFLOAT3& outPos)
 {

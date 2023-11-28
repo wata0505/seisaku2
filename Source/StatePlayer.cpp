@@ -17,7 +17,7 @@ void IdleState::Enter()
 	owner->combo = 0;
 	owner->rollflag = false;
 	owner->shildFlag = true;//縦描画
-	owner->GetWepon()->SetSwordState(SwordState::Nomal);//剣の位置初期化
+	//owner->GetWepon()->SetSwordState(SwordState::Nomal);//剣の位置初期化
 	owner->GetModel()->PlayAnimation(static_cast<int>(Player::AnimIdle), true);//待機アニメーション
 	owner->GetModel()->ClearSubAnimation();//サブアニメーション初期化
 }
@@ -36,7 +36,7 @@ void IdleState::Execute(float elapsedTime)
     //    owner->GetStateMachine()->ChangeSubState(static_cast<int>(Player::State::Roll)); // 回避ステートへ遷移
     //}
     owner->Turn(elapsedTime, owner->dir.x, owner->dir.z, owner->turnSpeed);
-    if (owner->GetWepon()->GetBreakFlag(owner->weponType))return;
+    //if (owner->GetWepon()->GetBreakFlag(owner->weponType))return;
     if (owner->InputAttack())
     {
         // 攻撃ステートへ遷移
@@ -67,10 +67,7 @@ void MoveState::Enter()
 // 移動ステートで実行するメソッド
 void MoveState::Execute(float elapsedTime)
 {
-    if (owner->GetWepon()->GetDisslve() == 1) {
-        owner->GetWepon()->SetSwordState(SwordState::Nomal);
-        owner->GetWepon()->SetRnderflag(true);
-    }
+    
     // 移動入力処理
     if (!owner->InputMove(elapsedTime))
     {
@@ -85,7 +82,6 @@ void MoveState::Execute(float elapsedTime)
     //if (InputGame::InputRoll()) {
     //    owner->GetStateMachine()->ChangeSubState(static_cast<int>(Player::State::Roll));// 回避ステートへ遷移
     //}
-    if (owner->GetWepon()->GetBreakFlag(owner->weponType))return;
     if (owner->InputAttack())
     {
         // 攻撃ステートへ遷移
@@ -150,7 +146,7 @@ void JumpState::Execute(float elapsedTime)
     if (owner->InputAttack())
     {
         // 攻撃ステートへ遷移   
-        //owner->GetStateMachine()->ChangeSubState(static_cast<int>(Player::State::FallAttack));
+        owner->GetStateMachine()->ChangeSubState(static_cast<int>(Player::State::FallAttack));
     }
 }
 // ジャンプステートから出ていくときのメソッド
@@ -163,31 +159,28 @@ void LandState::Enter()
     owner->combo = 0;
     float g = GRAVITY;
     owner->SetGravity(g);
-    //if (owner->weponType == WeponType::Halberd && owner->GetVelocity().y < owner->WSpStatus[WeponType::Halberd].y) {//一定以上の落下速度でハルバートなら
-    //    owner->GetModel()->PlayAnimation(Player::AnimRansuJumpAttackLoud, false);
-    //    owner->stingerEffect = EffectAll::Instance().stampEffect->Play(owner->GetPosition(), 1, 0);
-    //    EffectAll::Instance().stampEffect->SetSpeed(owner->stingerEffect, owner->effectSpeed);
-    //    ParticleSystem::Instance().LanceEffect(owner->GetPosition());
-    //    owner->combo = 1;
-    //}
+    if (owner->GetVelocity().y < -10.5) {//一定以上の落下速度でハルバートなら
+        owner->GetModel()->PlayAnimation(Player::AnimLound, false);
+        owner->combo = 3;
+    }
     AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Lund)->Stop();
     AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Lund)->Play(false, SE);
 }
 // 着地ステートで実行するメソッド
 void LandState::Execute(float elapsedTime)
 {
-    //if (owner->weponType == WeponType::Halberd && owner->combo == 1) {
-    //    if (!owner->GetModel()->IsPlayAnimation()) {
-    //        AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::boom1)->Stop();
-    //        owner->GetStateMachine()->ChangeSubState(static_cast<int>(Player::State::Idle));
-    //    }
-    //    AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::boom1)->Play(false, SE);
-    //    owner->CollisionNodeVsEnemies(owner->weponRadius + owner->lanceRudius, owner->knockBackpow, owner->attackDamage, owner->attackInvincibleTime);
-    //}
-    //else
-    //{
-        owner->GetStateMachine()->ChangeSubState(static_cast<int>(Player::State::Idle));
-    //}
+    if (owner->combo == 3) {
+        if (!owner->GetModel()->IsPlayAnimation()) {
+            AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::boom1)->Stop();
+            owner->GetStateMachine()->ChangeSubState(static_cast<int>(Player::State::Idle));
+        }
+        AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::boom1)->Play(false, SE);
+        owner->CollisionNodeVsEnemies(5, owner->knockBackpow, owner->attackDamage, owner->attackInvincibleTime);
+    }
+    else
+    {
+      owner->GetStateMachine()->ChangeSubState(static_cast<int>(Player::State::Idle));
+    }
 }
 // 着地ステートから出ていくときのメソッド
 void LandState::Exit() {}
@@ -197,7 +190,7 @@ void RollState::Enter()
 {
     owner->SetState(Player::State::Roll);
     owner->quickFlag = false;
-    owner->GetWepon()->SetSwordState(SwordState::Nomal);
+    
     // 着地アニメーション再生
     //owner->GetModel()->PlayAnimation(Player::AnimRoll, false);
     owner->landflag = false;
@@ -327,10 +320,10 @@ void ShiftState::Execute(float elapsedTime)
     owner->SetVelocityY(0);
     float animationTime = owner->GetModel()->GetCurrentAnimationSeconds();
     if (animationTime > owner->attackEnd) {//武器を投げる
-        owner->GetWepon()->SetShiftDirection({ owner->attackDir.x, 0, owner->attackDir.z });
+       
         owner->attackDir.x = owner->dir.x;
         owner->attackDir.z = owner->dir.z;
-        owner->GetWepon()->SetSwordState(SwordState::Shift);
+       
         if (owner->renderflag) {//エフェクト発生
             ParticleSprite* particleSprite = new ParticleSprite(owner->GetPosition(), owner->GetEfPos(), ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Metal), 2000, 3, 3, true);
             Afterimage* projectile = new Afterimage(&owner->objectManager);
@@ -340,15 +333,15 @@ void ShiftState::Execute(float elapsedTime)
         owner->renderflag = false;
     }
     if (owner->renderflag == false)owner->attackTime -= elapsedTime;
-    if (owner->GetWepon()->GetSwordState() == SwordState::Shift) {
-        owner->CollisionNodeVsEnemies(owner->weponRadius, owner->knockBackpow, owner->attackDamage, owner->attackInvincibleTime);
-        owner->attackCollisionFlag = true;
-        owner->SwordEffect();
-    }
-    if (owner->attackTime < 0) {//武器が当たらなかった
-        owner->teleportPos = owner->GetWepon()->GetPosition();
-        owner->GetStateMachine()->ChangeSubState(static_cast<int>(Player::State::Teleport));
-    }
+    //if (owner->GetWepon()->GetSwordState() == SwordState::Shift) {
+    //    owner->CollisionNodeVsEnemies(owner->weponRadius, owner->knockBackpow, owner->attackDamage, owner->attackInvincibleTime);
+    //    owner->attackCollisionFlag = true;
+    //    owner->SwordEffect();
+    //}
+    //if (owner->attackTime < 0) {//武器が当たらなかった
+    //    owner->teleportPos = owner->GetWepon()->GetPosition();
+    //    owner->GetStateMachine()->ChangeSubState(static_cast<int>(Player::State::Teleport));
+    //}
     owner->Turn(elapsedTime, owner->attackDir.x, owner->attackDir.z, owner->turnSpeed);
 }
 // シフトステートから出ていくときのメソッド
@@ -366,12 +359,12 @@ void ShiftAttackState::Enter()
     {
         owner->weponType++;
         if (owner->weponType > 3) owner->weponType = 0;
-        if (!owner->GetWepon()->GetBreakFlag(owner->weponType)) {//壊れるか盾ならスキップ
-            break;
-        }
+        //if (!owner->GetWepon()->GetBreakFlag(owner->weponType)) {//壊れるか盾ならスキップ
+        //    break;
+        //}
         weponCount++;
     }
-    owner->GetWepon()->SetWeponType(owner->weponType);
+    //owner->GetWepon()->SetWeponType(owner->weponType);
     // シフト攻撃アニメーション再生
     //owner->GetModel()->PlayAnimation(owner->WeponShiftAttack[owner->weponType], false);
     //owner->SetAttackStatus(owner->WSAStatus[owner->weponType], owner->WSAPow[owner->weponType]);
@@ -452,16 +445,13 @@ void ChargeState::Enter()
 // チャージステートで実行するメソッド
 void ChargeState::Execute(float elapsedTime)
 {
-    if (!owner->GetModel()->IsPlayAnimation() && owner->chargeCount < owner->chargeMax && owner->GetWepon()->GetWeponLife(owner->weponType) > 1) {//武器の耐久値を犠牲にしてチャージする
-        ParticleSprite* particleSprite = new ParticleSprite(owner->GetWepon()->GetWeaponPoint(), owner->GetWepon()->GetWeaponPoint(), ParticleSprite::ParticleSoft, ParticleSprite::Convergence, int(EffectTexAll::EfTexAll::Flame), 2000, 3, 3, true);
-        AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Chage)->Stop();
-        AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Chage)->Play(false, SE);
-        owner->chargeCount++;
-        owner->GetWepon()->Exhaustion(owner->chargeCount);
-        if (owner->GetWepon()->GetWeponLife(owner->weponType) < 1) {
-            owner->GetWepon()->SetWeponLife(owner->weponType, 1);
-        }
-    }
+    //if (!owner->GetModel()->IsPlayAnimation() && owner->chargeCount < owner->chargeMax && owner->GetWepon()->GetWeponLife(owner->weponType) > 1) {//武器の耐久値を犠牲にしてチャージする
+    //    ParticleSprite* particleSprite = new ParticleSprite(owner->GetWepon()->GetWeaponPoint(), owner->GetWepon()->GetWeaponPoint(), ParticleSprite::ParticleSoft, ParticleSprite::Convergence, int(EffectTexAll::EfTexAll::Flame), 2000, 3, 3, true);
+    //    AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Chage)->Stop();
+    //    AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Chage)->Play(false, SE);
+    //    owner->chargeCount++;
+    //   
+    //}
     if (!InputGame::InputSpecial() && !owner->chargeCount) {
         owner->GetStateMachine()->ChangeSubState(static_cast<int>(Player::State::Idle));
     }
@@ -506,8 +496,8 @@ void ChargeAttackState::Execute(float elapsedTime)
     }
 
     if (owner->attackTime < 0 && !owner->effectflag) {//エフェクト
-        ParticleSprite* particleSprite = new ParticleSprite(owner->GetPosition(), owner->GetWepon()->GetWeaponPoint(), ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Distortion), 3000, 3, NULL, true);
-        ParticleSystem::Instance().BoomEffect(owner->GetWepon()->GetWeaponPoint(), 1, int(EffectTexAll::EfTexAll::Thunder), 7 * owner->chargeCount, 1,{ 1,NULL,NULL,1 });
+        //ParticleSprite* particleSprite = new ParticleSprite(owner->GetPosition(), owner->GetWepon()->GetWeaponPoint(), ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Distortion), 3000, 3, NULL, true);
+        //ParticleSystem::Instance().BoomEffect(owner->GetWepon()->GetWeaponPoint(), 1, int(EffectTexAll::EfTexAll::Thunder), 7 * owner->chargeCount, 1,{ 1,NULL,NULL,1 });
         //ParticleSystem::Instance().RubbleEffect(owner->GetWepon()->GetWeaponPoint());
         AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Rock)->Play(false, SE);
         AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::boom2)->Play(false, SE);
@@ -532,7 +522,7 @@ void AttackState::Enter()
     DirectX::XMFLOAT3 enemydir = {};
     float dist = FLT_MAX;
     if (!owner->lockOn || owner->counterFlag) {
-        Enemy* enemy = owner->CloseEnemy(50);
+        Enemy* enemy = owner->CloseEnemy(100);
         XMFLOAT3 enemydir = owner->dir;
         if (enemy) {
             owner->DirToLength(owner->GetPosition(), { enemy->GetPosition().x,owner->GetPosition().y,enemy->GetPosition().z }, enemydir, owner->enemyLength);
@@ -555,8 +545,8 @@ void AttackState::Execute(float elapsedTime)
         velocity.z = owner->attackDir.z * (owner->GetModel()->GetRootPow() * owner->attackMove);
     }
     else {
-        velocity.x = owner->attackDir.x * (owner->GetModel()->GetRootPow());
-        velocity.z = owner->attackDir.z * (owner->GetModel()->GetRootPow());
+        velocity.x = owner->attackDir.x * (owner->GetModel()->GetRootPow() * owner->attackMove);
+        velocity.z = owner->attackDir.z * (owner->GetModel()->GetRootPow() * owner->attackMove);
     }
     owner->SetVelocity(velocity);
     if (!owner->GetModel()->IsPlayAnimation())
@@ -566,14 +556,14 @@ void AttackState::Execute(float elapsedTime)
         owner->combo = 0;
         return;
     }
-    if (owner->GetWepon()->GetBreakFlag(owner->weponType))return;
+    
     owner->Turn(elapsedTime, owner->attackDir.x, owner->attackDir.z, owner->turnSpeed * 10);
     // 任意のアニメーション再生区間でのみ衝突判定処理をする
     if (animationTime >= owner->attackStart && animationTime <= owner->attackEnd)owner->SwingInput();//スウィングSE
     if (owner->InputAttack() && owner->combo < owner->WeponComboMax[0]) {
         owner->comboflag = true;//コンボ先行入力
     }
-    if (animationTime >= owner->attackEnd && owner->combo == 2 ) {
+    if (animationTime >= owner->attackEnd && owner->combo == 3 ) {
         owner->SlashInput();//飛ぶ斬撃
     }
     if (owner->comboflag && animationTime >= owner->attackEnd) {//攻撃判定が終わったら次のコンボへ
@@ -596,13 +586,14 @@ void AttackState::Execute(float elapsedTime)
         // 武器とエネミーの衝突処理
         owner->CollisionNodeVsEnemies(owner->weponRadius, owner->knockBackpow, owner->attackDamage, owner->attackInvincibleTime);
     }
-    if (animationTime <= owner->attackEnd + 0.2 && animationTime >= owner->attackEnd && owner->GetWepon()->GetWeaponPoint().y <= 0.1 && !owner->effectflag) {
+    if (animationTime <= owner->attackEnd + 0.2 && animationTime >= owner->attackEnd  && !owner->effectflag) {
         if (owner->attackDamage > 1) {
-            ParticleSprite* particleSprite = new ParticleSprite(owner->GetWepon()->GetPosition(), owner->GetWepon()->GetWeaponPoint(), ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Flame), 100, 0.2, 0, true, 0.2);
+            //ParticleSprite* particleSprite = new ParticleSprite(owner->GetWepon()->GetPosition(), owner->GetWepon()->GetWeaponPoint(), ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Flame), 100, 0.2, 0, true, 0.2);
             owner->SetShakeInput({ 0,1,0 }, owner->attackDamage);
         }
         owner->effectflag = true;
     }
+   
 }
 // 攻撃ステートから出ていくときのメソッド
 void AttackState::Exit() {}
@@ -619,9 +610,9 @@ void FallAttackState::Enter()
     //    owner->landflag = false;
     //}
     //else {
-    //    owner->GetModel()->PlayAnimation(Player::AnimRansuJumpAttack, false, 0.0);
-    //    owner->SetAttackStatus(owner->FallAttackStatus[owner->FallHB], owner->FallAttackPow[owner->FallHB]);
-    //    owner->landflag = true;
+        owner->GetModel()->PlayAnimation(Player::AnimJumpAttack, false, 0.0);
+        owner->SetAttackStatus(owner->FallAttackStatus, owner->FallAttackPow);
+        owner->landflag = true;
     //
     //}
     Enemy* enemy = owner->CloseEnemy(10);
@@ -633,15 +624,16 @@ void FallAttackState::Enter()
     owner->SetGravity(0);
     owner->effectflag = false;
     owner->shildFlag = false;
+    owner->combo = 3;
 }
 // 落下攻撃ステートで実行するメソッド
 void FallAttackState::Execute(float elapsedTime)
 {
     if (!owner->GetModel()->IsPlayAnimation())
     {
-        owner->GetWepon()->SetRnderflag(false);
+       
         // 待機ステートへ
-        owner->GetStateMachine()->ChangeSubState(static_cast<int>(Player::State::Idle));
+        //owner->GetStateMachine()->ChangeSubState(static_cast<int>(Player::State::Idle));
         owner->SetGravity(-1.0f);
     }
     owner->Turn(elapsedTime, owner->attackDir.x, owner->attackDir.z, owner->turnSpeed);
@@ -655,9 +647,9 @@ void FallAttackState::Execute(float elapsedTime)
         owner->CollisionNodeVsEnemies(owner->weponRadius * 2, owner->knockBackpow, owner->attackDamage, owner->attackInvincibleTime);
     }
     if (owner->IsGround() && !owner->effectflag) {
-        ParticleSprite* particleSprite = new ParticleSprite(owner->GetWepon()->GetPosition(), owner->GetWepon()->GetWeaponPoint(), ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Flame), 100, 0.2, 0, true, 0.2);
+        //ParticleSprite* particleSprite = new ParticleSprite(owner->GetWepon()->GetPosition(), owner->GetWepon()->GetWeaponPoint(), ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Flame), 100, 0.2, 0, true, 0.2);
         owner->SetShakeInput({ 0,1,0 }, 5);
-        owner->GetWepon()->SetSwordState(SwordState::Stop);
+        //owner->GetWepon()->SetSwordState(SwordState::Stop);
 
         owner->effectflag = true;
     }
@@ -710,12 +702,7 @@ void GuardState::Execute(float elapsedTime)
         owner->guardDir.x = owner->dir.x;
         owner->guardDir.y = owner->dir.z;
     }
-    if (owner->GetWepon()->GetBreakFlag(owner->weponType)) {//壊れたらルートモーション
-        XMFLOAT3 velocity{ 0,0,0 };
-        velocity.x = owner->guardDir.x * owner->GetModel()->GetRootPow();
-        velocity.z = owner->guardDir.y * owner->GetModel()->GetRootPow();
-        owner->SetVelocity(velocity);
-    }
+   
 
     owner->Turn(elapsedTime, owner->guardDir.x, owner->guardDir.y, owner->turnSpeed);
 }
@@ -809,10 +796,10 @@ void TeleportState::Enter()
 {
     owner->SetState(Player::State::Teleport);
     // アニメーション再生
-    owner->GetWepon()->SetSwordState(SwordState::Stop);
+   // owner->GetWepon()->SetSwordState(SwordState::Stop);
     owner->landflag = false;
     owner->renderflag = false;
-    ParticleSprite* particleSprite = new ParticleSprite(owner->teleportPos, { NULL,NULL,NULL }, ParticleSprite::ParticleSoft, ParticleSprite::Convergence, int(EffectTexAll::EfTexAll::Distortion), 2000, 3, 5, true, 0.05, { 0.5,0.5,0.5,1.0 });
+    ParticleSprite* particleSprite = new ParticleSprite(owner->teleportPos, { NULL,NULL,NULL }, ParticleSprite::ParticleSoft, ParticleSprite::Convergence, int(EffectTexAll::EfTexAll::Distortion), 2000, 3, 5, true, 0.05,0.05, { 0.5,0.5,0.5,1.0 });
     owner->quickFlag = true;
 }
 // テレポートステートで実行するメソッド

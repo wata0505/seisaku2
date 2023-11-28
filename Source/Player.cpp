@@ -44,14 +44,17 @@ Player::Player() {
     instance = this;
 
     player = std::make_unique<Model>(".\\resources\\Player\\playermode5l.fbx", true);
-    player->AppendAnimations(".\\resources\\Player\\taiki.fbx", 0);
+    player->AppendAnimations(".\\resources\\Player\\taiki1.fbx", 0);
     player->AppendAnimations(".\\resources\\Player\\dash.fbx", 0);
-    player->AppendAnimations(".\\resources\\Player\\jump3.fbx", 0);
-    player->AppendAnimations(".\\resources\\Player\\jump1.fbx", 0);
+    player->AppendAnimations(".\\resources\\Player\\jump4.fbx", 0);
+    player->AppendAnimations(".\\resources\\Player\\jump_6.fbx", 0);
     player->AppendAnimations(".\\resources\\Player\\jump2.fbx", 0);
-     player->AppendAnimations(".\\resources\\Player\\ATK1.fbx", 0);
-    player->AppendAnimations(".\\resources\\Player\\ATK2.fbx", 0);
-    player->AppendAnimations(".\\resources\\Player\\ATK3.fbx", 0);
+    player->AppendAnimations(".\\resources\\Player\\jumpAttack.fbx", 0);
+    player->AppendAnimations(".\\resources\\Player\\Lond.fbx", 0);
+     player->AppendAnimations(".\\resources\\Player\\ATK1_3.fbx", 0);
+    player->AppendAnimations(".\\resources\\Player\\ATK2_2.fbx", 0);
+    player->AppendAnimations(".\\resources\\Player\\ATK4.fbx", 0);
+    player->AppendAnimations(".\\resources\\Player\\ATK3_2.fbx", 0);
     player->ModelSerialize(".\\resources\\Player\\playermode5l.fbx");
    // player->ModelCreate(".\\resources\\AimTest\\GreatSword.fbx");
     player->ModelRegister(".\\resources\\Player\\playermode5l.fbx");
@@ -69,7 +72,7 @@ Player::Player() {
     beem->ModelSerialize(".\\resources\\Cube.fbx");
     beem->ModelRegister(".\\resources\\Cube.fbx");
     beem->UpdateBufferDara(transform);
-    wepon = std::make_unique<MainWepon>();
+    //wepon = std::make_unique<MainWepon>();
     maxHealth = 20;
     health = maxHealth;
     mp = mpMax;
@@ -134,8 +137,8 @@ void Player::update(float elapsedTime) {
     stateMachine->Update(elapsedTime);
     //player->PlayAnimation(-1,false);
     //アニメーション更新
-    player->UpdateAnimation(animeTimer, "root_x");
-    player->UpdateSubAnimation(animeTimer, "root_x");
+    player->UpdateAnimation(animeTimer, "koshi");
+    player->UpdateSubAnimation(animeTimer, "koshi");
     
     //weponRenderUpdate();
     //速力処理更新
@@ -202,8 +205,8 @@ void Player::SetWepon() {
     head = { weponTransform._41,weponTransform._42,weponTransform._43 };//腕の座標入力
     sworddir = { weponTransform._31,weponTransform._32,weponTransform._33 };//剣の向き取得
     sworddir = Vector3::Normalize(sworddir);//剣の向き正規化
-    pattern = wepon->GetWeaponPPoint();//武器の柄取得
-    tail = wepon->GetWeaponPoint();//武器の先取得
+    //pattern = wepon->GetWeaponPPoint();//武器の柄取得
+    //tail = wepon->GetWeaponPoint();//武器の先取得
 }
 void Player::UpdateHitflag(float elapsedTime) {
     if (hitInvincibleTime > 0.0f)
@@ -217,10 +220,10 @@ void Player::UpdateHitflag(float elapsedTime) {
 
 }
 void Player::weponRenderUpdate() {
-    if (wepon->GetDisslve() == 1) {
-        wepon->SetSwordState(SwordState::Nomal);
-        wepon->SetRnderflag(true);
-    }
+    //if (wepon->GetDisslve() == 1) {
+    //    wepon->SetSwordState(SwordState::Nomal);
+    //    wepon->SetRnderflag(true);
+    //}
 
 }
 void Player::SetAttackStatus(DirectX::XMFLOAT4 Status, DirectX::XMFLOAT4 Pow){
@@ -591,34 +594,34 @@ void Player::DownUpdate() {
     //     downflag = false;
     //}
 }
-DirectX::XMFLOAT3 Player::GetSlashDir() {
-    DirectX::XMFLOAT2 trailPos = Vector3::C3Dor2D(swordTrail->GetTrail(swordFlame));//変数＋１フレーム前の剣先
-    DirectX::XMFLOAT2 weaponPoint = Vector3::C3Dor2D(wepon->GetWeaponEFPoint());//現在の剣先
-    trailPos = Vector2::Subset(weaponPoint,trailPos);
-    trailPos = Vector2::Normalize(trailPos);
-    DirectX::XMFLOAT3 trailDir = { trailPos.x,trailPos.y,NULL };
-    return trailDir;
-}
+//DirectX::XMFLOAT3 Player::GetSlashDir() {
+//    //DirectX::XMFLOAT2 trailPos = Vector3::C3Dor2D(swordTrail->GetTrail(swordFlame));//変数＋１フレーム前の剣先
+//    //DirectX::XMFLOAT2 weaponPoint = Vector3::C3Dor2D(wepon->GetWeaponEFPoint());//現在の剣先
+//    //trailPos = Vector2::Subset(weaponPoint,trailPos);
+//    //trailPos = Vector2::Normalize(trailPos);
+//    //DirectX::XMFLOAT3 trailDir = { trailPos.x,trailPos.y,NULL };
+//    //return trailDir;
+//}
 void Player::SlashInput() {
     if (slashCombo != combo ) {
         //wepon->Exhaustion(attackDamage);
         AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::SlashFly)->Stop();
         AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::SlashFly)->Play(false, SE);
         //二元で斬撃方向と上方向で内積を取ってその分角度をとる
-        DirectX::XMFLOAT3 hitdir = GetSlashDir();
+       // DirectX::XMFLOAT3 hitdir = GetSlashDir();
         DirectX::XMFLOAT3 n = { 0, 1, 0 };
-        float dot = Vector3::Dot(hitdir,n);
-        dot = acosf(dot);
-        if (hitdir.x < 0)dot *= -1;//方法が左なら角度反転
+        //float dot = Vector3::Dot(hitdir,n);
+        //dot = acosf(dot);
+        //if (hitdir.x < 0)dot *= -1;//方法が左なら角度反転
         ProjectileStraite* projectile = new ProjectileStraite(&objectManager);
         projectile->Launch(slash, height / 2, 4.0, 0.2, Type::Straight, (int)EffectTexAll::EfTexAll::Metal, 2, 3, 0.0);
         projectile->SetScale(slashScale);
-        projectile->SetDirectionUp({-attackDir.z,dot,attackDir.x});
+        //projectile->SetDirectionUp({-attackDir.z,dot,attackDir.x});
         if (combo == WeponComboMax[weponType]) {//コンボ最後追加斬撃＋１
             ProjectileStraite* projectile2 = new ProjectileStraite(&objectManager);
-            projectile2->Launch(slash, height / 2, 4.0, angle.y, Type::Straight, (int)EffectTexAll::EfTexAll::Metal, 2, 3, 0.0);
+            projectile2->Launch(slash, height / 2, 4.0, angle.y, Type::Straight, (int)EffectTexAll::EfTexAll::Metal, 2, 3, 0.5);
             projectile2->SetScale(slashScale);
-            projectile2->SetDirectionUp({ attackDir.z,dot,-attackDir.x });
+            //projectile2->SetDirectionUp({ attackDir.z,dot,-attackDir.x });
         }
         slashCombo = combo;
     }
@@ -678,22 +681,22 @@ void Player::SetShakeInput(DirectX::XMFLOAT3 dir,float damage) {
     cameraController->SetHitDir(dir);
 }
 void Player::HitInput(float damage, float invincibleTime) {
-    if (wepon->GetSwordState() == SwordState::Shift) {//武器の状態がシフトなら
-        teleportPos = wepon->GetPosition();//テレポートポイント設定
-        shiftAttackflag = true;
-        stateMachine->ChangeSubState(static_cast<int>(Player::State::Teleport));//テレポートステート
-        Afterimage* projectile = new Afterimage(&objectManager);//残像エフェクト
-        projectile->Launch(renderdata);
-        if (wepon->GetBroken()&&mp < mpMax) mp++;//武器の耐久値が二割以下ならMP回復
-
-    }
+    //if (wepon->GetSwordState() == SwordState::Shift) {//武器の状態がシフトなら
+    //    teleportPos = wepon->GetPosition();//テレポートポイント設定
+    //    shiftAttackflag = true;
+    //    stateMachine->ChangeSubState(static_cast<int>(Player::State::Teleport));//テレポートステート
+    //    Afterimage* projectile = new Afterimage(&objectManager);//残像エフェクト
+    //    projectile->Launch(renderdata);
+    //    if (wepon->GetBroken()&&mp < mpMax) mp++;//武器の耐久値が二割以下ならMP回復
+    //
+    //}
     attackHitflag = true;
     //wepon->Exhaustion(damage);//消耗
     hitInvincibleTime = damage*0.05;
     //攻撃方向にカメラシェイク
-    DirectX::XMFLOAT3 hitdir = Vector3::Subset(swordTrail->GetTrail(swordFlame), wepon->GetWeaponEFPoint());
-    hitdir = Vector3::Normalize(hitdir);
-    SetShakeInput(hitdir, damage * shakePow);
+    //DirectX::XMFLOAT3 hitdir = Vector3::Subset(swordTrail->GetTrail(swordFlame), wepon->GetWeaponEFPoint());
+    //hitdir = Vector3::Normalize(hitdir);
+    SetShakeInput({0,1,0}, damage * shakePow);
     AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Slash1)->Stop();
     AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Slash1)->Play(false, SE);
 }
@@ -719,9 +722,9 @@ Enemy* Player::CloseEnemy(float lenght){
 }
 //剣の軌跡
 void Player::SwordEffect() {
-    head = wepon->GetWeaponEPoint();  //軌跡の後
-    tail = wepon->GetWeaponEFPoint(); //軌跡の先
-    swordTrail->SetPos(head, tail);   //軌跡の情報入力
+    //head = wepon->GetWeaponEPoint();  //軌跡の後
+    //tail = wepon->GetWeaponEFPoint(); //軌跡の先
+    //swordTrail->SetPos(head, tail);   //軌跡の情報入力
 }
 //ジャンプ入力処理
 bool Player::InputJump()
@@ -739,7 +742,7 @@ bool Player::InputJump()
 // 攻撃入力処理
 bool Player::InputAttack()
 {
-    if(wepon->GetBreakFlag(weponType))return false;
+    //if(wepon->GetBreakFlag(weponType))return false;
     GamePad& gamePad = Input::Instance().GetGamePad();
     if (gamePad.GetButtonDown() & GamePad::BTN_Y)
     {
@@ -796,7 +799,7 @@ void Player::InputProjectile()
             rnd = rand() % 4;
             // 発射
             ProjectileStraite* projectile = new ProjectileStraite(&objectManager);
-            projectile->Launch(wepon->GetWeponModel(rnd), height, 0.8, angle.y + 0.4 * i, Type::Sword, (int)EffectTexAll::EfTexAll::Thunder, 6, 1, 0.5f);
+            //projectile->Launch(wepon->GetWeponModel(rnd), height, 0.8, angle.y + 0.4 * i, Type::Sword, (int)EffectTexAll::EfTexAll::Thunder, 6, 1, 0.5f);
         }
     }
 }
@@ -920,12 +923,12 @@ void Player::UpdateWeponChange(float elapsedTime)
         weponType = nextWepon;//次の武器を設定
         //wepon->SetWeponType(weponType);
         if (InputMove(elapsedTime)) {
-            wepon->SetRnderflag(true);
+            //wepon->SetRnderflag(true);
             stateMachine->ChangeSubState(static_cast<int>(Player::State::Move));
         }
         else
         {
-            wepon->SetRnderflag(true);
+            //wepon->SetRnderflag(true);
             stateMachine->ChangeSubState(static_cast<int>(Player::State::Idle));
         }
         weponChange = false;
@@ -938,7 +941,7 @@ void Player::render(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_contex
     if (renderflag) {
         shader->Draw(immediate_context.Get(), player.get());
     }
-    wepon->Render(immediate_context.Get(), shader);
+    //wepon->Render(immediate_context.Get(), shader);
 }
 void Player::Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader) {
 
@@ -1049,21 +1052,21 @@ void Player::DrawDebugPrimitive()
     //衝突判定用のデバック球を描画
     debugRenderer->DrawSphere(position, radius, DirectX::XMFLOAT4(1, 1, 1, 1));
     debugRenderer->DrawCylinder(position, radius, height, DirectX::XMFLOAT4(1, 0, 0, 1));
-    debugRenderer->DrawSphere(wepon->GetWeaponEPoint(), 0.2, DirectX::XMFLOAT4(0, 1, 0, 1));
+    //debugRenderer->DrawSphere(wepon->GetWeaponEPoint(), 0.2, DirectX::XMFLOAT4(0, 1, 0, 1));
 
     Animation::Keyframe::node* leftHandBone = player->FindNode("Wp_Sword");
     //leftHandBone->globalTransform * transform;
-    if (leftHandBone) {
-        XMStoreFloat4x4(&world, XMLoadFloat4x4(&leftHandBone->globalTransform) * XMLoadFloat4x4(&transform));
-        if (attackCollisionFlag)
-            debugRenderer->DrawSphere(DirectX::XMFLOAT3(
-                world._41 + world._31 * swordLength,
-                world._42 + world._32 * swordLength,
-                world._43 + world._33 * swordLength),
-                wepon->GetRadius()*weponRadius,
-                DirectX::XMFLOAT4(1, 0, 0, 1)
-            );
-    }
+    //if (leftHandBone) {
+    //    XMStoreFloat4x4(&world, XMLoadFloat4x4(&leftHandBone->globalTransform) * XMLoadFloat4x4(&transform));
+    //    if (attackCollisionFlag)
+    //        debugRenderer->DrawSphere(DirectX::XMFLOAT3(
+    //            world._41 + world._31 * swordLength,
+    //            world._42 + world._32 * swordLength,
+    //            world._43 + world._33 * swordLength),
+    //            wepon->GetRadius()*weponRadius,
+    //            DirectX::XMFLOAT4(1, 0, 0, 1)
+    //        );
+    //}
     //debugRenderer->DrawSphere(wepon->GetWeaponPoint(),
     //    weponRadius,
     //    DirectX::XMFLOAT4(1, 0, 0, 1));
@@ -1122,6 +1125,7 @@ void Player::CollisionNodeVsEnemies(float nodeRadius,DirectX::XMFLOAT2 pow, floa
 {
     //指定のノードと全ての敵を総当たりで衝突処理
     EnemyManager& enemyManager = EnemyManager::Instance();
+    DirectX::XMFLOAT3 node = SearchNodePos(attackNode[combo]);
     int enemyCount = enemyManager.GetEnemyCount();
     for (int enemyindex = 0; enemyindex < enemyCount; enemyindex++)
     {
@@ -1129,21 +1133,20 @@ void Player::CollisionNodeVsEnemies(float nodeRadius,DirectX::XMFLOAT2 pow, floa
         DirectX::XMFLOAT3 enemyPosition, impulse;
             enemyPosition = { enemy->GetPosition().x,enemy->GetPosition().y,enemy->GetPosition().z };
             if (Collision::IntersectSphereVsSphere(
-                SearchNodePos("te_R_1"),
+                node,
                  2.0,
                 enemyPosition,
                 enemy->GetRadius(),impulse))
             {
-                if (enemy->ApplyDamage(Damage, InvincibleTime) && wepon->GetSwordState() != SwordState::Stop) {
+                if (enemy->ApplyDamage(Damage, InvincibleTime)) {
                     //ノックバック
                     KnockBack(*enemy, this->position, enemy->GetPosition(), pow.x, pow.y);
                     //ヒット情報入力処理
                     HitInput(Damage, InvincibleTime);
-                    DirectX::XMFLOAT3 trailDir = GetSlashDir();
+                    //DirectX::XMFLOAT3 trailDir = GetSlashDir();
                     //ヒットエフェクト
-                    ParticleSprite* particleSprite = new ParticleSprite(enemyPosition, trailDir, ParticleSprite::ParticleLine, ParticleSprite::Slash, int(EffectTexAll::EfTexAll::Distortion), 1, 0.5);
-                    particleSprite = new ParticleSprite(enemyPosition, trailDir, ParticleSprite::ParticleImpact, ParticleSprite::Expansion, int(EffectTexAll::EfTexAll::Impact), 1, 0.3);
-                    particleSprite = new ParticleSprite(enemyPosition, wepon->GetWeaponEFPoint(), ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Thunder), 30, 0.8);
+                    ParticleSprite* particleSprite = new ParticleSprite(node, {0,0,0}, ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Sumi), 2000, 1.0, 0, true, 0.002,0.03, { 1,1,1,1 });
+                    particleSprite = new ParticleSprite(node, {0,0,0}, ParticleSprite::ParticleImpact, ParticleSprite::Expansion, int(EffectTexAll::EfTexAll::Impact), 1, 0.3, 0.1);
                     if (enemy->GetBarrierFlag()) {
                         //particleSprite = new ParticleSprite(enemyPosition, wepon->GetWeaponEFPoint(), ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Distortion), 1000, 0.5);
                         particleSprite = new ParticleSprite(enemyPosition, {NULL,NULL,NULL}, ParticleSprite::ParticleTriangle, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Distortion), 1000, 0.5,1);
@@ -1190,10 +1193,10 @@ void Player::CollisionProjectilesVsEnemies()
                           //ParticleSystem::Instance().BoomEffect(object->GetPosition(), 1, int(EffectTexAll::EfTexAll::Sumi), 2, { 1,1,1,1 });
                           AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::boom1)->Stop();
                           AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::boom1)->Play(false, SE);
-                          object->Destroy();
+                          //object->Destroy();
                           XMFLOAT3 start = Vector3::PosDir(object->GetPosition(), object->GetDirectionUp(), object->GetScale().x*2);
                           XMFLOAT3 end = Vector3::PosDir(object->GetPosition(), object->GetDirectionUp(), -object->GetScale().x*2);
-                          ParticleSprite* particleSprite = new ParticleSprite(start, end, ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Sumi), 2000, 1.5, 0, true, 0.05, { 1,1,1,1 });
+                          ParticleSprite* particleSprite = new ParticleSprite(start, end, ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Sumi), 2000, 1.5, 0, true, 0.005,0.06, { 1,1,1,1 });
                           SetShakeInput({ 0,1,0 }, 4);
                           continue;
                       }
@@ -1202,7 +1205,7 @@ void Player::CollisionProjectilesVsEnemies()
                          // ParticleSprite* particleSprite = new ParticleSprite(object->GetPosition(), object->GetPosition(), ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::BlueThader), 1000, 1.5);
                           AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::boom1)->Stop();
                           AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::boom1)->Play(false, SE);
-                          ParticleSprite* particleSprite = new ParticleSprite(object->GetPosition(), { NULL,NULL,NULL }, ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::BlueThader), 200, 1.5, 0, true, 0.015, {0,0,1,1});
+                          ParticleSprite* particleSprite = new ParticleSprite(object->GetPosition(), { NULL,NULL,NULL }, ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::BlueThader), 200, 1.5, 0, true, 0.015,0.05, {0,0,1,1});
                           SetShakeInput({0,1,0}, 2);
                           //object->Destroy();
                           continue;

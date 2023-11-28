@@ -54,13 +54,14 @@ PS_OUT main(VS_OUT pin) : SV_TARGET
 	 color.a = alpha;
 	 PS_OUT ret;
 	 uv = pin.texcoord + pin.dissolve.y* 2;
-	 float4 f = d_color_maps.Sample(sampler_states[ANISOTROPIC], uv);
+	 float4 f = color_maps.Sample(sampler_states[ANISOTROPIC], uv);
 	 float b = (f.x + f.y + f.z) / 3;
-	 if (b < 0.5 && b > 0.2 ) {
+	  if (b < 0.6 && b > 0.2 ) {
 		 
 		 //uv = pin.texcoord + pin.dissolve.y;
-	     ret.Color = d_color_maps.Sample(sampler_states[ANISOTROPIC], uv);
-		 ret.Color.a = 0.5;
+	     ret.Color = float4(0.3, 0.3, 0.3, 0);
+		 ret.Color.a = 0.2;
+		 N = float4(0, 0, 0, 0);
 	 }
 	 else {
 	    ret.Color = float4(0, 0, 0, 0);

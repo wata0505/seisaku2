@@ -69,7 +69,7 @@ uint3 GTid : SV_GroupThreadID//スレッドID　ここで指定
 	uint node = TH_X * y + x;
 	float3 myLocation = Input[node].Position;//自分の位置
 	float3 myVelocity = Input[node].Velocity;
-	float3 mySpeed = Input[node].Speed;
+	float mySpeed = Input[node].Speed;
 	float4 mySize = Input[node].ParticleSize;
 	float  myTimer = Input[node].Timer;
 	float3 P = 0;
@@ -81,15 +81,25 @@ uint3 GTid : SV_GroupThreadID//スレッドID　ここで指定
 	case SLASHING:
 		break;
 	case DIFFUSION:
-		//myVelocity.y += (mySpeed * sin(myTimer)) ;
-		//myVelocity.x += (mySpeed * cos(myTimer) * sin(myTimer * 4)) ;
-		//myVelocity.z += (mySpeed * cos(myTimer) * cos(myTimer * 2)) ;
+		if (mySpeed < 4.8f) {
+			
+				myVelocity.y += (mySpeed * sin(myTimer)) ;
+				myVelocity.x += (mySpeed * cos(myTimer) * sin(myTimer * node));
+				myVelocity.z += (mySpeed * cos(myTimer) * cos(myTimer * node));
+				
+			
+		}
 		myVelocity = normalize(myVelocity);
-		myLocation.x = myLocation.x + myVelocity.x * mySpeed * 0.5;
-		myLocation.y = myLocation.y + myVelocity.y * mySpeed * 0.5;
-		myLocation.z = myLocation.z + myVelocity.z * mySpeed * 0.5;
-		myTimer += 0.12;
-		mySpeed -= mySpeed * 0.01;
+		myLocation.x = myLocation.x + myVelocity.x * mySpeed ;
+		myLocation.y = myLocation.y + myVelocity.y * mySpeed ;
+		myLocation.z = myLocation.z + myVelocity.z * mySpeed ;
+		myTimer += 1;
+		if (node % 2) {
+			mySpeed -= (mySpeed * 0.01);
+		}
+		else {
+			mySpeed -= (mySpeed * 0.01) * 0.5;
+		}
 		break;
 	case CONVERGENCE:
 		Dir = myVelocity - myLocation;
@@ -119,7 +129,7 @@ uint3 GTid : SV_GroupThreadID//スレッドID　ここで指定
 		mySize.x += mySpeed;
 		mySize.w += mySpeed;
 
-
+		mySpeed += 0.01;
 		myTimer += 0.1;
 		//float c = 0;
 		//float s = 0;

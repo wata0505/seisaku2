@@ -450,8 +450,9 @@ void Model::UpdateAnimation(float elapsedTime, const char* rootname, bool render
 					}
 
 					if (node.name == rootname) {
-						rootPow = key0.translation.y - key1.translation.y;
-						node.translation.y = 0;
+						rootPow = key1.translation.z - key0.translation.z;
+						node.translation.z = 0;
+						//node.translation.y = 0;
 						node.translation.x = 0;
 					}
 					XMMATRIX S{ XMMatrixScaling(node.scaling.x, node.scaling.y, node.scaling.z) };

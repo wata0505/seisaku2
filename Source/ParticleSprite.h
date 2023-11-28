@@ -17,7 +17,7 @@ struct PVConstants
 class ParticleSprite
 {
 public:
-	ParticleSprite(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 dir, int spritetype, int movetype, int textype, int Max, float lifetimer, float lenght = 0,bool lifeflag = true,float speed = 0.05, DirectX::XMFLOAT4 materialColor = { 1.0,0.0,0.0,1 });
+	ParticleSprite(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 dir, int spritetype, int movetype, int textype, int Max, float lifetimer, float lenght = 0,bool lifeflag = true,float speed = 0.05,float size = 0.005, DirectX::XMFLOAT4 materialColor = { 1.0,0.0,0.0,1 });
 	~ParticleSprite();
 
 	//更新処理
@@ -57,7 +57,7 @@ private:
 	//武器収束初期設定
 	HRESULT CreateWeponConvergenceResource(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 dir);
 	//拡散初期設定
-	HRESULT CreateDiffusionResource(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 dir,float speed, float lenght);
+	HRESULT CreateDiffusionResource(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 dir,float speed, float lenght,float size);
 
 	HRESULT CreateSlashingResource(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 dir);
 	//収束初期設定
@@ -65,7 +65,7 @@ private:
 	//斬撃エフェクト初期設定
 	HRESULT CreateSlashResource(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 dir);
 	//拡大初期設定
-	HRESULT CreateExpansionResource(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 dir);
+	HRESULT CreateExpansionResource(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 dir,float leght);
 	//煙初期設定
 	HRESULT CreateCorruptionResource(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 dir);
 	//塵初期設定

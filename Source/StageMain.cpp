@@ -6,10 +6,10 @@
 StageMain::StageMain()
 {
 
-	model = std::make_unique<Model>(".\\resources\\Stag\\CyberStage4.fbx", true, false);
-	model->ModelSerialize(".\\resources\\Stag\\CyberStage4.fbx");
+	model = std::make_unique<Model>(".\\resources\\Stag\\CyberStage5.fbx", true, false);
+	model->ModelSerialize(".\\resources\\Stag\\CyberStage5.fbx");
 	//model->ModelCreate(".\\resources\\ExampleStage\\ExampleStage.fbx");
-	model->ModelRegister(".\\resources\\Stag\\CyberStage4.fbx");
+	model->ModelRegister(".\\resources\\Stag\\CyberStage5.fbx");
 	//model->ModelRegister(".\\resources\\Stag\\CyberStage.fbx", "Texture\\HoneycombStructure.DDS");
 	// s—ñXV
 	//angle.y = 3;

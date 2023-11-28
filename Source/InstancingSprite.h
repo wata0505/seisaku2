@@ -15,6 +15,7 @@ public:
 	enum InstancingType
 	{
 		FlameBreath,
+		SeirlConvergence,
 		Max
 	};
 public:

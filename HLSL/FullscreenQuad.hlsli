@@ -10,7 +10,6 @@ cbuffer JitterDriftConstantBuffer : register(b13)
 {
 	float jitterStrength;
 	float time;
-	float2 dummy;
 };
 
 // カラーグレーディング
