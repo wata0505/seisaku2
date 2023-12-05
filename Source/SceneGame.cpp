@@ -30,33 +30,6 @@ void SceneGame::Initialize()
 	device = graphics.GetDevice();
 
 	EnemyManager& enemyManager = EnemyManager::Instance();
-	// エネミー初期化
-	// ドラゴン（
-	//EnemyDragon* dragon = new EnemyDragon();
-	//dragon->SetPosition(DirectX::XMFLOAT3(0.0f, 20.0f, 25.0f));
-	//dragon->SetTerritory(dragon->GetPosition(), 20.0f);
-	//dragon->SetId(0);
-	//enemyManager.Register(dragon);
-	// バグ
-	//for(int i = 0; i < 20; i++) {
-	//	EnemyBag* bag = new EnemyBag();
-	//	float yaw = DirectX::XMConvertToRadians(rand() % 360);
-	//	DirectX::XMFLOAT2 dir;
-	//	dir.x = sinf(yaw);
-	//	dir.y = cosf(yaw);
-	//	int len = rand() % 100 + 5;
-	//	bag->SetPosition(DirectX::XMFLOAT3(dir.x * len, 0.0f, dir.y * len));
-	//	bag->SetTerritory(bag->GetPosition(), 10.0f);
-	//	//bag->SetId(0);
-	//	enemyManager.Register(bag);
-	//	//if (i % 2 == 0) {
-	//	//	bag->SetBarrierFlag(true);
-	//	//	ParticleSystem::Instance().BarrierEnemyEffect(bag->GetId(), (int)EffectTexAll::EfTexAll::BarrierEnemy, { 1,0,0,1 });
-	//	//}
-	//}
-	//
-	//
-	//enemyManager.SetEnemyMaxCount(enemyManager.GetEnemyCount());
 
 	EnemySystem& enemySystem = EnemySystem::Instance();
 	enemySystem.Start();
@@ -66,7 +39,7 @@ void SceneGame::Initialize()
 	stageManager.Register(stageMain);
 
 	DirectX::XMFLOAT2 dir = { 0,0 };
-	DirectX::XMFLOAT3 pos[3] = { { 50,0,-50 },{60,0,17},{130,0,-70} };
+	DirectX::XMFLOAT3 pos[3] = { { 50,-4,-50 },{60,-4,17},{130,-4,-80} };
 	float angle[3] = { 0,90,-45 };
 	
 	for (int i = 0; i < 3; i++) {
@@ -120,6 +93,9 @@ void SceneGame::Initialize()
 	sprite_batchs = std::make_unique<Sprite>(L".\\resources\\haikei\\6.png");
 	sprite_batchs2 = std::make_unique<Sprite>();
 	claerSprite = std::make_unique<Sprite>(L".\\resources\\UI\\clear.png");
+	waveSprite[0] = std::make_unique<Sprite>(L".\\resources\\UI\\1Wave.png");
+	waveSprite[1] = std::make_unique<Sprite>(L".\\resources\\UI\\2Wave.png");
+	waveSprite[2] = std::make_unique<Sprite>(L".\\resources\\UI\\FinalWave.png");
 	loodSprite = EffectTexAll::Instance().GetSprite(int(EffectTexAll::EfTexAll::Bock));
 	renderSprite = std::make_unique<Sprite>();
 	//スクリーンバファ生成
@@ -192,7 +168,7 @@ void SceneGame::Update(float elapsedTime)
 	UIManager::Instance().Update(elapsedTime);
 
 	
-	if (base->GetHP() != 0 && player->GetHealth() > 0) {
+	if (base->GetHP() != 0 && player->GetHealth() > 0 && EnemySystem::Instance().GetWave() < 3) {
 		dissolveTimer += elapsedTime;
 		if (dissolveTimer > 3) dissolveTimer = 3;
 	}
@@ -201,6 +177,16 @@ void SceneGame::Update(float elapsedTime)
 		dissolveTimer -= elapsedTime;
 	}
 	haikeiTimer += elapsedTime;
+	if (EnemySystem::Instance().GetWaveTimer() > 3 && EnemySystem::Instance().GetWaveTimer() < 8) {
+		waveTimer -= elapsedTime;
+		if (waveTimer < 0) waveTimer = 0;
+	}
+	else
+	{
+		waveTimer += elapsedTime;
+		if (waveTimer > 3) waveTimer = 3;
+	}
+
 }
 void SceneGame::Render()
 {
@@ -442,6 +428,17 @@ void SceneGame::Render()
 		1.0f, 1.0f, 1.0f, 1.0f,
 		dissolveTimer
 	);
+	int wave = EnemySystem::Instance().GetWave();
+	if (wave < 3) {
+		waveSprite[wave]->Render(immediate_context,
+			600, 120, waveSprite[wave]->GetTextureWidth(), waveSprite[wave]->GetTextureHeight(),
+			0, 0, waveSprite[wave]->GetTextureWidth(), waveSprite[wave]->GetTextureHeight(),
+			0.0f,
+			1.0f, 1.0f, 1.0f, 1.0f,
+			waveTimer
+		);
+		shader2->Draw(rc, waveSprite[wave].get());
+	}
 	loodSprite->Render(immediate_context,
 		0, 0, 1280, 720,
 		0, 0, loodSprite->GetTextureWidth(), loodSprite->GetTextureHeight(),
@@ -450,7 +447,7 @@ void SceneGame::Render()
 		dissolveTimer,0,0
 	);
 	shader2->Draw(rc, loodSprite.get());
-	if (base->GetHP() == 0) {
+	if (base->GetHP() == 0 || EnemySystem::Instance().GetWave() < 4) {
 		
 		//shader2->Draw(rc, claerSprite.get());
 		if (dissolveTimer < 0) {

@@ -53,6 +53,7 @@ public:
     enum Animations
     {
         AnimIdle,
+        AnimWalking,
         AnimRunning,
         AnimJump1,
         AnimJump2,
@@ -263,8 +264,7 @@ private:
     void SetWepon();
     //ノード検索
     void SearchNode(DirectX::XMFLOAT4X4& Transform, const char* nodeName);
-    //ノードの位置
-    DirectX::XMFLOAT3 SearchNodePos(const char* nodeName);
+   
     
     //ヒットフラグ更新
     void UpdateHitflag(float elapsedTime);
@@ -281,6 +281,10 @@ private:
 public:
     //特殊なアクション入力更新
     void SpecialUpdate();
+    //ノードの位置
+    DirectX::XMFLOAT3 SearchNodePos(const char* nodeName);
+
+    int GetTimer() { return timer; }
 
 protected:
     //着地した時に呼ばれる
@@ -440,7 +444,7 @@ public://変更又取得が多い変数
     int WeponCombo[4] = { Anim1Combo1,Anim1Combo2,Anim1Combo3,Anim1Combo4 };
     //武器のアクションステータス
     DirectX::XMFLOAT4 WeponComboStatus[WeponType::WeponMax][4] = {
-        {{3, 0, 0.1f, 0.4f},{3, 0, 0.1f, 0.4f},{1, 0, 0.2f, 0.8f},{0.2, 0, 0.1f, 0.8f},},
+        {{0.5, 0, 0.1f, 0.4f},{0.5, 0, 0.1f, 0.4f},{1, 0, 0.2f, 0.8f},{0.1, 0, 0.2f, 0.8f},},
         {{0.6, 0, 0.5f,0.8f},{0.8, 0, 0.9f, 1.32f},{0.8, 0, 1.1f, 1.5f},{ 0,  0,0.0f, 0.0f},},
         {{1, 0, 0.1f, 1.3f},{1, 0, 0.2f, 1.2f},{0.5, 0, 0.5f, 2.5f},{ 0,  0,0.0f, 0.0f},},
         {{1, 0, 0.4f, 0.75f},{1, 0, 0.75f, 1.05f},{1, 0, 1.08f, 1.38f},{ 0,  0,0.0f, 0.0f},},
@@ -448,7 +452,7 @@ public://変更又取得が多い変数
     };
     //武器ごとアクションパワー
     DirectX::XMFLOAT4 WeponComboPow[WeponType::WeponMax][4] = {
-        {{10, 0,1,0.3},{10, 0,1,0.5},{10, 0,1,0.2},{20, 0,1,0.1},},
+        {{10, 0,1,0.3},{10, 0,1,0.5},{10, 0,1,0.2},{20, 0,1,0.5},},
         {{40, 0,4,0.5},{50, 0,5,0.5},{70, 0,6,0.5},{20, 0,1,0.5},},
         {{10, 0,2,0.3},{ 0, 0,1,0.2},{10, 0,2,0.3},{20, 0,1,0.5},},
         {{20,30,2,0.5},{10,30,2,0.5},{30, 0,2,0.5},{20, 0,1,0.5},},
@@ -461,16 +465,25 @@ public://変更又取得が多い変数
 
     DirectX::XMFLOAT4 ShifPow = { 0, 0,1,0.3 };
 
-    DirectX::XMFLOAT4 FallAttackStatus = { -20, 0,0.3,0.9 };
+    DirectX::XMFLOAT4 FallAttackStatus = { -30, 0,0.3,0.9 };
     DirectX::XMFLOAT4 FallAttackPow = { 10, 0.1,1,0.9 };
 
     //攻撃アニメーションノード格納
     const char* attackNode[4] = { "te_R_1" ,"te_L_1","ashikubi_R","te_R_1" };
+    const char* attackENode[4] = { "hiji_R" ,"hiji_L","hiza_R","hiji_R" };
 
     //弾関係
     ObjectManager objectManager;
 
     std::vector<SkinnedMeshResouurce::constants> renderdata;
+
+    float cameraRange = 5.0;
+
+    const float cameraRangeMax = 5.0;
+
+    float		correctionSpeed = 20;
+
+    const float correctionSpeedMax = 20;
 private:
     //モデル
     std::unique_ptr<Model> player;

@@ -200,10 +200,10 @@ public:
 private:
 	std::shared_ptr<Model> model = nullptr;
 
-	static const int MAX_ROOT_POINT{ 4 };
+	static const int MAX_ROOT_POINT{ 5 };
 
 	int rootNo = 0;
-	DirectX::XMFLOAT3 rootPoint[MAX_ROOT_POINT] = { {129,-2.5,41}, {128,-2.5,-8.5} ,{78,-2.5,-5} ,{80,-2.5,-45} };
+	DirectX::XMFLOAT3 rootPoint[MAX_ROOT_POINT] = { {140,-1.5,41}, {140,-1.5,-14} ,{78,-1.5,-5} ,{80,-1.5,-45}, {83,-1.5,-103} };
 
 	//âìãóó£çUåÇå†
 	bool attackFireBallFlg = false;

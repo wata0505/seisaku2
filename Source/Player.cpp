@@ -44,16 +44,17 @@ Player::Player() {
     instance = this;
 
     player = std::make_unique<Model>(".\\resources\\Player\\playermode5l.fbx", true);
-    player->AppendAnimations(".\\resources\\Player\\taiki1.fbx", 0);
+    player->AppendAnimations(".\\resources\\Player\\taiki1_2.fbx", 0);
     player->AppendAnimations(".\\resources\\Player\\dash.fbx", 0);
+    player->AppendAnimations(".\\resources\\Player\\Dash2.fbx", 0);
     player->AppendAnimations(".\\resources\\Player\\jump4.fbx", 0);
     player->AppendAnimations(".\\resources\\Player\\jump_6.fbx", 0);
     player->AppendAnimations(".\\resources\\Player\\jump2.fbx", 0);
     player->AppendAnimations(".\\resources\\Player\\jumpAttack.fbx", 0);
     player->AppendAnimations(".\\resources\\Player\\Lond.fbx", 0);
-     player->AppendAnimations(".\\resources\\Player\\ATK1_3.fbx", 0);
+     player->AppendAnimations(".\\resources\\Player\\ATK1_4.fbx", 0);
     player->AppendAnimations(".\\resources\\Player\\ATK2_2.fbx", 0);
-    player->AppendAnimations(".\\resources\\Player\\ATK4.fbx", 0);
+    player->AppendAnimations(".\\resources\\Player\\ATK4_2.fbx", 0);
     player->AppendAnimations(".\\resources\\Player\\ATK3_2.fbx", 0);
     player->ModelSerialize(".\\resources\\Player\\playermode5l.fbx");
    // player->ModelCreate(".\\resources\\AimTest\\GreatSword.fbx");
@@ -86,6 +87,7 @@ Player::Player() {
     cameraController = std::make_unique<CameraController>();
     moveSpeed = 20;
     maxMoveSpeed = 20;
+    friction = 1.0;
     player->UpdateBufferDara(transform);
     //renderdata = player->GetBufferData();
     for (int i = 0; i < 13; i++) {
@@ -155,7 +157,7 @@ void Player::update(float elapsedTime) {
     //’e”­Ëˆ—
     InputProjectile();
     //Œ•‹OÕXV
-    //swordTrail->Update();
+    swordTrail->Update();
   
     AudioUpdate();
     //ƒqƒbƒgƒtƒ‰ƒOXV
@@ -385,6 +387,8 @@ void Player::ComeTerget(float elapsedTime) {
         camePos.y = position.y;
         camePos.y += height;
     }
+    cameraController->SetRangeMax(cameraRange);
+    cameraController->SetCorrectionSpeed(correctionSpeed);
     cameraController->SetTarget(camePos);
     if (lockOn) {
         cameraController->SetTarget2(target);
@@ -614,15 +618,15 @@ void Player::SlashInput() {
         //dot = acosf(dot);
         //if (hitdir.x < 0)dot *= -1;//•û–@‚ª¶‚È‚çŠp“x”½“]
         ProjectileStraite* projectile = new ProjectileStraite(&objectManager);
-        projectile->Launch(slash, height / 2, 4.0, 0.2, Type::Straight, (int)EffectTexAll::EfTexAll::Metal, 2, 3, 0.0);
+        projectile->Launch(slash, height / 2, 4.0, 0.2, Type::Straight, (int)EffectTexAll::EfTexAll::Metal, 2, 5, 0.5);
         projectile->SetScale(slashScale);
         //projectile->SetDirectionUp({-attackDir.z,dot,attackDir.x});
-        if (combo == WeponComboMax[weponType]) {//ƒRƒ“ƒ{ÅŒã’Ç‰ÁaŒ‚{‚P
-            ProjectileStraite* projectile2 = new ProjectileStraite(&objectManager);
-            projectile2->Launch(slash, height / 2, 4.0, angle.y, Type::Straight, (int)EffectTexAll::EfTexAll::Metal, 2, 3, 0.5);
-            projectile2->SetScale(slashScale);
-            //projectile2->SetDirectionUp({ attackDir.z,dot,-attackDir.x });
-        }
+        //if (combo == WeponComboMax[weponType]) {//ƒRƒ“ƒ{ÅŒã’Ç‰ÁaŒ‚{‚P
+        //    ProjectileStraite* projectile2 = new ProjectileStraite(&objectManager);
+        //    projectile2->Launch(slash, height / 2, 4.0, angle.y, Type::Straight, (int)EffectTexAll::EfTexAll::Metal, 1, 3, 0.5);
+        //    projectile2->SetScale(slashScale);
+        //    //projectile2->SetDirectionUp({ attackDir.z,dot,-attackDir.x });
+        //}
         slashCombo = combo;
     }
 }
@@ -722,9 +726,9 @@ Enemy* Player::CloseEnemy(float lenght){
 }
 //Œ•‚Ì‹OÕ
 void Player::SwordEffect() {
-    //head = wepon->GetWeaponEPoint();  //‹OÕ‚ÌŒã
-    //tail = wepon->GetWeaponEFPoint(); //‹OÕ‚Ìæ
-    //swordTrail->SetPos(head, tail);   //‹OÕ‚Ìî•ñ“ü—Í
+    head = SearchNodePos(attackNode[combo]);  //‹OÕ‚ÌŒã
+    tail = SearchNodePos(attackENode[combo]); //‹OÕ‚Ìæ
+    swordTrail->SetPos(head, tail);   //‹OÕ‚Ìî•ñ“ü—Í
 }
 //ƒWƒƒƒ“ƒv“ü—Íˆ—
 bool Player::InputJump()
@@ -968,6 +972,8 @@ void Player::DrawDebugGUI()
         {
             //ˆÊ’u
             ImGui::InputFloat3("Position", &position.x);
+            int i = GetState();
+            ImGui::InputInt("stat", &i);
             //‰ñ“]
             DirectX::XMFLOAT3 a;
             a.x = DirectX::XMConvertToDegrees(angle.x);

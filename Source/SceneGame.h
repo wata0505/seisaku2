@@ -75,6 +75,8 @@ private:
 
 	std::unique_ptr<Sprite> claerSprite;
 
+	std::unique_ptr<Sprite> waveSprite[3];
+
 	std::shared_ptr<Sprite> loodSprite;
 
 	std::unique_ptr<Sprite> renderSprite;
@@ -100,6 +102,8 @@ private:
 
 	float dissolveTimer = 0;
 	float haikeiTimer = 0;
+
+	float waveTimer = 3;
 
 	// ジッタードリフト定数バッファ
 	struct JitterDriftConstantBuffer

@@ -57,7 +57,8 @@ void MoveState::Enter()
     owner->SetState(Player::State::Move);
     // 走りアニメーション再生武器ごと
    
-    owner->GetModel()->PlayAnimation(static_cast<int>(Player::AnimRunning), true);
+    owner->GetModel()->PlayAnimation(static_cast<int>(Player::AnimWalking), true);
+    
   
     owner->slashCombo = -1;//斬撃初期化
     AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Run)->Play(true, SE);
@@ -67,7 +68,12 @@ void MoveState::Enter()
 // 移動ステートで実行するメソッド
 void MoveState::Execute(float elapsedTime)
 {
-    
+    DirectX::XMFLOAT3 vec = owner->GetVelocity();
+    float length = sqrtf(vec.x * vec.x + vec.z * vec.z);
+    if (length >= owner->GetMaxMoveSpeed() && owner->GetModel()->GetCurrentAnimationIndex() == static_cast<int>(Player::AnimWalking)) {
+        owner->GetModel()->PlayAnimation(static_cast<int>(Player::AnimRunning), true);
+    }
+
     // 移動入力処理
     if (!owner->InputMove(elapsedTime))
     {
@@ -159,12 +165,15 @@ void LandState::Enter()
     owner->combo = 0;
     float g = GRAVITY;
     owner->SetGravity(g);
-    if (owner->GetVelocity().y < -10.5) {//一定以上の落下速度でハルバートなら
+    if (owner->GetVelocity().y < -50.5 && owner->GetModel()->GetCurrentAnimationIndex() == Player::AnimJumpAttack) {//一定以上の落下速度でハルバートなら
         owner->GetModel()->PlayAnimation(Player::AnimLound, false);
+        ParticleSystem::Instance().RubbleEffect({ owner->GetPosition().x,owner->GetPosition().y -5,owner->GetPosition().z }, 20, 100);
+        ParticleSprite* particleSprite = new ParticleSprite(owner->GetPosition(), {0,0,0}, ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Sumi), 2000, 1.5, 0, true, 0.005, 0.06, { 1,1,1,1 });
         owner->combo = 3;
     }
     AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Lund)->Stop();
     AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Lund)->Play(false, SE);
+
 }
 // 着地ステートで実行するメソッド
 void LandState::Execute(float elapsedTime)
@@ -537,6 +546,7 @@ void AttackState::Enter()
 // 攻撃ステートで実行するメソッド
 void AttackState::Execute(float elapsedTime)
 {
+    owner->cameraRange = owner->cameraRangeMax;
     XMFLOAT3 velocity = owner->GetVelocity();
     float animationTime = owner->GetModel()->GetCurrentAnimationSeconds();
     if (animationTime <= owner->attackStart) {
@@ -563,9 +573,25 @@ void AttackState::Execute(float elapsedTime)
     if (owner->InputAttack() && owner->combo < owner->WeponComboMax[0]) {
         owner->comboflag = true;//コンボ先行入力
     }
-    if (animationTime >= owner->attackEnd && owner->combo == 3 ) {
+    if (animationTime >= owner->attackEnd && owner->combo == 3  && owner->attackStart >= 0.6) {
+        owner->correctionSpeed += 10;
+        owner->cameraRange += animationTime * 20;
         owner->SlashInput();//飛ぶ斬撃
     }
+    if (animationTime >= 0.1 &&owner->combo == 3 && owner->InputAttack()) {
+        owner->attackStart = 0.6;
+        //if (owner->attackStart > 0.6)owner->attackStart = 0.6;
+    }
+    if (animationTime >= 0.2 && animationTime <= owner->attackStart*0.8 && owner->combo == 3 ) {
+        ParticleSystem::Instance().SeirlConvergenceEffect(owner->SearchNodePos(owner->attackNode[owner->combo]), 90);
+        ParticleSystem::Instance().SeirlConvergenceEffect(owner->SearchNodePos(owner->attackNode[owner->combo]), 180);
+        ParticleSystem::Instance().SeirlConvergenceEffect(owner->SearchNodePos(owner->attackNode[owner->combo]), 270);
+        
+    }
+    if (animationTime >= 0.2 && animationTime <= owner->attackStart&& owner->combo == 3) {
+        owner->cameraRange -= animationTime * 10;
+    }
+    
     if (owner->comboflag && animationTime >= owner->attackEnd) {//攻撃判定が終わったら次のコンボへ
         owner->combo++;
         owner->GetStateMachine()->ChangeSubState(static_cast<int>(Player::State::Attack));
@@ -596,7 +622,10 @@ void AttackState::Execute(float elapsedTime)
    
 }
 // 攻撃ステートから出ていくときのメソッド
-void AttackState::Exit() {}
+void AttackState::Exit() {
+    owner->cameraRange = owner->cameraRangeMax;
+    owner->correctionSpeed = owner->correctionSpeedMax;
+}
 
 // 落下攻撃ステートに入った時のメソッド
 void FallAttackState::Enter()

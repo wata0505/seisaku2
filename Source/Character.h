@@ -115,6 +115,8 @@ public:
 
 	bool GetFallDeath() { return fallDeath; }
 
+	float GetMaxMoveSpeed() { return maxMoveSpeed; }
+
 protected:
 
 	//ˆÚ“®ˆ—

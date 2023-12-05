@@ -5,7 +5,9 @@
 
 enum  InstancingSpriteType
 {
-	FlameBreath//ブレス
+	FlameBreath,//ブレス
+	SeirlConvergence,
+	VortexDiffusion
 };
 
 //直進弾丸
@@ -16,6 +18,7 @@ public:
 	{
 		FlameBreath,
 		SeirlConvergence,
+		VortexDiffusion,
 		Max
 	};
 public:
@@ -40,8 +43,8 @@ public:
 	float GetTexTimer() { return texTimer; }
 
 	DirectX::XMFLOAT4 GetUvStatus() { return uvStatus; };
-	//前方向、位置、動き、形、時間、速度、色
-	void Launch(const DirectX::XMFLOAT3& direction, const DirectX::XMFLOAT3& position, int type, int spriteType, float lifeTimer, float speed, DirectX::XMFLOAT4 materialColor = { 1,0,0,1 });
+	//前方向、位置、動き、形、時間、速度、回転軸X、回転軸Y、色
+	void Launch(const DirectX::XMFLOAT3& direction, const DirectX::XMFLOAT3& position, int type, int spriteType, float lifeTimer, float speed, float angleX,float angleY, DirectX::XMFLOAT4 materialColor = { 1,0,0,1 });
 
 
 	int GetSpriteType() { return spriteType; }
@@ -50,7 +53,11 @@ public:
 private:
 	void FlameBreathUpdate(float elapsedTime);
 
+	void SeirlConvergenceUpdate(float elapsedTime);
 
+	void VortexDiffusionUpdate(float elapsedTime);
+
+	
 	// 破棄
 	void Destroy();
 
@@ -68,6 +75,10 @@ private:
 	int spriteType = 0;
 	float radius = 0.0;
 	float height = 1;
+	float angleX = 0;
+	float angleY = 0;
+	float randX = 0;
+	float leng = 2;
 	DirectX::XMFLOAT4 uvStatus = { 1,0,1,0};
 
 	DirectX::XMFLOAT4	materialColor = { 1.0,0.0,0.0,1 };

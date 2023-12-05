@@ -60,6 +60,8 @@ public:
 	void SetActiveflag(bool flag) { activeflag = flag; }
 	void SetReMoveflag(bool flag) { reMoveflag = flag; }
 
+	void SetReMoveTimer(float timer) { reMoveTimer = timer; }
+
 	void SetLowAltitude(float low) { lowAltitude = low; }
 
 	void SetHealth(float heal) { health = static_cast<int>(heal); }
@@ -108,6 +110,8 @@ protected:
 	bool  activeflag = true;
 	//Ä‹N“®
 	bool  reMoveflag = false;
+	//Ä‹N“®‚Ü‚Å‚ÌŠÔ
+	float  reMoveTimer = 0;
 	//‰º~ŒÀŠE
 	float lowAltitude = 2.1f;
 	float efLife = 0.3f;

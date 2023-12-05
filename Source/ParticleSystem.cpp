@@ -3,6 +3,7 @@
 #include"Calculation.h"
 #include"InstancingSpriteManager.h"
 #include"EffectTexAll.h"
+#include"Player.h"
 
 //void ParticleSystem::SlashingEffect(const DirectX::XMFLOAT3& direction, const DirectX::XMFLOAT3& position) {
 //    ParticleManager& particleManager = ParticleManager::Instance();
@@ -145,7 +146,7 @@ void ParticleSystem::Rubble2Effect(DirectX::XMFLOAT3 position, int Max, int Spee
         pos.y = position.y - 6;
         pos.z = position.z;
         //ãŒü‚«ƒ‰ƒ“ƒ_ƒ€‚Å
-        float angleX = DirectX::XMConvertToRadians(90);
+        float angleX = DirectX::XMConvertToRadians(90) + Player::Instance().GetAngle().y;
         float angleY = 0;
         if (i % 2) {
             angleY = DirectX::XMConvertToRadians(90 - 35);
@@ -251,34 +252,48 @@ void ParticleSystem::FlameBreathEffect(DirectX::XMFLOAT3 position, DirectX::XMFL
     Vec = Vector3::Add(dir, Vec);
     float speed = 12.0;
     InstancingSprite* particle = new InstancingSprite;
-    particle->Launch(Vec, position, InstancingSprite::FlameBreath, InstancingSprite::FlameBreath, 1.5, speed, { 1,1,1,1 });
+    particle->Launch(Vec, position, InstancingSprite::FlameBreath, InstancingSprite::FlameBreath, 1.5, speed,0,0, { 1,1,1,1 });
     particleManager.Register(particle);
     
 
 }
 
-void ParticleSystem::SeirlConvergenceEffect(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 dir) {
+void ParticleSystem::SeirlConvergenceEffect(DirectX::XMFLOAT3 position, float angle) {
     InstancingSpriteManager& particleManager = InstancingSpriteManager::Instance();
-    DirectX::XMVECTOR orientationVec = DirectX::XMLoadFloat4(&orientation);
-    DirectX::XMMATRIX m = DirectX::XMMatrixRotationQuaternion(orientationVec);
     
-    DirectX::XMFLOAT3 pos;
-     float angle = 2.0;
-     pos.x = cosf(angle * PIDIV180) * 10;
-     pos.y = sinf(angle * PIDIV180) * 10;
-     pos.z = 0;
+     DirectX::XMFLOAT3 pos;
+     DirectX::XMFLOAT3 Vec;
+     float angleX = DirectX::XMConvertToRadians(90) + Player::Instance().GetAngle().y;
+     float Y = angle;
+     float angleY = DirectX::XMConvertToRadians(Y);
+     Vec.y = sin(angleY);
+     Vec.x = cosf(angleY) * sinf(angleX);
+     Vec.z = cosf(angleY) * cosf(angleX);
 
-     DirectX::XMVECTOR pVec = DirectX::XMLoadFloat3(&pos);
-     DirectX::XMStoreFloat3(&pos, DirectX::XMVector3Transform(pVec, m));
-
-     pos.x += position.x;
-     pos.y += position.y;
-     pos.z += position.z;
+     pos.x = position.x + Vec.x * 10;
+     pos.y = position.y + Vec.y * 10;
+     pos.z = position.z + Vec.z * 10;
     
-    float speed = 12.0;
+    float speed = 15.0;
     InstancingSprite* particle = new InstancingSprite;
-    //particle->Launch(Vec, pos, InstancingSprite::FlameBreath, InstancingSprite::FlameBreath, 1.5, speed, { 1,1,1,1 });
-    //particleManager.Register(particle);
+    particle->Launch(position, pos, InstancingSprite::SeirlConvergence, InstancingSprite::SeirlConvergence, 1.5, speed,angleX,Y, { 1,1,1,1 });
+    particleManager.Register(particle);
+
+
+}
+void ParticleSystem::VortexDiffusionEffect(DirectX::XMFLOAT3 position, float angle) {
+    InstancingSpriteManager& particleManager = InstancingSpriteManager::Instance();
+
+    DirectX::XMFLOAT3 pos;
+    DirectX::XMFLOAT3 Vec;
+    float angleX = DirectX::XMConvertToRadians(90) + Player::Instance().GetAngle().y;
+    float Y = angle;
+    float angleY = DirectX::XMConvertToRadians(Y);
+
+    float speed = 15.0;
+    InstancingSprite* particle = new InstancingSprite;
+    particle->Launch(position,position, InstancingSprite::VortexDiffusion, InstancingSprite::VortexDiffusion, 0.5, speed, angleX, Y, { 1,1,1,1 });
+    particleManager.Register(particle);
 
 
 }

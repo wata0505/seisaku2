@@ -111,11 +111,11 @@ void CameraController::Update(float elapsedTime)
 		eye = hit.position;
 	}
 	//最小値で線形補完
-	cameraEye.x = Mathf::Lerp(cameraEye.x, eye.x, correction * 20);
+	cameraEye.x = Mathf::Lerp(cameraEye.x, eye.x, correction * correctionSpeed);
 	//最小値で線形補完
-	cameraEye.y = Mathf::Lerp(cameraEye.y, eye.y, correction * 20);
+	cameraEye.y = Mathf::Lerp(cameraEye.y, eye.y, correction * correctionSpeed);
 	//最小値で線形補完
-	cameraEye.z = Mathf::Lerp(cameraEye.z, eye.z, correction * 20);
+	cameraEye.z = Mathf::Lerp(cameraEye.z, eye.z, correction * correctionSpeed);
 	ShakeUpdate(cameraEye, elapsedTime);
 	//ShakeUpdate(eye, elapsedTime);
 	//カメラに視点を注視点を設定

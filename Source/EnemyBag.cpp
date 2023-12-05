@@ -76,6 +76,11 @@ EnemyBag::EnemyBag(bool tutorial)
 	tutorialflag = tutorial;
 	eria = 100;
 	targetNo = 0;
+	for (int i = 0; i < MAX_ROOT_POINT; i++) {
+		SetTerritory(rootPoint[i], 20);
+		SetRandomTargetPosition();
+		rootPoint[i] = targetPosition;
+	}
 }
 
 // デストラクタ
@@ -112,7 +117,10 @@ void EnemyBag::Update(float elapsedTime)
 	model->ShaderAdjustment(adjustMetalness, adjustSmoothness, glitchScale, timer);
 
 	//描画判定
-	if (reMoveflag)ReMove();
+	reMoveTimer -= elapsedTime;
+	if (reMoveTimer < 0) {
+		if (reMoveflag)ReMove();
+	}
 	if (!activeflag)return;
 	UpdateRnderflag();
 	float ElapsedTime = elapsedTime;
@@ -264,6 +272,7 @@ void EnemyBag::TargetUpdate() {
 	}
 	else
 	{
+
 	
 		targetPosition = rootPoint[rootNo];
 

@@ -33,6 +33,8 @@ public:
 	//ƒJƒƒ‰Å‘å‹——£Ý’è
 	void SetRangeMax(float rangeMax) { this->rangeMax = rangeMax; }
 
+	void SetCorrectionSpeed(float correctionSpeed) { this->correctionSpeed = correctionSpeed; }
+
 private:
 	DirectX::XMFLOAT3	target = { 0,0,0 };
 	DirectX::XMFLOAT3	target2 = { 0,0,0 };
@@ -40,6 +42,7 @@ private:
 	DirectX::XMFLOAT3	hitDir = { 0,0,0 };
 	DirectX::XMFLOAT3   cameraEye = {0,0,0};
 	float				rollSpeed = DirectX::XMConvertToRadians(90);
+	float				correctionSpeed = 20;
 	float				rangeMax = 5.0f;
 	float				range = 5.0f;
 	float				heightRange = 0.0f;

@@ -145,7 +145,10 @@ void Particle::Rubble2Update(float elapsedTime) {
 	//ŠâŠgŽU
 	for (MoveConstants& move : moves) {
 		float speed = move.speed * elapsedTime;
-		if (move.position.y > -2.5) return;
+		if (move.position.y >= -2.0) {
+			move.position.y = -2.0;
+			continue;
+		}
 		move.position.x += move.direction.x * speed;
 		move.position.y += move.direction.y * speed;
 		move.position.z += move.direction.z * speed;
@@ -169,7 +172,7 @@ void Particle::BoomUpdate(float elapsedTime) {
 }
 void Particle::ImpactUpdate(float elapsedTime) {
 	//”š”­
-	scale.x = scale.y = scale.z = 5.0f;
+	scale.x = scale.y = scale.z = 10.0f;
 	for (MoveConstants& move : moves) {
 		float speed = move.speed * elapsedTime;
 

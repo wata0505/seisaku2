@@ -75,8 +75,8 @@ void InstancingSpriteShader::Draw(const RenderContext& rc, const Sprite* sprite)
 	Graphics& graphics = Graphics::Instance();
 	InstancingSpriteManager& manager = InstancingSpriteManager::Instance();
 	for (int i = 0; i < InstancingSprite::Max; i++) {
-		if (manager.GetInstancingSpriteNo(0) == 0)continue;
-		InstancingSpriteConstants buffer = manager.GetSpriteConstants(0);
+		if (manager.GetInstancingSpriteNo(i) == 0)continue;
+		InstancingSpriteConstants buffer = manager.GetSpriteConstants(i);
 		//UINT stride = sizeof(Sprite::Vertex);
 		//UINT offset = 0;
 		//rc.deviceContext->IASetVertexBuffers(0, 1, sprite->GetVertexBuffer().GetAddressOf(), &stride, &offset);
@@ -92,7 +92,7 @@ void InstancingSpriteShader::Draw(const RenderContext& rc, const Sprite* sprite)
 		rc.deviceContext->PSSetShaderResources(5, 1, graphics.GetDissolveSprite(Graphics::DissolveSpriteId::Dissolve)->GetShaderResourceView().GetAddressOf());
 		//ƒfƒBƒ]ƒ‹ƒu ‰~
 		rc.deviceContext->PSSetShaderResources(6, 1, graphics.GetDissolveSprite(Graphics::DissolveSpriteId::DissolveCircle)->GetShaderResourceView().GetAddressOf());
-		rc.deviceContext->DrawIndexedInstanced(1, manager.GetInstancingSpriteNo(0), 0, 0, 0);
+		rc.deviceContext->DrawIndexedInstanced(1, manager.GetInstancingSpriteNo(i), 0, 0, 0);
 	}
 }
 

@@ -28,8 +28,9 @@ void EnemySystem::Start() {
 void EnemySystem::Update(float elapsedTime) {
 	EnemyManager& enemyManager = EnemyManager::Instance();
 	for (int i = 0; i < enemyManager.GetEnemyCount(); i++) {
-		if (!EnemyManager::Instance().GetEnemy(i)->GetActiveflag()) {
+		if (!EnemyManager::Instance().GetEnemy(i)->GetActiveflag() || waveTimer > waveTimerMax) {
 			EnemyManager::Instance().GetEnemy(i)->SetReMoveflag(true);
+			//EnemyManager::Instance().GetEnemy(i)->SetReMoveTimer(10);
 			//EnemyManager::Instance().GetEnemy(i)->SetHealth(EnemyManager::Instance().GetEnemy(i)->GetMaxHealth());
 			//float yaw = DirectX::XMConvertToRadians(rand() % 360);
 			//DirectX::XMFLOAT2 dir;
@@ -40,7 +41,11 @@ void EnemySystem::Update(float elapsedTime) {
 			//EnemyManager::Instance().GetEnemy(i)->SetTerritory(EnemyManager::Instance().GetEnemy(i)->GetPosition(), 10.0f);
 
 		}
-
 	}
+	if (waveTimer > waveTimerMax) {
+		wave++;
+		waveTimer = 0;
+	}
+	waveTimer += elapsedTime;
 
 }

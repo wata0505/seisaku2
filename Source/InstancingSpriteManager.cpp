@@ -15,11 +15,13 @@ InstancingSpriteManager::InstancingSpriteManager()
 	//moveSprite[InstancingSprite::InstancingSpriteImpact] = std::make_unique<Sprite>(L".\\resources\\Effect\\Texture\\Shock_wave1.png");
 	//moveSprite[InstancingSprite::InstancingSpriteWind] = std::make_unique<Sprite>(L".\\resources\\Effect\\Texture\\wind04.png");
 	moveSprite[InstancingSprite::FlameBreath] = std::make_unique<Sprite>(L".\\resources\\Effect\\Texture\\Fire.png");
-	moveSprite[InstancingSprite::SeirlConvergence] = EffectTexAll::Instance().GetSprite((int)EffectTexAll::EfTexAll::Sumi);
+	moveSprite[InstancingSprite::SeirlConvergence] = std::make_unique<Sprite>(L".\\resources\\Effect\\Texture\\Particle_Soft.png");
+	moveSprite[InstancingSprite::VortexDiffusion] = moveSprite[InstancingSprite::SeirlConvergence];
 
 	//texSprite[InstancingSprite::TexNull] = std::make_unique<Sprite>(L".\\resources\\Effect\\Texture\\dummy.png");
 	texSprite[InstancingSprite::FlameBreath] = EffectTexAll::Instance().GetSprite((int)EffectTexAll::EfTexAll::Flame);
 	texSprite[InstancingSprite::SeirlConvergence] = EffectTexAll::Instance().GetSprite((int)EffectTexAll::EfTexAll::Sumi);
+	texSprite[InstancingSprite::VortexDiffusion] = texSprite[InstancingSprite::SeirlConvergence];
 
 }
 

@@ -47,20 +47,20 @@ void StageObj::Render(ID3D11DeviceContext* dc, ModelShader* shader)
 
 bool StageObj::RayCast(const DirectX::XMFLOAT3& start, const DirectX::XMFLOAT3& end, HitResult& hit)
 {
-	float i = 0;
+	//float i = 0;
 	return Collision::IntersectRayVsModel(start, end, obj.get(), hit, transform2);
 }
 bool StageObj::PillarVS(const DirectX::XMFLOAT3& pos, const float radius, const float height, DirectX::XMFLOAT3& outPos)
 {
-	if (Collision::IntersectCylinderVsCylinder(
-		position, this->radius, this->height,
-		pos, radius, height,
-		outPos
-	)) {
-		
-		return true;
-
-	}
+	//if (Collision::IntersectCylinderVsCylinder(
+	//	position, this->radius, this->height,
+	//	pos, radius, height,
+	//	outPos
+	//)) {
+	//	
+	//	return true;
+	//
+	//}
 	return false;
 }
 

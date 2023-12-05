@@ -88,6 +88,7 @@ void ProjectileStraite::Update(float elapsedTime)
 }
 void ProjectileStraite::StraightUpdate(float elapsedTime){
 	float speed = this->speed * elapsedTime;
+	DirectX::XMFLOAT3 start = { position.x,position.y,position.z };
 	//飛ぶ斬撃
 	position = Vector3::PosDir(position, direction, speed);
 	
@@ -99,11 +100,24 @@ void ProjectileStraite::StraightUpdate(float elapsedTime){
 		ParticleSprite* particleSprite = new ParticleSprite(position, direction, ParticleSprite::ParticleImpact, ParticleSprite::Expansion, int(EffectTexAll::EfTexAll::Impact), 1, 0.8,rand() % 100 *0.001);
 		angle = 0.2;
 		ParticleSystem::Instance().RubbleEffect({ position.x,position.y -5,position.z }, 10, 100);
-		ParticleSystem::Instance().Rubble2Effect({ position.x,position.y,position.z }, 5, 100);
 	}
+	ParticleSystem::Instance().Rubble2Effect({ position.x,position.y,position.z }, 2, 100);
+	ParticleSystem::Instance().VortexDiffusionEffect(position, 90);
+	ParticleSystem::Instance().VortexDiffusionEffect(position, 180);
+	ParticleSystem::Instance().VortexDiffusionEffect(position, 270);
+	ParticleSystem::Instance().VortexDiffusionEffect(position, 45);
+	ParticleSystem::Instance().VortexDiffusionEffect(position, 135);
+	ParticleSystem::Instance().VortexDiffusionEffect(position, 225);
 	angle -= elapsedTime;
+	// レイキャストによる壁判定
+	HitResult hit;
+	if (StageManager::Instance().RayCast(start, { position.x + direction.x,position.y,position.z + direction.z}, hit))
+	{
+		ParticleSprite* particleSprite = new ParticleSprite(start, {0,0,0}, ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Sumi), 10000, 2.5, 0, true, 0.008, 0.15, { 1,1,1,1 });
+		Destroy();
+	}
 	//light->SetPos(position, 50, 3, 3, 3);
-	uvStatus.y = NULL;
+	//uvStatus.y = NULL;
 }
 void ProjectileStraite::RotateUpdate(float elapsedTime) {
 	Player& player = Player::Instance();

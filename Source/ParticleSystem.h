@@ -8,16 +8,6 @@ class ParticleSystem
 {
 public:
 	ParticleSystem() {
-		DirectX::XMFLOAT3 n(0, 1, 0);		//軸（正規化）
-		float angle = 0;			//角度（ラジアン）
-
-		orientation = {
-			sinf(angle / 2) * n.x,
-			sinf(angle / 2) * n.y,
-			sinf(angle / 2) * n.z,
-			cosf(angle / 2)
-		};
-	
 	};
 	~ParticleSystem() {};
 
@@ -46,11 +36,13 @@ void FlameBreathBoomEffect(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 dir, in
 //ブレスエフェクト
 void FlameBreathEffect(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 dir);
 //渦巻収束
-void SeirlConvergenceEffect(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 dir);
+void SeirlConvergenceEffect(DirectX::XMFLOAT3 position,float angle);
+//渦巻収束
+void VortexDiffusionEffect(DirectX::XMFLOAT3 position, float angle);
 
 private:
 	//岩のタイプ
 	int rockType[Particle::Rock3] = { Particle::Rock1,Particle::Rock2,Particle::Rock3 };
-	DirectX::XMFLOAT4	orientation = {};
-	const float PIDIV180 = 0.017452f;
+	//DirectX::XMFLOAT4	orientation = {};
+	//const float PIDIV180 = 0.017452f;
 };

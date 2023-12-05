@@ -24,9 +24,15 @@ public:
 	// 更新処理
 	void Update(float elapsedTime);
 
+	int GetWave() { return wave; }
 
+	float GetWaveTimer() { return waveTimer; }
 
 public:
 	int identity = 0;	// 付与するIDの値(この値にMetaAI::Identity::Enemyを加算して付与する)
-	int maxEnemyCount = 10;
+	int maxEnemyCount = 30;
+	float waveTimer = 0;
+	float waveTimerMax = 60;
+	int wave = 0;
+
 };
