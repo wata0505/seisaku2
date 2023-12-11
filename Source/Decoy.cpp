@@ -3,20 +3,27 @@
 #include "Collision.h"
 #include "Graphics.h"
 #include "TrapManager.h"
-
+#include "Camera.h"
 Decoy::Decoy()
 {
 
-    model = std::make_unique<Model>(".\\resources\\Sentorygun\\gunmotiongun1.fbx", true);
-    model->ModelSerialize(".\\resources\\Sentorygun\\gunmotiongun1.fbx");
-    model->ModelRegister(".\\resources\\Sentorygun\\gunmotiongun1.fbx");
+    model = std::make_unique<Model>(".\\resources\\Trap\\Decoy\\Decoy.fbx", true);
+    model->ModelSerialize(".\\resources\\Trap\\Decoy\\Decoy.fbx");
+    model->ModelRegister(".\\resources\\Trap\\Decoy\\Decoy.fbx");
 
+
+    scale.x = scale.y = scale.z = 3.0f;
 
     UpdateTransform(0, 0);
     model->UpdateBufferDara(transform);
     renderdata = model->GetBufferData();
 
+    height = 5;
+    health = 10;
+    maxHealth = 100;
+
     radius = 1;
+    type = Trap::TrapType::TrapDecoy;
 }
 Decoy::~Decoy()
 {
@@ -25,18 +32,33 @@ Decoy::~Decoy()
 
 void Decoy::Update(float elapsedTime)
 {
+    if (health <= 0)
+    {
+        Destroy();
+    }
+
     CollisionVsEnemies();
     UpdateTransform(0, 0);
     model->UpdateBufferDara(transform);
     //モデル描画情報受け渡し
     renderdata = model->GetBufferData();
+    hpRenderFlag = Collision::IntersectFanVsSphere(
+        Camera::Instance().GetEye(),
+        Camera::Instance().GetFront(),
+        Camera::Instance().GetFovY(),
+        Camera::Instance().GetFarZ(),
+        position,
+        radius);
 }
 
 void Decoy::Render(ID3D11DeviceContext* dc, ModelShader* shader)
 {
     shader->Draw(dc, model.get());
 }
+void Decoy::Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader)
+{
 
+}
 void Decoy::DrawDebugPrimitive()
 {
     // 基底クラスのデバッグプリミティブ描画
@@ -70,7 +92,7 @@ void Decoy::CollisionVsEnemies()
             position, territoryRange, height,
             outPosition))
         {
-            //エネミーのターゲットをデコイに設定する
+
 
         }
     }

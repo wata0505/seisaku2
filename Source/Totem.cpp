@@ -3,18 +3,21 @@
 #include "Collision.h"
 #include "Graphics.h"
 #include "TrapManager.h"
-
+#include "Camera.h"
 Totem::Totem()
 {
 
-    model = std::make_unique<Model>(".\\resources\\Sentorygun\\gunmotiongun1.fbx", true);
-    model->ModelSerialize(".\\resources\\Sentorygun\\gunmotiongun1.fbx");
-    model->ModelRegister(".\\resources\\Sentorygun\\gunmotiongun1.fbx");
+    model = std::make_unique<Model>(".\\resources\\Trap\\AttacheCase\\AttacheCase.fbx", true);
+    model->ModelSerialize(".\\resources\\Trap\\AttacheCase\\AttacheCase.fbx");
+    model->ModelRegister(".\\resources\\Trap\\AttacheCase\\AttacheCase.fbx", "Texture\\AO.png");
+
+    scale.x = scale.y = scale.z = 3.0f;
 
 
     UpdateTransform(0, 0);
     model->UpdateBufferDara(transform);
     renderdata = model->GetBufferData();
+    type = Trap::TrapType::TrapTotem;
 }
 Totem::~Totem()
 {
@@ -28,13 +31,22 @@ void Totem::Update(float elapsedTime)
     model->UpdateBufferDara(transform);
     //モデル描画情報受け渡し
     renderdata = model->GetBufferData();
+    //hpRenderFlag = Collision::IntersectFanVsSphere(
+    //    Camera::Instance().GetEye(),
+    //    Camera::Instance().GetFront(),
+    //    Camera::Instance().GetFovY(),
+    //    Camera::Instance().GetFarZ(),
+    //    position,
+    //    radius);
 }
 
 void Totem::Render(ID3D11DeviceContext* dc, ModelShader* shader)
 {
     shader->Draw(dc, model.get());
 }
-
+void Totem::Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader)
+{
+}
 void Totem::DrawDebugPrimitive()
 {
     // 基底クラスのデバッグプリミティブ描画
@@ -43,11 +55,11 @@ void Totem::DrawDebugPrimitive()
     DebugRenderer* debugRenderer = Graphics::Instance().GetDebugRenderer();
 
     //衝突判定用のデバック円柱を描画
-    debugRenderer->DrawCylinder(position, radius, height, DirectX::XMFLOAT4(0, 0, 0, 1));
+    //debugRenderer->DrawCylinder(position, radius, height, DirectX::XMFLOAT4(0, 0, 0, 1));
 
 
     // 縄張り範囲をデバッグ円柱描画
-    debugRenderer->DrawCylinder(territoryOrigin, territoryRange, 1.0f, DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
+    debugRenderer->DrawCylinder(position, territoryRange, 1.0f, DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
 }
 
 //敵との衝突処理
@@ -76,7 +88,7 @@ void Totem::CollisionVsEnemies()
                 //仮のデバック用で消してみる
                 Destroy();
             }
-            
+
         }
     }
 }

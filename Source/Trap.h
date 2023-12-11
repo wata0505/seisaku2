@@ -3,7 +3,7 @@
 
 
 //トラップ
-class Trap 
+class Trap
 {
 public:
 	Trap() {}
@@ -14,6 +14,8 @@ public:
 
 	//描画処理
 	virtual void Render(ID3D11DeviceContext* dc, ModelShader* shader) = 0;
+	//残像エフェクト描画
+	virtual void Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader) = 0;
 
 	//デバッグプリミティブ描画
 	virtual void DrawDebugPrimitive();
@@ -21,7 +23,7 @@ public:
 	//破棄
 	void Destroy();
 
-	
+
 	//行列更新処理
 	void UpdateTransform(int axisType, int lengthType);
 
@@ -49,7 +51,31 @@ public:
 	//高さ取得
 	float GetHeight() const { return height; }
 
+	//HP
+	int GetHealth() const { return health; }
+	int GetMaxHealth() const { return maxHealth; }
+	void SetHealth(const int health) { this->health = health; }
+
+	void InputDamage(int damage);
+
+	bool GetHpRenderFlag() const { return hpRenderFlag; }
+
+	enum TrapType
+	{
+		TrapTurret,
+		TrapMine,
+		TrapTotem,
+		TrapDecoy,
+
+		TrapMax,
+	};
+	//敵種類
+	void	SetType(int type) { this->type = type; }
+	int		GetType() { return type; }
 protected:
+
+	int type = 0;//敵の種類
+
 	DirectX::XMFLOAT3		position = { 0,0,0 };
 	DirectX::XMFLOAT3		targetPosition = { 0,0,0 };
 	DirectX::XMFLOAT3		angle = { 0,0,0 };
@@ -60,7 +86,8 @@ protected:
 		0,0,1,0,
 		0,0,0,1
 	};
-
+	int health = 10;
+	int maxHealth = 10;
 	float attack = 1.0;
 	float radius = 1.0f;
 	float height = 1.0f;
@@ -69,9 +96,11 @@ protected:
 	float dist = 0.0f;
 
 	DirectX::XMFLOAT3	territoryOrigin = { 0.0f,0.0f,0.0f };
-	float				territoryRange =10.0f;
+	float				territoryRange = 10.0f;
 	float notAttackRange = 5.0f;
 
 	bool center = false;
+
+	bool hpRenderFlag = false;
 
 };

@@ -24,6 +24,9 @@
 #include "ParticleSystem.h"
 #include "EnemySystem.h"
 
+#include "TrapManager.h"
+#include "Turret.h"
+
 void SceneGame::Initialize()
 {
 	Graphics& graphics = Graphics::Instance();
@@ -131,6 +134,18 @@ void SceneGame::Initialize()
 
 	//ParticleSprite* particleSprite = new ParticleSprite({NULL,NULL,NULL}, { NULL,NULL,NULL }, ParticleSprite::ParticleSoft, ParticleSprite::Chile, (int)EffectTexAll::EfTexAll::Thunder, 20000,NULL, NULL, false);
 	AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Bgm)->Play(true);
+
+	TrapManager& trapManager = TrapManager::Instance();
+	{//scale=150
+		DirectX::XMFLOAT3 position[3] = { {84.0f, 12.5f, -35.0f},{94.4, 12.5f, -24.5f},{57.5, 12.5f, -50.0f} };
+		for (int i = 0; i < 3; i++)
+		{
+			Turret* turret = new Turret();
+			turret->SetPosition(position[i]);
+			turret->SetTerritory(turret->GetPosition(), 30.0f);
+			trapManager.Register(turret);
+		}
+	}
 }
 void SceneGame::Finalize()
 {
@@ -144,7 +159,8 @@ void SceneGame::Finalize()
 	UIManager::Instance().Clear();
 	AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Bgm)->Stop();
 	AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::BgmBoss)->Stop();
-	
+
+	TrapManager::Instance().Clear();
 }
 void SceneGame::Update(float elapsedTime)
 {
@@ -167,6 +183,8 @@ void SceneGame::Update(float elapsedTime)
 
 	UIManager::Instance().Update(elapsedTime);
 
+	TrapManager::Instance().Update(elapsedTime);
+	TrapManager::Instance().DrawDebugPrimitive();
 	
 	if (base->GetHP() != 0 && player->GetHealth() > 0 && EnemySystem::Instance().GetWave() < 3) {
 		dissolveTimer += elapsedTime;
@@ -296,7 +314,8 @@ void SceneGame::Render()
 	base->Render(immediate_context, shader);
 	EnemyManager::Instance().Render(immediate_context, shader);
 	StageManager::Instance().InstaningRender(immediate_context, shader);
-	
+	TrapManager::Instance().Render(immediate_context, shader);
+
 	shader->End(immediate_context);
 	//レンダーターゲット切り替え
 	immediate_context->OMSetRenderTargets(1, render_target_view.GetAddressOf(), graphics.GetDepthStencilView());
@@ -327,6 +346,8 @@ void SceneGame::Render()
 	shader = graphics.GetShader(Graphics::ModelShaderId::Toon);
 	shader->Begin(immediate_context, rc);
 	player->Afterimagerender(immediate_context, shader);
+	EnemyManager::Instance().Afterimagerender(immediate_context, shader);
+	TrapManager::Instance().Afterimagerender(immediate_context, shader);
 	shader->End(immediate_context);
 	//エフェクトバッファ
 	framebuffers[0]->EffectActivate(immediate_context);
@@ -419,6 +440,7 @@ void SceneGame::Render()
 	);
 	shader2->Draw(rc, sprite_batchs2.get());
 	//player->Sprite2DRender(immediate_context, rc, shader2);
+	TrapManager::Instance().Sprite2DRender(immediate_context, rc, shader2);
 	UIManager::Instance().Render(rc,shader2);
 	base->HpDisplay(rc, shader2);
 	claerSprite->Render(immediate_context,

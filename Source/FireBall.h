@@ -8,10 +8,10 @@
 // 0   íºêi
 // 1   âÒì]
 // 2   óÒ
-enum  Type
+enum  FireBallType
 {
-	Straight,
-	NULLType,
+	FirBallStraight,
+	FirBallNULLType,
 };
 
 //íºêiíeä€

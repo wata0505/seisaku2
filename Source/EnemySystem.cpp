@@ -1,5 +1,6 @@
 #include "EnemySystem.h"
 #include "EnemyBag.h"
+#include "EnemyDrone.h"
 EnemySystem::EnemySystem() {
 
 	
@@ -22,7 +23,17 @@ void EnemySystem::Start() {
 		enemyManager.Register(bag);
 
 	}
+	for (int i = 0; i < maxEnemyCount; i++) {
+		EnemyDrone* drone = new EnemyDrone();
+		DirectX::XMFLOAT2 pos = { 105 - float(rand() % 50), 40 };
+		drone->SetPosition(DirectX::XMFLOAT3(pos.x,2.0f, pos.y));
+		drone->SetTerritory(drone->GetPosition(), 10.0f);
+		drone->SetActiveflag(true);
+		enemyManager.Register(drone);
+	}
 	enemyManager.SetEnemyMaxCount(enemyManager.GetEnemyCount());
+
+
 }
 
 void EnemySystem::Update(float elapsedTime) {

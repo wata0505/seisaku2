@@ -9,6 +9,8 @@
 #include "AudioAll.h"
 #include "Base.h"
 
+#include"TrapManager.h"
+
 // デバッグプリミティブ描画
 void Enemy::DrawDebugPrimitive()
 {
@@ -52,7 +54,11 @@ void Enemy::UpdateVerticalMove(float elapsedTime) {
 		if (my < 0.0f)
 		{
 			
-			position.y = -2.5f + height * 0.5f;
+			//バグだけ地上に配置
+			if (enemyType == EnemyType::Bag)
+			{
+				position.y = -2.5f + height * 0.5f;
+			}
 
 			// 着地した
 			if (!isGround && lowAltitude == 0)
@@ -239,6 +245,31 @@ void Enemy::CollisionNodeVsBase(const char* nodeName, float nodeRadius, DirectX:
 		outPosition))
 	{
 		base.InputDamage(static_cast<int>(damage));
+	}
+}
+void Enemy::CollisionNodeVsTrap(const char* nodeName, float nodeRadius, DirectX::XMFLOAT2 pow, float damage, float invincibleTime)
+{
+
+	nodePosition = SearchNodePos(nodeName);
+
+	int count = TrapManager::Instance().GetTrapCount();
+	for (int i = 0; i < count; i++)
+	{
+		Trap* trap = TrapManager::Instance().GetTrap(i);
+		//タレットとデコイ以外はスルー
+		if (trap->GetType() != Trap::TrapType::TrapDecoy)
+		{
+			continue;
+		}
+		DirectX::XMFLOAT3 outPosition;
+		//地面の高さを設定
+		if (Collision::IntersectSphereVsCylinder(
+			nodePosition, nodeRadius,
+			{ trap->GetPosition().x,-2.5f,trap->GetPosition().z }, trap->GetRadius(), trap->GetHeight(),
+			outPosition))
+		{
+			trap->InputDamage(static_cast<int>(damage));
+		}
 	}
 }
 void Enemy::HitInpnt(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT2 pow, float damage, float invincibleTime) {

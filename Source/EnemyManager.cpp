@@ -39,6 +39,13 @@ void EnemyManager::Render(ID3D11DeviceContext* context, ModelShader* shader)
 		enemy->Render(context, shader);
 	}
 }
+void EnemyManager::Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader)
+{
+	for (Enemy* enemy : enemies)
+	{
+		enemy->Afterimagerender(immediate_context, shader);
+	}
+}
 
 // ƒGƒlƒ~[“o˜^
 void EnemyManager::Register(Enemy* enemy)

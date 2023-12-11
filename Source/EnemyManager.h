@@ -24,6 +24,7 @@ public:
 
 	// •`‰æˆ—
 	void Render(ID3D11DeviceContext* dc, ModelShader* shader);
+	void Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader);
 
 	// ƒGƒlƒ~[“o˜^
 	void Register(Enemy* enemy);

@@ -6,13 +6,21 @@
 #include"Totem.h"
 #include"Decoy.h"
 
-
+#include"EnemyManager.h"
 #include"Player.h"
 #include "Input.h"
 
 TrapManager::TrapManager()
 {
-	sprite = std::make_unique<Sprite>(L".\\resources\\Sentorygun\\turret.png");
+	uiTrap[0] = std::make_unique<Sprite>(L".\\resources\\Trap\\Turret.png");
+	uiTrap[1] = std::make_unique<Sprite>(L".\\resources\\Trap\\Mine.png");
+	uiTrap[2] = std::make_unique<Sprite>(L".\\resources\\Trap\\P.png");
+	uiTrap[3] = std::make_unique<Sprite>(L".\\resources\\Trap\\Decoy.png");
+
+
+	uiHp = std::make_unique<Sprite>(L".\\resources\\HP.png");
+	sprite = std::make_unique<Sprite>(L".\\resources\\Trap\\TrapSlot.png");
+	spriteNo = std::make_unique<Sprite>(L".\\resources\\Trap\\No.png");
 	font = std::make_unique<Sprite>(L".\\resources\\Font\\Number.png");
 }
 
@@ -43,23 +51,24 @@ void TrapManager::Update(float elapsedTime)
 	//トラップ同士の衝突処理
 	CollisionTrapVstraps();
 
+
 	//トラップ設置（仮）
-	//{
-	//	GamePad& gamePad = Input::Instance().GetGamePad();
-	//	if (gamePad.GetButtonDown() & GamePad::BTN_LEFT) type--;
-	//	if (gamePad.GetButtonDown() & GamePad::BTN_RIGHT) type++;
-	//	if (type >= TrapType::TrapMax) type--;//上限
-	//	if (type < 0)type++;//下限
-	//
-	//	if (Input::Instance().GetGamePad().GetButtonDown() & GamePad::BTN_UP && CollisionVsPlayer() == false)
-	//	{
-	//		SetTrap();
-	//	}
-	//	if (Input::Instance().GetGamePad().GetButtonDown() & GamePad::BTN_DOWN)
-	//	{
-	//		trapPoint++;
-	//	}
-	//}
+	{
+		GamePad& gamePad = Input::Instance().GetGamePad();
+		if (gamePad.GetButtonDown() & GamePad::BTN_LEFT) type--;
+		if (gamePad.GetButtonDown() & GamePad::BTN_RIGHT) type++;
+		if (type >= Trap::TrapType::TrapMax) type = Trap::TrapType::TrapTurret;//上限
+		if (type < Trap::TrapType::TrapTurret)type = Trap::TrapType::TrapDecoy;//下限
+
+		if (Input::Instance().GetGamePad().GetButtonDown() & GamePad::BTN_UP && CollisionVsPlayer() == false)
+		{
+			SetTrap();
+		}
+		if (Input::Instance().GetGamePad().GetButtonDown() & GamePad::BTN_DOWN)
+		{
+			trapPoint++;
+		}
+	}
 }
 
 //描画処理
@@ -70,6 +79,16 @@ void TrapManager::Render(ID3D11DeviceContext* context, ModelShader* shader)
 		Trap->Render(context, shader);
 	}
 }
+//描画処理
+void TrapManager::Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader)
+{
+	for (Trap* Trap : traps)
+	{
+		Trap->Afterimagerender(immediate_context, shader);
+	}
+}
+
+
 
 //トラップ登録
 void TrapManager::Register(Trap* Trap)
@@ -79,49 +98,67 @@ void TrapManager::Register(Trap* Trap)
 
 void TrapManager::SetTrap()
 {
-	if (cost[type] <= trapPoint)
+	//必要ポイントを所持していて、着地している
+	if (cost[type] <= trapPoint && Player::Instance().IsGround())
 	{
 		trapPoint -= cost[type];
 
 		switch (type)
 		{
-		case TrapType::TrapTurret:
+		case Trap::TrapType::TrapTurret:
 		{
-			Turret* turret = new Turret();
-			turret->SetPosition({ Player::Instance().GetPosition().x,Player::Instance().GetPosition().y +1.5f,Player::Instance().GetPosition().z});
-			turret->SetTerritory(turret->GetPosition(), 10.0f);
-			Register(turret);
+			//台上
+			if (Player::Instance().GetPosition().y > 5)
+			{
+				Turret* turret = new Turret();
+				turret->SetPosition({ Player::Instance().GetPosition().x,12.5f,Player::Instance().GetPosition().z });
+				turret->SetTerritory(turret->GetPosition(), 10.0f);
+				Register(turret);
+			}
 			break;
 		}
-		case TrapType::TrapMine:
+		case Trap::TrapType::TrapMine:
 		{
-			Mine* mine = new Mine();
-			mine->SetPosition(Player::Instance().GetPosition());
-			mine->SetTerritory(mine->GetPosition(), 10.0f);
-			Register(mine);
+			//地面
+			if (Player::Instance().GetPosition().y < 5)
+			{
+				Mine* mine = new Mine();
+				mine->SetPosition(Player::Instance().GetPosition());
+				mine->SetTerritory(mine->GetPosition(), 10.0f);
+				Register(mine);
+			}
 			break;
 		}
-		case TrapType::TrapTotem:
+		case Trap::TrapType::TrapTotem:
 		{
-			Totem* totem = new Totem();
-			totem->SetPosition(Player::Instance().GetPosition());
-			totem->SetTerritory(totem->GetPosition(), 10.0f);
-			Register(totem);
+			//地面
+			if (Player::Instance().GetPosition().y < 5)
+			{
+				Totem* totem = new Totem();
+				totem->SetPosition(Player::Instance().GetPosition());
+				totem->SetTerritory(totem->GetPosition(), 10.0f);
+				Register(totem);
+			}
 			break;
 		}
-		case TrapType::TrapDecoy:
+		case Trap::TrapType::TrapDecoy:
 		{
-			Decoy* decoy = new Decoy();
-			decoy->SetPosition(Player::Instance().GetPosition());
-			decoy->SetTerritory(decoy->GetPosition(), 10.0f);
-			Register(decoy);
+			//地面
+			if (Player::Instance().GetPosition().y < 5)
+			{
+				Decoy* decoy = new Decoy();
+				decoy->SetPosition(Player::Instance().GetPosition());
+				decoy->SetTerritory(decoy->GetPosition(), 10.0f);
+				Register(decoy);
+			}
 			break;
 		}
 		}
 	}
-	
 
-	
+
+
+
 }
 
 //トラップ全削除
@@ -198,13 +235,11 @@ bool TrapManager::CollisionVsPlayer()
 	return false;
 }
 
-void TrapManager::Sprite2DRender(ID3D11DeviceContext* dc, RenderContext& rc, SpriteShader* shader) {
-
-	TrapManager::Instance().Text(shader, dc, std::to_string(cost[type]), 10, 10, 100, 100, 0.0f, 1.0f, 0.0f, 1.0f);
-	TrapManager::Instance().Text(shader, dc, std::to_string(trapPoint), 100, 10, 100, 100, 0.0f, 0.0f, 1.0f, 1.0f);
 
 
 
+void TrapManager::Sprite2DRender(ID3D11DeviceContext* dc, RenderContext& rc, SpriteShader* shader)
+{
 	// ビューポート
 	D3D11_VIEWPORT viewport;
 	UINT numViewports = 1;
@@ -213,39 +248,91 @@ void TrapManager::Sprite2DRender(ID3D11DeviceContext* dc, RenderContext& rc, Spr
 	DirectX::XMMATRIX View = DirectX::XMLoadFloat4x4(&rc.view);
 	DirectX::XMMATRIX Projection = DirectX::XMLoadFloat4x4(&rc.projection);
 	DirectX::XMMATRIX World = DirectX::XMMatrixIdentity();
-	DirectX::XMFLOAT3 playerPosition = Player::Instance().GetPosition();
-	playerPosition.y += Player::Instance().GetHeight();
-	DirectX::XMVECTOR WorldPosition = DirectX::XMLoadFloat3(&playerPosition);
-	// ワールド座標からスクリーン座標へ変換
-	DirectX::XMVECTOR ScreenPosition = DirectX::XMVector3Project(
-		WorldPosition,
-		viewport.TopLeftX,
-		viewport.TopLeftY,
-		viewport.Width,
-		viewport.Height,
-		viewport.MinDepth,
-		viewport.MaxDepth,
-		Projection,
-		View,
-		World
-	);
-	// スクリーン座標
-	DirectX::XMFLOAT2 screenPosition;
-	DirectX::XMStoreFloat2(&screenPosition, ScreenPosition);
 
 
-	TrapManager::Instance().Text(shader, dc, std::to_string(trapPoint), 100, 10, 100, 100, 0.0f, 0.0f, 1.0f, 1.0f);
+	DirectX::XMFLOAT2 positon = { 1100,480 };
+	float size = 80;
+	//枠
 	sprite->Render(dc,
-		screenPosition.x-100, screenPosition.y-100, 200, 100,
-		0, 0, 500, 250,
+		positon.x, positon.y, 2 * size, 3 * size,
+		0, 0,
+		sprite->GetTextureWidth(), sprite->GetTextureHeight(),
 		0.0f,
 		1.0f, 1.0f, 1.0f, 1.0f
 	);
 	shader->Draw(rc, sprite.get());
 
+	//各トラップ類
+	uiTrap[type]->Render(dc,
+		positon.x, positon.y, 2 * size, 3 * size,
+		0, 0,
+		uiTrap[type]->GetTextureWidth(), uiTrap[type]->GetTextureHeight(),
+		0.0f,
+		1.0f, 1.0f, 1.0f, 1.0f
+	);
+	shader->Draw(rc, uiTrap[type].get());
+	TrapManager::Instance().Text(shader, dc, std::to_string(cost[type]), positon.x + 115, positon.y + 137, 22, 22, 1.0f, 0.0f, 0.0f, 1.0f);
+
+	//使用不可マーク表示
+	if (Player::Instance().IsGround() == false ||
+		(Player::Instance().GetPosition().y > 5 && type != Trap::TrapType::TrapTurret) ||
+		(Player::Instance().GetPosition().y < 5 && type == Trap::TrapType::TrapTurret))
+	{
+		//台上で、タレットじゃない
+		spriteNo->Render(dc,
+			positon.x, positon.y, 2 * size, 3 * size,
+			0, 0,
+			spriteNo->GetTextureWidth(), spriteNo->GetTextureHeight(),
+			0.0f,
+			1.0f, 1.0f, 1.0f, 1.0f
+		);
+		shader->Draw(rc, spriteNo.get());
+	}
 
 
+	//HPゲージ描画
+	int TrapCount = static_cast<int>(traps.size());
+	for (int i = 0; i < TrapCount; i++)
+	{
+		Trap* trap = traps.at(i);
+		float gaugeThrate = trap->GetHealth() / static_cast<float>(trap->GetMaxHealth());
+		if (trap->GetHpRenderFlag() && trap->GetHealth() > 0)
+		{
+			//設置場所に表示
+			DirectX::XMFLOAT3 objPosition = trap->GetPosition();
+			//objPosition.y += trap->GetHeight();
+			DirectX::XMVECTOR WorldPosition = DirectX::XMLoadFloat3(&objPosition);
 
+			// ワールド座標からスクリーン座標へ変換
+			DirectX::XMVECTOR ScreenPosition = DirectX::XMVector3Project(
+				WorldPosition,
+				viewport.TopLeftX,
+				viewport.TopLeftY,
+				viewport.Width,
+				viewport.Height,
+				viewport.MinDepth,
+				viewport.MaxDepth,
+				Projection,
+				View,
+				World
+			);
+			// スクリーン座標
+			DirectX::XMFLOAT2 screenPosition;
+			DirectX::XMStoreFloat2(&screenPosition, ScreenPosition);
+			uiHp->Render(rc.deviceContext,
+				screenPosition.x - 200 * 0.5,
+				screenPosition.y - 20 * 0.5,
+				200 * gaugeThrate,
+				20,
+				0, 0,
+				static_cast<float>(uiHp->GetTextureWidth() * gaugeThrate),
+				static_cast<float>(uiHp->GetTextureHeight()),
+				0,
+				3.0f, 1.0f, 1.0f, 1.0f, 0, 0
+			);
+			shader->Draw(rc, uiHp.get());
+		}
+	}
 }
 
 void TrapManager::Text(SpriteShader* shader, ID3D11DeviceContext* dc, std::string s, float x, float y, float w, float h, float r, float g, float b, float a)
@@ -255,14 +342,13 @@ void TrapManager::Text(SpriteShader* shader, ID3D11DeviceContext* dc, std::strin
 
 	//現在の文字位置（相対位置）
 	float carriage = 0;
-	const float blend_factor[4] = { 1,1,1,1 };
 
 	//文字数分だけrender()を呼び出す
 	for (const char c : s)
 	{
 		//文字を表示。アスキーコードの位置にある文字位置を切り抜いて表示
 		font->Render(dc,
-			x + carriage, y, w, h,
+			x + carriage / 2, y, w, h,
 			72.0f * (c & 0x0F), 0.0f, 72.0f, 72.0f,
 			0.0f,
 			r, g, b, a);

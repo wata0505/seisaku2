@@ -28,6 +28,8 @@ public:
 	//ï`âÊèàóù
 	void Render(ID3D11DeviceContext* dc, ModelShader* shader);
 
+	void Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader);
+
 	void Text(SpriteShader* shader, ID3D11DeviceContext* dc, std::string s, float x, float y, float w, float h, float r, float g, float b, float a);
 	void Sprite2DRender(ID3D11DeviceContext* dc, RenderContext& rc, SpriteShader* shader);
 
@@ -57,24 +59,24 @@ private:
 
 	//è’ìÀèàóù
 	bool CollisionVsPlayer();
-private:
-	enum TrapType
-	{
-		TrapTurret,
-		TrapMine,
-		TrapTotem,
-		TrapDecoy,
 
-		TrapMax,
-	};
-	int type = 0;
-	
-	int cost[TrapMax] = { 1,2,3,4 };
+private:
+
+	int type = Trap::TrapType::TrapTurret;
+
+	int cost[Trap::TrapType::TrapMax] = { 1,2,3,4 };
 	int trapPoint = 0;
+
 
 	std::vector<Trap*> traps;
 	std::vector<Trap*> removes;
 	std::unique_ptr<Sprite> font = {};
 
 	std::unique_ptr<Sprite> sprite;
+	std::unique_ptr<Sprite> spriteNo;
+	std::unique_ptr<Sprite> uiHp;
+	std::unique_ptr<Sprite> uiTrap[Trap::TrapType::TrapMax];
+
+
+	bool buildFlag = false;
 };

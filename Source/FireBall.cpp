@@ -39,7 +39,7 @@ void FireBall::Update(float elapsedTime)
 	//ˆÚ“®
 	switch (type)
 	{
-	case Type::Straight:
+	case FireBallType::FirBallStraight:
 		StraightUpdate(elapsedTime);
 		break;
 	}

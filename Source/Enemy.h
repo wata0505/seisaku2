@@ -18,6 +18,7 @@ public:
 
 	// ï`âÊèàóù
 	virtual void Render(ID3D11DeviceContext* dc, ModelShader* shader) = 0;
+	virtual void Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader) = 0;
 
 
 	// îjä¸
@@ -70,6 +71,8 @@ public:
 
 	void CollisionNodeVsPlayer(const char* nodeName, float nodeRadius, DirectX::XMFLOAT2 pow, float damage,float invincibleTime = 1.0);
 	void CollisionNodeVsBase(const char* nodeName, float nodeRadius, DirectX::XMFLOAT2 pow, float damage, float invincibleTime = 1.0);
+	void CollisionNodeVsTrap(const char* nodeName, float nodeRadius, DirectX::XMFLOAT2 pow, float damage, float invincibleTime = 1.0);
+
 
 	virtual DirectX::XMFLOAT3 SearchNodePos(const char* nodeName) = 0;
 
@@ -92,6 +95,12 @@ public:
 
 	void HitInpnt(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT2 pow, float damage, float invincibleTime);
 
+	enum EnemyType
+	{
+		Bag,
+		Drone,
+		EnemyTypeMax,
+	};
 protected:
 	DirectX::XMFLOAT3	targetPosition = { 0.0f,0.0f,0.0f };
 	Animation::Keyframe enemyKeyframe = {};
@@ -124,4 +133,5 @@ protected:
 	float				territoryRange = 10.0f;
 	int enemyTimer = 0;
 	
+	int enemyType = -1;
 };

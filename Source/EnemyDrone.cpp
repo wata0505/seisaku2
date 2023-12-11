@@ -1,11 +1,12 @@
-#include "EnemyBag.h"
+#include "EnemyDrone.h"
 #include "Graphics.h"
 #include "Mathf.h"
 #include "player.h"
-#include "StateDerived.h"
+#include "StateDrone.h"
 #include "EnemyManager.h"
 #include "Collision.h"
 #include "ParticleSprite.h"
+#include "ProjectileStraite.h"
 #include "Audio.h"
 #include "AudioAll.h"
 #include "Calculation.h"
@@ -14,21 +15,19 @@
 #include "ParticleSprite.h"
 #include"Base.h"
 #include "Mathf.h"
-#include"TrapManager.h"
 
+#include"TrapManager.h"
 // コンストラクタ
-EnemyBag::EnemyBag(bool tutorial)
+EnemyDrone::EnemyDrone(bool tutorial)
 {
-	model = std::make_unique<Model>(".\\resources\\enemy\\enemy.fbx", true);
-	model->AppendAnimations(".\\resources\\enemy\\Enemy_taikiandmigration.fbx",0);
-	model->AppendAnimations(".\\resources\\enemy\\Enemy_attack1.fbx", 0);
-	model->AppendAnimations(".\\resources\\enemy\\Enemy_attack2.fbx", 0);
-	model->AppendAnimations(".\\resources\\enemy\\Enemy_attack3.fbx", 0);
-	model->AppendAnimations(".\\resources\\enemy\\Enemy_damage.fbx", 0);
-	model->AppendAnimations(".\\resources\\enemy\\Enemy_Die.fbx", 0);
-	model->ModelSerialize(".\\resources\\enemy\\enemy.fbx");
-	//model->ModelCreate(".\\resources\\Slime\\Slime.fbx");
-	model->ModelRegister(".\\resources\\enemy\\enemy.fbx", "Texture\\all_low_lambert1.tif");
+	beem = std::make_unique<Model>(".\\resources\\Cube.fbx", true);
+	beem->ModelSerialize(".\\resources\\Cube.fbx");
+	beem->ModelRegister(".\\resources\\Cube.fbx");
+	beem->UpdateBufferDara(transform);
+
+	model = std::make_unique<Model>(".\\resources\\Drone\\Drone.fbx", true);
+	model->ModelSerialize(".\\resources\\Drone\\Drone.fbx");
+	model->ModelRegister(".\\resources\\Drone\\Drone.fbx", "Texture\\Albedo.png");
 	// モデルが大きいのでスケーリング
 	maxHealth = 5;
 	health = maxHealth;
@@ -36,75 +35,73 @@ EnemyBag::EnemyBag(bool tutorial)
 	height = 2.0f;
 	activeflag = true;
 	isActiveStart = false;
-	
+
 	//StateMachineを生成し、階層型ステートマシンに対応するように登録ステートを変更していく。
-	stateMachine = std::make_unique<StateMachine<EnemyBag>>();
+	stateMachine = std::make_unique<StateMachine<EnemyDrone>>();
 	// ステートマシンに1層目のステートを登録(BattleStateも同様の方法で各自追加してください)
-	stateMachine->RegisterState(new BagSearchState(this));
-	stateMachine->RegisterState(new BagBattleState(this));
-	stateMachine->RegisterState(new BagRecieveState(this));
-	stateMachine->RegisterState(new BagReDamageState(this));
+	stateMachine->RegisterState(new DroneSearchState(this));
+	stateMachine->RegisterState(new DroneBattleState(this));
+	stateMachine->RegisterState(new DroneRecieveState(this));
+	stateMachine->RegisterState(new DroneReDamageState(this));
 	// 各親ステートにサブステートを登録(WanderState以外の2層目のステートも同様の方法で各自追加してください。)
-	stateMachine->RegisterSubState(static_cast<int>(EnemyBag::BagState::Search), new BagWanderState(this));
-	stateMachine->RegisterSubState(static_cast<int>(EnemyBag::BagState::Search), new BagIdleState(this));
-	stateMachine->RegisterSubState(static_cast<int>(EnemyBag::BagState::Battle), new BagPursuitState(this));
-	stateMachine->RegisterSubState(static_cast<int>(EnemyBag::BagState::Battle), new BagAttackState(this));
-	stateMachine->RegisterSubState(static_cast<int>(EnemyBag::BagState::Battle), new BagFireBallState(this));
-	stateMachine->RegisterSubState(static_cast<int>(EnemyBag::BagState::Battle), new BagStandbyState(this));
-	stateMachine->RegisterSubState(static_cast<int>(EnemyBag::BagState::Battle), new BagRoarState(this));
-	stateMachine->RegisterSubState(static_cast<int>(EnemyBag::BagState::Battle), new BagBackStepState(this));
-	stateMachine->RegisterSubState(static_cast<int>(EnemyBag::BagState::Recieve), new  BagCalledState(this));
-	stateMachine->RegisterSubState(static_cast<int>(EnemyBag::BagState::ReDamage), new BagDamageState(this));
-	stateMachine->RegisterSubState(static_cast<int>(EnemyBag::BagState::ReDamage), new BagDieState(this));
+	stateMachine->RegisterSubState(static_cast<int>(EnemyDrone::DroneState::Search), new DroneWanderState(this));
+	stateMachine->RegisterSubState(static_cast<int>(EnemyDrone::DroneState::Search), new DroneIdleState(this));
+	stateMachine->RegisterSubState(static_cast<int>(EnemyDrone::DroneState::Battle), new DronePursuitState(this));
+	stateMachine->RegisterSubState(static_cast<int>(EnemyDrone::DroneState::Battle), new DroneAttackState(this));
+	stateMachine->RegisterSubState(static_cast<int>(EnemyDrone::DroneState::Battle), new DroneStandbyState(this));
+	stateMachine->RegisterSubState(static_cast<int>(EnemyDrone::DroneState::Recieve), new  DroneCalledState(this));
+	stateMachine->RegisterSubState(static_cast<int>(EnemyDrone::DroneState::ReDamage), new DroneDamageState(this));
+	stateMachine->RegisterSubState(static_cast<int>(EnemyDrone::DroneState::ReDamage), new DroneDieState(this));
 	// ステートをセット
-	stateMachine->SetState(static_cast<int>(BagState::Search));
+	stateMachine->SetState(static_cast<int>(DroneState::Search));
 	mass = 2.0;
 	UpdateTransform(0, 0);
 
 	model->UpdateBufferDara(transform);
 	//renderdata = model->GetBufferData();
 
-	se[(int)EnemyBagSE::Walk] = Audio::Instance().LoadAudioSource("resources\\Audio\\wolk2.wav");
-	se[(int)EnemyBagSE::Run] = Audio::Instance().LoadAudioSource("resources\\Audio\\run3.wav");
-	se[(int)EnemyBagSE::Roar] = Audio::Instance().LoadAudioSource("resources\\Audio\\bag1.wav");
-	//se[(int)EnemyBagSE::hit] = Audio::Instance().LoadAudioSource("resources\\Audio\\pannti.wav");
-	searchRange = 6.0f;
+	se[(int)EnemyDroneSE::Walk] = Audio::Instance().LoadAudioSource("resources\\Audio\\wolk2.wav");
+	se[(int)EnemyDroneSE::Run] = Audio::Instance().LoadAudioSource("resources\\Audio\\run3.wav");
+	se[(int)EnemyDroneSE::Roar] = Audio::Instance().LoadAudioSource("resources\\Audio\\Bag1.wav");
+	//se[(int)EnemyDroneSE::hit] = Audio::Instance().LoadAudioSource("resources\\Audio\\pannti.wav");
+	searchRange = 25.0f;
+	attackRange = 25.0f;
 
-	attackRange = 2.5f;
-	scale.x = scale.y = scale.z = 6.0f;
+	scale.x = scale.y = scale.z = 1.0f;
 	territoryRange = 10.0f;
 	angle.y = DirectX::XMConvertToRadians(180);
 	tutorialflag = tutorial;
 	eria = 100;
 	targetNo = 0;
-	for (int i = 0; i < MAX_ROOT_POINT; i++) {
-		SetTerritory(rootPoint[i], 20);
-		SetRandomTargetPosition();
-		rootPoint[i] = targetPosition;
-	}
-	enemyType = EnemyType::Bag;
+	enemyType = EnemyType::Drone;
 }
 
 // デストラクタ
-EnemyBag::~EnemyBag()
+EnemyDrone::~EnemyDrone()
 {
 	// delete model;
 }
 //ルートモーション
-void EnemyBag::RootMove() {
+void EnemyDrone::RootMove() {
 
 	DirectX::XMFLOAT2 dir = ForwardToPlayer();
-	velocity.x =  dir.x * (model->GetRootPow() * rootSpeed);
-	velocity.z =  dir.y * (model->GetRootPow() * rootSpeed);
+	velocity.x = dir.x * (model->GetRootPow() * rootSpeed);
+	velocity.z = dir.y * (model->GetRootPow() * rootSpeed);
 }
-float EnemyBag::MovePow() {
-	
+float EnemyDrone::MovePow() {
+
 	return (velocity.x * velocity.x) + (velocity.z * velocity.z);
 }
-void EnemyBag::Update(float elapsedTime)
+void EnemyDrone::Update(float elapsedTime)
 {
+	coolTime--;
+	if (position.y <= 10.0f)
+	{
+		position.y = 10.0f;
+	}
+
 	timer += elapsedTime;
-	if (stateMachine->GetStateNum() == static_cast<int>(EnemyBag::BagState::ReDamage))
+	if (stateMachine->GetStateNum() == static_cast<int>(EnemyDrone::DroneState::ReDamage))
 	{
 		lerpGlitchIntensity = 1.0f;
 		//scanBorder = -10.0f;
@@ -119,29 +116,26 @@ void EnemyBag::Update(float elapsedTime)
 	model->ShaderAdjustment(adjustMetalness, adjustSmoothness, glitchScale, timer);
 
 	//描画判定
-	reMoveTimer -= elapsedTime;
-	if (reMoveTimer < 0) {
-		if (reMoveflag)ReMove();
-	}
+	if (reMoveflag)ReMove();
 	if (!activeflag)return;
 	UpdateRnderflag();
 	float ElapsedTime = elapsedTime;
-	
-	if (Player::Instance().GetQuickflag()) 
+
+	if (Player::Instance().GetQuickflag())
 	{
 		ElapsedTime *= 0.5f;
 	}
 	if (health <= 0) {
-		if (!model->IsPlayAnimation()) {
+		if (!model->IsPlayAnimation())
+		{
 			//死亡モーションが終わったデリート
 			//Destroy();
 			activeflag = false;
 			renderflag = false;
 			//position.y = -2000;
 		}
-		ElapsedTime *= 0.3f;
 		UpdateTransform((int)Character::AxisType::RHSYUP, (int)Character::LengthType::Cm);
-		model->UpdateAnimation(ElapsedTime,"pelvis");
+		model->UpdateAnimation(elapsedTime, "pelvis");
 		// モデル行列更新
 		model->UpdateBufferDara(transform);
 		//renderdata = model->GetBufferData();
@@ -152,7 +146,7 @@ void EnemyBag::Update(float elapsedTime)
 #endif
 		return;
 	}
-	
+
 	if (!isActiveStart)
 	{
 		if (activeTimer > 0.0f)
@@ -183,13 +177,13 @@ void EnemyBag::Update(float elapsedTime)
 			}
 		}
 		//model->ShaderAdjustment(adjustMetalness, adjustSmoothness, glitchScale, timer);
-		
+
 	}
-	
+
 	//ヒットストップ
 	if (Player::Instance().GetAttackHitflag()) ElapsedTime *= hitStop;
 	TargetUpdate();
-	//stateMachine->SetState(static_cast<int>(BagState::Search));
+	//stateMachine->SetState(static_cast<int>(DroneState::Search));
 	//ステートマシン更新
 	stateMachine->Update(ElapsedTime);
 
@@ -202,8 +196,10 @@ void EnemyBag::Update(float elapsedTime)
 	// オブジェクト行列更新
 	UpdateTransform((int)Character::AxisType::RHSYUP, (int)Character::LengthType::Cm);
 
-	CollisionFireBallVSPlayer();
-	model->UpdateAnimation(ElapsedTime,"pelvis",renderflag);
+	CollisionBeemVSTrap();
+	CollisionBeemVSBase();
+
+	model->UpdateAnimation(ElapsedTime, "pelvis", renderflag);
 	objectManager.Update(elapsedTime);
 	// モデル行列更新
 	if (renderflag) {
@@ -215,57 +211,58 @@ void EnemyBag::Update(float elapsedTime)
 	SeUpdate(elapsedTime);
 	enemyTimer++;
 }
-void EnemyBag::SeUpdate(float elapsedTime) {
-	//if (model->GetCurrentAnimationIndex() == (int)EnemyBagAnimation::RunFWD) {
+void EnemyDrone::SeUpdate(float elapsedTime) {
+	//if (model->GetCurrentAnimationIndex() == (int)EnemyDroneAnimation::RunFWD) {
 	//
 	//}
 
 }
 // 死亡した時に呼ばれる
-void EnemyBag::OnDead()
+void EnemyDrone::OnDead()
 {
 	// 死亡
-	stateMachine->ChangeState(static_cast<int>(EnemyBag::BagState::ReDamage));
+	stateMachine->ChangeState(static_cast<int>(EnemyDrone::DroneState::ReDamage));
 	AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Down)->Play(false, DOWNSE);
-	
+
 }
 
-void EnemyBag::OnDamaged()
+void EnemyDrone::OnDamaged()
 {
 	if (!barrierFlg || saveDamage >= 4) {
-		stateMachine->ChangeState(static_cast<int>(EnemyBag::BagState::ReDamage));
+		stateMachine->ChangeState(static_cast<int>(EnemyDrone::DroneState::ReDamage));
 	}
 	barrierHP -= (--saveDamage);
 	if (barrierHP < 0 && barrierFlg) {
 		barrierFlg = false;
 		ParticleSprite* particleSprite = new ParticleSprite(GetEfPos(), { NULL,NULL,NULL }, ParticleSprite::ParticleTriangle, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Flame), 5000, 1.5f, 0.2f);
 	}
-	if(tutorialflag)health = maxHealth;
+	if (tutorialflag)health = maxHealth;
 }
-void EnemyBag::FireBallShoat()
+void EnemyDrone::BeemShoat()
 {
-	nodePosition = SearchNodePos("koshi");
-    
-	// ターゲット方向への進行ベクトルを算出
-	//DirectX::XMFLOAT3 dir;
-	FireBall* projectile = new FireBall(&objectManager, 0.05f);
-	DirectX::XMFLOAT3 dir{};
-	dir.x = sinf(angle.y);
-	dir.y = 0;
-	dir.z = cosf(angle.y);
-	//方向、位置
-	projectile->Launch(dir, nodePosition, angle.y);
+	if (coolTime <= 0)
+	{
+		// 前方向
+		float h = 0;
+		// 発射
+		for (int i = 1; i < 4; i++)
+		{
+			h = 0.4 * i;
+			ProjectileStraite* projectile = new ProjectileStraite(&objectManager);
+			projectile->TurretLaunch(beem, h, 2.5 - 0.5 * i, position, targetPosition, angle.y, Type::Beem, (int)EffectTexAll::EfTexAll::BlueThader, 2 + 0.1 * i, 1, 0.0f);
+		}
+		coolTime = 180;
+	}
 }
 
-void EnemyBag::TargetUpdate() {
-	if (SearchPlayer()|| rootNo >= MAX_ROOT_POINT) {
+void EnemyDrone::TargetUpdate() {
+	if (SearchTrap() || rootNo >= MAX_ROOT_POINT) {
 		switch (targetNo)
 		{
 		case BaseTarget:
 			targetPosition = Base::Instance().GetPos();
 			break;
-		case PlayerTarget:
-			targetPosition = Player::Instance().GetPosition();
+		case TrapTarget:
 			break;
 		default:
 			break;
@@ -275,81 +272,103 @@ void EnemyBag::TargetUpdate() {
 	else
 	{
 
-	
 		targetPosition = rootPoint[rootNo];
 
 	}
-	
+
 }
 
 
-void EnemyBag::CollisionFireBallVSPlayer()
+void EnemyDrone::CollisionBeemVSTrap()
 {
+	DirectX::XMFLOAT3 outPosition;
 	int projectileCount = objectManager.GetObjectCount();
 
 	for (int i = 0; i < projectileCount; ++i)
 	{
-
 		Object* object = objectManager.GetObjectW(i);
-		Player& player = Player::Instance();
-		if (!player.GetRenderflag())return;
+		int count = TrapManager::Instance().GetTrapCount();
+		for (int l = 0; l < count; l++)
+		{
+			Trap* trap = TrapManager::Instance().GetTrap(l);
+			//タレットとデコイ以外はスルー
+			if (trap->GetType() != Trap::TrapType::TrapTurret)
+			{
+				continue;
+			}
+			//衝突処理
+			if (Collision::IntersectSphereVsCylinder(
+				object->GetPosition(),
+				object->GetRadius(),
+				trap->GetPosition(),
+				trap->GetRadius(),
+				trap->GetHeight(),
+				outPosition))
+			{
+				trap->InputDamage(10);
+
+				if (object->GetType() == Type::Beem) {
+					ParticleSystem::Instance().BoomEffect(object->GetPosition(), 1, int(EffectTexAll::EfTexAll::BlueThader), 3, 0.5, { NULL,NULL,2,1 });
+					//ParticleSprite* particleSprite = new ParticleSprite(object->GetPosition(), { NULL,NULL,NULL }, ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::BlueThader), 200, 1.5, 0, true, 0.015, 0.06, { 1,0,0,1 });
+					continue;
+				}
+			}
+		}
+	}
+}
+void EnemyDrone::CollisionBeemVSBase()
+{
+
+	DirectX::XMFLOAT3 outPosition;
+	int projectileCount = objectManager.GetObjectCount();
+
+	for (int i = 0; i < projectileCount; ++i)
+	{
+		Object* object = objectManager.GetObjectW(i);
+		int count = TrapManager::Instance().GetTrapCount();
+
 		//衝突処理
-		DirectX::XMFLOAT3 outPosition;
 		if (Collision::IntersectSphereVsCylinder(
 			object->GetPosition(),
 			object->GetRadius(),
-			player.GetPosition(),
-			player.GetRadius(),
-			player.GetHeight(),
+			Base::Instance().GetPosition(),
+			Base::Instance().GetRadius(),
+			Base::Instance().GetHeight(),
 			outPosition))
 		{
+			Base::Instance().InputDamage(10);
 
-			if (player.GetGuardflag() && player.GetInvincibleTimer() < 0) {
-				//ParticleSprite* particleSprite = new ParticleSprite(player.GetEfPos(), { NULL,NULL,NULL }, ParticleSprite::ParticleSquare, ParticleSprite::Expansion, (int)EffectTexAll::EfTexAll::BlackThunder, 3, 0.3);
-				player.SetCounterflag(true);
-			}
-			if (player.GetCounterflag())return;
-			if (player.GetState() == Player::State::Guard && player.GetInvincibleTimer() < 0) {
-				ParticleSprite* particleSprite = new ParticleSprite(nodePosition, { NULL,NULL,NULL }, ParticleSprite::ParticleImpact, ParticleSprite::Expansion, (int)EffectTexAll::EfTexAll::Impact, static_cast<int>(efMax), efLife);
-				player.PlayerKnockBack(this->position, player.GetPosition(), 20, 0, 1);
-				player.SetInvincibleTime(object->GetInvincibleTime());
-				return;
-			}
-			// ダメージを与える
-			if (player.ApplyDamage(object->GetDamage(), object->GetInvincibleTime()))
-			{
-
-				player.PlayerKnockBack(this->position, player.GetPosition(), 20, 0, 1);
-				//EffectAll::Instance().swordEffect->Play(player.GetPosition(), 0.2);
-				//弾丸破棄
-				AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Hit)->Play(false, static_cast<float>(SE));
+			if (object->GetType() == Type::Beem) {
+				ParticleSystem::Instance().BoomEffect(object->GetPosition(), 1, int(EffectTexAll::EfTexAll::BlueThader), 3, 0.5, { NULL,NULL,2,1 });
+				//ParticleSprite* particleSprite = new ParticleSprite(object->GetPosition(), { NULL,NULL,NULL }, ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::BlueThader), 200, 1.5, 0, true, 0.015, 0.06, { 1,0,0,1 });
+				continue;
 			}
 		}
 
 	}
 }
-void EnemyBag::Render(ID3D11DeviceContext* dc, ModelShader* shader)
+void EnemyDrone::Render(ID3D11DeviceContext* dc, ModelShader* shader)
 {
 
 	//if (health <= 0) {
 	//	return;
 	//}
-	if (renderflag)shader->Draw(dc, model.get(), { glitchIntensity, scanBorder, glowBorder, hologramBorder});
+	if (renderflag)shader->Draw(dc, model.get(), { glitchIntensity, scanBorder, glowBorder, hologramBorder });
 }
-void EnemyBag::Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader)
+void EnemyDrone::Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader)
 {
-	//objectManager.Render(immediate_context.Get(), shader);
+	objectManager.Render(immediate_context.Get(), shader);
 }
 
-void EnemyBag::DrawDebugPrimitive()
+void EnemyDrone::DrawDebugPrimitive()
 {
 	// 基底クラスのデバッグプリミティブ描画
 	Enemy::DrawDebugPrimitive();
 
 	DebugRenderer* debugRenderer = Graphics::Instance().GetDebugRenderer();
 
-	// 縄張り範囲をデバッグ円柱描画
-	debugRenderer->DrawCylinder(territoryOrigin, territoryRange, 1.0f, DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
+	// 攻撃範囲をデバッグ円柱描画
+	debugRenderer->DrawCylinder(position, attackRange, 1.0f, DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f));
 
 	// ターゲット位置をデバッグ球描画
 	debugRenderer->DrawSphere(targetPosition, radius, DirectX::XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f));
@@ -361,7 +380,7 @@ void EnemyBag::DrawDebugPrimitive()
 }
 
 // プレイヤーの周りを回る
-void EnemyBag::BattleMove(bool leftflag,float elapsedTime, float speedRate)
+void EnemyDrone::BattleMove(bool leftflag, float elapsedTime, float speedRate)
 {
 	// ターゲット方向への進行ベクトルを算出
 	DirectX::XMFLOAT2 dir = ForwardToTarget();
@@ -373,12 +392,12 @@ void EnemyBag::BattleMove(bool leftflag,float elapsedTime, float speedRate)
 	{
 		MoveInput(dir.y, -dir.x, moveSpeed * speedRate);
 	}
-	
+
 	Turn(elapsedTime, dir.x, dir.y, turnSpeed * speedRate);
-	
+
 }
 
-void EnemyBag::FacePlayer(float elapsedTime, float speedRate)
+void EnemyDrone::FacePlayer(float elapsedTime, float speedRate)
 {
 	// ターゲット方向への進行ベクトルを算出
 	DirectX::XMFLOAT2 dir = ForwardToTarget();
@@ -387,7 +406,7 @@ void EnemyBag::FacePlayer(float elapsedTime, float speedRate)
 
 }
 
-void EnemyBag::MoveToTarget(float elapsedTime, float speedRate)
+void EnemyDrone::MoveToTarget(float elapsedTime, float speedRate)
 {
 	// ターゲット方向への進行ベクトルを算出
 	float vx = targetPosition.x - position.x;
@@ -398,47 +417,16 @@ void EnemyBag::MoveToTarget(float elapsedTime, float speedRate)
 	// 移動処理
 	DirectX::XMFLOAT2 dir;
 	MoveInput(vx, vz, moveSpeed * speedRate);
-	if (!SearchPlayer()) {
-		dir = ForwardToTarget();
-		Turn(elapsedTime, dir.x, dir.y, turnSpeed * speedRate);
-	}
-	else
+
+
 	{
 		//const DirectX::XMFLOAT3& playerPosition = Player::Instance().GetPosition();
 		dir = ForwardToTarget();
 		Turn(elapsedTime, dir.x, dir.y, turnSpeed * speedRate);
 	}
 }
-// 徘徊ステートへ遷移
-bool EnemyBag::SearchPlayer()
-{
-	// プレイヤーとの高低差を考慮して3Dで距離判定をする
-	const DirectX::XMFLOAT3& playerPosition = Player::Instance().GetPosition();
-	//const DirectX::XMFLOAT3& playerPosition = Base::Instance().GetPos();
-	DirectX::XMFLOAT3 vec = Vector3::Subset(playerPosition, position);
-	float dist = Vector3::Lenght(vec);
-	//距離で視界に入っているか
-	if (dist < searchRange)
-	{
-		float distXZ = sqrtf(vec.x * vec.x + vec.z * vec.z);
-		// 単位ベクトル化
-		vec.x /= distXZ;
-		vec.z /= distXZ;
-		// 方向ベクトル化
-		float frontX = sinf(angle.y);
-		float frontZ = cosf(angle.y);
-		// 2つのベクトルの内積値で前後判定
-		float dot = (frontX * vec.x) + (frontZ * vec.z);
-		if (dot > 0.0f)
-		{
-			targetNo = 1;
-			return true;
-		}
-	}
-	targetNo = 0;
-	return false;
-}
-bool EnemyBag::SearchTrap()
+
+bool EnemyDrone::SearchTrap()
 {
 
 	int count = TrapManager::Instance().GetTrapCount();
@@ -446,8 +434,8 @@ bool EnemyBag::SearchTrap()
 	for (int i = 0; i < count; i++)
 	{
 		Trap* trap = TrapManager::Instance().GetTrap(i);
-		//タレットとデコイ以外はスルー
-		if (trap->GetType() != Trap::TrapType::TrapDecoy)
+		//タレット以外はスルー
+		if (trap->GetType() != Trap::TrapType::TrapTurret)//&& trap->GetType() != Trap::TrapType::TrapDecoy)
 		{
 			continue;
 		}
@@ -483,7 +471,7 @@ bool EnemyBag::SearchTrap()
 	return false;
 }
 //プレイヤーへの方向を取得する
-DirectX::XMFLOAT2 EnemyBag::ForwardToPlayer() {
+DirectX::XMFLOAT2 EnemyDrone::ForwardToPlayer() {
 
 	const DirectX::XMFLOAT3& playerPosition = Player::Instance().GetPosition();
 	float vx = playerPosition.x - position.x;
@@ -491,9 +479,9 @@ DirectX::XMFLOAT2 EnemyBag::ForwardToPlayer() {
 	float dist = sqrtf(vx * vx + vz * vz);
 	vx /= dist;
 	vz /= dist;
-	return {vx,vz};
+	return { vx,vz };
 }
-DirectX::XMFLOAT2 EnemyBag::ForwardToTarget() {
+DirectX::XMFLOAT2 EnemyDrone::ForwardToTarget() {
 	DirectX::XMFLOAT3 basePosition = targetPosition;
 	//switch (targetNo)
 	//{
@@ -511,7 +499,7 @@ DirectX::XMFLOAT2 EnemyBag::ForwardToTarget() {
 	vz /= dist;
 	return { vx,vz };
 }
-DirectX::XMFLOAT3 EnemyBag::SearchNodePos(const char* nodeName) {
+DirectX::XMFLOAT3 EnemyDrone::SearchNodePos(const char* nodeName) {
 	Animation::Keyframe::node* leftHandBone = model->FindNode(nodeName);
 	XMStoreFloat4x4(&world, XMLoadFloat4x4(&leftHandBone->globalTransform) * XMLoadFloat4x4(&transform));
 	DirectX::XMFLOAT3 node;
@@ -521,7 +509,7 @@ DirectX::XMFLOAT3 EnemyBag::SearchNodePos(const char* nodeName) {
 	node.z = world._43;
 	return node;
 }
-void EnemyBag::ReMove()
+void EnemyDrone::ReMove()
 {
 	activeflag = true;
 	health = maxHealth;
@@ -538,11 +526,11 @@ void EnemyBag::ReMove()
 	SetTerritory(position, 10.0f);
 	reMoveflag = false;
 	rootNo = 0;
-	stateMachine->SetState(static_cast<int>(BagState::Search));
+	stateMachine->SetState(static_cast<int>(DroneState::Search));
 }
 
 // デバッグエネミー情報表示
-//void EnemyBag::DrawDebugGUI()
+//void EnemyDrone::DrawDebugGUI()
 //{
 //
 //	//std::string str = "";
@@ -577,11 +565,11 @@ void EnemyBag::ReMove()
 //	switch (static_cast<State>(stateMachine->GetStateIndex())) {
 //	case State::Search:
 //		str = "Search";
-//		if (stateMachine->GetState()->GetSubStateIndex() == static_cast<int>(EnemyBag::Search::Wander))
+//		if (stateMachine->GetState()->GetSubStateIndex() == static_cast<int>(EnemyDrone::Search::Wander))
 //		{
 //			subStr = "Wander";
 //		}
-//		if (stateMachine->GetState()->GetSubStateIndex() == static_cast<int>(EnemyBag::Search::Idle))
+//		if (stateMachine->GetState()->GetSubStateIndex() == static_cast<int>(EnemyDrone::Search::Idle))
 //		{
 //			subStr = "Idle";
 //		}
@@ -589,22 +577,22 @@ void EnemyBag::ReMove()
 //	case State::Battle:
 //		str = "Battle";
 //		// Battleステートの表示はSearchを参考に考えてください。
-//		if (stateMachine->GetState()->GetSubStateIndex() == static_cast<int>(EnemyBag::Battle::Pursuit))
+//		if (stateMachine->GetState()->GetSubStateIndex() == static_cast<int>(EnemyDrone::Battle::Pursuit))
 //		{
 //			subStr = "Pursuit";
 //		}
-//		if (stateMachine->GetState()->GetSubStateIndex() == static_cast<int>(EnemyBag::Battle::Attack))
+//		if (stateMachine->GetState()->GetSubStateIndex() == static_cast<int>(EnemyDrone::Battle::Attack))
 //		{
 //			subStr = "Attack";
 //		}
-//		if (stateMachine->GetState()->GetSubStateIndex() == static_cast<int>(EnemyBag::Battle::Standby))
+//		if (stateMachine->GetState()->GetSubStateIndex() == static_cast<int>(EnemyDrone::Battle::Standby))
 //		{
 //			subStr = "Stanby";
 //		}
 //		break;
 //	case State::Recieve:
 //		str = "Recieve";
-//		if (stateMachine->GetState()->GetSubStateIndex() == static_cast<int>(EnemyBag::Recieve::Called))
+//		if (stateMachine->GetState()->GetSubStateIndex() == static_cast<int>(EnemyDrone::Recieve::Called))
 //		{
 //			subStr = "Called";
 //		}
@@ -615,7 +603,7 @@ void EnemyBag::ReMove()
 //
 //
 //	//トランスフォーム
-//	if (ImGui::CollapsingHeader("EnemyBag", ImGuiTreeNodeFlags_DefaultOpen))
+//	if (ImGui::CollapsingHeader("EnemyDrone", ImGuiTreeNodeFlags_DefaultOpen))
 //	{
 //		// 位置
 //		ImGui::InputFloat3("Position", &position.x);
@@ -635,68 +623,64 @@ void EnemyBag::ReMove()
 //		ImGui::Text(u8"SubState　%s", subStr.c_str());
 //	}
 //}
-//void EnemyBag::UpdateVerticalMove(float elapsedTime) {
+//void EnemyDrone::UpdateVerticalMove(float elapsedTime) {
 //	position.y = 0;
 //}
-void EnemyBag::DrawDebugGUI()
+void EnemyDrone::DrawDebugGUI()
 {
 	//トランスフォーム
-	if (ImGui::CollapsingHeader("EnemyBag", ImGuiTreeNodeFlags_DefaultOpen))
+	if (ImGui::CollapsingHeader("EnemyDrone", ImGuiTreeNodeFlags_DefaultOpen))
 	{
-		if (ImGui::Button(u8"Start"))
-		{
-			isActiveStart = false;
-			activeTimer = 0.0f;
-			scanBorder = 10.0f;
-			glowBorder = 10.0f;
-			hologramBorder = 10.0f;
-		}
-		if (ImGui::Button(u8"Death"))
-		{
-			health = 0;
-			stateMachine->ChangeState(static_cast<int>(EnemyBag::BagState::ReDamage));
-		}
-		if (ImGui::TreeNode("PBR"))
-		{
-			ImGui::SliderFloat("adjustMetalness", &adjustMetalness, -1.0f, 1.0f);
-			ImGui::SliderFloat("adjustSmoothness", &adjustSmoothness, -1.0f, 1.0f);
-			ImGui::SliderFloat("emissiveStrength", &emissiveStrength, 0.0f, 1.0f);
-			ImGui::TreePop();
-		}
-		if (ImGui::TreeNode("Hologram"))
-		{
-			ImGui::SliderFloat("scanTiling", &scanTiling, 0.01f, 10.0f);
-			ImGui::SliderFloat("scanSpeed", &scanSpeed, -2.0f, 2.0f);
-			ImGui::SliderFloat("scanBorder", &scanBorder, -10.0f, 10.0f);
-			ImGui::SliderFloat("glowTiling", &glowTiling, 0.01f, 1.0f);
-			ImGui::SliderFloat("glowSpeed", &glowSpeed, -10.0f, 10.0f);
-			ImGui::SliderFloat("glowBorder", &glowBorder, -10.0f, 10.0f);
-			ImGui::SliderFloat("hologramBorder", &hologramBorder, -10.0f, 10.0f);
-			ImGui::SliderFloat("rimStrength", &rimStrength, 0.0f, 10.0f);
-			ImGui::TreePop();
-		}
-		if (ImGui::TreeNode("Glitch"))
-		{
-			//ImGui::SliderFloat("glitchSpeed", &glitchSpeed, 0.0f, 10.0f);
-			ImGui::SliderFloat("glitchSpeed", &glitchSpeed, 1.0f, 50.0f);
-			ImGui::SliderFloat("glitchIntensity", &glitchIntensity, 0.0f, 1.0f);
-			ImGui::SliderFloat("glitchScale", &glitchScale, 1.0f, 50.0f);
-			ImGui::TreePop();
-		}
+		//if (ImGui::Button(u8"Start"))
+		//{
+		//	isActiveStart = false;
+		//	activeTimer = 0.0f;
+		//	scanBorder = 10.0f;
+		//	glowBorder = 10.0f;
+		//	hologramBorder = 10.0f;
+		//}
+		//if (ImGui::Button(u8"Death"))
+		//{
+		//	health = 0;
+		//	stateMachine->ChangeState(static_cast<int>(EnemyDrone::DroneState::ReDamage));
+		//}
+		//if (ImGui::TreeNode("PBR"))
+		//{
+		//	ImGui::SliderFloat("adjustMetalness", &adjustMetalness, -1.0f, 1.0f);
+		//	ImGui::SliderFloat("adjustSmoothness", &adjustSmoothness, -1.0f, 1.0f);
+		//	ImGui::SliderFloat("emissiveStrength", &emissiveStrength, 0.0f, 1.0f);
+		//	ImGui::TreePop();
+		//}
+		//if (ImGui::TreeNode("Hologram"))
+		//{
+		//	ImGui::SliderFloat("scanTiling", &scanTiling, 0.01f, 10.0f);
+		//	ImGui::SliderFloat("scanSpeed", &scanSpeed, -2.0f, 2.0f);
+		//	ImGui::SliderFloat("scanBorder", &scanBorder, -10.0f, 10.0f);
+		//	ImGui::SliderFloat("glowTiling", &glowTiling, 0.01f, 1.0f);
+		//	ImGui::SliderFloat("glowSpeed", &glowSpeed, -10.0f, 10.0f);
+		//	ImGui::SliderFloat("glowBorder", &glowBorder, -10.0f, 10.0f);
+		//	ImGui::SliderFloat("hologramBorder", &hologramBorder, -10.0f, 10.0f);
+		//	ImGui::SliderFloat("rimStrength", &rimStrength, 0.0f, 10.0f);
+		//	ImGui::TreePop();
+		//}
+		//if (ImGui::TreeNode("Glitch"))
+		//{
+		//	//ImGui::SliderFloat("glitchSpeed", &glitchSpeed, 0.0f, 10.0f);
+		//	ImGui::SliderFloat("glitchSpeed", &glitchSpeed, 1.0f, 50.0f);
+		//	ImGui::SliderFloat("glitchIntensity", &glitchIntensity, 0.0f, 1.0f);
+		//	ImGui::SliderFloat("glitchScale", &glitchScale, 1.0f, 50.0f);
+		//	ImGui::TreePop();
+		//}
 	}
 }
 
 // TODO 05_05 メッセージを受信したときの処理を追加
-bool EnemyBag::OnMessage(const Telegram& telegram)
+bool EnemyDrone::OnMessage(const Telegram& telegram)
 {
 	switch (telegram.msg)
 	{
 		// 他のエネミーから呼ばれた時
 	case MESSAGE_TYPE::MsgCallHelp:
-		if (!SearchPlayer()&& health > 0)
-		{// TODO 05_05 プレイヤーを見つけていないときに1層目ステートをReceiveに変更する
-			stateMachine->ChangeState(static_cast<int>(BagState::Recieve));
-		}
 		return true;
 		// メタAIから攻撃権を与えられたとき
 	case MESSAGE_TYPE::MsgGiveAttackRight:
@@ -704,10 +688,11 @@ bool EnemyBag::OnMessage(const Telegram& telegram)
 		if (Vector3::Probability(5)) {
 			attackFireBallFlg = true;
 		}
-		if (SearchPlayer() || SearchTrap() || rootNo >= MAX_ROOT_POINT) {
+		if (SearchTrap() || rootNo >= MAX_ROOT_POINT) {
 			attackFlg = true;
 		}
 		return true;
 	}
 	return false;
 }
+

@@ -40,6 +40,7 @@ public:
 	void SetScale(DirectX::XMFLOAT3 scale) { this->scale = scale; };
 	//”­ŽË
 	void Launch(std::shared_ptr <Model> buffer,float height, float dissolveSpeed, float angle, int type,int texType, float lifeTimer, float damage, float invincibleTime, bool leftflag = false);
+	void TurretLaunch(std::shared_ptr <Model> buffer, float height, float dissolveSpeed, DirectX::XMFLOAT3 turretPosition, DirectX::XMFLOAT3 targetPosition, float angle, int type, int texType, float lifeTimer, float damage, float invincibleTime);
 private:
 	void StraightUpdate(float elapsedTime);
 

@@ -14,7 +14,7 @@ void Trap::DrawDebugPrimitive()
 	DebugRenderer* debugRendere = Graphics::Instance().GetDebugRenderer();
 
 	//衝突判定用のデバック円柱を描画
-	//debugRendere->DrawCylinder(position, radius, height, DirectX::XMFLOAT4(0, 0, 0, 1));
+	debugRendere->DrawCylinder(position, radius, height, DirectX::XMFLOAT4(0, 0, 0, 1));
 }
 
 //破棄
@@ -48,26 +48,26 @@ void Trap::UpdateTransform(int axisType, int lengthType)
 	DirectX::XMStoreFloat4x4(&transform, W);
 }
 
-bool Trap::SearchEnemy(float territoryRange,float radius)
+bool Trap::SearchEnemy(float territoryRange, float radius)
 {
 	EnemyManager& enemyManager = EnemyManager::Instance();
 	//dist = FLT_MAX;//縄張り範囲
 	dist = territoryRange;//縄張り範囲
-	
-	//for (int i = 0; i < enemyManager.GetEnemyCount(); i++) {
-	//	//敵との距離判定
-	//	Enemy* e = enemyManager.GetEnemy(i);
-	//	float vx = e->GetPosition().x - position.x;
-	//	float vz = e->GetPosition().z - position.z;
-	//	float d = sqrtf(vx * vx + vz * vz);
-	//
-	//	if (d < dist && radius < d)//近すぎると反応しない
-	//	{
-	//		dist = d;
-	//		targetPosition = e->GetPosition();
-	//		
-	//	}
-	//}
+
+	for (int i = 0; i < enemyManager.GetEnemyCount(); i++) {
+		//敵との距離判定
+		Enemy* e = enemyManager.GetEnemy(i);
+		float vx = e->GetPosition().x - position.x;
+		float vz = e->GetPosition().z - position.z;
+		float d = sqrtf(vx * vx + vz * vz);
+
+		if (d < dist && radius < d)//近すぎると反応しない
+		{
+			dist = d;
+			targetPosition = e->GetPosition();
+
+		}
+	}
 
 	//デバック用
 	//float vx = Player::Instance().GetPosition().x - position.x;
@@ -78,7 +78,7 @@ bool Trap::SearchEnemy(float territoryRange,float radius)
 	//	dist = d;
 	//	targetPosition = Player::Instance().GetPosition();
 	//}
-	
+
 
 
 	if (dist != territoryRange)//敵が見つかっていたら
@@ -124,7 +124,7 @@ void Trap::TurnVertical()
 {
 	DirectX::XMVECTOR Operator = DirectX::XMLoadFloat3(&position);        // 操作キャラの位置ベクトル
 	DirectX::XMVECTOR Target = DirectX::XMLoadFloat3(&targetPosition);    // ターゲットの位置ベクトル
-	
+
 	DirectX::XMVECTOR Eye = DirectX::XMLoadFloat3(&Camera::Instance().GetEye());                // カメラ位置ベクトル
 
 	// 操作キャラ->ターゲットベクトル
@@ -212,4 +212,15 @@ void Trap::SetTerritory(const DirectX::XMFLOAT3& origin, float range)
 {
 	territoryOrigin = origin;
 	territoryRange = range;
+}
+
+void Trap::InputDamage(int damage) {
+	if (health > 0)
+	{
+		health -= damage;
+		if (health < 0)
+		{
+			health = 0;
+		}
+	}
 }

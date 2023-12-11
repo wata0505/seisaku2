@@ -1,5 +1,4 @@
 #pragma once
-#pragma once
 #include "Model.h"
 #include "Enemy.h"
 #include "StateMachine.h"
@@ -9,10 +8,10 @@
 
 
 
-class EnemyBag :public Enemy
+class EnemyDrone :public Enemy
 {
 public:
-	enum  EnemyBagSE
+	enum  EnemyDroneSE
 	{
 		Walk,
 		Run,
@@ -20,26 +19,19 @@ public:
 		Max
 	};
 	// エネミーアニメーション
-	enum  EnemyBagAnimation
+	enum  EnemyDroneAnimation
 	{
-		NULLANI,
-		WalkFWD,
-		Attack01,
-		Attack02,
-		Attack03,
-		Damage,
-		Die1,
+		Idle,
 	};
 	//エネミーターゲット
 	enum  EnemyTarget
 	{
 		BaseTarget,
-		PlayerTarget,
 		TrapTarget,
 	};
 public:
-	EnemyBag(bool tutorial = false);
-	~EnemyBag()override;
+	EnemyDrone(bool tutorial = false);
+	~EnemyDrone()override;
 
 	// 更新処理
 	void Update(float elapsedTime)override;
@@ -47,7 +39,6 @@ public:
 	// 描画処理
 	void Render(ID3D11DeviceContext* dc, ModelShader* shader)override;
 	void Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader)override;
-
 	// デバッグプリミティブ描画
 	void DrawDebugPrimitive() override;
 
@@ -55,16 +46,15 @@ public:
 	// 目標地点へ移動
 	void MoveToTarget(float elapsedTime, float speedRate);
 	//プレイヤーを中心に回転
-	void BattleMove(bool leftflag,float elapsedTime, float speedRate);
+	void BattleMove(bool leftflag, float elapsedTime, float speedRate);
 	//プレイヤーへの方向に向く
 	void FacePlayer(float elapsedTime, float speedRate);
 
-	//プレイヤー索敵
-	bool SearchPlayer();
 	//トラップ索敵
 	bool SearchTrap();
+
 	//ファイルボールショット
-	void FireBallShoat();
+	void BeemShoat();
 
 	void TargetUpdate();
 
@@ -88,7 +78,7 @@ public:
 	// ポジション取得
 	DirectX::XMFLOAT3 GetPosition() { return position; }
 
-	
+
 
 	// ステートタイマー設定
 	void SetStateTimer(float timer) {
@@ -103,11 +93,11 @@ public:
 	//プレイヤーとの距離をランダムで決定
 	void  RandBattleRange() { battleRange = rand() % battleRangeMax + 1.0f; }
 
-	StateMachine<EnemyBag>* GetStateMachine() { return stateMachine.get(); }
+	StateMachine<EnemyDrone>* GetStateMachine() { return stateMachine.get(); }
 
 	Model* GetModel() { return model.get(); }
 
-	
+
 
 	float GetMoveRate() { return moveRate; }
 
@@ -125,21 +115,11 @@ public:
 
 	int GetFlameTimer() { return enemyTimer / 60; }
 
-	int GetAttackNodeNo() { return attackNodeNo; }
-
-	void SetAttackNodeNo(int no) {  if(no < 3)attackNodeNo = no; }
 
 	void RootMove();
 
 	float  MovePow();
 
-
-	//int GetHitAnim(int i) { return hitAnim[i]; }
-	//int GetHitAnimMax() { return MAX_HIT_ANIM; };
-	int GetAttackAnim(int i) { return attackAnim[i]; }
-	int GetAttackAnimMax() { return MAX_ATTACK_ANIM; };
-
-	const char* GetAttackNode(int no) { return attackNode[no]; }
 
 	void PlaySe(int Index, bool loop) { se[Index]->Play(loop, static_cast<float>(BagSE)); }
 	void StopSe(int Index) { se[Index]->Stop(); }
@@ -157,7 +137,9 @@ public:
 private:
 	void SeUpdate(float elapsedTime);
 
-	void CollisionFireBallVSPlayer();
+	void CollisionBeemVSTrap();
+	void CollisionBeemVSBase();
+
 protected:
 	void OnDead();
 
@@ -168,7 +150,7 @@ protected:
 public:
 	// TODO 01 必要なステートをenum classで準備しなさい。
 	// （Wanderのみ記述済み）
-	enum class BagState
+	enum class DroneState
 	{
 		Search,   //索敵
 		Battle,	  //戦闘
@@ -186,10 +168,7 @@ public:
 		// TODO 03_01 BattleStateに含まれるサブステートを記述しなさい
 		Pursuit,   //追尾
 		Attack,    //攻撃
-		FireBall,  //ファイルボール
 		Standby,   //攻撃待機
-		Roar,      //方向
-		BackStep   //バックステップ
 	};
 	// TODO 05_02 MetaAIを経由して他のエネミーから呼ばれた時の処理
 	enum class Recieve
@@ -202,12 +181,13 @@ public:
 		Die,	 //死亡
 	};
 private:
+	std::shared_ptr<Model> beem;
 	std::shared_ptr<Model> model = nullptr;
 
-	static const int MAX_ROOT_POINT{ 5 };
+	static const int MAX_ROOT_POINT{ 4 };
 
 	int rootNo = 0;
-	DirectX::XMFLOAT3 rootPoint[MAX_ROOT_POINT] = { {140,-1.5,41}, {140,-1.5,-14} ,{78,-1.5,-5} ,{80,-1.5,-45}, {83,-1.5,-103} };
+	DirectX::XMFLOAT3 rootPoint[MAX_ROOT_POINT] = { {129,-2.5,41}, {128,-2.5,-8.5} ,{78,-2.5,-5} ,{80,-2.5,-45} };
 
 	//遠距離攻撃権
 	bool attackFireBallFlg = false;
@@ -242,22 +222,14 @@ private:
 	//ヒットアニメーション最大
 	static const int MAX_HIT_ANIM{ 3 };
 	//ヒットアニメーション格納
-	//int hitAnim[MAX_HIT_ANIM] = { static_cast<int>(EnemyBagAnimation::Gethit2) ,static_cast<int>(EnemyBagAnimation::Gethit3) ,static_cast<int>(EnemyBagAnimation::Gethit4) };
-	//攻撃アニメーション最大
-	static const int MAX_ATTACK_ANIM{ 3 };
-	//攻撃アニメーション格納
-	int attackAnim[MAX_ATTACK_ANIM] = { static_cast<int>(EnemyBagAnimation::Attack01) ,static_cast<int>(EnemyBagAnimation::Attack02) ,static_cast<int>(EnemyBagAnimation::Attack03)};
-	//攻撃アニメーションノード格納
-	const char* attackNode[MAX_ATTACK_ANIM] = { "L_arm" ,"R_arm","R_arm" };
-	//攻撃アニメーションノード格納
-    int attackNodeNo = 0;
+	//int hitAnim[MAX_HIT_ANIM] = { static_cast<int>(EnemyDroneAnimation::Gethit2) ,static_cast<int>(EnemyDroneAnimation::Gethit3) ,static_cast<int>(EnemyDroneAnimation::Gethit4) };
 
 	//ステートマシーン生成
-	std::shared_ptr<StateMachine<EnemyBag>> stateMachine = nullptr;
+	std::shared_ptr<StateMachine<EnemyDrone>> stateMachine = nullptr;
 	//描画情報格納
 	std::vector<SkinnedMeshResouurce::constants> renderdata;
 
-	std::unique_ptr<AudioSource> se[(int)EnemyBagSE::Max];
+	std::unique_ptr<AudioSource> se[(int)EnemyDroneSE::Max];
 	//ファイルボールマネージャー
 	ObjectManager objectManager;
 
@@ -280,4 +252,8 @@ private:
 	bool isActiveStart = false;
 	float activeTimer = 0.0f;		// 行動開始時間
 	float deathTimer = 0.0f;		// 死亡時間
+
+	int coolTime = 0;
 };
+#pragma once
+

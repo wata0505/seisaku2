@@ -264,7 +264,7 @@ void ProjectileStraite::ChangeWpUpdate(float elapsedTime) {
 }
 
 void ProjectileStraite::BeemUpdate(float elapsedTime) {
-	float scalerate = 2.0f;
+	float scalerate = 4.0f;
 	if (halfLife < lifeTimer) {
 		scale.z += scalerate * 0.5;
 		DirectX::XMVECTOR dir = DirectX::XMLoadFloat3(&direction);
@@ -381,6 +381,40 @@ void ProjectileStraite::Launch(std::shared_ptr <Model> buffer, float height, flo
 			DirectX::XMVECTOR N = DirectX::XMVector3Normalize(V);
 			DirectX::XMStoreFloat3(&direction, N);
 		}
+		halfLife = lifeTimer * 0.5;
+		scale.x = scale.y = 0.1;
+		scale.z = 0;
+		UpdateTransform();
+		model->UpdateBufferDara(transform);
+	}
+	uvStatus.w = texType;
+	uvStatus.z = 0.3;
+}
+//turret—p”­ŽË
+void ProjectileStraite::TurretLaunch(std::shared_ptr <Model> buffer, float height, float dissolveSpeed, DirectX::XMFLOAT3 turretPosition, DirectX::XMFLOAT3 targetPosition, float angle, int type, int texType, float lifeTimer, float damage, float invincibleTime)
+{
+	model = buffer;
+	this->positionY = height;
+	this->angle = angle;
+	this->type = type;
+	this->lifeTimer = lifeTimer;
+	this->damage = damage;
+	this->invincibleTime = invincibleTime;
+	this->dissolveSpeed = dissolveSpeed;
+	this->position = turretPosition;
+	position.y += height;
+	UpdateTransform();
+	if (type == Type::Beem) {
+		model = std::make_unique<Model>(".\\resources\\Cube.fbx", true);
+		model->ModelSerialize(".\\resources\\Cube.fbx");
+		model->ModelRegister(".\\resources\\Cube.fbx");
+
+		DirectX::XMVECTOR E = DirectX::XMLoadFloat3(&targetPosition);
+		DirectX::XMVECTOR P = DirectX::XMLoadFloat3(&position);
+		DirectX::XMVECTOR V = DirectX::XMVectorSubtract(E, P);
+		DirectX::XMVECTOR N = DirectX::XMVector3Normalize(V);
+		DirectX::XMStoreFloat3(&direction, N);
+
 		halfLife = lifeTimer * 0.5;
 		scale.x = scale.y = 0.1;
 		scale.z = 0;
