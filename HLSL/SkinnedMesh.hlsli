@@ -20,6 +20,7 @@ struct VS_OUT
     float4 color : COLOR;
 
     float3 ShadowParam : TEXCOORD3;
+    float4 localPosition : POSITION2;
 };
 
 struct PS_OUT 
@@ -65,5 +66,6 @@ cbuffer SubsetConstantBuffer : register(b6)
     float scanBorder;		// 描画範囲
     float glowBorder;		// 描画範囲
     float hologramBorder;	// 描画範囲
-    //float3 dummy6;
+    float3 hologramColor;   // ホログラム色
+    float maxHeight;        // 最高点
 };

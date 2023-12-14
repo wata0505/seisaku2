@@ -131,27 +131,30 @@ void CameraController::TitleUpdate(float elapsedTime)
 
 	//スティックの入力値に合わせてX軸とY軸を回転
 	angle.x += ay * speed;
-	angle.y += 0.2 * speed;
+	angle.y += ax * speed;
+	maxAngleX = DirectX::XMConvertToRadians(75);
+	minAngleX = DirectX::XMConvertToRadians(-75);
 
 	//X軸のカメラ回転を制限
 	if (angle.x > maxAngleX)
 	{
 		angle.x = maxAngleX;
 	}
-	if (angle.x < minAngleX)
+	else if (angle.x < minAngleX)
 	{
 		angle.x = minAngleX;
 	}
-	angle.x = -25;
+	//angle.x = -25;
 	//Y軸の回転値を-3.14~3.14に収まるようにする
 	if (angle.y < -DirectX::XM_PI)
 	{
 		angle.y += DirectX::XM_2PI;
 	}
-	if (angle.y > DirectX::XM_PI)
+	else if (angle.y > DirectX::XM_PI)
 	{
 		angle.y -= DirectX::XM_2PI;
 	}
+	angle.y = DirectX::XM_PI;
 	//カメラ回転値を回転行列に変換
 	DirectX::XMMATRIX Transform = DirectX::XMMatrixRotationRollPitchYaw(angle.x, angle.y, angle.z);
 
@@ -166,9 +169,7 @@ void CameraController::TitleUpdate(float elapsedTime)
 	eye.y = target.y - (front.y * range);
 	eye.z = target.z - (front.z * range);
 
-	
-	// レイキャストによる地面
-	eye.y += 10;
+	ShakeUpdate(cameraEye, elapsedTime);
 	//カメラに視点を注視点を設定
 	Camera::Instance().SetLookAt(eye, target, DirectX::XMFLOAT3(0, 1, 0));
 }

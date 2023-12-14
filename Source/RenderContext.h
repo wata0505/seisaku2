@@ -32,9 +32,8 @@ static const int MaxKernelSize = 16;
 // 高輝度抽出情報
 struct LuminanceExtractionData
 {
-	float threshold = 0.5f;
-	float intensity = 1.0f;
-	DirectX::XMFLOAT2 dummy2;
+	float threshold = 0.03f;
+	float intensity = 3.0f;
 };
 
 // ジッタードリフト情報

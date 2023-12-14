@@ -236,6 +236,7 @@
     <ClCompile Include="Source\EffectTexAll.cpp" />
     <ClCompile Include="Source\Enemy.cpp" />
     <ClCompile Include="Source\EnemyBag.cpp" />
+    <ClCompile Include="Source\EnemyDrone.cpp" />
     <ClCompile Include="Source\EnemyManager.cpp" />
     <ClCompile Include="Source\EnemySystem.cpp" />
     <ClCompile Include="Source\FireBall.cpp" />
@@ -291,6 +292,7 @@
     <ClCompile Include="Source\StageObj.cpp" />
     <ClCompile Include="Source\StateBase.cpp" />
     <ClCompile Include="Source\StateDerived.cpp" />
+    <ClCompile Include="Source\StateDrone.cpp" />
     <ClCompile Include="Source\StateMachine.cpp" />
     <ClCompile Include="Source\StatePlayer.cpp" />
     <ClCompile Include="Source\StaticMesh.cpp" />
@@ -339,6 +341,7 @@
     <ClInclude Include="Source\EffectTexAll.h" />
     <ClInclude Include="Source\Enemy.h" />
     <ClInclude Include="Source\EnemyBag.h" />
+    <ClInclude Include="Source\EnemyDrone.h" />
     <ClInclude Include="Source\EnemyManager.h" />
     <ClInclude Include="Source\EnemySystem.h" />
     <ClInclude Include="Source\FireBall.h" />
@@ -398,6 +401,7 @@
     <ClInclude Include="Source\StageObj.h" />
     <ClInclude Include="Source\StateBase.h" />
     <ClInclude Include="Source\StateDerived.h" />
+    <ClInclude Include="Source\StateDrone.h" />
     <ClInclude Include="Source\StateMachine.h" />
     <ClInclude Include="Source\StatePlayer.h" />
     <ClInclude Include="Source\StaticMesh.h" />

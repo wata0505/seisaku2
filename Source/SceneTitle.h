@@ -1,28 +1,22 @@
 #pragma once
-#include"Scene.h"
+
+#include "Scene.h"
 #include "Graphics.h"
-#include "CameraController.h"
 #include "Framebuffer.h"
-#include "FullscreenQuad.h"
-#include "RenderContext.h"
-#include "Shadowbuffer.h"
-#include "StageMain.h"
-#include "MetaAI.h"
-#include "EffectAll.h"
 #include "SubFramebuffer.h"
-#include "AudioSource.h"
-#include"AudioAll.h"
-#include <ctime>
+#include "Shadowbuffer.h"
+#include "FullscreenQuad.h"
+#include "AudioAll.h"
+#include "EffectAll.h"
+#include "Player.h"
+#include "MetaAI.h"
+#include "Base.h"
+#include "CameraController.h"
+
 using namespace DirectX;
-// ゲームシーン
-class SceneTitle :public Scene
+
+class SceneTitle : public Scene
 {
-public:
-	enum class GamaMode
-	{
-		Default,
-		Tutorial
-	};
 public:
 	SceneTitle() {}
 	~SceneTitle() override {}
@@ -39,70 +33,84 @@ public:
 	// 描画処理
 	void Render()override;
 
-
+private:
+	// ImGui描画処理
+	void ImGuiRender();
 
 private:
-	Microsoft::WRL::ComPtr<ID3D11Device> device;
-	////様々な描画命令をGPUに伝えるやつ
-	//ID3D11DeviceContext* immediate_context;
-	////キャンバスに描いた画を額（ウィンドウ）にいれるやつ
-	//IDXGISwapChain* swap_chain;
-	Microsoft::WRL::ComPtr<ID3D11DeviceContext>immediate_context;
-	Microsoft::WRL::ComPtr<IDXGISwapChain>swap_chain;
-	//色を書き込むキャンバス
-	//ID3D11RenderTargetView* render_target_view;
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView>render_target_view;
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilView>depth_stencil_view;
-	//奥行き情報を書き込むキャンバス
+	// タイトルモード
+	enum TitleMode
+	{
+		TitleStart,	// タイトル開始
+		NotSelect,	// 非選択
+		Select,		// 選択
+	};
 
-	Microsoft::WRL::ComPtr<ID3D11PixelShader> pixel_shaders[3];
+	// ゲームモード
+	enum class GamaMode
+	{
+		Game,		// ゲーム
+		Tutorial	// チュートリアル
+	};
 
-	Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler_states[3];
+	// ピクセルシェーダー種類
+	enum PixelShaderKind
+	{
+		PostEffect,		// ポストエフェクト
+		GaussianBlur,	// ガウシアンブラー
+		RadiationBlur,	// 放射ブラー
 
+		PSMax
+	};
 
-	//差し替え用ピクセルシェーダー
-	Microsoft::WRL::ComPtr<ID3D11PixelShader>replaced_pixel_shader;
+	// サブフレームバッファ種類
+	enum SubFrameBufferKind
+	{
+		Luminance,		// 輝度抽出
+		Bloom,			// ブルーム
+		Synthesis,		// 合成
 
-	std::unique_ptr<FullscreenQuad> bit_block_transfer;
+		SFBMax
+	};
 
-	//スキンメッシュ
-	//std::unique_ptr<SkinnedMesh> SkinnedMeshes[8];
-	//オフスクリーンバファ
-	std::unique_ptr<Framebuffer> framebuffers[2];
-	std::unique_ptr<SubFramebuffer> subframebuffers[3];
-	std::unique_ptr<Shadowbuffer> shadowbuffer;
+	// スプライト種類
+	enum SpriteKind
+	{
+		Skybox,			// スカイボックス
+		Title,			// タイトル
+		DecisionText,	// 決定
+		Back,			// 背景
+		GameStartText,	// ゲーム
+		TutorialText,	// チュートリアル
 
-	std::shared_ptr<Sprite> spriteBatchs[7];
+		SMax
+	};
 
-	std::shared_ptr<Sprite> renderSprite;
-
-	//差し替え用のテクスチャ
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> replaced_shader_resource_view;
 private:
-	void projectImgui();
-private:
-	std::unique_ptr <CameraController> cameraController = nullptr;
-	static const int ShadowMapSize = 2096;
-	StageMain* stageMain;
-	// ライトの方向
-	DirectX::XMFLOAT4 light_direction{ 1.0f, -1.0f, 0.0f, 0.0f };
-	DirectX::XMFLOAT4 shadowlight_direction{ 1.0f, -1.0f, 0.0f, 0.0f };
-	float light = 300;
-	float shadowDrawRect = 330.0f; // シャドウマップに描画する範囲
-	DirectX::XMFLOAT4X4 lightViewProjection; // ライトビュープロジェクション行列
-	DirectX::XMFLOAT3 position = { 0,0,0 };
-
-	//Sprite描画用
-
-	EffectAll* effectAll = nullptr;
-	int timer = 0;
-	int titleMode = 0;
-	int gameMode = 0;
-	float dissolveTimer = 0;
-	float dissolveDTimer = 0;
-	float haikeiTimer = 0;
-	EffectTexAll* effectTexAll = nullptr;
-	//std::unique_ptr<AudioSource> titlebgm;
-	AudioAll* audioAll = nullptr;
-	LuminanceExtractionData luminanceExtractionData;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView>	renderTargetView;								// レンダーターゲットビュー
+	Microsoft::WRL::ComPtr<ID3D11SamplerState>		samplerState;									// サンプラーステート
+	Microsoft::WRL::ComPtr<ID3D11PixelShader>		pixelShader[PixelShaderKind::PSMax];			// ポストエフェクトピクセルシェーダー
+	std::unique_ptr<Framebuffer>					framebuffer;									// オフスクリーンバファ	
+	std::unique_ptr<SubFramebuffer>					subframebuffers[SubFrameBufferKind::SFBMax];	// ポストエフェクトバッファ
+	std::unique_ptr<Shadowbuffer>					shadowbuffer;									// シャドウバッファ
+	std::unique_ptr<FullscreenQuad>					bitBlockTransfer;								// ポストエフェクト処理
+	std::shared_ptr<Sprite>							renderSprite;									// 画面に出力するテクスチャ
+	std::shared_ptr<Sprite>							spriteBatchs[SpriteKind::SMax];					// タイトルでのテクスチャ
+	std::unique_ptr<Player>							player = nullptr;								// プレイヤー
+	std::unique_ptr<Meta>							meta = nullptr;									// MetaAI
+	std::unique_ptr<Base>							tower = nullptr;								// タワー
+	std::unique_ptr<CameraController>				cameraController = nullptr;						// カメラコントローラー
+	float											shadowDrawRect = 10.0f;							// シャドウマップに描画する範囲
+	float											titleDissolveTimer = 0;							// タイトルログ&決定テクスチャのディゾルブ時間
+	float											textDissolveTimer = 0;							// ゲーム&チュートリアルテクスチャのディゾルブ時間
+	float											skyboxTimer = 0.0f;								// スカイボックス経過時間
+	float											dropPositionY = 0.0f;							// 非選択のゲームモードを蹴落とす位置
+	float											punchPosition = 0.0f;							// 殴りによる位置調整
+	float											punchScale = 1.0f;								// 殴りによるサイズ調整
+	float											lerpScale = 0.0f;								// ゲーム&チュートリアルテクスチャのサイズ調整
+	float											punchRotate = 0.0f;								// 殴りによる回転値
+	float											cosRadian = 0.0f;								// ゲーム&チュートリアルテクスチャを回転させる角度
+	int												progressTimer = 0;								// 経過時間
+	int												titleMode = 0;									// タイトルモード
+	int												gameMode = 0;									// ゲームモード
 };

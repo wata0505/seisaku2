@@ -1,7 +1,7 @@
 #include "shader.h"
 #include "SceneTitle.h"
 #include "Camera.h"
-//#include "StageMain.h"
+#include "StageObj.h"
 #include "StageManager.h"
 #include "EnemyManager.h"
 #include "Input.h"
@@ -15,398 +15,551 @@
 #include "SceneTutorial.h"
 #include "Audio.h"
 #include "AudioAll.h"
+#include "EnemySystem.h"
+#include "EnemyBag.h"
+#include "Mathf.h"
+#include "RenderContext.h"
+
+// 初期化
 void SceneTitle::Initialize()
 {
 	Graphics& graphics = Graphics::Instance();
-	device = graphics.GetDevice();
-	effectTexAll = new EffectTexAll();
-	
+	ID3D11Device* device = graphics.GetDevice();
+
+	// エフェクトテクスチャ生成
+	EffectTexAll* effectTexAll = new EffectTexAll();
+	// エフェクト生成
+	EffectAll* effectAll = new EffectAll();
+	// オーディオ生成
+	AudioAll* audioAll = new AudioAll();
+
 	// エネミー初期化
-	// スライム（ステートマシン用）
-	//titlebgm = Audio::Instance().LoadAudioSource("resources\\Audio\\titlie.wav");
-	
+#if 0
+	EnemyManager& enemyManager = EnemyManager::Instance();
+	for(int i = 0; i < 1; i++) 
+	{
+		EnemyBag* bag = new EnemyBag();
+		//bag->SetPosition({ -i * 3.0f, 0.0f, -50.0f });
+		bag->SetPosition({ -i * 3.0f, 2.0f, -5.0f });
+		bag->SetTerritory(bag->GetPosition(), 10.0f);
+		//bag->SetId(0);
+		enemyManager.Register(bag);
+	}
+	meta = std::make_unique<Meta>(player.get(), &enemyManager);
+#endif
+	// ステージ生成
+	{
+		StageManager& stageManager = StageManager::Instance();
+		// 低い位置を基準に
+		DirectX::XMFLOAT3 position = { 0.0f, -10.0f, 0.0f };
+		for (int index = -2; index < 2; index++)
+		{
+			// 原点よりマイナス位置->プラス位置に生成
+			position.x = index * 20.0f;
+			StageObj* stageObj = new StageObj(position);
+			stageManager.Register(stageObj);
+		}
 
-	StageManager& stageManager = StageManager::Instance();
-	stageMain = new StageMain;
-	stageManager.Register(stageMain);
-	DirectX::XMFLOAT2 dir = {0,0};
-	DirectX::XMFLOAT3 pos = {0,0,0};
-	float angle = 0;
-	//for (int i = 0; i < 10; i++)
-	//{
-	//
-	//	angle = DirectX::XMConvertToRadians(36 * i);
-	//	dir.x = sinf(angle);
-	//	dir.y = cosf(angle);
-	//	pos.x = dir.x * 80;
-	//	pos.y = -1.5;
-	//	pos.z = dir.y * 80;
-	//	StageObj* stageObj = new StageObj(pos);
-	//	//stageObj->SetPosition(pos);
-	//	stageManager.Register(stageObj);
-	//}
+		position.y = -0.275f;
+		position.z -= 40.0f;
+		tower = std::make_unique<Base>(position);
+	}
 
-	Camera& camera = Camera::Instance();
-	camera.SetLookAt(
-		DirectX::XMFLOAT3(0, 0, -10),
-		DirectX::XMFLOAT3(0, 0, 0),
-		DirectX::XMFLOAT3(0, 1, 0)
-	);
-	camera.SetPerspectiveFov(
-		DirectX::XMConvertToRadians(45),
-		graphics.GetScreenWidth() / graphics.GetScreenHeight(),
-		0.1f,
-		1000.0f
-	);
-	//カメラコントローラー初期化
-	cameraController = std::make_unique <CameraController>();
-	cameraController->SetRangeMax(35);
-	cameraController->SetRange(35);
-	//ピクセルシェーダーオブジェクト
-	create_ps_from_cso(device.Get(), "Shader\\PostEffectPS.cso", pixel_shaders[0].GetAddressOf());
-	create_ps_from_cso(device.Get(), "Shader\\BlurPS.cso", pixel_shaders[1].GetAddressOf());
-	create_ps_from_cso(device.Get(), "Shader\\EffectPS.cso", pixel_shaders[2].GetAddressOf());
-	luminanceExtractionData.threshold = 0.3;
-	luminanceExtractionData.intensity = 5;
-	bit_block_transfer = std::make_unique<FullscreenQuad>(device.Get());
+	// プレイヤー初期化
+	{
+		player = std::make_unique<Player>();
+		player->SetPosition({});	// 位置を原点に
+	}
 
-	spriteBatchs[0] = std::make_unique<Sprite>(L".\\resources\\haikei\\6.png");
-	//SkinnedMeshes[0] = std::make_unique<SkinnedMesh>(device.Get(), ".\\resources\\nico.fbx",0);
-	framebuffers[0] = std::make_unique<Framebuffer>(device.Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
-	//framebuffers[1] = std::make_unique<Framebuffer>(device.Get(), SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
-	subframebuffers[0] = std::make_unique<SubFramebuffer>(device.Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
-	subframebuffers[1] = std::make_unique<SubFramebuffer>(device.Get(), SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
-	subframebuffers[2] = std::make_unique<SubFramebuffer>(device.Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
-	shadowbuffer = std::make_unique<Shadowbuffer>(device.Get(), ShadowMapSize, ShadowMapSize);
-	//spriteBatchs[1] = std::make_unique<Sprite>(L".\\resources\\UI\\Change Braver.png");
-	spriteBatchs[1] = std::make_unique<Sprite>(L".\\resources\\UI\\Title\\title.png");
-	spriteBatchs[2] = std::make_unique<Sprite>(L".\\resources\\UI\\gamestart.png");
-	spriteBatchs[3] = std::make_unique<Sprite>();
-	spriteBatchs[4] = EffectTexAll::Instance().GetSprite(int(EffectTexAll::EfTexAll::Bock));
-	spriteBatchs[5] = std::make_unique<Sprite>(L".\\resources\\UI\\start the story.png");
-	spriteBatchs[6] = std::make_unique<Sprite>(L".\\resources\\UI\\tutorial.png");
-	renderSprite = std::make_unique<Sprite>();
+	// カメラ初期化
+	{
+		Camera& camera = Camera::Instance();
+		camera.SetLookAt(DirectX::XMFLOAT3(0, 0, -10), {}, DirectX::XMFLOAT3(0, 1, 0));
+		camera.SetPerspectiveFov(DirectX::XMConvertToRadians(45),
+			graphics.GetScreenWidth() / graphics.GetScreenHeight(),
+			0.1f, 1000.0f);
+	}
+	// カメラコントローラー初期化
+	{
+		cameraController = std::make_unique<CameraController>();
+		cameraController->SetRangeMax(5);
+		cameraController->SetRange(5);
+		// カメラ位置設定
+		DirectX::XMFLOAT3 position = player->GetPosition();
+		position.x += 2.0f;
+		position.y += 1.5f;
+		cameraController->SetTarget(position);
+	}
 
-	effectAll = new EffectAll();
-	audioAll = new AudioAll();
+	// ピクセルシェーダーオブジェクト
+	{
+		create_ps_from_cso(device, "Shader\\PostEffectPS.cso", pixelShader[PixelShaderKind::PostEffect].GetAddressOf());
+		create_ps_from_cso(device, "Shader\\BlurPS.cso", pixelShader[PixelShaderKind::GaussianBlur].GetAddressOf());
+		create_ps_from_cso(device, "Shader\\EffectPS.cso", pixelShader[PixelShaderKind::RadiationBlur].GetAddressOf());
+		bitBlockTransfer = std::make_unique<FullscreenQuad>(device);
+
+		// 描画バッファ
+		framebuffer = std::make_unique<Framebuffer>(device, SCREEN_WIDTH, SCREEN_HEIGHT);
+		subframebuffers[SubFrameBufferKind::Luminance] = std::make_unique<SubFramebuffer>(device, SCREEN_WIDTH, SCREEN_HEIGHT);
+		subframebuffers[SubFrameBufferKind::Bloom] = std::make_unique<SubFramebuffer>(device, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+		subframebuffers[SubFrameBufferKind::Synthesis] = std::make_unique<SubFramebuffer>(device, SCREEN_WIDTH, SCREEN_HEIGHT);
+		// シャドウバッファ
+		static const int ShadowMapSize = 2096;
+		shadowbuffer = std::make_unique<Shadowbuffer>(device, ShadowMapSize, ShadowMapSize);
+		// テクスチャ
+		spriteBatchs[SpriteKind::Skybox] = std::make_unique<Sprite>(L".\\resources\\haikei\\6.png");
+		spriteBatchs[SpriteKind::Title] = std::make_unique<Sprite>(L".\\resources\\UI\\Title\\title.png");
+		spriteBatchs[SpriteKind::DecisionText] = std::make_unique<Sprite>(L".\\resources\\UI\\gamestart.png");
+		spriteBatchs[SpriteKind::Back] = EffectTexAll::Instance().GetSprite(int(EffectTexAll::EfTexAll::Bock));
+		spriteBatchs[SpriteKind::GameStartText] = std::make_unique<Sprite>(L".\\resources\\UI\\start the story.png");
+		spriteBatchs[SpriteKind::TutorialText] = std::make_unique<Sprite>(L".\\resources\\UI\\tutorial.png");
+		// 全てを合成するテクスチャ
+		renderSprite = std::make_unique<Sprite>();
+	}
 }
+// 終了化
 void SceneTitle::Finalize()
 {
-
 	StageManager::Instance().clear();
+	EnemyManager::Instance().Clear();
 	LightManager::Instance().Clear();
-
 }
+
+// 更新処理
 void SceneTitle::Update(float elapsedTime)
 {
-	//titlebgm->Play(true);
+	// タイトルBGM再生
 	AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Title)->Play(true);
-	GamePad& gamePad = Input::Instance().GetGamePad();
-	const GamePadButton anyButton =
-		GamePad::BTN_A
-		| GamePad::BTN_B
-		| GamePad::BTN_X
-		| GamePad::BTN_Y
-		;
 	
-	cameraController->SetTarget(position);
+	// プレイヤー更新処理
+	player->TitleUpdate(elapsedTime);
+	// タワー更新処理
+	tower->Update(elapsedTime);
+	// エネミー更新処理
+	EnemyManager::Instance().Update(elapsedTime);
+	// カメラコントローラー更新処理
 	cameraController->TitleUpdate(elapsedTime);
+	// ステージ更新処理
 	StageManager::Instance().Update(elapsedTime);
-
 	
+	{
+		// ゲームパッド入力情報
+		GamePad& pad = Input::Instance().GetGamePad();
+		const GamePadButton anyButton = GamePad::BTN_A | GamePad::BTN_B | GamePad::BTN_X | GamePad::BTN_Y;
+		// キー入力があれば
+		if (pad.GetButtonDown() & anyButton)
+		{
+			// 決定音再生
+			AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Ketei)->Play(false);
 
-	EffectManager::instance().Update(elapsedTime);
-	
-	if (gamePad.GetButtonDown() & anyButton) {
-		cameraController->SetRangeMax(25);
-		if (titleMode) {
-			switch (gameMode)
+			if (titleMode == TitleMode::TitleStart)
 			{
-			case (int)GamaMode::Default:
-				break;
-			case (int)GamaMode::Tutorial:
+				player->SetTitleState(Player::TitleState::TitleSelect);
+			}
+			else if (player->GetTitleState() == Player::TitleState::TitleSelect && titleMode > 0)
+			{
+				player->SetTitleState(Player::TitleState::TitlePunchStart);
+			}
+			titleMode++;
+		}
 
-			default:
-				break;
+		// タイトルでキー未入力状態じゃなければ
+		if (titleMode > TitleMode::TitleStart)
+		{
+			// タイトルログ&決定テクスチャのディゾルブ時間加算
+			titleDissolveTimer += elapsedTime;
+			// プレイヤーのタイトルでの状態が選択中なら
+			if (player->GetTitleState() == Player::TitleState::TitleSelect)
+			{
+				if (pad.GetButtonDown() & GamePad::BTN_DOWN)
+				{
+					gameMode++;
+					if (gameMode > (int)GamaMode::Tutorial) gameMode = (int)GamaMode::Game;
+				}
+				else if (pad.GetButtonDown() & GamePad::BTN_UP)
+				{
+					gameMode--;
+					if (gameMode < (int)GamaMode::Game) gameMode = (int)GamaMode::Tutorial;
+				}
 			}
 		}
-		AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Ketei)->Play(false);
-		titleMode++;
 	}
-	if (dissolveDTimer > 1) {
+
+	// プレイヤーのタイトルでの状態が殴り余韻状態以降なら
+	if (player->GetTitleState() >= Player::TitleState::TitlePunchReverberation)
+	{
+		static constexpr float value = 3.0f;
+		// 殴りによるサイズ拡大が一定値(3.0f)を超えたら、サイズを固定
+		if (punchScale >= value)
+		{
+			punchScale = value;
+		}
+		// 殴りによるサイズ拡大が一定値(3.0f)を超えていなければ
+		else
+		{
+			punchScale += elapsedTime * 12.0f;		// 殴りでサイズを拡大
+			punchRotate += elapsedTime * 40.0f;		// 殴りで回転値加算
+			punchPosition += elapsedTime * 12.0f;	// 殴りで位置調整
+			// 殴りによる位置調整が一定値(1.0f)を超えたら、位置を固定
+			if (punchPosition >= 1.0f)
+			{
+				punchPosition = 1.0f;
+			}
+		}
+	}
+#if 0
+	else
+	{
+		punchScale = 1.0f;
+		punchRotate = 0.0f;
+		punchPosition = 0.0f;
+	}
+#endif
+	// 線形補完位置
+	float lerpPosition = 0.0f;
+	// プレイヤーのタイトルでの状態が蹴落としてる余韻状態なら、線形補完位置を画面外に設定
+	if (player->GetTitleState() == Player::TitleState::TitleKickReverberation)
+	{
+		lerpPosition = SCREEN_HEIGHT * 1.25f;
+	}
+
+	// タイトルモードがゲームモードを選択した後なら
+	if (titleMode >= TitleMode::Select)
+	{
+		textDissolveTimer += elapsedTime * 0.5f;
+	}
+	// ゲーム&チュートリアルテクスチャのディゾルブ時間が一定値(1.0f)を超えたら
+	if (textDissolveTimer > 1.0f) 
+	{
+		// タイトルBGM停止
 		AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Title)->Stop();
-		switch (gameMode) {
-		case (int)GamaMode::Default:
+		// ゲームモード別処理
+		switch (gameMode) 
+		{
+		case (int)GamaMode::Game:		// ゲーム
 			SceneManager::Instance().ChangeScene(new SceneLoading(new SceneGame));
 			break;
-		case (int)GamaMode::Tutorial:
+		case (int)GamaMode::Tutorial:	// チュートリアル
 			SceneManager::Instance().ChangeScene(new SceneLoading(new SceneTutorial));
 			break;
 		}
+	}	
+	
+	// 経過時間加算
+	progressTimer++;
+	// スカイボックス経過時間加算
+	skyboxTimer += elapsedTime;
+	// ゲームモードの選択切り替えによる処理
+	{
+		// 線形補完速度
+		static constexpr float speed = 15.0f;
+		// ゲームモードに応じてサイズ調整
+		lerpScale = Mathf::Lerp(lerpScale, static_cast<float>(gameMode) * 0.5f, elapsedTime * speed);
+		// ゲームモードに応じて回転調整
+		cosRadian = Mathf::Lerp(cosRadian, DirectX::XM_PI * gameMode, elapsedTime * speed);
+		// 非選択のゲームモードを蹴落とす処理
+		dropPositionY = Mathf::Lerp(dropPositionY, lerpPosition, elapsedTime * speed);
 	}
-	timer++;
-	if (titleMode > 0) {
-		dissolveTimer += elapsedTime;
-		if (gamePad.GetButtonDown() & GamePad::BTN_DOWN) {
-			gameMode++;
-			if (gameMode > (int)GamaMode::Tutorial) gameMode = (int)GamaMode::Default;
-		}
-		if (gamePad.GetButtonDown() & GamePad::BTN_UP) {
-			gameMode--;
-			if (gameMode < (int)GamaMode::Default) gameMode = (int)GamaMode::Tutorial;
-		}
-	}
-	if (titleMode > 1) {
-		dissolveDTimer += elapsedTime * 0.5;
-	}
-	haikeiTimer += elapsedTime;
 }
+
+// 描画処理
 void SceneTitle::Render()
 {
 	Graphics& graphics = Graphics::Instance();
 	ID3D11DeviceContext* immediate_context = graphics.GetDeviceContext();
-	render_target_view = graphics.GetRenderTargetView();
-	sampler_states[0] = graphics.GetSamplerState(0);
-	sampler_states[1] = graphics.GetSamplerState(1);
-	sampler_states[2] = graphics.GetSamplerState(2);
-	//->AddRef()
+	renderTargetView = graphics.GetRenderTargetView();
+	samplerState = graphics.GetSamplerState(2);
+
 	//塗りつぶす色の設定
 	FLOAT color[]{ 0.9f,0.9f,0.2f,1.0f };
 	//レンダーターゲットビューのクリア。キャンバス全体を指定した色で塗りつぶす。
 	//クリアするレンダーターゲットビューとクリアする色を指定
-	immediate_context->ClearRenderTargetView(render_target_view.Get(), color);
+	immediate_context->ClearRenderTargetView(renderTargetView.Get(), color);
 	//深度ステンシルビューのクリア。キャンバス全体の奥行情報をリセット。
 	//クリアする深度ステンシルビューとクリアする深度ステンシルのフラグ、深度バッファをクリアする
-	immediate_context->ClearDepthStencilView(graphics.GetDepthStencilView(),
-		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	immediate_context->ClearDepthStencilView(graphics.GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	//これから描くキャンバスを指定する
-	immediate_context->OMSetRenderTargets(1, render_target_view.GetAddressOf(), graphics.GetDepthStencilView());
+	immediate_context->OMSetRenderTargets(1, renderTargetView.GetAddressOf(), graphics.GetDepthStencilView());
 
-
-
-
-	//ポイントフィルタをｓ０
-	immediate_context->PSSetSamplers(0, 1, sampler_states[0].GetAddressOf());
-	//リニアフィルタを s1
-	immediate_context->PSSetSamplers(1, 1, sampler_states[1].GetAddressOf());
-	//アニソトロピックを　s2
-	immediate_context->PSSetSamplers(2, 1, sampler_states[2].GetAddressOf());
-	//深度テストをOFF深度書き込みOFF
+	//アニソトロピックをs2
+	immediate_context->PSSetSamplers(2, 1, samplerState.GetAddressOf());
 
 	RenderContext rc;
-	//シャドウバッファ
-	shadowbuffer->clear(immediate_context);
-	shadowbuffer->activate(immediate_context);
-	{
-		DirectX::XMVECTOR LightPosition = DirectX::XMLoadFloat4(&shadowlight_direction);
-		DirectX::XMVECTOR Position = DirectX::XMLoadFloat3(&position);
-		LightPosition = DirectX::XMVectorScale(LightPosition, light);
-		DirectX::XMMATRIX V = DirectX::XMMatrixLookAtLH(Position - LightPosition,
-			Position,
-			DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
-		// シャドウマップに描画したい範囲の射影行列を生成
-		DirectX::XMMATRIX P = DirectX::XMMatrixOrthographicLH(shadowDrawRect, shadowDrawRect, 0.1f,
-			500.0f);
-		DirectX::XMStoreFloat4x4(&rc.view, V);
-		DirectX::XMStoreFloat4x4(&rc.projection, P);
-		DirectX::XMStoreFloat4x4(&lightViewProjection, V * P);
-	}
-	ModelShader* shader = graphics.GetShader(Graphics::ModelShaderId::ShadowmapCaster);
-	shader->Begin(immediate_context, rc);
-	StageManager::Instance().Render(immediate_context, shader);
-	StageManager::Instance().InstaningRender(immediate_context, shader);
-	shader->End(immediate_context);
-	shadowbuffer->deactivate(immediate_context);
-
-	immediate_context->OMSetDepthStencilState(graphics.GetDepthStencilState(3), 0);
-
-	//２D用にラスタライザステートの設定をGPU側に指定
-	immediate_context->RSSetState(graphics.GetRasterizerState(2));
-
-	//オフスクリーンバッファ
-	framebuffers[0]->Clear(immediate_context);
-	framebuffers[0]->Activate(immediate_context);
-
-
-	//深度テスト：オン、深度ライト：オンの深度ステンシルステートを設定しておく
-	immediate_context->OMSetDepthStencilState(graphics.GetDepthStencilState(0), 1);
-	
-	Camera& camera = Camera::Instance();
-	rc.viewPosition.x = camera.GetEye().x;
-	rc.viewPosition.y = camera.GetEye().y;
-	rc.viewPosition.z = camera.GetEye().z;
-	rc.viewPosition.w = 1;
-	//rc.viewPosition = camera_position;
 	rc.deviceContext = immediate_context;
-	rc.view = camera.GetView();
-	rc.projection = camera.GetProjection();
-	rc.lightDirection = light_direction;
-	////immediate_context->PSSetShaderResources(10, 1, shadowbuffer->SrvShadow.GetAddressOf());
-	//デバック関係
-	//projectImgui();
-	//EnemyManager::Instance().DrawDebugGUI();
-	rc.shadowMapData.shadowMap = shadowbuffer->SrvShadow.Get();
-	rc.shadowMapData.lightViewProjection = lightViewProjection;
-
-	SpriteShader* shader2 = graphics.GetShader(Graphics::SpriteShaderId::Skybox);
-
-	shader2->Begin(rc);
-	spriteBatchs[0]->Render(immediate_context,
-		0, 0, 1280, 720,
-		0, 0, spriteBatchs[0]->GetTextureWidth(), spriteBatchs[0]->GetTextureHeight(),
-		0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		0,haikeiTimer
-	);
-	//spriteBatchs[0]->SetShaderResourceView(framebuffers[0]->shaderResourceViews[2], 1280, 720);
-	shader2->Draw(rc, spriteBatchs[0].get());
-	shader2->End(rc);
-	//デフォルトモデルシェーダー
-	shader = graphics.GetShader(Graphics::ModelShaderId::ModelShaderDefault);
-
-	shader->Begin(immediate_context, rc);
-	StageManager::Instance().Render(immediate_context, shader);
-	StageManager::Instance().InstaningRender(immediate_context, shader);
-	shader->End(immediate_context);
-	graphics.GetDebugRenderer()->Render(immediate_context, rc.view, rc.projection);
-
-	framebuffers[0]->EffectActivate(immediate_context);
-	EffectManager::instance().Render(rc.view, rc.projection);
-	
-	//デフォルトスプライトシェーダー
-	shader2 = graphics.GetShader(Graphics::SpriteShaderId::SpriteShaderDefault);
-	framebuffers[0]->Deactivate(immediate_context);
-	//サブオフスクリーンバッファ（輝度抜き出し）
-	subframebuffers[0]->Clear(immediate_context);
-	subframebuffers[0]->Activate(immediate_context);
-	rc.luminanceExtractionData = luminanceExtractionData;
-	shader2 = graphics.GetShader(Graphics::SpriteShaderId::LuminanceExtraction);
-	shader2->Begin(rc);
-	renderSprite->SetShaderResourceView(framebuffers[0]->shaderResourceViews[0].Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
-	shader2->Draw(rc, renderSprite.get());
-	subframebuffers[0]->Deactivate(immediate_context);
-	//サブオフスクリーンバッファ（ブルーム）
-	subframebuffers[1]->Clear(immediate_context);
-	subframebuffers[1]->Activate(immediate_context);
-	bit_block_transfer->blit(immediate_context, subframebuffers[0]->shaderResourceViews.GetAddressOf(), 0, 1, pixel_shaders[1].Get());
-	subframebuffers[1]->Deactivate(immediate_context);
-	ID3D11ShaderResourceView* shaderResourceViews[2] = { framebuffers[0]->shaderResourceViews[5].Get(),subframebuffers[1]->shaderResourceViews.Get() };
-	subframebuffers[1]->Clear(immediate_context);
-	subframebuffers[1]->Activate(immediate_context);
-	//ID3D11ShaderResourceView* shaderResourceViews[2]{ framebuffers[0]->shaderResourceViews[5].Get(),framebuffers[1]->shaderResourceViews[0].Get() };
-	//（合成）
-	bit_block_transfer->blit(immediate_context, shaderResourceViews, 0, 2, pixel_shaders[0].Get());
-	subframebuffers[1]->Deactivate(immediate_context);
-	//画面をスプライトにいれる
-	spriteBatchs[3]->SetShaderResourceView(subframebuffers[1]->shaderResourceViews.Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
-	
-	//２D描画
-	shader2 = graphics.GetShader(Graphics::SpriteShaderId::SpriteShaderDefault);
-	shader2->Begin(rc);
-	spriteBatchs[4]->Render(immediate_context,
-		0, 0, 1280, 720,
-		0, 0, spriteBatchs[4]->GetTextureWidth(), spriteBatchs[4]->GetTextureHeight(),
-		0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f, 0
-	);
-	shader2->Draw(rc, spriteBatchs[4].get());
-	spriteBatchs[3]->Render(immediate_context,
-		0, 0, 1280, 720,
-		0, 0, spriteBatchs[3]->GetTextureWidth(), spriteBatchs[3]->GetTextureHeight(),
-		0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		0,0,dissolveDTimer
-	);
-	shader2->Draw(rc, spriteBatchs[3].get());
-	spriteBatchs[1]->Render(immediate_context,
-		0, 0, 1280, 720,
-		0, 0, spriteBatchs[1]->GetTextureWidth(), spriteBatchs[1]->GetTextureHeight(),
-		0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f, dissolveTimer
-	);
-	spriteBatchs[2]->Render(immediate_context,
-		200, 520, 1000, 200,
-		0, 0, spriteBatchs[2]->GetTextureWidth(), spriteBatchs[2]->GetTextureHeight(),
-		0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,dissolveTimer
-	);
-	
-    shader2->Draw(rc, spriteBatchs[1].get());
-    if (timer / 20 % 2) {
-    	shader2->Draw(rc, spriteBatchs[2].get());
-    }
-	DirectX::XMFLOAT2 gauge;
-	gauge.x = 500 * (1.0 - gameMode * 0.5);
-	gauge.y = 100 * (1.0 - gameMode * 0.5);
-	spriteBatchs[5]->Render(immediate_context,
-		1000 - gauge.x * 0.5, 200 - gauge.y *0.5, gauge.x, gauge.y,
-		0, 0, spriteBatchs[5]->GetTextureWidth(), spriteBatchs[5]->GetTextureHeight(),
-		0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f, 
-		dissolveDTimer*3,0,0
-	);
-	gauge.x = 500 * (0.5 + gameMode * 0.5);
-	gauge.y = 100 * (0.5 + gameMode * 0.5);
-	spriteBatchs[6]->Render(immediate_context,
-		1000 - gauge.x * 0.5, 400 - gauge.y * 0.5, gauge.x, gauge.y,
-		0, 0, spriteBatchs[6]->GetTextureWidth(), spriteBatchs[6]->GetTextureHeight(),
-		0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		dissolveDTimer*3,0,0
-	);
-	if (titleMode) {
-		shader2->Draw(rc, spriteBatchs[5].get());
-		shader2->Draw(rc, spriteBatchs[6].get());
+#if 1
+	// シャドウバッファ	
+	{
+		// ライトの方向
+		DirectX::XMFLOAT4 lightDirection = { 0.5f, -1.0f, -0.5f, 0.0f };
+		rc.lightDirection = lightDirection;
+		shadowbuffer->clear(immediate_context);
+		shadowbuffer->activate(immediate_context);
+		{
+			DirectX::XMVECTOR LightPosition = DirectX::XMLoadFloat4(&lightDirection);
+			DirectX::XMVECTOR Position = {};
+			float lightLength = 300.0f;
+			LightPosition = DirectX::XMVectorScale(LightPosition, lightLength);
+			DirectX::XMMATRIX V = DirectX::XMMatrixLookAtLH(Position - LightPosition, Position, DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
+			// シャドウマップに描画したい範囲の射影行列を生成
+			DirectX::XMMATRIX P = DirectX::XMMatrixOrthographicLH(shadowDrawRect, shadowDrawRect, 0.1f, 500.0f);
+			DirectX::XMStoreFloat4x4(&rc.view, V);
+			DirectX::XMStoreFloat4x4(&rc.projection, P);
+			DirectX::XMFLOAT4X4 lightViewProjection;
+			DirectX::XMStoreFloat4x4(&lightViewProjection, V * P);
+			// ライトビュープロジェクション行列
+			rc.shadowMapData.lightViewProjection = lightViewProjection;
+			rc.shadowMapData.shadowMap = shadowbuffer->SrvShadow.Get();
+		}
+		ModelShader* shadowShader = graphics.GetShader(Graphics::ModelShaderId::ShadowmapCaster);
+		shadowShader->Begin(immediate_context, rc);
+		StageManager::Instance().Render(immediate_context, shadowShader);
+		EnemyManager::Instance().Render(immediate_context, shadowShader);
+		player->render(immediate_context, shadowShader);
+		tower->Render(immediate_context, shadowShader);
+		StageManager::Instance().InstaningRender(immediate_context, shadowShader);
+		shadowShader->End(immediate_context);
+		shadowbuffer->deactivate(immediate_context);
 	}
-	shader2->End(rc);
+#endif
+	// カメラ情報
+	{
+		Camera& camera = Camera::Instance();
+		rc.viewPosition.x = camera.GetEye().x;
+		rc.viewPosition.y = camera.GetEye().y;
+		rc.viewPosition.z = camera.GetEye().z;
+		rc.viewPosition.w = 1.0f;
+		rc.view = camera.GetView();
+		rc.projection = camera.GetProjection();
+	}
 
+	// 2D用にラスタライザステートの設定をGPU側に指定
+	immediate_context->RSSetState(graphics.GetRasterizerState(2));
+	// 深度テスト：オン、深度ライト：オンの深度ステンシルステートを設定しておく
+	immediate_context->OMSetDepthStencilState(graphics.GetDepthStencilState(0), 1);
+
+	// オフスクリーンバッファ
+	{
+		framebuffer->Clear(immediate_context);
+		framebuffer->Activate(immediate_context);
+
+		// スカイボックスシェーダー
+		{
+			SpriteShader* skyboxShader = graphics.GetShader(Graphics::SpriteShaderId::Skybox);
+			skyboxShader->Begin(rc);
+			spriteBatchs[SpriteKind::Skybox]->Render(immediate_context, 0.0f, skyboxTimer);
+			skyboxShader->Draw(rc, spriteBatchs[SpriteKind::Skybox].get());
+			skyboxShader->End(rc);
+		}
+
+		// デフォルトモデルシェーダー
+		{
+			ModelShader* defaulModelShader = graphics.GetShader(Graphics::ModelShaderId::ModelShaderDefault);
+			defaulModelShader->Begin(immediate_context, rc);
+			StageManager::Instance().InstaningRender(immediate_context, defaulModelShader);
+			tower->Render(immediate_context, defaulModelShader);
+			EnemyManager::Instance().Render(immediate_context, defaulModelShader);
+			player->render(immediate_context, defaulModelShader);
+			defaulModelShader->End(immediate_context);
+		}
+		framebuffer->Deactivate(immediate_context);
+	}
+	// ポストエフェクトバッファ
+	{
+		// 輝度抽出描画バッファ
+		{
+			subframebuffers[SubFrameBufferKind::Luminance]->Clear(immediate_context);
+			subframebuffers[SubFrameBufferKind::Luminance]->Activate(immediate_context);
+			SpriteShader* luminanceShader = graphics.GetShader(Graphics::SpriteShaderId::LuminanceExtraction);
+			luminanceShader->Begin(rc);
+			renderSprite->SetShaderResourceView(framebuffer->shaderResourceViews[static_cast<int>(Framebuffer::Buffer::Color)].Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
+			luminanceShader->Draw(rc, renderSprite.get());
+			subframebuffers[SubFrameBufferKind::Luminance]->Deactivate(immediate_context);
+		}
+		// ブルーム描画バッファ
+		{
+			subframebuffers[SubFrameBufferKind::Bloom]->Clear(immediate_context);
+			subframebuffers[SubFrameBufferKind::Bloom]->Activate(immediate_context);
+			bitBlockTransfer->blit(immediate_context, subframebuffers[SubFrameBufferKind::Luminance]->shaderResourceViews.GetAddressOf(), 0, 1, pixelShader[PixelShaderKind::GaussianBlur].Get());
+			subframebuffers[SubFrameBufferKind::Bloom]->Deactivate(immediate_context);
+		}
+		// モデル描画バッファとブルーム描画バッファを合成し、ポストエフェクトを掛ける
+		{
+			static const int viewCount = 2;
+			ID3D11ShaderResourceView* shaderResourceViews[viewCount] = { framebuffer->shaderResourceViews[static_cast<int>(Framebuffer::Buffer::Synthesis)].Get(), subframebuffers[SubFrameBufferKind::Bloom]->shaderResourceViews.Get() };
+			subframebuffers[SubFrameBufferKind::Synthesis]->Clear(immediate_context);
+			subframebuffers[SubFrameBufferKind::Synthesis]->Activate(immediate_context);
+			bitBlockTransfer->blit(immediate_context, shaderResourceViews, 0, viewCount, pixelShader[PixelShaderKind::PostEffect].Get());
+			subframebuffers[SubFrameBufferKind::Synthesis]->Deactivate(immediate_context);
+		}
+		// ポストエフェクトを掛け終わった画面をスプライトに設定
+		renderSprite->SetShaderResourceView(subframebuffers[SubFrameBufferKind::Synthesis]->shaderResourceViews.Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
+	}
+
+	// 2D描画
+	{
+		// デフォルトスプライトシェーダー
+		SpriteShader* defaultSpriteShader = graphics.GetShader(Graphics::SpriteShaderId::SpriteShaderDefault);
+		defaultSpriteShader->Begin(rc);
+		// 背景テクスチャ描画後、3D空間描画
+		{
+			spriteBatchs[SpriteKind::Back]->Render(immediate_context);
+			defaultSpriteShader->Draw(rc, spriteBatchs[SpriteKind::Back].get());
+			renderSprite->Render(immediate_context, 0, 0, textDissolveTimer * 3.0f);
+			defaultSpriteShader->Draw(rc, renderSprite.get());
+		}
+		// スクリーン幅・高さ
+		float screenWidth = graphics.GetScreenWidth();
+		float screenHeight = graphics.GetScreenHeight();
+		// 半分のスクリーン幅・高さ
+		float divideScreenWidth = screenWidth * 0.5f;
+		float divideScreenHeight = screenHeight * 0.5f;
+		// タイトルロゴテクスチャ描画
+		{
+			static constexpr float textureScale = 0.4f;
+			float dw = static_cast<float>(spriteBatchs[SpriteKind::Title]->GetTextureWidth()) * textureScale;	// 描画幅
+			float dh = static_cast<float>(spriteBatchs[SpriteKind::Title]->GetTextureHeight()) * textureScale;	// 描画高さ
+			spriteBatchs[SpriteKind::Title]->Render(immediate_context, 0.0f, 0.0f, dw, dh, titleDissolveTimer);
+			defaultSpriteShader->Draw(rc, spriteBatchs[SpriteKind::Title].get());
+		}
+		// 決定(GameStart)テクスチャ描画
+		{
+			float dx = divideScreenWidth;		// 描画X位置
+			float dy = screenHeight * 0.75f;	// 描画Y位置
+			static constexpr float textureScale = 0.75f;
+			float dw = static_cast<float>(spriteBatchs[SpriteKind::DecisionText]->GetTextureWidth()) * textureScale;	// 描画幅
+			float dh = static_cast<float>(spriteBatchs[SpriteKind::DecisionText]->GetTextureHeight()) * textureScale; // 描画高さ
+			spriteBatchs[SpriteKind::DecisionText]->Render(immediate_context, dx - (dw * 0.5f), dy - (dh * 0.5f), dw, dh, titleDissolveTimer);
+
+			if (progressTimer / 20 % 2)
+			{
+				defaultSpriteShader->Draw(rc, spriteBatchs[SpriteKind::DecisionText].get());
+			}
+		}
+		// ゲーム&チュートリアルテクスチャ描画
+		{
+			static constexpr float texturePositionRateX = 0.75f;			// スクリーン幅に掛ける割合
+			static constexpr float texturePositionRateY = 0.35f;			// スクリーン幅に掛ける割合
+			float dx = screenWidth * texturePositionRateX;					// 描画X位置
+			float dy = screenHeight * texturePositionRateY;					// 描画Y位置
+			float radius = screenHeight * (0.5f - texturePositionRateY);	// テクスチャ間の基準点からの半径
+			DirectX::XMFLOAT2 textureSize = { 500.0f, 100.0f };				// 描画幅・高さ
+			
+			// ゲームモード別処理分け変数
+			float selectScale = punchScale;	// 殴りによるサイズ調整
+			float decisionScale = 1.0f;		// 選択したゲームモードでサイズ調整
+			float selectRotate = punchRotate;	// 殴りによる回転値調整
+			float decisionRotate = 0.0f;		// 選択したゲームモードで回転値調整
+			float selectPosition = punchPosition;	// 殴りによる位置調整
+			DirectX::XMFLOAT2 decisionPosition = {};	// 選択したゲームモードで位置調整
+			float dropPosition = 0.0f;	// 非選択のゲームモードを蹴落とす位置
+			// ゲームテクスチャ
+			{
+				// ゲームモード別処理分け
+				switch (gameMode)
+				{
+				case (int)GamaMode::Game:		// ゲーム
+					decisionScale = selectScale;
+					decisionRotate = selectRotate;
+					decisionPosition.x = -screenWidth * (texturePositionRateX - 0.5f) * selectPosition;
+					decisionPosition.y = screenHeight * (0.5f - texturePositionRateY) * selectPosition;
+					dropPosition = 0.0f;
+					break;
+				case (int)GamaMode::Tutorial:	// チュートリアル
+					decisionScale = 1.0f;
+					decisionRotate = 0.0f;
+					decisionPosition = {};
+					dropPosition = dropPositionY;
+					break;
+				}
+				// ゲーム(0) : 500,100、チュートリアル(1) : 250,50
+				float width = textureSize.x * (1.0f - lerpScale) * decisionScale;
+				float height = textureSize.y * (1.0f - lerpScale) * decisionScale;
+				float divideWidth = width * 0.5f;
+				float divideHeight = height * 0.5f;
+				spriteBatchs[SpriteKind::GameStartText]->RotateRender(immediate_context,
+					dx - divideWidth + decisionPosition.x + cosf(cosRadian - DirectX::XM_PIDIV2) * radius, divideScreenHeight - divideHeight + dropPosition + decisionPosition.y + cosf(cosRadian + DirectX::XM_PI) * radius, width, height,
+					decisionRotate, textDissolveTimer * 3.0f);
+			}
+			// チュートリアルテクスチャ
+			{
+				// ゲームモード別処理分け
+				switch (gameMode)
+				{
+				case (int)GamaMode::Game:		// ゲーム
+					decisionScale = 1.0f;
+					decisionRotate = 0.0f;
+					decisionPosition = {};
+					dropPosition = dropPositionY;
+					break;
+				case (int)GamaMode::Tutorial:	// チュートリアル
+					decisionScale = selectScale;
+					decisionRotate = selectRotate;
+					decisionPosition.x = -screenWidth * (texturePositionRateX - 0.5f) * selectPosition;
+					decisionPosition.y = -screenHeight * (texturePositionRateY - 0.5f) * selectPosition;
+					dropPosition = 0.0f;
+					break;
+				}
+				// ゲーム(0) : 250,50、チュートリアル(1) : 500,100
+				float width = textureSize.x * (0.5f + lerpScale) * decisionScale;
+				float height = textureSize.y * (0.5f + lerpScale) * decisionScale;
+				float divideWidth = width * 0.5f;
+				float divideHeight = height * 0.5f;
+				spriteBatchs[SpriteKind::TutorialText]->RotateRender(immediate_context,
+					dx - divideWidth + decisionPosition.x + cosf(cosRadian + DirectX::XM_PIDIV2) * radius, divideScreenHeight - divideHeight + dropPosition + decisionPosition.y + cosf(cosRadian) * radius, width, height,
+					decisionRotate, textDissolveTimer * 3.0f);
+			}
+
+			// タイトルモードが非選択状態以降なら
+			if (titleMode >= TitleMode::NotSelect) 
+			{
+				defaultSpriteShader->Draw(rc, spriteBatchs[SpriteKind::GameStartText].get());
+				defaultSpriteShader->Draw(rc, spriteBatchs[SpriteKind::TutorialText].get());
+			}
+		}
+		defaultSpriteShader->End(rc);
+	}	
+
+	// ImGui描画処理
+	ImGuiRender();
 }
-
-
-void SceneTitle::projectImgui()
+// ImGui描画処理
+void SceneTitle::ImGuiRender()
 {
 	ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_FirstUseEver);
 	if (ImGui::Begin("Debug", nullptr, ImGuiWindowFlags_None))
 	{
-	}
-	if (ImGui::TreeNode("light"))
-	{
-		ImGui::SliderFloat("light_dir.x", &light_direction.x, -1.0f, 1.0f);
-		ImGui::SliderFloat("light_dir.y", &light_direction.y, -1.0f, 1.0f);
-		ImGui::SliderFloat("light_dir.z", &light_direction.z, -1.0f, 1.0f);
-		ImGui::SliderFloat("light_dir.w", &light_direction.w, -1000.0f, 1000.0f);
-		ImGui::TreePop();
+		ImGui::SliderFloat("punchScale", &punchScale, 1.0f, 3.0f);
+		ImGui::SliderFloat("lerpScale", &lerpScale, 1.0f, 3.0f);
+		ImGui::SliderFloat("punchPosition", &punchPosition, 0.0f, 1.0f);
+		if (ImGui::TreeNode("Shadowmap"))
+		{
+			ImGui::SliderFloat("DrawRect", &shadowDrawRect, 1.0f, 1150.0f);
+			ImGui::Text("texture");
+			ImGui::Image(shadowbuffer->SrvShadow.Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
+			ImGui::TreePop();
+		}
+		if (ImGui::TreeNode("MRT"))
+		{
+			ImGui::Text("texture");
+			ImGui::Image(renderSprite->GetShaderResourceView().Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
+			ImGui::Image(framebuffer->shaderResourceViews[static_cast<int>(Framebuffer::Buffer::Color)].Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
+			ImGui::Image(framebuffer->shaderResourceViews[static_cast<int>(Framebuffer::Buffer::Depth)].Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
+			ImGui::Image(framebuffer->shaderResourceViews[static_cast<int>(Framebuffer::Buffer::Nomal)].Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
+			ImGui::Image(framebuffer->shaderResourceViews[static_cast<int>(Framebuffer::Buffer::Pos)].Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
+			ImGui::Image(framebuffer->shaderResourceViews[static_cast<int>(Framebuffer::Buffer::MetalSmoothness)].Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
+			ImGui::Image(framebuffer->shaderResourceViews[static_cast<int>(Framebuffer::Buffer::AmbientOcclusion)].Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
+			ImGui::Image(framebuffer->shaderResourceViews[static_cast<int>(Framebuffer::Buffer::Emission)].Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
+			ImGui::Image(framebuffer->shaderResourceViews[static_cast<int>(Framebuffer::Buffer::Light)].Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
+			ImGui::Image(framebuffer->shaderResourceViews[static_cast<int>(Framebuffer::Buffer::Synthesis)].Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
+			ImGui::Image(subframebuffers[SubFrameBufferKind::Luminance]->shaderResourceViews.Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
+			ImGui::Image(subframebuffers[SubFrameBufferKind::Bloom]->shaderResourceViews.Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
+			ImGui::Image(subframebuffers[SubFrameBufferKind::Synthesis]->shaderResourceViews.Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
+			ImGui::TreePop();
+		}
+		ImGui::End();
+	}	
 
-	}
-	if (ImGui::TreeNode("Shadowmap"))
-	{
-		ImGui::SliderFloat("DrawRect", &shadowDrawRect, 1.0f, 1150.0f);
-		ImGui::SliderFloat("leght", &light, 1.0f, 1150.0f);
-		//ImGui::SliderFloat("DrawRect2", &shadowDrawRect2, 0.0f, 48.0f);
-		//ImGui::ColorEdit3("Color", &shadowColor.x);
-		//ImGui::SliderFloat("Bias", &shadowBias, 0.0f, 0.1f);
-		ImGui::Text("texture");
-		ImGui::Image(shadowbuffer->SrvShadow.Get(), { 256, 256 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
-
-		//ImGui::Image(framebuffers[0]->shaderResourceViews[0].Get(), { 256, 256 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
-
-		ImGui::TreePop();
-
-	}
-	if (ImGui::TreeNode("MRT"))
-	{
-		ImGui::Text("texture");
-		ImGui::Image(framebuffers[0]->shaderResourceViews[0].Get(), { 256, 256 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
-		ImGui::Image(framebuffers[0]->shaderResourceViews[1].Get(), { 256, 256 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
-		ImGui::Image(framebuffers[0]->shaderResourceViews[2].Get(), { 256, 256 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
-		ImGui::Image(framebuffers[0]->shaderResourceViews[3].Get(), { 256, 256 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
-		ImGui::Image(framebuffers[0]->shaderResourceViews[4].Get(), { 256, 256 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
-		ImGui::Image(framebuffers[0]->shaderResourceViews[5].Get(), { 256, 256 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
-		//ImGui::Image(framebuffers[1]->shaderResourceViews[0].Get(), { 256, 256 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
-		ImGui::TreePop();
-	}
-	ImGui::Separator();
-	ImGui::End();
-
+	player->DrawDebugGUI();
+	EnemyManager::Instance().DrawDebugGUI();
 }

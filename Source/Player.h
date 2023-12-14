@@ -98,6 +98,21 @@ public:
         ProjectileRotate,
         SkillMax
     };
+
+    // タイトルでの状態
+    enum TitleState
+    {
+        TitleDefault,            // 未入力
+        TitleSelect,             // タイトルでゲームモード選択
+        TitlePunchStart,         // 殴りアニメーション開始
+        TitlePunchNow,           // 殴りアニメーション中
+        TitlePunchReverberation, // 殴りアニメーション余韻
+        TitleKickStart,          // 蹴落としアニメーション開始
+        TitleKickNow,            // 蹴落としアニメーション中
+        TitleKickReverberation,  // 蹴落としアニメーション余韻
+    };
+
+
 public:
     Player();
     ~Player() override;
@@ -110,6 +125,7 @@ public:
 
 
     void update(float elapsed_time);
+    void TitleUpdate(float elapsedTime);
     void render(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader);
     //残像エフェクト描画
     void Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader);
@@ -194,6 +210,10 @@ public:
     float GetEnemyLength() { return enemyLength; }
     //武器取得
    // MainWepon* GetWepon() { return wepon.get(); };
+
+    // タイトルでの状態取得と設定
+    int GetTitleState() { return titleState; }
+    void SetTitleState(int index) { titleState = index; }
 
     //移動入力処理
     bool InputMove(float elapsedTime);
@@ -283,8 +303,6 @@ public:
     void SpecialUpdate();
     //ノードの位置
     DirectX::XMFLOAT3 SearchNodePos(const char* nodeName);
-
-    int GetTimer() { return timer; }
 
 protected:
     //着地した時に呼ばれる
@@ -614,8 +632,6 @@ private:
     //カメラシェイクパワー
     float shakePow = 2;
    
-    //フレームタイマー
-    int timer = 0;
     //弾消耗MP
     float swordMp = 4;
     
@@ -649,6 +665,21 @@ private:
 
     
     std::vector<SkinnedMeshResouurce::constants> swordrenderdata;
+
+    float adjustMetalness = 0.0f;	// 金属度
+    float adjustSmoothness = 0.0f;	// 粗さ
+    float timer = 0.0f;				// 更新時間
+    
+  
+    DirectX::XMFLOAT3 hologramColor = { 0.0f, 0.0f, 1.0f }; // ホログラム色
+    float glitchSpeed = 50.0f;		// スクロール速度
+    float glitchIntensity = 0.0f;	// 強度
+    float lerpGlitchIntensity = 0.0f;	// 強度
+    float glitchScale = 50.0f;		// 振れ幅    
+    float deathTimer = 0.0f;		// 死亡時間
+    int titleState = TitleState::TitleDefault;
+    float nextStateTimer = 0.0f;
+    float animationTimer = 0.0f;
 };
 
 

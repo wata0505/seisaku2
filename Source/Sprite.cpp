@@ -289,7 +289,323 @@ void Sprite::Render(ID3D11DeviceContext* immediate_context,
 	}
 
 }
+void Sprite::Render(ID3D11DeviceContext* dc, float d, float ds, float dd, bool i) const
+{
+	// 現在設定されているビューポートからスクリーンサイズを取得する。
+	D3D11_VIEWPORT viewport;
+	UINT numViewports = 1;
+	dc->RSGetViewports(&numViewports, &viewport);
+	float screen_width = viewport.Width;
+	float screen_height = viewport.Height;
 
+	float dx = 0.0f;
+	float dy = 0.0f;
+	float dw = screen_width;
+	float dh = screen_height;
+	// スプライトを構成する４頂点のスクリーン座標を計算する
+	DirectX::XMFLOAT2 positions[] = 
+	{
+		DirectX::XMFLOAT2(dx,      dy),			// 左上
+		DirectX::XMFLOAT2(dx + dw, dy),			// 右上
+		DirectX::XMFLOAT2(dx,      dy + dh),	// 左下
+		DirectX::XMFLOAT2(dx + dw, dy + dh),	// 右下
+	};
+
+	float sx = 0.0f;
+	float sy = 0.0f;
+	float sw = textureWidth;
+	float sh = textureHeight;
+	// スプライトを構成する４頂点のテクスチャ座標を計算する
+	DirectX::XMFLOAT2 texcoords[] = 
+	{
+		DirectX::XMFLOAT2(sx,      sy),			// 左上
+		DirectX::XMFLOAT2(sx + sw, sy),			// 右上
+		DirectX::XMFLOAT2(sx,      sy + sh),	// 左下
+		DirectX::XMFLOAT2(sx + sw, sy + sh),	// 右下
+	};
+
+	// スプライトの中心で回転させるために４頂点の中心位置が
+	// 原点(0, 0)になるように一旦頂点を移動させる。
+	float mx = dx;
+	float my = dy;
+	if (i) 
+	{
+		mx = dx + dw * 0.5f;
+		my = dy + dh * 0.5f;
+	}
+
+	for (auto& p : positions)
+	{
+		p.x -= mx;
+		p.y -= my;
+	}
+
+	// 頂点を回転させる
+	const float PI = 3.141592653589793f;
+	float theta = 0.0f;	// 角度をラジアン(θ)に変換
+	float c = cosf(theta);
+	float s = sinf(theta);
+	for (auto& p : positions)
+	{
+		DirectX::XMFLOAT2 r = p;
+		p.x = c * r.x + -s * r.y;
+		p.y = s * r.x + c * r.y;
+	}
+
+	// 回転のために移動させた頂点を元の位置に戻す
+	for (auto& p : positions)
+	{
+		p.x += mx;
+		p.y += my;
+	}
+
+	// スクリーン座標系からNDC座標系へ変換する。
+	for (auto& p : positions)
+	{
+		p.x = 2.0f * p.x / screen_width - 1.0f;
+		p.y = 1.0f - 2.0f * p.y / screen_height;
+	}
+
+	// 頂点バッファの内容の編集を開始する。
+	D3D11_MAPPED_SUBRESOURCE mappedBuffer;
+	HRESULT hr = dc->Map(vertexBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
+	_ASSERT_EXPR(SUCCEEDED(hr), HRTrace(hr));
+
+	// pDataを編集することで頂点データの内容を書き換えることができる。
+	Vertex* v = static_cast<Vertex*>(mappedBuffer.pData);
+	for (int i = 0; i < 4; ++i)
+	{
+		v[i].position.x = positions[i].x;
+		v[i].position.y = positions[i].y;
+		v[i].position.z = 0.0f;
+
+		v[i].color.x = 1.0f;
+		v[i].color.y = 1.0f;
+		v[i].color.z = 1.0f;
+		v[i].color.w = 1.0f;
+
+		v[i].texcoord.x = texcoords[i].x / textureWidth;
+		v[i].texcoord.y = texcoords[i].y / textureHeight;
+
+		v[i].dissolve.x = d;
+		v[i].dissolve.y = ds;
+		v[i].dissolve.z = dd;
+	}
+
+	// 頂点バッファの内容の編集を終了する。
+	dc->Unmap(vertexBuffer.Get(), 0);
+}
+void Sprite::Render(ID3D11DeviceContext* dc,
+	float dx, float dy, float dw, float dh,
+	float d, float ds, float dd, bool i) const
+{
+	{
+		// 現在設定されているビューポートからスクリーンサイズを取得する。
+		D3D11_VIEWPORT viewport;
+		UINT numViewports = 1;
+		dc->RSGetViewports(&numViewports, &viewport);
+		float screen_width = viewport.Width;
+		float screen_height = viewport.Height;
+
+		// スプライトを構成する４頂点のスクリーン座標を計算する
+		DirectX::XMFLOAT2 positions[] = 
+		{
+			DirectX::XMFLOAT2(dx,      dy),			// 左上
+			DirectX::XMFLOAT2(dx + dw, dy),			// 右上
+			DirectX::XMFLOAT2(dx,      dy + dh),	// 左下
+			DirectX::XMFLOAT2(dx + dw, dy + dh),	// 右下
+		};
+
+		float sx = 0.0f;
+		float sy = 0.0f;
+		float sw = textureWidth;
+		float sh = textureHeight;
+		// スプライトを構成する４頂点のテクスチャ座標を計算する
+		DirectX::XMFLOAT2 texcoords[] = 
+		{
+			DirectX::XMFLOAT2(sx,      sy),			// 左上
+			DirectX::XMFLOAT2(sx + sw, sy),			// 右上
+			DirectX::XMFLOAT2(sx,      sy + sh),	// 左下
+			DirectX::XMFLOAT2(sx + sw, sy + sh),	// 右下
+		};
+
+		// スプライトの中心で回転させるために４頂点の中心位置が
+		// 原点(0, 0)になるように一旦頂点を移動させる。
+		float mx = dx;
+		float my = dy;
+		if (i) {
+			mx = dx + dw * 0.5f;
+			my = dy + dh * 0.5f;
+		}
+
+		for (auto& p : positions)
+		{
+			p.x -= mx;
+			p.y -= my;
+		}
+
+		// 頂点を回転させる
+		const float PI = 3.141592653589793f;
+		float theta = 0.0f;	// 角度をラジアン(θ)に変換
+		float c = cosf(theta);
+		float s = sinf(theta);
+		for (auto& p : positions)
+		{
+			DirectX::XMFLOAT2 r = p;
+			p.x = c * r.x + -s * r.y;
+			p.y = s * r.x + c * r.y;
+		}
+
+		// 回転のために移動させた頂点を元の位置に戻す
+		for (auto& p : positions)
+		{
+			p.x += mx;
+			p.y += my;
+		}
+
+		// スクリーン座標系からNDC座標系へ変換する。
+		for (auto& p : positions)
+		{
+			p.x = 2.0f * p.x / screen_width - 1.0f;
+			p.y = 1.0f - 2.0f * p.y / screen_height;
+		}
+
+		// 頂点バッファの内容の編集を開始する。
+		D3D11_MAPPED_SUBRESOURCE mappedBuffer;
+		HRESULT hr = dc->Map(vertexBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
+		_ASSERT_EXPR(SUCCEEDED(hr), HRTrace(hr));
+
+		// pDataを編集することで頂点データの内容を書き換えることができる。
+		Vertex* v = static_cast<Vertex*>(mappedBuffer.pData);
+		for (int i = 0; i < 4; ++i)
+		{
+			v[i].position.x = positions[i].x;
+			v[i].position.y = positions[i].y;
+			v[i].position.z = 0.0f;
+
+			v[i].color.x = 1.0f;
+			v[i].color.y = 1.0f;
+			v[i].color.z = 1.0f;
+			v[i].color.w = 1.0f;
+
+			v[i].texcoord.x = texcoords[i].x / textureWidth;
+			v[i].texcoord.y = texcoords[i].y / textureHeight;
+
+			v[i].dissolve.x = d;
+			v[i].dissolve.y = ds;
+			v[i].dissolve.z = dd;
+		}
+
+		// 頂点バッファの内容の編集を終了する。
+		dc->Unmap(vertexBuffer.Get(), 0);
+	}
+}
+void Sprite::RotateRender(ID3D11DeviceContext* dc,
+	float dx, float dy, float dw, float dh, float angle,
+	float d, float ds, float dd, bool i) const
+{
+	{
+		// 現在設定されているビューポートからスクリーンサイズを取得する。
+		D3D11_VIEWPORT viewport;
+		UINT numViewports = 1;
+		dc->RSGetViewports(&numViewports, &viewport);
+		float screen_width = viewport.Width;
+		float screen_height = viewport.Height;
+
+		// スプライトを構成する４頂点のスクリーン座標を計算する
+		DirectX::XMFLOAT2 positions[] = 
+		{
+			DirectX::XMFLOAT2(dx,      dy),			// 左上
+			DirectX::XMFLOAT2(dx + dw, dy),			// 右上
+			DirectX::XMFLOAT2(dx,      dy + dh),	// 左下
+			DirectX::XMFLOAT2(dx + dw, dy + dh),	// 右下
+		};
+
+		float sx = 0.0f;
+		float sy = 0.0f;
+		float sw = textureWidth;
+		float sh = textureHeight;
+		// スプライトを構成する４頂点のテクスチャ座標を計算する
+		DirectX::XMFLOAT2 texcoords[] = 
+		{
+			DirectX::XMFLOAT2(sx,      sy),			// 左上
+			DirectX::XMFLOAT2(sx + sw, sy),			// 右上
+			DirectX::XMFLOAT2(sx,      sy + sh),	// 左下
+			DirectX::XMFLOAT2(sx + sw, sy + sh),	// 右下
+		};
+
+		// スプライトの中心で回転させるために４頂点の中心位置が
+		// 原点(0, 0)になるように一旦頂点を移動させる。
+		float mx = dx;
+		float my = dy;
+		if (i) 
+		{
+			mx = dx + dw * 0.5f;
+			my = dy + dh * 0.5f;
+		}
+
+		for (auto& p : positions)
+		{
+			p.x -= mx;
+			p.y -= my;
+		}
+
+		// 頂点を回転させる
+		const float PI = 3.141592653589793f;
+		float theta = angle;	// 角度をラジアン(θ)に変換
+		float c = cosf(theta);
+		float s = sinf(theta);
+		for (auto& p : positions)
+		{
+			DirectX::XMFLOAT2 r = p;
+			p.x = c * r.x + -s * r.y;
+			p.y = s * r.x + c * r.y;
+		}
+
+		// 回転のために移動させた頂点を元の位置に戻す
+		for (auto& p : positions)
+		{
+			p.x += mx;
+			p.y += my;
+		}
+
+		// スクリーン座標系からNDC座標系へ変換する。
+		for (auto& p : positions)
+		{
+			p.x = 2.0f * p.x / screen_width - 1.0f;
+			p.y = 1.0f - 2.0f * p.y / screen_height;
+		}
+
+		// 頂点バッファの内容の編集を開始する。
+		D3D11_MAPPED_SUBRESOURCE mappedBuffer;
+		HRESULT hr = dc->Map(vertexBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
+		_ASSERT_EXPR(SUCCEEDED(hr), HRTrace(hr));
+
+		// pDataを編集することで頂点データの内容を書き換えることができる。
+		Vertex* v = static_cast<Vertex*>(mappedBuffer.pData);
+		for (int i = 0; i < 4; ++i)
+		{
+			v[i].position.x = positions[i].x;
+			v[i].position.y = positions[i].y;
+			v[i].position.z = 0.0f;
+
+			v[i].color.x = 1.0f;
+			v[i].color.y = 1.0f;
+			v[i].color.z = 1.0f;
+			v[i].color.w = 1.0f;
+
+			v[i].texcoord.x = texcoords[i].x / textureWidth;
+			v[i].texcoord.y = texcoords[i].y / textureHeight;
+
+			v[i].dissolve.x = d;
+			v[i].dissolve.y = ds;
+			v[i].dissolve.z = dd;
+		}
+
+		// 頂点バッファの内容の編集を終了する。
+		dc->Unmap(vertexBuffer.Get(), 0);
+	}
+}
 
 void Sprite::RenderCircle(ID3D11DeviceContext* dc,
 	float dx, float dy,

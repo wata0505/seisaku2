@@ -74,6 +74,9 @@ EnemyDrone::EnemyDrone(bool tutorial)
 	eria = 100;
 	targetNo = 0;
 	enemyType = EnemyType::Drone;
+
+	// ホログラムシェーダー情報初期化
+	HologramShaderDataInitialize(0.0f, 16.0f);
 }
 
 // デストラクタ
@@ -104,16 +107,13 @@ void EnemyDrone::Update(float elapsedTime)
 	if (stateMachine->GetStateNum() == static_cast<int>(EnemyDrone::DroneState::ReDamage))
 	{
 		lerpGlitchIntensity = 1.0f;
-		//scanBorder = -10.0f;
-		//glowBorder = 10.0f;
-		//hologramBorder = 10.0f;
 	}
 	else
 	{
 		lerpGlitchIntensity = 0.0f;
 	}
 	glitchIntensity = Mathf::Lerp(glitchIntensity, lerpGlitchIntensity, elapsedTime * 20.0f);
-	model->ShaderAdjustment(adjustMetalness, adjustSmoothness, glitchScale, timer);
+	model->ShaderAdjustment(adjustMetalness, adjustSmoothness, glitchScale, timer, maxHeight);
 
 	//描画判定
 	if (reMoveflag)ReMove();
@@ -139,47 +139,20 @@ void EnemyDrone::Update(float elapsedTime)
 		// モデル行列更新
 		model->UpdateBufferDara(transform);
 		//renderdata = model->GetBufferData();
-#if 1
-		hologramBorder = 20.0f;
-		//glitchIntensity = 1.0f;
-		//model->ShaderAdjustment(adjustMetalness, adjustSmoothness, glitchScale, timer);
-#endif
+
+		hologramTimer = 0.0f;
+		UpdateHologramShader(elapsedTime);
 		return;
 	}
 
+	// ホログラムシェーダー実行中フラグが付いていれば
 	if (!isActiveStart)
 	{
-		if (activeTimer > 0.0f)
-		{
-			ElapsedTime = 0.0f;
-		}
-		activeTimer += elapsedTime;
-		float moveTimer = elapsedTime * 20.0f;
-		if (activeTimer <= 0.9f)
-		{
-			scanBorder -= moveTimer;
-		}
-		else if (activeTimer >= 0.9f && activeTimer <= 1.8f)
-		{
-			glowBorder -= moveTimer;
-		}
-		else if (activeTimer >= 2.1f && activeTimer <= 4.0f)
-		{
-			hologramBorder -= moveTimer * 0.5f;
-			if (activeTimer >= 3.3f)
-			{
-				//outlineData.outlineSize -= elapsedTime * 0.25f;
-				//if (outlineData.outlineSize <= 0.006f)
-				{
-					//outlineData.outlineSize = 0.006f;
-					isActiveStart = true;
-				}
-			}
-		}
-		//model->ShaderAdjustment(adjustMetalness, adjustSmoothness, glitchScale, timer);
-
+		// ホログラムシェーダー更新処理
+		isActiveStart = UpdateHologramShader(elapsedTime);
+		ElapsedTime = 0.0f;
 	}
-
+	//ElapsedTime = 0.0f;
 	//ヒットストップ
 	if (Player::Instance().GetAttackHitflag()) ElapsedTime *= hitStop;
 	TargetUpdate();
@@ -515,9 +488,8 @@ void EnemyDrone::ReMove()
 	health = maxHealth;
 	DirectX::XMFLOAT2 pos = { 105 - float(rand() % 50), 40 };
 	glitchIntensity = 0;
-	scanBorder = 10.0f;
-	glowBorder = 10.0f;
-	hologramBorder = 0.0f;
+	// ホログラムシェーダー情報初期化
+	HologramShaderDataInitialize(minHeight, maxHeight);
 	deathTimer = 0;
 	//model->PBRAdjustment(adjustMetalness, adjustSmoothness, emissiveStrength);
 	//model->HologramAdjustment(timer, scanTiling, scanSpeed, scanBorder, glowTiling, glowSpeed, glowBorder, hologramBorder, rimStrength);
@@ -529,148 +501,42 @@ void EnemyDrone::ReMove()
 	stateMachine->SetState(static_cast<int>(DroneState::Search));
 }
 
-// デバッグエネミー情報表示
-//void EnemyDrone::DrawDebugGUI()
-//{
-//
-//	//std::string str = "";
-//
-//	// TODO 05 デバッグ表示用に各ステート名をstrに追加しなさい
-//	//switch (state) {
-//	//case State::Wander:
-//	//	str = "Wander";
-//	//	break;
-//	//
-//	//}
-//	//switch (static_cast<State>(stateMachine->GetStateIndex())) {
-//	//case State::Wander:
-//	//	str = "Wander";
-//	//	break;
-//	//case State::Idle:
-//	//	str = "Idle";
-//	//	break;
-//	//case State::Pursuit:
-//	//	str = "Pursuit";
-//	//	break;
-//	//case State::Attack:
-//	//	str = "Attack";
-//	//	break;
-//	//
-//	//
-//	//}
-//	// TODO 03_07 デバッグ文字列表示の変更
-//	std::string str = "";
-//	std::string subStr = "";
-//	// 現在のステート番号に合わせてデバッグ文字列をstrに格納
-//	switch (static_cast<State>(stateMachine->GetStateIndex())) {
-//	case State::Search:
-//		str = "Search";
-//		if (stateMachine->GetState()->GetSubStateIndex() == static_cast<int>(EnemyDrone::Search::Wander))
-//		{
-//			subStr = "Wander";
-//		}
-//		if (stateMachine->GetState()->GetSubStateIndex() == static_cast<int>(EnemyDrone::Search::Idle))
-//		{
-//			subStr = "Idle";
-//		}
-//		break;
-//	case State::Battle:
-//		str = "Battle";
-//		// Battleステートの表示はSearchを参考に考えてください。
-//		if (stateMachine->GetState()->GetSubStateIndex() == static_cast<int>(EnemyDrone::Battle::Pursuit))
-//		{
-//			subStr = "Pursuit";
-//		}
-//		if (stateMachine->GetState()->GetSubStateIndex() == static_cast<int>(EnemyDrone::Battle::Attack))
-//		{
-//			subStr = "Attack";
-//		}
-//		if (stateMachine->GetState()->GetSubStateIndex() == static_cast<int>(EnemyDrone::Battle::Standby))
-//		{
-//			subStr = "Stanby";
-//		}
-//		break;
-//	case State::Recieve:
-//		str = "Recieve";
-//		if (stateMachine->GetState()->GetSubStateIndex() == static_cast<int>(EnemyDrone::Recieve::Called))
-//		{
-//			subStr = "Called";
-//		}
-//		break;
-//
-//	}
-//
-//
-//
-//	//トランスフォーム
-//	if (ImGui::CollapsingHeader("EnemyDrone", ImGuiTreeNodeFlags_DefaultOpen))
-//	{
-//		// 位置
-//		ImGui::InputFloat3("Position", &position.x);
-//		// 回転
-//		DirectX::XMFLOAT3 a;
-//		a.x = DirectX::XMConvertToDegrees(angle.x);
-//		a.y = DirectX::XMConvertToDegrees(angle.y);
-//		a.z = DirectX::XMConvertToDegrees(angle.z);
-//		ImGui::InputFloat3("Angle", &a.x);
-//		angle.x = DirectX::XMConvertToRadians(a.x);
-//		angle.y = DirectX::XMConvertToRadians(a.y);
-//		angle.z = DirectX::XMConvertToRadians(a.z);
-//		// スケール
-//		ImGui::InputFloat3("Scale", &scale.x);
-//
-//		ImGui::Text(u8"State　%s", str.c_str());
-//		ImGui::Text(u8"SubState　%s", subStr.c_str());
-//	}
-//}
-//void EnemyDrone::UpdateVerticalMove(float elapsedTime) {
-//	position.y = 0;
-//}
 void EnemyDrone::DrawDebugGUI()
 {
 	//トランスフォーム
 	if (ImGui::CollapsingHeader("EnemyDrone", ImGuiTreeNodeFlags_DefaultOpen))
 	{
-		//if (ImGui::Button(u8"Start"))
-		//{
-		//	isActiveStart = false;
-		//	activeTimer = 0.0f;
-		//	scanBorder = 10.0f;
-		//	glowBorder = 10.0f;
-		//	hologramBorder = 10.0f;
-		//}
-		//if (ImGui::Button(u8"Death"))
-		//{
-		//	health = 0;
-		//	stateMachine->ChangeState(static_cast<int>(EnemyDrone::DroneState::ReDamage));
-		//}
-		//if (ImGui::TreeNode("PBR"))
-		//{
-		//	ImGui::SliderFloat("adjustMetalness", &adjustMetalness, -1.0f, 1.0f);
-		//	ImGui::SliderFloat("adjustSmoothness", &adjustSmoothness, -1.0f, 1.0f);
-		//	ImGui::SliderFloat("emissiveStrength", &emissiveStrength, 0.0f, 1.0f);
-		//	ImGui::TreePop();
-		//}
-		//if (ImGui::TreeNode("Hologram"))
-		//{
-		//	ImGui::SliderFloat("scanTiling", &scanTiling, 0.01f, 10.0f);
-		//	ImGui::SliderFloat("scanSpeed", &scanSpeed, -2.0f, 2.0f);
-		//	ImGui::SliderFloat("scanBorder", &scanBorder, -10.0f, 10.0f);
-		//	ImGui::SliderFloat("glowTiling", &glowTiling, 0.01f, 1.0f);
-		//	ImGui::SliderFloat("glowSpeed", &glowSpeed, -10.0f, 10.0f);
-		//	ImGui::SliderFloat("glowBorder", &glowBorder, -10.0f, 10.0f);
-		//	ImGui::SliderFloat("hologramBorder", &hologramBorder, -10.0f, 10.0f);
-		//	ImGui::SliderFloat("rimStrength", &rimStrength, 0.0f, 10.0f);
-		//	ImGui::TreePop();
-		//}
-		//if (ImGui::TreeNode("Glitch"))
-		//{
-		//	//ImGui::SliderFloat("glitchSpeed", &glitchSpeed, 0.0f, 10.0f);
-		//	ImGui::SliderFloat("glitchSpeed", &glitchSpeed, 1.0f, 50.0f);
-		//	ImGui::SliderFloat("glitchIntensity", &glitchIntensity, 0.0f, 1.0f);
-		//	ImGui::SliderFloat("glitchScale", &glitchScale, 1.0f, 50.0f);
-		//	ImGui::TreePop();
-		//}
+		if (ImGui::Button(u8"Start"))
+		{
+			// ホログラムシェーダー情報初期化
+			HologramShaderDataInitialize(minHeight, maxHeight);
+		}
+		if (ImGui::Button(u8"Death"))
+		{
+			health = 0;
+			//stateMachine->ChangeState(static_cast<int>(EnemyBag::BagState::ReDamage));
+		}
+		if (ImGui::TreeNode("PBR"))
+		{
+			ImGui::SliderFloat("adjustMetalness", &adjustMetalness, -1.0f, 1.0f);
+			ImGui::SliderFloat("adjustSmoothness", &adjustSmoothness, -1.0f, 1.0f);
+			ImGui::TreePop();
+		}
+		if (ImGui::TreeNode("Hologram"))
+		{
+			ImGui::SliderFloat("scanBorder", &scanBorder, -1600.0f, 1400.0f);
+			ImGui::SliderFloat("glowBorder", &glowBorder, -1600.0f, 1400.0f);
+			ImGui::SliderFloat("hologramBorder", &hologramBorder, -1600.0f, 1400.0f);
+			ImGui::TreePop();
+		}
+		if (ImGui::TreeNode("Glitch"))
+		{
+			//ImGui::SliderFloat("glitchSpeed", &glitchSpeed, 0.0f, 10.0f);
+			ImGui::SliderFloat("glitchSpeed", &glitchSpeed, 1.0f, 50.0f);
+			ImGui::SliderFloat("glitchIntensity", &glitchIntensity, 0.0f, 1.0f);
+			ImGui::SliderFloat("glitchScale", &glitchScale, 1.0f, 50.0f);
+			ImGui::TreePop();
+		}
 	}
 }
 

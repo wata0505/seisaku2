@@ -35,19 +35,33 @@ VS_OUT main(VS_IN vin)
     vin.normal = float4(blended_normal.xyz, 0.0f);
     vin.tangent = float4(blended_tangent.xyz, 0.0f);
 
-    VS_OUT vout;
-    float4 pos = mul(vin.position, mul(world, view_projection));
+    float4 position = mul(vin.position, mul(world, view_projection));    
+    float scan = step(scanBorder, -vin.position.y);    
+    // スキャンの境界判定
+    //if (scan < 1.0f)
+    if (scan < 1.0f && maxHeight > 0.0f)
+    {
+        // キャラのローカル座標
+        float4 localPosition = vin.position;
+        localPosition.xyz = float3(0.0f, maxHeight, 0.0f);
+        //localPosition.xyz = float3(localPosition.x, maxHeight, localPosition.z);
+        position = mul(localPosition, mul(world, view_projection));
+    }
+    
+    // グリッチ処理
     if (glitchIntensity > 0.0f)
     {
         float glitchSpeed = 50.0f;
-        float noise = blockNoise(pos.y * (glitchIntensity + 1.0f) * glitchScale);
-        noise += random(pos.x) * 0.3f;
-        float2 randomvalue = noiserandom(float2(pos.y, timer * glitchSpeed));
-        pos.x += randomvalue * sin(sin(glitchIntensity) * 0.5f) * sin(-sin(noise) * 0.2f) * frac(timer) * 10.0f;
+        float noise = blockNoise(position.y * (glitchIntensity + 1.0f) * glitchScale);
+        noise += random(position.x) * 0.3f;
+        float2 randomvalue = noiserandom(float2(position.y, timer * glitchSpeed));
+        position.x += randomvalue * sin(sin(glitchIntensity) * 0.5f) * sin(-sin(noise) * 0.2f) * frac(timer) * 10.0f;
     }
-    //vout.position = mul(vin.position, mul(world, view_projection));
-    vout.position = pos;
 
+    VS_OUT vout;
+    //vout.position = mul(vin.position, mul(world, view_projection));
+    vout.position = position;
+    vout.localPosition = vin.position;
     vout.world_position = mul(vin.position, world);
     //vin.normal.w = 0;
     vout.world_normal = normalize(mul(vin.normal, world));

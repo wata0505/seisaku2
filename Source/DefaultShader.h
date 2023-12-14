@@ -16,10 +16,6 @@ public:
 	void End(ID3D11DeviceContext* dc) override;	
 
 private:
-	// 輪郭線用の初期化処理
-	//void InitializeOutline(ID3D11Device* device);
-
-private:
 	static const int MaxBones = 128;
 
 	static const int MAX_BONES{ 256 };
@@ -51,17 +47,10 @@ private:
 		float scanBorder = 10.0f;		// 描画範囲
 		float glowBorder = 10.0f;		// 描画範囲
 		float hologramBorder = 10.0f;	// 描画範囲
+		DirectX::XMFLOAT3 hologramColor = { 1.0f, 0.0f, 0.0f }; // ホログラム色
+		float maxHeight;				// 最高点
 	};
-#if 0
-	// アウトライン用定数バッファ
-	struct OutlineConstantBuffer
-	{
-		DirectX::XMFLOAT4X4		viewProjection;
-		DirectX::XMFLOAT4		outlineColor = { 1.0f, 0.0f, 0.0f, 1.0f };
-		float					outlineSize = 0.1f;
-		DirectX::XMFLOAT3		dummy;
-	};
-#endif
+
 	Microsoft::WRL::ComPtr<ID3D11Buffer> shadowBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> sceneBuffers;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> constantBuffer;
@@ -77,11 +66,4 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11SamplerState>      shadowMapSamplerState;
 
 	DirectX::XMFLOAT4	materialColor = {1,1,1,1};
-
-	DirectX::XMFLOAT4X4 VP;
-	Microsoft::WRL::ComPtr<ID3D11RasterizerState>	outlineRasterizerState;
-	Microsoft::WRL::ComPtr<ID3D11VertexShader>		outlineVertexShader;
-	Microsoft::WRL::ComPtr<ID3D11PixelShader>		outlinePixelShader;
-	Microsoft::WRL::ComPtr<ID3D11InputLayout>		outlineInputLayout;
-	Microsoft::WRL::ComPtr<ID3D11Buffer>			outlineConstantBuffer;
 };

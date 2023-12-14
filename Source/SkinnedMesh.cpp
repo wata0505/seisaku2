@@ -492,6 +492,8 @@ void SkinnedMeshResouurce::CreateComObjects(ID3D11Device* device, const char* fb
 
                     LoadTextureFromFile(device, path.c_str(),
                         shader_resource_view.GetAddressOf(), &texture2d_desc);
+                    const_cast<std::string*>(&material.textureFilenames[texture_index])->assign
+                    ("Albedo");
                 }
                 if (texture_index == 1)
                 {
@@ -524,6 +526,8 @@ void SkinnedMeshResouurce::CreateComObjects(ID3D11Device* device, const char* fb
                     if (std::filesystem::exists(dds_filename.c_str())) {
                         LoadTextureFromFile(device, path.c_str(),
                             shader_resource_view.GetAddressOf(), &texture2d_desc);
+                        const_cast<std::string*>(&material.textureFilenames[texture_index])->assign
+                        ("MetalSmoothness");
                     }
                     else {
                         dummyflag = true;
@@ -542,6 +546,8 @@ void SkinnedMeshResouurce::CreateComObjects(ID3D11Device* device, const char* fb
                     if (std::filesystem::exists(dds_filename.c_str())) {
                         LoadTextureFromFile(device, path.c_str(),
                             shader_resource_view.GetAddressOf(), &texture2d_desc);
+                        const_cast<std::string*>(&material.textureFilenames[texture_index])->assign
+                        ("AO");
                     }
                     else {
                         dummyflag = true;
@@ -560,6 +566,8 @@ void SkinnedMeshResouurce::CreateComObjects(ID3D11Device* device, const char* fb
                     if (std::filesystem::exists(dds_filename.c_str())) {
                         LoadTextureFromFile(device, path.c_str(),
                             shader_resource_view.GetAddressOf(), &texture2d_desc);
+                        const_cast<std::string*>(&material.textureFilenames[texture_index])->assign
+                        ("Emission");
                     }
                     else {
                         dummyflag = true;

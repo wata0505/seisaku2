@@ -621,7 +621,7 @@ Animation::Keyframe::node* Model::FindNode(const char* name)
 }
 
 // シェーダー情報調整
-void Model::ShaderAdjustment(float adjustMetalness, float adjustSmoothness, float glitchScale, float timer)
+void Model::ShaderAdjustment(float adjustMetalness, float adjustSmoothness, float glitchScale, float timer, float maxHeight, DirectX::XMFLOAT3 hologramColor)
 {
 	for (const SkinnedMeshResouurce::Mesh& mesh : resource->GetMeshes())
 	{
@@ -633,7 +633,9 @@ void Model::ShaderAdjustment(float adjustMetalness, float adjustSmoothness, floa
 			mat.pbr.adjustMetalness = adjustMetalness;		// 金属度
 			mat.pbr.adjustSmoothness = adjustSmoothness;	// 粗さ
 			mat.pbr.glitchScale = glitchScale;				// 振れ幅
-			mat.pbr.timer = timer;							// 更新時間			
+			mat.pbr.timer = timer;							// 更新時間
+			mat.pbr.hologramColor = hologramColor;			// ホログラム色
+			mat.pbr.maxHeight = maxHeight;				// 最高点
 		}
 	}
 }

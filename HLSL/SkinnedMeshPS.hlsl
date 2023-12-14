@@ -131,30 +131,8 @@ float3 EnvBRDFApprox(float3 F0, float roughness, float NdotV)
     return	F0 * AB.x + AB.y;
 }
 
-// アウトライン
-float Outline(float2 uv, Texture2D Depth, Texture2D Normal, SamplerState Decal)
-{
-    float depth = Depth.Sample(Decal, uv).r;
-    float2 error1 = float2(0.001f, 0.0f);
-    float2 error2 = float2(0.0f, 0.0015f);
-    float dR = Depth.Sample(Decal, uv + error1).r;
-    float dD = Depth.Sample(Decal, uv + error2).r;
-
-    float d = abs(depth - dR);
-    float d2 = abs(depth - dD);
-    //if (d > 0.3 * depth) return 0;
-    //if (d2 > 0.3 * depth) return 0;
-    //法線に差がある→輪郭
-    float3 N = Normal.Sample(Decal, uv).xyz;
-    float3 NR = Normal.Sample(Decal, uv + error1).xyz;
-    float3 ND = Normal.Sample(Decal, uv + error2).xyz;
-    N = N * 2.0 - 1.0; //0-1 => -1 - +1
-    NR = NR * 2.0 - 1.0;
-    ND = ND * 2.0 - 1.0;
-    if (dot(N, NR) < 0.1) return 0;
-    if (dot(N, ND) < 0.1) return 0;
-    return 1;
-}
+// 1 : ワールド空間、 0 : モデルのローカル空間
+#define WORLD 0
 
 PS_OUT main(VS_OUT pin)
 {
@@ -242,57 +220,82 @@ PS_OUT main(VS_OUT pin)
     {
         directColor.rgb += emissive.rgb;
     }
-#if 1
+
     // キャラ
     if (glitchScale > 0.0f)
     {
-        float3 direction = float3(0.0f, 1.0f, 0.0f);
-        float dirVertex = (dot(pin.world_position, normalize(float4(direction, 1.0f))) + 1.0f) * 0.5f;
+        // 赤色
+        float3 red = float3(1.0f, 0.0f, 0.0f);    
 
-        // Scanlines
-        float scanTiling = 20.0f;
-        float scanSpeed = -2.0f;
-        float scan = step(frac(dirVertex * scanTiling + timer * scanSpeed), 0.5f) * 0.65f;
-
-        // Glow
-        float glowTiling = 1.0f;
-        float glowSpeed = 2.0f;
-        float glow = frac(dirVertex * glowTiling - timer * glowSpeed);
-
-        float3 red = float3(1.0f, 0.0f, 0.0f);
-        float3 lightRed = float3(1.0f, 0.2f, 0.2f);
-        //directColor.rgb = (glow * 0.35f * edgeColor.rgb);
-        float hologram = step(hologramBorder, -pin.world_position.y);        
-        scan *= step(scanBorder, -pin.world_position.y);
-        glow *= step(glowBorder, -pin.world_position.y);
-        if (glitchIntensity >= 1.0f)
+        // ホログラムと実体の境界判定
+#if WORLD
+        // ワールド空間での境界判定
+        float hologram = step(hologramBorder, -pin.world_position.y);
+#else
+        // モデルのローカル空間での境界判定
+        float hologram = step(hologramBorder, -pin.localPosition.y);
+#endif
+        // ホログラムなら
+        if (hologram <= 0.0f)
         {
-            directColor.rgb *= scan;
+            // Borderlines Direction
+            float3 direction = float3(0.0f, 1.0f, 0.0f);
+            float dirVertex = (dot(pin.world_position, normalize(float4(direction, 1.0f))) + 1.0f) * 0.5f;
+
+            // Scanlines
+            float scanTiling = 20.0f;
+            float scanSpeed = -2.0f;
+            float scan = step(frac(dirVertex * scanTiling + timer * scanSpeed), 0.5f) * 0.65f;
+
+            // Glow
+            float glowTiling = 1.0f;
+            float glowSpeed = 2.0f;
+            float glow = frac(dirVertex * glowTiling - timer * glowSpeed);
+
+            // ホログラム内でのスキャンとグロウの境界判定
+#if WORLD
+            scan *= step(scanBorder, -pin.world_position.y);
+            glow *= step(glowBorder, -pin.world_position.y);
+#else
+            scan *= step(scanBorder, -pin.localPosition.y);
+            glow *= step(glowBorder, -pin.localPosition.y);
+#endif            
+            //scan *= (1.0f - hologram);
+            //glow *= (1.0f - hologram);
+            directColor.rgb = (scan * hologramColor + glow * (hologramColor * 1.2f));
+
+            // glitchIntensity : 被弾 or 死亡時に強まる
+            // アルファ値 = (ベースカラーの透過値 * (スキャンライン + グロウライン)) * (1.0f - グリッチ強度の半分)
+            directColor.a = (albedo.a * (scan + glow)) * (1.0f - glitchIntensity * 0.5f);
         }
+        // 実体なら
         else
         {
-            scan *= (1.0f - hologram);
-            glow *= (1.0f - hologram);
-            //directColor.rgb = directColor.rgb * hologram + ((1.0f - hologram) * (scan * red + glow * lightRed));
-            directColor.rgb = directColor.rgb * hologram + (scan * red + glow * lightRed);
+            // アルファ値 = (ベースカラーの透過値 * ホログラムライン) * (1.0f - グリッチ強度の半分)
+            directColor.a = (albedo.a * hologram) * (1.0f - glitchIntensity * 0.5f);
         }
 
-        // ディゾルブの淵表現
-        float edgeValue = saturate(1.0f - abs(hologramBorder - (-pin.world_position.y)) * (1.0f / 0.4f));
-        directColor.rgb += red * edgeValue + red * glitchIntensity;
-        directColor.a = (albedo.a * (scan + glow + hologram)) * (1.0f - glitchIntensity * 0.5f);
+        // ホログラムと実体の淵表現
+#if WORLD
+        float size = 0.2f;
+        float edgeValue = saturate(1.0f - abs(hologramBorder - (-pin.world_position.y)) * (1.0f / size));
+#else
+        // モデルのローカル空間での処理の性質上、モデルサイズが大きければ大きいほどsizeの値を大きくしないと見えない
+        float size = 5.0f;
+        float edgeValue = saturate(1.0f - abs(hologramBorder - (-pin.localPosition.y)) * (1.0f / size));
+#endif        
+        
+        // モデル色 += オブジェクト別色を実体とホログラムの境界線の淵の幅 + グリッチの強さ分赤色
+        directColor.rgb += hologramColor * edgeValue * 2.0f + red * glitchIntensity;
     }
     
     // ステージ
-    //float alp = (emissiveMax * sin(pin.world_position.z / glitchSpeed + timer));
     float glitchSpeed = 50.0f;
     float alp = (sin(pin.world_position.z / glitchSpeed + timer));
-    //if (albedo.a < 0.9f && glitchSpeed > 0.0f)
     if (albedo.a < 0.9f)
     {
         directColor.a = alp;
     }
-#endif
     
     float dist = length(pin.world_position.xyz - camera_position.xyz);
     normal = float4(normalize(pin.world_normal.xyz) * 0.5 + 0.5, 1);

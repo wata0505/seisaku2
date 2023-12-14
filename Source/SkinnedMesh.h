@@ -306,8 +306,8 @@ public:
             float scanBorder = 10.0f;		// 描画範囲
             float glowBorder = 10.0f;		// 描画範囲
             float hologramBorder = -10.0f;	// 描画範囲
-            DirectX::XMFLOAT4	outlineColor = { 1.0f, 0.0f, 0.0f, 1.0f };
-            float outlineSize = 0.1f;
+            DirectX::XMFLOAT3 hologramColor = { 1.0f, 0.0f, 0.0f }; // ホログラム色
+            float maxHeight = 0.0f; // 最高点
             PBR() {}
         }pbr;
         std::string textureFilenames[5];

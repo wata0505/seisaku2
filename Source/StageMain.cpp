@@ -29,7 +29,7 @@ StageMain::~StageMain()
 void StageMain::Update(float elapseTime)
 {
 	timer += elapseTime * 3.0f;
-	model->ShaderAdjustment(0.0f, 0.0f, 0.0f, timer);
+	model->ShaderAdjustment(0.0f, 0.0f, 0.0f, timer, 0.0f);
 }
 
 void StageMain::Render(ID3D11DeviceContext* dc, ModelShader* shader)

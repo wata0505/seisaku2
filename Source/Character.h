@@ -144,6 +144,11 @@ protected:
 	// 無敵時間更新
 	void UpdateInvincibleTimer(float elapsedTime);
 
+	// ホログラムシェーダー情報初期化
+	void HologramShaderDataInitialize(float minHeight, float maxHeight);
+	// ホログラムシェーダー更新処理
+	bool UpdateHologramShader(float elapsedTime);
+
 private:
 	// 垂直速力更新処理
 	void UpdateVerticalVelocity(float elapsedFrame);
@@ -156,7 +161,6 @@ private:
 
 	// 水平移動更新処理
 	virtual void UpdateHorizontalMove(float elapsedTime);
-
 
 protected:
 	DirectX::XMFLOAT3		position = { 0,0,0 };
@@ -200,4 +204,14 @@ protected:
 	float   saveDamage = 0;
     //無敵時間フラグ
 	bool damageFlag = false;
+
+	float scanTimer = 0.0f;			// スキャンラインの時間
+	float scanBorder = 0.0f;		// スキャンラインの描画範囲
+	float glowTimer = 0.0f;			// グロウラインの時間
+	float glowBorder = 0.0f;		// グロウラインの描画範囲
+	float hologramTimer = 0.0f;		// ホログラムラインの時間
+	float hologramBorder = 0.0f;	// ホログラムラインの描画範囲
+	float minHeight = 0.0f;			// 最低点
+	float maxHeight = 0.0f;			// 最高点
+	bool isActiveStart = false;		// ホログラムシェーダー実行中フラグ
 };

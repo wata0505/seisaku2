@@ -31,6 +31,13 @@ public:
 		float sw, float sh,
 		float angle,
 		float r, float g, float b, float a,float d = 0, float ds = 0, float dd = 0, bool i = true) const;
+	void Render(ID3D11DeviceContext* dc, float d = 0, float ds = 0, float dd = 0, bool i = true) const;
+	void Render(ID3D11DeviceContext* dc, 
+		float dx, float dy, float dw, float dh, 
+		float d = 0, float ds = 0, float dd = 0, bool i = true) const;
+	void RotateRender(ID3D11DeviceContext* dc,
+		float dx, float dy, float dw, float dh, float angle,
+		float d = 0, float ds = 0, float dd = 0, bool i = true) const;
 
 	void RenderCircle(ID3D11DeviceContext* dc,
 		float dx, float dy,

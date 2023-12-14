@@ -20,6 +20,8 @@
 #include "InputGame.h"
 #include "StatePlayer.h"
 #include "ParticleManager.h"
+#include "Mathf.h"
+
 #define GRAVITY -1.0;
 using namespace DirectX;
 inline XMFLOAT4 to_xmfloat4(const FbxDouble4& fbxdouble4)
@@ -58,7 +60,7 @@ Player::Player() {
     player->AppendAnimations(".\\resources\\Player\\ATK3_2.fbx", 0);
     player->ModelSerialize(".\\resources\\Player\\playermode5l.fbx");
    // player->ModelCreate(".\\resources\\AimTest\\GreatSword.fbx");
-    player->ModelRegister(".\\resources\\Player\\playermode5l.fbx");
+    player->ModelRegister(".\\resources\\Player\\playermode5l.fbx", "Texture\\textureSet_BaseColor.png");
 	player->PlayAnimation(0, true);
 
     sword = std::make_unique<Model>(".\\resources\\Sword.fbx", true);
@@ -122,11 +124,34 @@ Player::Player() {
     stateMachine->SetState(0);
     scale.x = scale.y = scale.z = 1.5;
     position = { 100,0,-130 };
+
+    // ホログラムシェーダー情報初期化
+    HologramShaderDataInitialize(0.0f, 200.0f);
+    nextStateTimer = 0.5f;
 }
 Player::~Player()
 {
 }
-void Player::update(float elapsedTime) {
+
+void Player::update(float elapsedTime) 
+{
+    timer += elapsedTime;
+    if (stateMachine->GetStateNum() == static_cast<int>(State::Damage) || stateMachine->GetStateNum() == static_cast<int>(State::Down) || stateMachine->GetStateNum() == static_cast<int>(State::Dead))
+    {
+        lerpGlitchIntensity = 1.0f;
+    }
+    else
+    {
+        lerpGlitchIntensity = 0.0f;
+    }
+    glitchIntensity = Mathf::Lerp(glitchIntensity, lerpGlitchIntensity, elapsedTime * 20.0f);
+    player->ShaderAdjustment(adjustMetalness, adjustSmoothness, glitchScale, timer, maxHeight, hologramColor);
+    
+    if (health <= 0)
+    {
+        hologramTimer = 0.0f;
+    }
+
     //DrawDebugPrimitive();
     //SetWepon();
     float ElapsedTime = elapsedTime * modelSpeed;
@@ -137,6 +162,15 @@ void Player::update(float elapsedTime) {
     ComeTerget(elapsedTime);
     //ステートマシン更新
     stateMachine->Update(elapsedTime);
+    // ホログラムシェーダー実行中フラグが付いていれば
+    if (!isActiveStart)
+    {        
+        // ホログラムシェーダー更新処理
+        isActiveStart = UpdateHologramShader(elapsedTime);
+
+        animeTimer = 0.0f;
+    }    
+
     //player->PlayAnimation(-1,false);
     //アニメーション更新
     player->UpdateAnimation(animeTimer, "koshi");
@@ -148,6 +182,12 @@ void Player::update(float elapsedTime) {
     UpdateTransform((int)Character::AxisType::RHSYUP, (int)Character::LengthType::Cm);
     //描画情報更新
     player->UpdateBufferDara(transform);
+
+    if (!isActiveStart)
+    {
+        return;
+    }
+
     //武器情報入力
     //SetWepon();
     //武器更新
@@ -180,9 +220,123 @@ void Player::update(float elapsedTime) {
     CollisionBoomVsEnemies();
     //描画情報入力
     //renderdata = player->GetBufferData();
-    timer++;
     //uiアニメーション用更新
     //swordEffectColor.w ++;
+}
+void Player::TitleUpdate(float elapsedTime)
+{
+    switch (titleState)
+    {
+    case TitleState::TitleDefault:
+        break;
+    case TitleState::TitleSelect:
+        break;
+    case TitleState::TitlePunchStart:
+        stateMachine->ChangeSubState(static_cast<int>(Player::State::Attack));//着地
+        player->PlayAnimation(WeponCombo[3], false);
+        titleState = TitleState::TitlePunchNow;
+    case TitleState::TitlePunchNow:
+    {
+        if (!player->IsPlayAnimation())
+        {
+            titleState = TitleState::TitleKickStart;
+        }
+        animationTimer = player->GetCurrentAnimationSeconds();
+        float nextStateTimer = 0.8f;
+        if (animationTimer >= nextStateTimer)
+        {
+            titleState = TitleState::TitlePunchReverberation;
+        }
+    }
+        break;
+    case TitleState::TitlePunchReverberation:
+        if (!player->IsPlayAnimation())
+        {
+            titleState = TitleState::TitleKickStart;
+        }
+        break;
+    case TitleState::TitleKickStart:
+        stateMachine->ChangeSubState(static_cast<int>(Player::State::Attack));//着地
+        player->PlayAnimation(WeponCombo[2], false);
+        titleState = TitleState::TitleKickNow;
+        break;
+    case TitleState::TitleKickNow:
+    {
+        if (!player->IsPlayAnimation())
+        {
+            titleState = TitleState::TitleSelect;
+        }
+        animationTimer = player->GetCurrentAnimationSeconds();
+        float nextStateTimer = 0.68f;
+        if (animationTimer >= nextStateTimer)
+        {
+            titleState = TitleState::TitleKickReverberation;
+        }
+    }
+        break;
+    case TitleState::TitleKickReverberation:
+        if (!player->IsPlayAnimation())
+        {
+            titleState = TitleState::TitleSelect;
+        }
+        break;
+    }
+
+    timer += elapsedTime;
+    if (stateMachine->GetStateNum() == static_cast<int>(State::Damage) || stateMachine->GetStateNum() == static_cast<int>(State::Down) || stateMachine->GetStateNum() == static_cast<int>(State::Dead))
+    {
+        lerpGlitchIntensity = 1.0f;
+    }
+    else
+    {
+        lerpGlitchIntensity = 0.0f;
+    }
+    glitchIntensity = Mathf::Lerp(glitchIntensity, lerpGlitchIntensity, elapsedTime * 20.0f);
+    player->ShaderAdjustment(adjustMetalness, adjustSmoothness, glitchScale, timer, maxHeight, hologramColor);
+
+    if (health <= 0)
+    {
+        hologramBorder = 20.0f;
+    }
+
+    float ElapsedTime = elapsedTime * modelSpeed;
+    if (quickFlag) ElapsedTime *= 0.6;
+    if (attackHitflag) ElapsedTime *= attackHitPow;
+    animeTimer = ElapsedTime;
+
+    //ステートマシン更新
+    if(titleState == TitleState::TitleSelect)
+    stateMachine->Update(elapsedTime);
+
+    // ホログラムシェーダー実行中フラグが付いていれば
+    if (!isActiveStart)
+    {        
+        // ホログラムシェーダー更新処理
+        isActiveStart = UpdateHologramShader(elapsedTime);
+
+        animeTimer = 0.0f;
+    }
+
+    //アニメーション更新
+    player->UpdateAnimation(animeTimer, "koshi");
+    player->UpdateSubAnimation(animeTimer, "koshi");
+
+    //速力処理更新
+    UpdateVelocity(ElapsedTime);
+    UpdateTransform((int)Character::AxisType::RHSYUP, (int)Character::LengthType::Cm);
+    //描画情報更新
+    player->UpdateBufferDara(transform);
+
+    if (!isActiveStart)
+    {
+        return;
+    }    
+ 
+    //描画してたら当たり判定
+    if (renderflag) 
+    {
+        CollisionPlayerVsEnemies();
+    }
 }
 void Player::AudioUpdate() {
     //移動以外ならダッシュSEストップ
@@ -810,14 +964,18 @@ void Player::InputProjectile()
 // 移動入力処理
 bool Player::InputMove(float elapsedTime)
 {
-    //進行ベクトル取得
-    DirectX::XMFLOAT3 moveVec = GetMoveVec();
-    //移動処理
-    MoveInput(moveVec.x, moveVec.z, moveSpeed);
-    //旋回処理
-    Turn(elapsedTime, moveVec.x, moveVec.z, turnSpeed);
+    if (titleState != TitleState::TitleSelect)
+    {
+        //進行ベクトル取得
+        DirectX::XMFLOAT3 moveVec = GetMoveVec();
+        //移動処理
+        MoveInput(moveVec.x, moveVec.z, moveSpeed);
+        //旋回処理
+        Turn(elapsedTime, moveVec.x, moveVec.z, turnSpeed);
 
-    return moveVec.x != 0.0f || moveVec.y != 0.0f || moveVec.z != 0.0f;
+        return moveVec.x != 0.0f || moveVec.y != 0.0f || moveVec.z != 0.0f;
+    }
+    return 0;
 }
 //ステック入力処理
 bool Player::InputStick(float elapsedTime)
@@ -941,9 +1099,11 @@ void Player::UpdateWeponChange(float elapsedTime)
     skillTime[WeponChange] -= elapsedTime;
     ChangeWepon();
 }
-void Player::render(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader) {
-    if (renderflag) {
-        shader->Draw(immediate_context.Get(), player.get());
+void Player::render(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader) 
+{
+    if (renderflag) 
+    {
+        shader->Draw(immediate_context.Get(), player.get(), { glitchIntensity, scanBorder, glowBorder, hologramBorder });
     }
     //wepon->Render(immediate_context.Get(), shader);
 }
@@ -967,6 +1127,37 @@ void Player::DrawDebugGUI()
 
     if (ImGui::Begin("Player", nullptr, ImGuiWindowFlags_None))
     {
+        ImGui::SliderFloat("nextStateTimer", &nextStateTimer, 0.0f, 5.0f);
+        if (ImGui::Button(u8"Start"))
+        {
+            // ホログラムシェーダー情報初期化
+            HologramShaderDataInitialize(minHeight, maxHeight);
+        }
+        if (ImGui::TreeNode("PBR"))
+        {
+            ImGui::SliderFloat("adjustMetalness", &adjustMetalness, -1.0f, 1.0f);
+            ImGui::SliderFloat("adjustSmoothness", &adjustSmoothness, -1.0f, 1.0f);
+            ImGui::TreePop();
+        }
+        if (ImGui::TreeNode("Hologram"))
+        {
+#if 1
+            ImGui::SliderFloat("scanBorder", &scanBorder, -200.0f, 0.0f);
+            ImGui::SliderFloat("glowBorder", &glowBorder, -200.0f, 0.0f);
+            ImGui::SliderFloat("hologramBorder", &hologramBorder, -200.0f, 0.0f);
+#else
+            ImGui::SliderFloat("scanBorder", &scanBorder, -20.0f, 0.0f);
+            ImGui::SliderFloat("glowBorder", &glowBorder, -20.0f, 0.0f);
+            ImGui::SliderFloat("hologramBorder", &hologramBorder, -20.0f, 0.0f);
+#endif
+            ImGui::TreePop();
+        }
+        if (ImGui::TreeNode("Glitch"))
+        {
+            ImGui::SliderFloat("glitchIntensity", &glitchIntensity, 0.0f, 1.0f);
+            ImGui::SliderFloat("glitchScale", &glitchScale, 1.0f, 50.0f);
+            ImGui::TreePop();
+        }
         //トランスフォーム
         if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
         {

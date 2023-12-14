@@ -388,6 +388,12 @@
     <ClCompile Include="Source\Decoy.cpp">
       <Filter>Sources\Trap</Filter>
     </ClCompile>
+    <ClCompile Include="Source\EnemyDrone.cpp">
+      <Filter>Sources\Character\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\StateDrone.cpp">
+      <Filter>Sources\System</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imgui\imconfig.h">
@@ -710,6 +716,12 @@
     </ClInclude>
     <ClInclude Include="Source\Decoy.h">
       <Filter>Sources\Trap</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\EnemyDrone.h">
+      <Filter>Sources\Character\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\StateDrone.h">
+      <Filter>Sources\System</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
