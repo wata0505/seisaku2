@@ -2,15 +2,9 @@
 #include "EnemyBag.h"
 #include "EnemyDrone.h"
 EnemySystem::EnemySystem() {
-
-	
-
-}
-
-void EnemySystem::Start() {
 	EnemyManager& enemyManager = EnemyManager::Instance();
 	for (int i = 0; i < maxEnemyCount; i++) {
-		EnemyBag* bag = new EnemyBag();
+		EnemyDrone* bag = new EnemyDrone();
 		//float yaw = DirectX::XMConvertToRadians(rand() % 360);
 		//DirectX::XMFLOAT2 dir;
 		//dir.x = sinf(yaw);
@@ -19,28 +13,28 @@ void EnemySystem::Start() {
 		bag->SetPosition(DirectX::XMFLOAT3(pos.x, 0.0f, pos.y));
 		bag->SetTerritory(bag->GetPosition(), 10.0f);
 		bag->SetActiveflag(true);
+		if(i >= waveMaxEnemyCount[wave])	bag->SetActiveflag(false);
 		//bag->SetId(0);
 		enemyManager.Register(bag);
 
 	}
-	for (int i = 0; i < maxEnemyCount; i++) {
-		EnemyDrone* drone = new EnemyDrone();
-		DirectX::XMFLOAT2 pos = { 105 - float(rand() % 50), 40 };
-		drone->SetPosition(DirectX::XMFLOAT3(pos.x,2.0f, pos.y));
-		drone->SetTerritory(drone->GetPosition(), 10.0f);
-		drone->SetActiveflag(true);
-		enemyManager.Register(drone);
-	}
 	enemyManager.SetEnemyMaxCount(enemyManager.GetEnemyCount());
+	
 
+}
 
+void EnemySystem::Start() {
+	wave= 0;
+	waveTimer = 0;
 }
 
 void EnemySystem::Update(float elapsedTime) {
 	EnemyManager& enemyManager = EnemyManager::Instance();
-	for (int i = 0; i < enemyManager.GetEnemyCount(); i++) {
-		if (!EnemyManager::Instance().GetEnemy(i)->GetActiveflag() || waveTimer > waveTimerMax) {
+	for (int i = 0; i < waveMaxEnemyCount[wave]; i++) {
+
+		if (!EnemyManager::Instance().GetEnemy(i)->GetActiveflag() || waveTimer > waveTimerMax[wave]) {
 			EnemyManager::Instance().GetEnemy(i)->SetReMoveflag(true);
+
 			//EnemyManager::Instance().GetEnemy(i)->SetReMoveTimer(10);
 			//EnemyManager::Instance().GetEnemy(i)->SetHealth(EnemyManager::Instance().GetEnemy(i)->GetMaxHealth());
 			//float yaw = DirectX::XMConvertToRadians(rand() % 360);
@@ -53,9 +47,10 @@ void EnemySystem::Update(float elapsedTime) {
 
 		}
 	}
-	if (waveTimer > waveTimerMax) {
+	if (waveTimer > waveTimerMax[wave]) {
 		wave++;
 		waveTimer = 0;
+		
 	}
 	waveTimer += elapsedTime;
 

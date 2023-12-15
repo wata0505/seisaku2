@@ -1,4 +1,4 @@
-#include "Player.h"
+ï»¿#include "Player.h"
 #include "Input.h"
 #include "Camera.h"
 #include "Collision.h"
@@ -21,7 +21,6 @@
 #include "StatePlayer.h"
 #include "ParticleManager.h"
 #include "Mathf.h"
-
 #define GRAVITY -1.0;
 using namespace DirectX;
 inline XMFLOAT4 to_xmfloat4(const FbxDouble4& fbxdouble4)
@@ -36,13 +35,13 @@ inline XMFLOAT4 to_xmfloat4(const FbxDouble4& fbxdouble4)
 
 static Player* instance = nullptr;
 
-// ƒCƒ“ƒXƒ^ƒ“ƒXæ“¾
+// ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹å–å¾—
 Player& Player::Instance()
 {
     return *instance;
 }
 Player::Player() {
-    // ƒCƒ“ƒXƒ^ƒ“ƒXƒ|ƒCƒ“ƒgİ’è
+    // ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ãƒã‚¤ãƒ³ãƒˆè¨­å®š
     instance = this;
 
     player = std::make_unique<Model>(".\\resources\\Player\\playermode5l.fbx", true);
@@ -58,9 +57,12 @@ Player::Player() {
     player->AppendAnimations(".\\resources\\Player\\ATK2_2.fbx", 0);
     player->AppendAnimations(".\\resources\\Player\\ATK4_2.fbx", 0);
     player->AppendAnimations(".\\resources\\Player\\ATK3_2.fbx", 0);
+    player->AppendAnimations(".\\resources\\Player\\hit_02.fbx", 0);
+    player->AppendAnimations(".\\resources\\Player\\dead_01.fbx", 0);
     player->ModelSerialize(".\\resources\\Player\\playermode5l.fbx");
    // player->ModelCreate(".\\resources\\AimTest\\GreatSword.fbx");
     player->ModelRegister(".\\resources\\Player\\playermode5l.fbx", "Texture\\textureSet_BaseColor.png");
+
 	player->PlayAnimation(0, true);
 
     sword = std::make_unique<Model>(".\\resources\\Sword.fbx", true);
@@ -96,9 +98,9 @@ Player::Player() {
         lowerBody.push_back(lower[i]);
     }
     stateMachine = std::make_unique<StateMachine<Player>>();
-    // ƒXƒe[ƒgƒ}ƒVƒ“‚É1‘w–Ú‚ÌƒXƒe[ƒg‚ğ“o˜^(BattleState‚à“¯—l‚Ì•û–@‚ÅŠe©’Ç‰Á‚µ‚Ä‚­‚¾‚³‚¢)
+    // ã‚¹ãƒ†ãƒ¼ãƒˆãƒã‚·ãƒ³ã«1å±¤ç›®ã®ã‚¹ãƒ†ãƒ¼ãƒˆã‚’ç™»éŒ²(BattleStateã‚‚åŒæ§˜ã®æ–¹æ³•ã§å„è‡ªè¿½åŠ ã—ã¦ãã ã•ã„)
     stateMachine->RegisterState(new PlayerState(this));
-    // ŠeeƒXƒe[ƒg‚ÉƒTƒuƒXƒe[ƒg‚ğ“o˜^(WanderStateˆÈŠO‚Ì2‘w–Ú‚ÌƒXƒe[ƒg‚à“¯—l‚Ì•û–@‚ÅŠe©’Ç‰Á‚µ‚Ä‚­‚¾‚³‚¢B)
+    // å„è¦ªã‚¹ãƒ†ãƒ¼ãƒˆã«ã‚µãƒ–ã‚¹ãƒ†ãƒ¼ãƒˆã‚’ç™»éŒ²(WanderStateä»¥å¤–ã®2å±¤ç›®ã®ã‚¹ãƒ†ãƒ¼ãƒˆã‚‚åŒæ§˜ã®æ–¹æ³•ã§å„è‡ªè¿½åŠ ã—ã¦ãã ã•ã„ã€‚)
     stateMachine->RegisterSubState(0, new IdleState(this));
     stateMachine->RegisterSubState(0, new MoveState(this));
     stateMachine->RegisterSubState(0, new JumpStandbyState(this));
@@ -120,21 +122,19 @@ Player::Player() {
     stateMachine->RegisterSubState(0, new DamageState(this));
     stateMachine->RegisterSubState(0, new DownState(this));
     stateMachine->RegisterSubState(0, new DieState(this));
-    // ƒXƒe[ƒg‚ğƒZƒbƒg
+    // ã‚¹ãƒ†ãƒ¼ãƒˆã‚’ã‚»ãƒƒãƒˆ
     stateMachine->SetState(0);
     scale.x = scale.y = scale.z = 1.5;
     position = { 100,0,-130 };
 
-    // ƒzƒƒOƒ‰ƒ€ƒVƒF[ƒ_[î•ñ‰Šú‰»
+    // ãƒ›ãƒ­ã‚°ãƒ©ãƒ ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼æƒ…å ±åˆæœŸåŒ–
     HologramShaderDataInitialize(0.0f, 200.0f);
     nextStateTimer = 0.5f;
 }
 Player::~Player()
 {
 }
-
-void Player::update(float elapsedTime) 
-{
+void Player::update(float elapsedTime) {
     timer += elapsedTime;
     if (stateMachine->GetStateNum() == static_cast<int>(State::Damage) || stateMachine->GetStateNum() == static_cast<int>(State::Down) || stateMachine->GetStateNum() == static_cast<int>(State::Dead))
     {
@@ -146,81 +146,79 @@ void Player::update(float elapsedTime)
     }
     glitchIntensity = Mathf::Lerp(glitchIntensity, lerpGlitchIntensity, elapsedTime * 20.0f);
     player->ShaderAdjustment(adjustMetalness, adjustSmoothness, glitchScale, timer, maxHeight, hologramColor);
-    
+
     if (health <= 0)
     {
         hologramTimer = 0.0f;
     }
-
     //DrawDebugPrimitive();
     //SetWepon();
     float ElapsedTime = elapsedTime * modelSpeed;
     if (quickFlag) ElapsedTime *= 0.6;
     if (attackHitflag) ElapsedTime *= attackHitPow;
     animeTimer = ElapsedTime;
-    //ƒƒbƒNƒIƒ“ƒJƒƒ‰
+    //ãƒ­ãƒƒã‚¯ã‚ªãƒ³ã‚«ãƒ¡ãƒ©
     ComeTerget(elapsedTime);
-    //ƒXƒe[ƒgƒ}ƒVƒ“XV
+    //ã‚¹ãƒ†ãƒ¼ãƒˆãƒã‚·ãƒ³æ›´æ–°
     stateMachine->Update(elapsedTime);
-    // ƒzƒƒOƒ‰ƒ€ƒVƒF[ƒ_[Às’†ƒtƒ‰ƒO‚ª•t‚¢‚Ä‚¢‚ê‚Î
+    // ãƒ›ãƒ­ã‚°ãƒ©ãƒ ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼å®Ÿè¡Œä¸­ãƒ•ãƒ©ã‚°ãŒä»˜ã„ã¦ã„ã‚Œã°
     if (!isActiveStart)
-    {        
-        // ƒzƒƒOƒ‰ƒ€ƒVƒF[ƒ_[XVˆ—
+    {
+        // ãƒ›ãƒ­ã‚°ãƒ©ãƒ ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼æ›´æ–°å‡¦ç†
         isActiveStart = UpdateHologramShader(elapsedTime);
 
         animeTimer = 0.0f;
-    }    
-
+    }
     //player->PlayAnimation(-1,false);
-    //ƒAƒjƒ[ƒVƒ‡ƒ“XV
+    //ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³æ›´æ–°
     player->UpdateAnimation(animeTimer, "koshi");
     player->UpdateSubAnimation(animeTimer, "koshi");
     
     //weponRenderUpdate();
-    //‘¬—Íˆ—XV
+    //é€ŸåŠ›å‡¦ç†æ›´æ–°
     UpdateVelocity(ElapsedTime);
     UpdateTransform((int)Character::AxisType::RHSYUP, (int)Character::LengthType::Cm);
-    //•`‰æî•ñXV
+    //æç”»æƒ…å ±æ›´æ–°
     player->UpdateBufferDara(transform);
 
     if (!isActiveStart)
     {
         return;
     }
-
-    //•Šíî•ñ“ü—Í
+    //æ­¦å™¨æƒ…å ±å…¥åŠ›
     //SetWepon();
-    //•ŠíXV
+    //æ­¦å™¨æ›´æ–°
     //wepon->Update(elapsedTime);
-    // ƒXƒLƒ‹Œø‰Ê
+    // ã‚¹ã‚­ãƒ«åŠ¹æœ
     UpdateSkill(elapsedTime);
-    //’e”­Ëˆ—
-    InputProjectile();
-    //Œ•‹OÕXV
+    //å¼¾ç™ºå°„å‡¦ç†
+    //InputProjectile();
+    //å‰£è»Œè·¡æ›´æ–°
     swordTrail->Update();
   
     AudioUpdate();
-    //ƒqƒbƒgƒtƒ‰ƒOXV
+    //ãƒ’ãƒƒãƒˆãƒ•ãƒ©ã‚°æ›´æ–°
     UpdateHitflag(elapsedTime);
-    // –³“GŠÔXV
+    // ç„¡æ•µæ™‚é–“æ›´æ–°
     UpdateInvincibleTimer(ElapsedTime);
 
-    //UIXVˆ—
+    //UIæ›´æ–°å‡¦ç†
     UpdateUI(elapsedTime);
 
-	//’eXV
+	//å¼¾æ›´æ–°
     objectManager.Update(ElapsedTime);
-    //•`‰æ‚µ‚Ä‚½‚ç“–‚½‚è”»’è
+    //æç”»ã—ã¦ãŸã‚‰å½“ãŸã‚Šåˆ¤å®š
     if (renderflag) {
         CollisionPlayerVsEnemies();
     }
-    //’e“–‚½‚è”»’è
+    //å¼¾å½“ãŸã‚Šåˆ¤å®š
     CollisionProjectilesVsEnemies();
 
     CollisionBoomVsEnemies();
-    //•`‰æî•ñ“ü—Í
+    //æç”»æƒ…å ±å…¥åŠ›
     //renderdata = player->GetBufferData();
-    //uiƒAƒjƒ[ƒVƒ‡ƒ“—pXV
+    frameTimer++;
+    //uiã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ç”¨æ›´æ–°
     //swordEffectColor.w ++;
 }
 void Player::TitleUpdate(float elapsedTime)
@@ -232,7 +230,7 @@ void Player::TitleUpdate(float elapsedTime)
     case TitleState::TitleSelect:
         break;
     case TitleState::TitlePunchStart:
-        stateMachine->ChangeSubState(static_cast<int>(Player::State::Attack));//’…’n
+        stateMachine->ChangeSubState(static_cast<int>(Player::State::Attack));//ç€åœ°
         player->PlayAnimation(WeponCombo[3], false);
         titleState = TitleState::TitlePunchNow;
     case TitleState::TitlePunchNow:
@@ -248,7 +246,7 @@ void Player::TitleUpdate(float elapsedTime)
             titleState = TitleState::TitlePunchReverberation;
         }
     }
-        break;
+    break;
     case TitleState::TitlePunchReverberation:
         if (!player->IsPlayAnimation())
         {
@@ -256,7 +254,7 @@ void Player::TitleUpdate(float elapsedTime)
         }
         break;
     case TitleState::TitleKickStart:
-        stateMachine->ChangeSubState(static_cast<int>(Player::State::Attack));//’…’n
+        stateMachine->ChangeSubState(static_cast<int>(Player::State::Attack));//ç€åœ°
         player->PlayAnimation(WeponCombo[2], false);
         titleState = TitleState::TitleKickNow;
         break;
@@ -273,7 +271,7 @@ void Player::TitleUpdate(float elapsedTime)
             titleState = TitleState::TitleKickReverberation;
         }
     }
-        break;
+    break;
     case TitleState::TitleKickReverberation:
         if (!player->IsPlayAnimation())
         {
@@ -304,65 +302,65 @@ void Player::TitleUpdate(float elapsedTime)
     if (attackHitflag) ElapsedTime *= attackHitPow;
     animeTimer = ElapsedTime;
 
-    //ƒXƒe[ƒgƒ}ƒVƒ“XV
-    if(titleState == TitleState::TitleSelect)
-    stateMachine->Update(elapsedTime);
+    //ã‚¹ãƒ†ãƒ¼ãƒˆãƒã‚·ãƒ³æ›´æ–°
+    if (titleState == TitleState::TitleSelect)
+        stateMachine->Update(elapsedTime);
 
-    // ƒzƒƒOƒ‰ƒ€ƒVƒF[ƒ_[Às’†ƒtƒ‰ƒO‚ª•t‚¢‚Ä‚¢‚ê‚Î
+    // ãƒ›ãƒ­ã‚°ãƒ©ãƒ ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼å®Ÿè¡Œä¸­ãƒ•ãƒ©ã‚°ãŒä»˜ã„ã¦ã„ã‚Œã°
     if (!isActiveStart)
-    {        
-        // ƒzƒƒOƒ‰ƒ€ƒVƒF[ƒ_[XVˆ—
+    {
+        // ãƒ›ãƒ­ã‚°ãƒ©ãƒ ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼æ›´æ–°å‡¦ç†
         isActiveStart = UpdateHologramShader(elapsedTime);
 
         animeTimer = 0.0f;
     }
 
-    //ƒAƒjƒ[ƒVƒ‡ƒ“XV
+    //ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³æ›´æ–°
     player->UpdateAnimation(animeTimer, "koshi");
     player->UpdateSubAnimation(animeTimer, "koshi");
 
-    //‘¬—Íˆ—XV
+    //é€ŸåŠ›å‡¦ç†æ›´æ–°
     UpdateVelocity(ElapsedTime);
     UpdateTransform((int)Character::AxisType::RHSYUP, (int)Character::LengthType::Cm);
-    //•`‰æî•ñXV
+    //æç”»æƒ…å ±æ›´æ–°
     player->UpdateBufferDara(transform);
 
     if (!isActiveStart)
     {
         return;
-    }    
- 
-    //•`‰æ‚µ‚Ä‚½‚ç“–‚½‚è”»’è
-    if (renderflag) 
+    }
+
+    //æç”»ã—ã¦ãŸã‚‰å½“ãŸã‚Šåˆ¤å®š
+    if (renderflag)
     {
         CollisionPlayerVsEnemies();
     }
 }
 void Player::AudioUpdate() {
-    //ˆÚ“®ˆÈŠO‚È‚çƒ_ƒbƒVƒ…SEƒXƒgƒbƒv
+    //ç§»å‹•ä»¥å¤–ãªã‚‰ãƒ€ãƒƒã‚·ãƒ¥SEã‚¹ãƒˆãƒƒãƒ—
     if (state != State::Move) AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Run)->Stop();
 }
 void Player::SearchNode(DirectX::XMFLOAT4X4& Transform, const char* nodeName) {
-    Animation::Keyframe::node* leftHandBone = player->FindNode(nodeName); //ƒm[ƒhæ“¾
-    XMStoreFloat4x4(&Transform, XMLoadFloat4x4(&leftHandBone->globalTransform) * XMLoadFloat4x4(&transform));//ƒm[ƒhƒ[ƒ‹ƒhÀ•W•ÏŠ·
+    Animation::Keyframe::node* leftHandBone = player->FindNode(nodeName); //ãƒãƒ¼ãƒ‰å–å¾—
+    XMStoreFloat4x4(&Transform, XMLoadFloat4x4(&leftHandBone->globalTransform) * XMLoadFloat4x4(&transform));//ãƒãƒ¼ãƒ‰ãƒ¯ãƒ¼ãƒ«ãƒ‰åº§æ¨™å¤‰æ›
 }
 DirectX::XMFLOAT3 Player::SearchNodePos(const char* nodeName) {
     DirectX::XMFLOAT4X4 nodeTransform = {};
-    Animation::Keyframe::node* leftHandBone = player->FindNode(nodeName); //ƒm[ƒhæ“¾
-    XMStoreFloat4x4(&nodeTransform, XMLoadFloat4x4(&leftHandBone->globalTransform) * XMLoadFloat4x4(&transform));//ƒm[ƒhƒ[ƒ‹ƒhÀ•W•ÏŠ·
+    Animation::Keyframe::node* leftHandBone = player->FindNode(nodeName); //ãƒãƒ¼ãƒ‰å–å¾—
+    XMStoreFloat4x4(&nodeTransform, XMLoadFloat4x4(&leftHandBone->globalTransform) * XMLoadFloat4x4(&transform));//ãƒãƒ¼ãƒ‰ãƒ¯ãƒ¼ãƒ«ãƒ‰åº§æ¨™å¤‰æ›
     return { nodeTransform._41,nodeTransform._42,nodeTransform._43 };
 }
 void Player::SetWepon() {
     if (weponType == WeponType::MainSword) {
-        SearchNode(weponTransform, "hand_l");//¶èƒm[ƒhæ“¾
-        shieldHead = { weponTransform._41,weponTransform._42,weponTransform._43 };//‚‚ÌÀ•W“ü—Í
+        SearchNode(weponTransform, "hand_l");//å·¦æ‰‹ãƒãƒ¼ãƒ‰å–å¾—
+        shieldHead = { weponTransform._41,weponTransform._42,weponTransform._43 };//ç›¾ã®åº§æ¨™å…¥åŠ›
     }
-    //SearchNode(weponTransform, "Wp_Sword");//Œ•ƒm[ƒhæ“¾
-    head = { weponTransform._41,weponTransform._42,weponTransform._43 };//˜r‚ÌÀ•W“ü—Í
-    sworddir = { weponTransform._31,weponTransform._32,weponTransform._33 };//Œ•‚ÌŒü‚«æ“¾
-    sworddir = Vector3::Normalize(sworddir);//Œ•‚ÌŒü‚«³‹K‰»
-    //pattern = wepon->GetWeaponPPoint();//•Ší‚Ì•¿æ“¾
-    //tail = wepon->GetWeaponPoint();//•Ší‚Ìææ“¾
+    //SearchNode(weponTransform, "Wp_Sword");//å‰£ãƒãƒ¼ãƒ‰å–å¾—
+    head = { weponTransform._41,weponTransform._42,weponTransform._43 };//è…•ã®åº§æ¨™å…¥åŠ›
+    sworddir = { weponTransform._31,weponTransform._32,weponTransform._33 };//å‰£ã®å‘ãå–å¾—
+    sworddir = Vector3::Normalize(sworddir);//å‰£ã®å‘ãæ­£è¦åŒ–
+    //pattern = wepon->GetWeaponPPoint();//æ­¦å™¨ã®æŸ„å–å¾—
+    //tail = wepon->GetWeaponPoint();//æ­¦å™¨ã®å…ˆå–å¾—
 }
 void Player::UpdateHitflag(float elapsedTime) {
     if (hitInvincibleTime > 0.0f)
@@ -383,19 +381,19 @@ void Player::weponRenderUpdate() {
 
 }
 void Player::SetAttackStatus(DirectX::XMFLOAT4 Status, DirectX::XMFLOAT4 Pow){
-    //ƒmƒbƒNƒoƒbƒNƒpƒ[“ü—Í
+    //ãƒãƒƒã‚¯ãƒãƒƒã‚¯ãƒ‘ãƒ¯ãƒ¼å…¥åŠ›
     knockBackpow.x = Pow.x;
     knockBackpow.y = Pow.y;
     attackStart = Status.z;
     attackEnd = Status.w;
-    //ã¸ƒpƒ[
+    //ä¸Šæ˜‡ãƒ‘ãƒ¯ãƒ¼
     velocity.y = Status.y;
-    //UŒ‚‚Ì“®‚«ƒpƒ[
+    //æ”»æ’ƒæ™‚ã®å‹•ããƒ‘ãƒ¯ãƒ¼
     attackMove = Status.x;
     attackDamage = Pow.z;
     attackInvincibleTime = Pow.w;
 }
-//ƒ^[ƒQƒbƒg‚Ì‹——£‚Æ•ûŒüæ“¾
+//ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã®è·é›¢ã¨æ–¹å‘å–å¾—
 void Player::DirToLength(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 target, DirectX::XMFLOAT3& dir, float& length) {
     DirectX::XMVECTOR E = DirectX::XMLoadFloat3(&target);
     DirectX::XMVECTOR P = DirectX::XMLoadFloat3(&pos);
@@ -406,18 +404,18 @@ void Player::DirToLength(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 target, Direct
     DirectX::XMStoreFloat3(&dir, N);
 }
 void Player::ComeTerget(float elapsedTime) {
-    //ƒGƒlƒ~[‚Ö‚Ì•ûŒüƒxƒNƒgƒ‹  
+    //ã‚¨ãƒãƒŸãƒ¼ã¸ã®æ–¹å‘ãƒ™ã‚¯ãƒˆãƒ«  
     DirectX::XMFLOAT3 enemydir = {};
-    //ƒ^[ƒQƒbƒgˆÊ’u
+    //ã‚¿ãƒ¼ã‚²ãƒƒãƒˆä½ç½®
     DirectX::XMFLOAT3 target = {};
-    //ˆê”Ô‹ß‚­‚Ì“G‚ğƒ^[ƒQƒbƒg‚É‚·‚é
+    //ä¸€ç•ªè¿‘ãã®æ•µã‚’ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã«ã™ã‚‹
     EnemyManager& enemyManager = EnemyManager::Instance();
     float dist = FLT_MAX;
     float d = 0;
-    //ƒGƒlƒ~[”
+    //ã‚¨ãƒãƒŸãƒ¼æ•°
     int enemyCount = enemyManager.GetEnemyCount();
     if (fallDeath)return;
-    if (enemyCount == 0 ) { // ƒƒbƒNƒIƒ“‚·‚é“G‚ª‚¢‚È‚¢
+    if (enemyCount == 0 ) { // ãƒ­ãƒƒã‚¯ã‚ªãƒ³ã™ã‚‹æ•µãŒã„ãªã„
         DirectX::XMFLOAT3 camePos = position;
         camePos.y += height;
         cameraController->SetTarget(camePos);
@@ -427,60 +425,60 @@ void Player::ComeTerget(float elapsedTime) {
     GamePad& gamePad = Input::Instance().GetGamePad();
     float ax = gamePad.GetAxisRX();
     int x = 0;
-    if (ax > 0.5) x = 1;  //‰EƒXƒeƒbƒN“ü—Íİ’è
-    if (ax < -0.5) x = -1;//‰EƒXƒeƒbƒN“ü—Íİ’è
-    if (gamePad.GetButtonDown() & GamePad::BTN_RIGHT_THUMB) {//‰EƒXƒeƒbƒN‰Ÿ‚µ‚İ
-        locklength = !locklength;//ƒƒbƒNƒIƒ“ó‘Ô•Ï‰»
-        fistlock = true;//n‚ß‚ÄƒƒbƒNƒIƒ“
+    if (ax > 0.5) x = 1;  //å³ã‚¹ãƒ†ãƒƒã‚¯å…¥åŠ›è¨­å®š
+    if (ax < -0.5) x = -1;//å³ã‚¹ãƒ†ãƒƒã‚¯å…¥åŠ›è¨­å®š
+    if (gamePad.GetButtonDown() & GamePad::BTN_RIGHT_THUMB) {//å³ã‚¹ãƒ†ãƒƒã‚¯æŠ¼ã—è¾¼ã¿
+        locklength = !locklength;//ãƒ­ãƒƒã‚¯ã‚ªãƒ³çŠ¶æ…‹å¤‰åŒ–
+        fistlock = true;//å§‹ã‚ã¦ãƒ­ãƒƒã‚¯ã‚ªãƒ³
     }
     Enemy* enemy = nullptr;
     switch (x)
     {
-        //ƒƒbƒNƒIƒ““ü—ÍƒŠƒZƒbƒg
+        //ãƒ­ãƒƒã‚¯ã‚ªãƒ³å…¥åŠ›ãƒªã‚»ãƒƒãƒˆ
     case 0:
         lockflag = false;
         break;
-        //Ÿ‚ÌƒƒbƒNƒIƒ“ƒ^[ƒQƒbƒg‚Ö
+        //æ¬¡ã®ãƒ­ãƒƒã‚¯ã‚ªãƒ³ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã¸
     case 1:
-        if (lockflag)break;//‰EƒXƒeƒbƒN“ü—Í‚³‚ê‘±‚Ã‚¯‚Ä‚½‚ç
-        if (!locklength)break;//ƒƒbƒNƒIƒ“ó‘Ô‚¶‚á‚È‚¢‚È‚ç
+        if (lockflag)break;//å³ã‚¹ãƒ†ãƒƒã‚¯å…¥åŠ›ã•ã‚Œç¶šã¥ã‘ã¦ãŸã‚‰
+        if (!locklength)break;//ãƒ­ãƒƒã‚¯ã‚ªãƒ³çŠ¶æ…‹ã˜ã‚ƒãªã„ãªã‚‰
         enemyLock++;
-        if (enemyLock >= enemyCount) enemyLock = 0;//ƒƒbƒNƒIƒ“‘ÎÛ‚ªƒGƒlƒ~[”‚ğ’´‚¦‚½‚ç0‚É
-        lockflag = true; //‰EƒXƒeƒbƒN“ü—Í‚³‚ê‚½‚©
-        enemy = enemyManager.GetEnemy(enemyLock);//ƒGƒlƒ~[æ“¾
-        while (enemy->GetHealth() <= 0 || !enemy->GetActiveflag()) {//ƒGƒlƒ~[‚ÌHP‚ª‚ ‚é‚©AƒAƒNƒeƒBƒu‚É‚È‚Á‚Ä‚¢‚é‚©
+        if (enemyLock >= enemyCount) enemyLock = 0;//ãƒ­ãƒƒã‚¯ã‚ªãƒ³å¯¾è±¡ãŒã‚¨ãƒãƒŸãƒ¼æ•°ã‚’è¶…ãˆãŸã‚‰0ã«
+        lockflag = true; //å³ã‚¹ãƒ†ãƒƒã‚¯å…¥åŠ›ã•ã‚ŒãŸã‹
+        enemy = enemyManager.GetEnemy(enemyLock);//ã‚¨ãƒãƒŸãƒ¼å–å¾—
+        while (enemy->GetHealth() <= 0 || !enemy->GetActiveflag()) {//ã‚¨ãƒãƒŸãƒ¼ã®HPãŒã‚ã‚‹ã‹ã€ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã«ãªã£ã¦ã„ã‚‹ã‹
             enemyLock++;
-            if (enemyLock >= enemyCount) enemyLock = 0;//ƒƒbƒNƒIƒ“‘ÎÛ‚ªƒGƒlƒ~[”‚ğ’´‚¦‚½‚ç0‚É
+            if (enemyLock >= enemyCount) enemyLock = 0;//ãƒ­ãƒƒã‚¯ã‚ªãƒ³å¯¾è±¡ãŒã‚¨ãƒãƒŸãƒ¼æ•°ã‚’è¶…ãˆãŸã‚‰0ã«
             enemy = enemyManager.GetEnemy(enemyLock);
         }
-        enemyId = enemy->GetId();//IDæ“¾
+        enemyId = enemy->GetId();//IDå–å¾—
         break;
-        //‘O‚ÌƒƒbƒNƒIƒ“ƒ^[ƒQƒbƒg‚Ö
+        //å‰ã®ãƒ­ãƒƒã‚¯ã‚ªãƒ³ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã¸
     case -1:
-        if (lockflag)break;//‰EƒXƒeƒbƒN“ü—Í‚³‚ê‘±‚Ã‚¯‚Ä‚½‚ç
-        if (!locklength)break;//ƒƒbƒNƒIƒ“ó‘Ô‚¶‚á‚È‚¢‚È‚ç
+        if (lockflag)break;//å³ã‚¹ãƒ†ãƒƒã‚¯å…¥åŠ›ã•ã‚Œç¶šã¥ã‘ã¦ãŸã‚‰
+        if (!locklength)break;//ãƒ­ãƒƒã‚¯ã‚ªãƒ³çŠ¶æ…‹ã˜ã‚ƒãªã„ãªã‚‰
         enemyLock--;
-        lockflag = true;//‰EƒXƒeƒbƒN“ü—Í‚³‚ê‚½‚©
-        if (enemyLock < 0) enemyLock = enemyCount - 1;//ƒƒbƒNƒIƒ“‘ÎÛ‚ª0‚æ‚è‰º‚È‚çÅ‘å”
+        lockflag = true;//å³ã‚¹ãƒ†ãƒƒã‚¯å…¥åŠ›ã•ã‚ŒãŸã‹
+        if (enemyLock < 0) enemyLock = enemyCount - 1;//ãƒ­ãƒƒã‚¯ã‚ªãƒ³å¯¾è±¡ãŒ0ã‚ˆã‚Šä¸‹ãªã‚‰æœ€å¤§æ•°
         enemy = enemyManager.GetEnemy(enemyLock);
-        while (enemy->GetHealth() <= 0 || !enemy->GetActiveflag()) {//ƒGƒlƒ~[‚ÌHP‚ª‚ ‚é‚©AƒAƒNƒeƒBƒu‚É‚È‚Á‚Ä‚¢‚é‚©
+        while (enemy->GetHealth() <= 0 || !enemy->GetActiveflag()) {//ã‚¨ãƒãƒŸãƒ¼ã®HPãŒã‚ã‚‹ã‹ã€ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã«ãªã£ã¦ã„ã‚‹ã‹
             enemyLock--;
-            if (enemyLock < 0) enemyLock = enemyCount - 1;//ƒƒbƒNƒIƒ“‘ÎÛ‚ª0‚æ‚è‰º‚È‚çÅ‘å”
+            if (enemyLock < 0) enemyLock = enemyCount - 1;//ãƒ­ãƒƒã‚¯ã‚ªãƒ³å¯¾è±¡ãŒ0ã‚ˆã‚Šä¸‹ãªã‚‰æœ€å¤§æ•°
             enemy = enemyManager.GetEnemy(enemyLock);
         }
-        enemyId = enemy->GetId();//IDæ“¾
+        enemyId = enemy->GetId();//IDå–å¾—
     }
-    //ƒƒbƒNƒIƒ““ü—Í‚ª‚³‚ê‚½‚ç
+    //ãƒ­ãƒƒã‚¯ã‚ªãƒ³å…¥åŠ›ãŒã•ã‚ŒãŸã‚‰
     if (locklength) {
-        //n‚ß‚ÄƒƒbƒNƒIƒ““ü—Í‚³‚ê‚½‚çÅ‚à‹ß‚¢“G‚ğƒƒbƒNƒIƒ“
+        //å§‹ã‚ã¦ãƒ­ãƒƒã‚¯ã‚ªãƒ³å…¥åŠ›ã•ã‚ŒãŸã‚‰æœ€ã‚‚è¿‘ã„æ•µã‚’ãƒ­ãƒƒã‚¯ã‚ªãƒ³
         if(!fistlock)
         {
             enemy = enemyManager.GetEnemyFromId(enemyId);
-            if(enemy->GetHealth() <= 0 || !enemy->GetActiveflag()) {//ƒGƒlƒ~[‚ÌHP‚ª‚ ‚é‚©AƒAƒNƒeƒBƒu‚É‚È‚Á‚Ä‚¢‚é‚©
+            if(enemy->GetHealth() <= 0 || !enemy->GetActiveflag()) {//ã‚¨ãƒãƒŸãƒ¼ã®HPãŒã‚ã‚‹ã‹ã€ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã«ãªã£ã¦ã„ã‚‹ã‹
                 fistlock = true;  
             }
             DirToLength(position, { enemy->GetPosition().x,position.y,enemy->GetPosition().z }, enemydir, enemyLength);
-            //‹——£‚Å”»’è
+            //è·é›¢ã§åˆ¤å®š
             if (enemyLength < 6000) {
                 target = enemy->GetPosition();
                 //target.y += enemy->GetHeight() * 0.5;
@@ -494,15 +492,15 @@ void Player::ComeTerget(float elapsedTime) {
                 fistlock = true;
             }
         }
-        if(fistlock){//n‚ß‚Ä‚ÌƒƒbƒNƒIƒ“
+        if(fistlock){//å§‹ã‚ã¦ã®ãƒ­ãƒƒã‚¯ã‚ªãƒ³
             dist = FLT_MAX;
             for (int i = 0; i < enemyCount; i++) {
                 enemy = enemyManager.GetEnemy(i);
                 if (enemy->GetHealth() <= 0 || !enemy->GetActiveflag()) continue;
                 DirToLength(position, { enemy->GetPosition().x,position.y,enemy->GetPosition().z }, enemydir, enemyLength);
                 float a = enemyLength;
-                if (d == 0) d = a;//‹——£‘ã“ü
-                //‹——£‚Å”»’è
+                if (d == 0) d = a;//è·é›¢ä»£å…¥
+                //è·é›¢ã§åˆ¤å®š
                 if (a < 4000) {
                     if (a < dist)
                     {
@@ -530,7 +528,7 @@ void Player::ComeTerget(float elapsedTime) {
         dir.x = sinf(angle.y);
         dir.z = cosf(angle.y);
     }
-    //ƒƒbƒNƒIƒ“‚µ‚Ä‚é‚È‚çƒJƒƒ‰İ’è
+    //ãƒ­ãƒƒã‚¯ã‚ªãƒ³ã—ã¦ã‚‹ãªã‚‰ã‚«ãƒ¡ãƒ©è¨­å®š
     DirectX::XMFLOAT3 camePos = position;
     if(state == Attack){
       //camePos.y = SearchNodePos("root_x").y;
@@ -547,7 +545,7 @@ void Player::ComeTerget(float elapsedTime) {
     if (lockOn) {
         cameraController->SetTarget2(target);
         enemyLength = dist;
-        dist *= 0.1;//‹——£•â³
+        dist *= 0.1;//è·é›¢è£œæ­£
         cameraController->Update2(elapsedTime, { dir.x,NULL,dir.z }, dist);
     }
     else {
@@ -556,42 +554,42 @@ void Player::ComeTerget(float elapsedTime) {
 }
 
 
-//’…’n‚µ‚½‚ÉŒÄ‚Î‚ê‚é
+//ç€åœ°ã—ãŸæ™‚ã«å‘¼ã°ã‚Œã‚‹
 void Player::OnLanding()
 {
-    jumpCount = 0;//ƒWƒƒƒ“ƒvƒJƒEƒ“ƒg‰Šú‰»
+    jumpCount = 0;//ã‚¸ãƒ£ãƒ³ãƒ—ã‚«ã‚¦ãƒ³ãƒˆåˆæœŸåŒ–
     if (velocity.y < NULL && landflag)
     {
-        stateMachine->ChangeSubState(static_cast<int>(Player::State::Land));//’…’n
+        stateMachine->ChangeSubState(static_cast<int>(Player::State::Land));//ç€åœ°
     }
 }
 
 void Player::OnDamaged()
 {
-    // ƒ_ƒ[ƒWƒXƒe[ƒg‚Ö‘JˆÚ
+    // ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚¹ãƒ†ãƒ¼ãƒˆã¸é·ç§»
     if (state != State::Attack) {
         stateMachine->ChangeSubState(static_cast<int>(Player::State::Damage));
     }
 }
 void Player::OnDead()
 {
-    // ƒ_ƒ[ƒWƒXƒe[ƒg‚Ö‘JˆÚ
+    // ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚¹ãƒ†ãƒ¼ãƒˆã¸é·ç§»
    
      stateMachine->ChangeSubState(static_cast<int>(Player::State::Dead));
     
 }
 void Player::PlayerKnockBack(DirectX::XMFLOAT3 mypos, DirectX::XMFLOAT3 targetpos, float power, float powerY,float damage)
 {
-    EffectAll::Instance().stingerEffect->Stop(stingerEffect);//ƒGƒtƒFƒNƒg’â~
-    DirectX::XMFLOAT3 inpulse = Vector3::Subset(position, mypos);//ƒxƒNƒgƒ‹¶¬
-    inpulse = Vector3::Multip(Vector3::Normalize(inpulse),power);//³‹K‰»‚µ‚ÄƒmƒbƒNƒoƒbƒNƒpƒ[‚ğ‚©‚¯‚é
-    SetShakeInput(inpulse, damage);//ƒJƒƒ‰ƒVƒFƒCƒN
+    EffectAll::Instance().stingerEffect->Stop(stingerEffect);//ã‚¨ãƒ•ã‚§ã‚¯ãƒˆåœæ­¢
+    DirectX::XMFLOAT3 inpulse = Vector3::Subset(position, mypos);//ãƒ™ã‚¯ãƒˆãƒ«ç”Ÿæˆ
+    inpulse = Vector3::Multip(Vector3::Normalize(inpulse),power);//æ­£è¦åŒ–ã—ã¦ãƒãƒƒã‚¯ãƒãƒƒã‚¯ãƒ‘ãƒ¯ãƒ¼ã‚’ã‹ã‘ã‚‹
+    SetShakeInput(inpulse, damage);//ã‚«ãƒ¡ãƒ©ã‚·ã‚§ã‚¤ã‚¯
     //if (state == State::Guard) {
     //    if (!guardFlag) {
-    //        //wepon->Exhaustion(damage);//•ŠíÁ–Õ
+    //        //wepon->Exhaustion(damage);//æ­¦å™¨æ¶ˆè€—
     //    }
     //    //player->PlayAnimation(AnimGuardhit, false);
-    //    //if (wepon->GetWeponLife(weponType) < 0) {//‚‰ó‚ê‚½‚ç
+    //    //if (wepon->GetWeponLife(weponType) < 0) {//ç›¾å£Šã‚ŒãŸã‚‰
     //    //    player->PlayAnimation(AnimGuardbreak, false);
     //    //    invincibleTimer = 2.0;
     //    //    guardDir.x = -inpulse.x;
@@ -601,8 +599,8 @@ void Player::PlayerKnockBack(DirectX::XMFLOAT3 mypos, DirectX::XMFLOAT3 targetpo
     //    //}
     //    inpulse.x *= guardKnockBack;
     //    inpulse.z *= guardKnockBack;
-    //    AddImpulse(inpulse);//ƒmƒbƒNƒoƒbƒN
-    //    //‚­‚ç‚Á‚½•ûŒü‚ğŒü‚­
+    //    AddImpulse(inpulse);//ãƒãƒƒã‚¯ãƒãƒƒã‚¯
+    //    //ãã‚‰ã£ãŸæ–¹å‘ã‚’å‘ã
     //    guardDir.x = -inpulse.x;
     //    guardDir.y = -inpulse.z;
     //    AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Gud)->Stop();
@@ -610,33 +608,33 @@ void Player::PlayerKnockBack(DirectX::XMFLOAT3 mypos, DirectX::XMFLOAT3 targetpo
     //    return;
     //}
     if (power > kbpow || health <= 0) {
-        player->PlayAnimation(0, false);
+        //player->PlayAnimation(0, false);
         AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Down)->Play(false, SE);
-        downflag = true;//ƒ_ƒEƒ“ó‘Ô
-        //ƒRƒ“ƒ{‰Šú‰»
+        downflag = true;//ãƒ€ã‚¦ãƒ³çŠ¶æ…‹
+        //ã‚³ãƒ³ãƒœåˆæœŸåŒ–
         combo = 0;
     }
     else if (downflag) {
-        player->PlayAnimation(0, false);
+        //player->PlayAnimation(0, false);
         AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Down)->Play(false, SE);
-        downflag = true;//ƒ_ƒEƒ“ó‘Ô
+        downflag = true;//ãƒ€ã‚¦ãƒ³çŠ¶æ…‹
     }
     else
     {
-        player->PlayAnimation(0, false);
-        //ƒRƒ“ƒ{‰Šú‰»
+        //player->PlayAnimation(0, false);
+        //ã‚³ãƒ³ãƒœåˆæœŸåŒ–
         combo = 0;
     }
-    inpulse.y = powerY;//ã•ûŒü‚ÌƒmƒbƒNƒoƒbƒN
-    AddImpulse(inpulse);//ƒmƒbƒNƒoƒbƒN
-    //‚­‚ç‚Á‚½•ûŒü‚ğŒü‚­
+    inpulse.y = powerY;//ä¸Šæ–¹å‘ã®ãƒãƒƒã‚¯ãƒãƒƒã‚¯
+    AddImpulse(inpulse);//ãƒãƒƒã‚¯ãƒãƒƒã‚¯
+    //ãã‚‰ã£ãŸæ–¹å‘ã‚’å‘ã
     dir.x = -inpulse.x;
     dir.z = -inpulse.z;
 }
 
 void Player::SpecialUpdate() {
     //if (InputGame::InputSpecial()) {
-    //    switch (weponType)//•Ší‚É‚æ‚Á‚Ä“ÁêUŒ‚
+    //    switch (weponType)//æ­¦å™¨ã«ã‚ˆã£ã¦ç‰¹æ®Šæ”»æ’ƒ
     //    {
     //    case WeponType::MainSword:
     //        stateMachine->ChangeSubState(static_cast<int>(Player::State::Guard));
@@ -665,7 +663,7 @@ void Player::BattleMoveUpdate() {
     GamePad& gamePad = Input::Instance().GetGamePad();
     float ax = gamePad.GetAxisLX();
     float ay = gamePad.GetAxisLY();
-    //‘O•ûŒü‚Æ“ü—Í•ûŒü‚Ì“àÏ‚ÅƒAƒjƒ[ƒVƒ‡ƒ“•Ï‰»
+    //å‰æ–¹å‘ã¨å…¥åŠ›æ–¹å‘ã®å†…ç©ã§ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³å¤‰åŒ–
     DirectX::XMFLOAT2 moveVec = { GetMoveVec().x,GetMoveVec().z };
     DirectX::XMFLOAT2 Vec;
     Vec.x = sinf(angle.y);
@@ -674,7 +672,7 @@ void Player::BattleMoveUpdate() {
     float dot = Vector2::Dot(moveVec, Vec);
     dot = acos(dot);
 
-    // •à‚«ƒAƒjƒ[ƒVƒ‡ƒ“Ä¶
+    // æ­©ãã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³å†ç”Ÿ
     //if (ax > 0 && dot > upSens && dot < disUpSens) {
     //    if (player->GetCurrentSubAnimationIndex() != AnimWorkFrontLeft) {
     //        player->PlaySubAnimation(AnimWorkFrontLeft, true,lowerBody);        
@@ -724,13 +722,13 @@ void Player::DownUpdate() {
     GamePad& gamePad = Input::Instance().GetGamePad();
     float ax = gamePad.GetAxisLX();
     float ay = gamePad.GetAxisLY();
-    //‘O•ûŒü‚Æ“ü—Í•ûŒü‚Ì“àÏ‚ÅƒAƒjƒ[ƒVƒ‡ƒ“•Ï‰»
+    //å‰æ–¹å‘ã¨å…¥åŠ›æ–¹å‘ã®å†…ç©ã§ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³å¤‰åŒ–
     DirectX::XMFLOAT2 moveVec = { GetMoveVec().x,GetMoveVec().z };
     moveVec = Vector2::Normalize(moveVec);
     DirectX::XMFLOAT2 Vec = { Camera::Instance().GetFront().x,Camera::Instance().GetFront().z };
     float dot = Vector2::Dot(moveVec, Vec);
     dot = acos(dot);
-    // •œ‹AƒAƒjƒ[ƒVƒ‡ƒ“Ä¶
+    // å¾©å¸°ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³å†ç”Ÿ
     //if (ax > 0 && dot > upSens && dot < disDownSens) {
     //        player->PlayAnimation(AnimDownUpLeft, false);
     //        velocity.x = moveVec.x * rollPow*returnPow;
@@ -753,8 +751,8 @@ void Player::DownUpdate() {
     //}
 }
 //DirectX::XMFLOAT3 Player::GetSlashDir() {
-//    //DirectX::XMFLOAT2 trailPos = Vector3::C3Dor2D(swordTrail->GetTrail(swordFlame));//•Ï”{‚PƒtƒŒ[ƒ€‘O‚ÌŒ•æ
-//    //DirectX::XMFLOAT2 weaponPoint = Vector3::C3Dor2D(wepon->GetWeaponEFPoint());//Œ»İ‚ÌŒ•æ
+//    //DirectX::XMFLOAT2 trailPos = Vector3::C3Dor2D(swordTrail->GetTrail(swordFlame));//å¤‰æ•°ï¼‹ï¼‘ãƒ•ãƒ¬ãƒ¼ãƒ å‰ã®å‰£å…ˆ
+//    //DirectX::XMFLOAT2 weaponPoint = Vector3::C3Dor2D(wepon->GetWeaponEFPoint());//ç¾åœ¨ã®å‰£å…ˆ
 //    //trailPos = Vector2::Subset(weaponPoint,trailPos);
 //    //trailPos = Vector2::Normalize(trailPos);
 //    //DirectX::XMFLOAT3 trailDir = { trailPos.x,trailPos.y,NULL };
@@ -765,17 +763,17 @@ void Player::SlashInput() {
         //wepon->Exhaustion(attackDamage);
         AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::SlashFly)->Stop();
         AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::SlashFly)->Play(false, SE);
-        //“ñŒ³‚ÅaŒ‚•ûŒü‚Æã•ûŒü‚Å“àÏ‚ğæ‚Á‚Ä‚»‚Ì•ªŠp“x‚ğ‚Æ‚é
+        //äºŒå…ƒã§æ–¬æ’ƒæ–¹å‘ã¨ä¸Šæ–¹å‘ã§å†…ç©ã‚’å–ã£ã¦ãã®åˆ†è§’åº¦ã‚’ã¨ã‚‹
        // DirectX::XMFLOAT3 hitdir = GetSlashDir();
         DirectX::XMFLOAT3 n = { 0, 1, 0 };
         //float dot = Vector3::Dot(hitdir,n);
         //dot = acosf(dot);
-        //if (hitdir.x < 0)dot *= -1;//•û–@‚ª¶‚È‚çŠp“x”½“]
+        //if (hitdir.x < 0)dot *= -1;//æ–¹æ³•ãŒå·¦ãªã‚‰è§’åº¦åè»¢
         ProjectileStraite* projectile = new ProjectileStraite(&objectManager);
         projectile->Launch(slash, height / 2, 4.0, 0.2, Type::Straight, (int)EffectTexAll::EfTexAll::Metal, 2, 5, 0.5);
         projectile->SetScale(slashScale);
         //projectile->SetDirectionUp({-attackDir.z,dot,attackDir.x});
-        //if (combo == WeponComboMax[weponType]) {//ƒRƒ“ƒ{ÅŒã’Ç‰ÁaŒ‚{‚P
+        //if (combo == WeponComboMax[weponType]) {//ã‚³ãƒ³ãƒœæœ€å¾Œè¿½åŠ æ–¬æ’ƒï¼‹ï¼‘
         //    ProjectileStraite* projectile2 = new ProjectileStraite(&objectManager);
         //    projectile2->Launch(slash, height / 2, 4.0, angle.y, Type::Straight, (int)EffectTexAll::EfTexAll::Metal, 1, 3, 0.5);
         //    projectile2->SetScale(slashScale);
@@ -785,12 +783,12 @@ void Player::SlashInput() {
     }
 }
 void Player::SwingInput() {
-    //ƒXƒCƒ“ƒOSE
+    //ã‚¹ã‚¤ãƒ³ã‚°SE
     if (swingSe) {
         AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Swing1)->Play(false, SE);
         swingSe = false;
     }
-    if (attackInvincibleTime < 0.2) {//˜A‘±ƒXƒCƒ“ƒOSE
+    if (attackInvincibleTime < 0.2) {//é€£ç¶šã‚¹ã‚¤ãƒ³ã‚°SE
         if (Vector3::FrameInput(swingTimer)) {
             AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Swing1)->Stop();
             AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Swing1)->Play(false, SE);
@@ -800,15 +798,15 @@ void Player::SwingInput() {
 }
 
 void Player::ChangeWepon() {
-    //if (weponType == weponChangeType && wepon->GetDisslve() == 1) {//•Ší‚ª•`‰æ‚³‚êÅ’áŒÀ•Ší‚ª•\Œ»‚³‚ê‚½‚ç
+    //if (weponType == weponChangeType && wepon->GetDisslve() == 1) {//æ­¦å™¨ãŒæç”»ã•ã‚Œæœ€ä½é™æ­¦å™¨ãŒè¡¨ç¾ã•ã‚ŒãŸã‚‰
     //    return;
     //}
     //if (timer % weponChangeTimer == 0) {
     //    float hi = 0;
-    //    if (weponChangeType == WeponType::Shield)hi = 1;// ‚•â³’l
+    //    if (weponChangeType == WeponType::Shield)hi = 1;// ç›¾è£œæ­£å€¤
     //    ProjectileStraite* projectile = new ProjectileStraite(&objectManager);
     //    projectile->Launch(wepon->GetWeponModel(weponChangeType), hi, 1.0, angle.y, Type::ChangeWp, (int)EffectTexAll::EfTexAll::Thunder, 0.3, 0, 0.1);
-    //    weponChangeType++;//oŒ»•ŠíØ‚è‘Ö‚¦
+    //    weponChangeType++;//å‡ºç¾æ­¦å™¨åˆ‡ã‚Šæ›¿ãˆ
     //}
     //if (weponChangeType > 4) weponChangeType = 0;
 }
@@ -816,7 +814,7 @@ void Player::ButtonWeponChange(int type) {
     //if (!wepon->GetBreakFlag(type) && weponType != type) {
     //    wepon->SetRnderflag(false);
     //    skillCoolTime[WeponChange] = skillCoolTimeDefault[WeponChange];
-    //    skillTime[WeponChange] = 0.3f;//Œp‘±ŠÔ
+    //    skillTime[WeponChange] = 0.3f;//ç¶™ç¶šæ™‚é–“
     //    nextWepon = type;
     //    weponChangeType = weponType;
     //    weponChange = true;
@@ -832,26 +830,26 @@ void Player::ButtonWeponChange(int type) {
     //}
 }
 void Player::SetShakeInput(DirectX::XMFLOAT3 dir,float damage) {
-    //ƒJƒƒ‰ƒVƒFƒCƒNî•ñ“ü—Í
+    //ã‚«ãƒ¡ãƒ©ã‚·ã‚§ã‚¤ã‚¯æƒ…å ±å…¥åŠ›
     cameraController->SetHitPow(damage);
     if(lockOn)cameraController->SetHitPow(damage*1.5);
     cameraController->SetHitTimer(damage*0.5);
     cameraController->SetHitDir(dir);
 }
 void Player::HitInput(float damage, float invincibleTime) {
-    //if (wepon->GetSwordState() == SwordState::Shift) {//•Ší‚Ìó‘Ô‚ªƒVƒtƒg‚È‚ç
-    //    teleportPos = wepon->GetPosition();//ƒeƒŒƒ|[ƒgƒ|ƒCƒ“ƒgİ’è
+    //if (wepon->GetSwordState() == SwordState::Shift) {//æ­¦å™¨ã®çŠ¶æ…‹ãŒã‚·ãƒ•ãƒˆãªã‚‰
+    //    teleportPos = wepon->GetPosition();//ãƒ†ãƒ¬ãƒãƒ¼ãƒˆãƒã‚¤ãƒ³ãƒˆè¨­å®š
     //    shiftAttackflag = true;
-    //    stateMachine->ChangeSubState(static_cast<int>(Player::State::Teleport));//ƒeƒŒƒ|[ƒgƒXƒe[ƒg
-    //    Afterimage* projectile = new Afterimage(&objectManager);//c‘œƒGƒtƒFƒNƒg
+    //    stateMachine->ChangeSubState(static_cast<int>(Player::State::Teleport));//ãƒ†ãƒ¬ãƒãƒ¼ãƒˆã‚¹ãƒ†ãƒ¼ãƒˆ
+    //    Afterimage* projectile = new Afterimage(&objectManager);//æ®‹åƒã‚¨ãƒ•ã‚§ã‚¯ãƒˆ
     //    projectile->Launch(renderdata);
-    //    if (wepon->GetBroken()&&mp < mpMax) mp++;//•Ší‚Ì‘Ï‹v’l‚ª“ñŠ„ˆÈ‰º‚È‚çMP‰ñ•œ
+    //    if (wepon->GetBroken()&&mp < mpMax) mp++;//æ­¦å™¨ã®è€ä¹…å€¤ãŒäºŒå‰²ä»¥ä¸‹ãªã‚‰MPå›å¾©
     //
     //}
     attackHitflag = true;
-    //wepon->Exhaustion(damage);//Á–Õ
+    //wepon->Exhaustion(damage);//æ¶ˆè€—
     hitInvincibleTime = damage*0.05;
-    //UŒ‚•ûŒü‚ÉƒJƒƒ‰ƒVƒFƒCƒN
+    //æ”»æ’ƒæ–¹å‘ã«ã‚«ãƒ¡ãƒ©ã‚·ã‚§ã‚¤ã‚¯
     //DirectX::XMFLOAT3 hitdir = Vector3::Subset(swordTrail->GetTrail(swordFlame), wepon->GetWeaponEFPoint());
     //hitdir = Vector3::Normalize(hitdir);
     SetShakeInput({0,1,0}, damage * shakePow);
@@ -868,7 +866,7 @@ Enemy* Player::CloseEnemy(float lenght){
         enemy = enemyManager.GetEnemy(i);
         if (enemy->GetHealth() <= 0 || !enemy->GetActiveflag()) continue;
         DirToLength(position, { enemy->GetPosition().x,position.y,enemy->GetPosition().z }, enemydir, enemyLength);
-        //‹——£‚Å”»’è
+        //è·é›¢ã§åˆ¤å®š
         if (enemyLength < lenght) {
             if (enemyLength < dist) {
                 dist = enemyLength;
@@ -878,13 +876,13 @@ Enemy* Player::CloseEnemy(float lenght){
     }
     return returnEnemy;
 }
-//Œ•‚Ì‹OÕ
+//å‰£ã®è»Œè·¡
 void Player::SwordEffect() {
-    head = SearchNodePos(attackNode[combo]);  //‹OÕ‚ÌŒã
-    tail = SearchNodePos(attackENode[combo]); //‹OÕ‚Ìæ
-    swordTrail->SetPos(head, tail);   //‹OÕ‚Ìî•ñ“ü—Í
+    head = SearchNodePos(attackNode[combo]);  //è»Œè·¡ã®å¾Œ
+    tail = SearchNodePos(attackENode[combo]); //è»Œè·¡ã®å…ˆ
+    swordTrail->SetPos(head, tail);   //è»Œè·¡ã®æƒ…å ±å…¥åŠ›
 }
-//ƒWƒƒƒ“ƒv“ü—Íˆ—
+//ã‚¸ãƒ£ãƒ³ãƒ—å…¥åŠ›å‡¦ç†
 bool Player::InputJump()
 {
     GamePad& gamePad = Input::Instance().GetGamePad();
@@ -897,7 +895,7 @@ bool Player::InputJump()
     }
     return false;
 }
-// UŒ‚“ü—Íˆ—
+// æ”»æ’ƒå…¥åŠ›å‡¦ç†
 bool Player::InputAttack()
 {
     //if(wepon->GetBreakFlag(weponType))return false;
@@ -908,19 +906,19 @@ bool Player::InputAttack()
     }
     return false;
 }
-//’e“ü—Íˆ—
+//å¼¾å…¥åŠ›å‡¦ç†
 void Player::InputProjectile()
 {
     GamePad& gamePad = Input::Instance().GetGamePad();
 
-    // ’¼i’eŠÛ”­Ë
+    // ç›´é€²å¼¾ä¸¸ç™ºå°„
     if (gamePad.GetButtonDown() & GamePad::BTN_X && mp > swordMp && skillCoolTime[ProjectileColumn] <= 0.0f)
     {
         skillCoolTime[ProjectileColumn] = skillCoolTimeDefault[ProjectileColumn];
        // mp-= swordMp;
-    		// ‘O•ûŒü   		
+    		// å‰æ–¹å‘   		
         float h = 0;
-    		// ”­Ë
+    		// ç™ºå°„
             for (int i = 1; i < 5; i++) {
                 h = 0.4*i;
                 ProjectileStraite* projectile = new ProjectileStraite(&objectManager);
@@ -938,9 +936,9 @@ void Player::InputProjectile()
     //    mp-= swordMp;
     //    DirectX::XMFLOAT3 pos;
     //    for (int i = 0; i < 16; i++) {
-    //        // ‘O•ûŒü
+    //        // å‰æ–¹å‘
     //        DirectX::XMFLOAT3 dir;
-    //        // ”­Ë
+    //        // ç™ºå°„
     //        ProjectileStraite* projectile = new ProjectileStraite(&objectManager);
     //        projectile->Launch(sword,height,0.8, angle.y+0.4 * i, Type::Rotate, (int)EffectTexAll::EfTexAll::Thunder,3,1,0.5f);
     //    }   
@@ -952,99 +950,99 @@ void Player::InputProjectile()
         DirectX::XMFLOAT3 pos;
         int rnd = 0;
         for (int i = 0; i < 30; i++) {
-            // ‘O•ûŒü
+            // å‰æ–¹å‘
             DirectX::XMFLOAT3 dir;
             rnd = rand() % 4;
-            // ”­Ë
+            // ç™ºå°„
             ProjectileStraite* projectile = new ProjectileStraite(&objectManager);
             //projectile->Launch(wepon->GetWeponModel(rnd), height, 0.8, angle.y + 0.4 * i, Type::Sword, (int)EffectTexAll::EfTexAll::Thunder, 6, 1, 0.5f);
         }
     }
 }
-// ˆÚ“®“ü—Íˆ—
+// ç§»å‹•å…¥åŠ›å‡¦ç†
 bool Player::InputMove(float elapsedTime)
 {
     if (titleState != TitleState::TitleSelect)
     {
-        //isƒxƒNƒgƒ‹æ“¾
+        //é€²è¡Œãƒ™ã‚¯ãƒˆãƒ«å–å¾—
         DirectX::XMFLOAT3 moveVec = GetMoveVec();
-        //ˆÚ“®ˆ—
+        //ç§»å‹•å‡¦ç†
         MoveInput(moveVec.x, moveVec.z, moveSpeed);
-        //ù‰ñˆ—
+        //æ—‹å›å‡¦ç†
         Turn(elapsedTime, moveVec.x, moveVec.z, turnSpeed);
 
         return moveVec.x != 0.0f || moveVec.y != 0.0f || moveVec.z != 0.0f;
     }
     return 0;
 }
-//ƒXƒeƒbƒN“ü—Íˆ—
+//ã‚¹ãƒ†ãƒƒã‚¯å…¥åŠ›å‡¦ç†
 bool Player::InputStick(float elapsedTime)
 {
-    //isƒxƒNƒgƒ‹æ“¾
+    //é€²è¡Œãƒ™ã‚¯ãƒˆãƒ«å–å¾—
     DirectX::XMFLOAT3 moveVec = GetMoveVec();
     //Turn(elapsedTime, moveVec.x, moveVec.z, turnSpeed);
     return moveVec.x != 0.0f || moveVec.y != 0.0f || moveVec.z != 0.0f;
 }
-//’‹ˆÚ“®
+//æ³¨è¦–ç§»å‹•
 bool Player::InputBattleMove(float elapsedTime)
 {
-    //isƒxƒNƒgƒ‹æ“¾
+    //é€²è¡Œãƒ™ã‚¯ãƒˆãƒ«å–å¾—
     DirectX::XMFLOAT3 moveVec = GetMoveVec();
-    //ˆÚ“®ˆ—
+    //ç§»å‹•å‡¦ç†
     MoveInput(moveVec.x, moveVec.z, moveSpeed * battelMove);
-    //ù‰ñˆ—
+    //æ—‹å›å‡¦ç†
     Turn(elapsedTime, dir.x, dir.z, turnSpeed);
     return moveVec.x != 0.0f || moveVec.y != 0.0f || moveVec.z != 0.0f;
 }
-//ƒXƒeƒBƒbƒN“ü—Í‚©‚çˆÚ“®ƒxƒNƒgƒ‹‚ğæ“¾
+//ã‚¹ãƒ†ã‚£ãƒƒã‚¯å…¥åŠ›ã‹ã‚‰ç§»å‹•ãƒ™ã‚¯ãƒˆãƒ«ã‚’å–å¾—
 DirectX::XMFLOAT3 Player::GetMoveVec() const
 {
-    //“ü—Íî•ñ‚ğæ“¾
+    //å…¥åŠ›æƒ…å ±ã‚’å–å¾—
     GamePad& gamePad = Input::Instance().GetGamePad();
     float ax = gamePad.GetAxisLX();
     float ay = gamePad.GetAxisLY();
-    //ƒJƒƒ‰•ûŒü‚ÆƒXƒeƒBƒbƒN‚Ì“ü—Í’l‚Ì‚æ‚Á‚Äis•ûŒü‚ğŒvZ‚·‚é
+    //ã‚«ãƒ¡ãƒ©æ–¹å‘ã¨ã‚¹ãƒ†ã‚£ãƒƒã‚¯ã®å…¥åŠ›å€¤ã®ã‚ˆã£ã¦é€²è¡Œæ–¹å‘ã‚’è¨ˆç®—ã™ã‚‹
     Camera& camera = Camera::Instance();
     const DirectX::XMFLOAT3& cameraRight = camera.GetRight();
     const DirectX::XMFLOAT3& cameraFront = camera.GetFront();
 
-    //ƒJƒƒ‰‰E•ûŒüƒxƒNƒgƒ‹‚ğXZ’PˆÊƒxƒNƒgƒ‹‚É•ÏŠ·
+    //ã‚«ãƒ¡ãƒ©å³æ–¹å‘ãƒ™ã‚¯ãƒˆãƒ«ã‚’XZå˜ä½ãƒ™ã‚¯ãƒˆãƒ«ã«å¤‰æ›
     float cameraRightX = cameraRight.x;
     float cameraRightZ = cameraRight.z;
     float cameraRightLength = sqrtf(cameraRightX + cameraRightZ * cameraRightX + cameraRightZ);
 
     if (cameraRightLength > 0.0f)
     {
-        //’PˆÊƒxƒNƒgƒ‹‰»
+        //å˜ä½ãƒ™ã‚¯ãƒˆãƒ«åŒ–
         cameraRightX /= cameraRightLength;
         cameraRightZ /= cameraRightLength;
 
     }
-    //ƒJƒƒ‰‰E•ûŒüƒxƒNƒgƒ‹‚ğXZ’PˆÊƒxƒNƒgƒ‹‚É•ÏŠ·
+    //ã‚«ãƒ¡ãƒ©å³æ–¹å‘ãƒ™ã‚¯ãƒˆãƒ«ã‚’XZå˜ä½ãƒ™ã‚¯ãƒˆãƒ«ã«å¤‰æ›
     float cameraFrontX = cameraFront.x;
     float cameraFrontZ = cameraFront.z;
     float cameraFrontLength = sqrtf(cameraFrontX + cameraFrontZ * cameraFrontX + cameraFrontZ);
 
     if (cameraFrontLength > 0.0f)
-    {   //’PˆÊƒxƒNƒgƒ‹‰»
+    {   //å˜ä½ãƒ™ã‚¯ãƒˆãƒ«åŒ–
         cameraFrontX /= cameraFrontLength;
         cameraFrontZ /= cameraFrontLength;
     }
-    //ƒXƒeƒBƒbƒN‚Ì…•½“ü—Í’l‚ğƒJƒƒ‰‰E•ûŒü‚É”½‰f‚µA
-    //ƒXƒeƒBƒbƒN‚Ì‚’¼“ü—Í’l‚ğƒJƒƒ‰‘O•ûŒü‚É”½‰f‚µA
-    //isƒxƒNƒgƒ‹‚ğŒvZ‚·‚é
+    //ã‚¹ãƒ†ã‚£ãƒƒã‚¯ã®æ°´å¹³å…¥åŠ›å€¤ã‚’ã‚«ãƒ¡ãƒ©å³æ–¹å‘ã«åæ˜ ã—ã€
+    //ã‚¹ãƒ†ã‚£ãƒƒã‚¯ã®å‚ç›´å…¥åŠ›å€¤ã‚’ã‚«ãƒ¡ãƒ©å‰æ–¹å‘ã«åæ˜ ã—ã€
+    //é€²è¡Œãƒ™ã‚¯ãƒˆãƒ«ã‚’è¨ˆç®—ã™ã‚‹
     DirectX::XMFLOAT3 vec;
     vec.x = (cameraRightX * ax) + (cameraFrontX * ay);
     vec.z = (cameraRightZ * ax) + (cameraFrontZ * ay);
-    //Y²•ûŒü‚É‚ÍˆÚ“®‚µ‚È‚¢
+    //Yè»¸æ–¹å‘ã«ã¯ç§»å‹•ã—ãªã„
     vec.y = 0.0f;
     return vec;
 }
 void Player::UpdateSkill(float elapsedTime)
 {
-    // ‰Á‘¬
+    // åŠ é€Ÿ
     SkillQuick(elapsedTime);
-    //•Šíƒ`ƒFƒ“ƒW
+    //æ­¦å™¨ãƒã‚§ãƒ³ã‚¸
     SkillWeponChange(elapsedTime);
     for (int i = 0; i < SkillMax; ++i)
     {
@@ -1079,10 +1077,10 @@ void Player::SkillWeponChange(float elapsedTime)
 }
 void Player::UpdateWeponChange(float elapsedTime)
 {
-    // “§‰ßƒtƒ‰ƒO‚ª—§‚Á‚Ä‚È‚©‚Á‚½‚çƒŠƒ^[ƒ“
+    // é€éãƒ•ãƒ©ã‚°ãŒç«‹ã£ã¦ãªã‹ã£ãŸã‚‰ãƒªã‚¿ãƒ¼ãƒ³
     if (!weponChange)return;
     if (skillTime[WeponChange] < 0) {
-        weponType = nextWepon;//Ÿ‚Ì•Ší‚ğİ’è
+        weponType = nextWepon;//æ¬¡ã®æ­¦å™¨ã‚’è¨­å®š
         //wepon->SetWeponType(weponType);
         if (InputMove(elapsedTime)) {
             //wepon->SetRnderflag(true);
@@ -1099,9 +1097,9 @@ void Player::UpdateWeponChange(float elapsedTime)
     skillTime[WeponChange] -= elapsedTime;
     ChangeWepon();
 }
-void Player::render(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader) 
+void Player::render(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader)
 {
-    if (renderflag) 
+    if (renderflag)
     {
         shader->Draw(immediate_context.Get(), player.get(), { glitchIntensity, scanBorder, glowBorder, hologramBorder });
     }
@@ -1119,7 +1117,7 @@ void Player::SwordTrailrender(RenderContext& rc, SwordTrailShader* shader) {
     objectManager.TrailRender(rc, shader);
     
 }
-//ƒfƒoƒbƒO—pGUI•`‰æ
+//ãƒ‡ãƒãƒƒã‚°ç”¨GUIæç”»
 void Player::DrawDebugGUI()
 {
     ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_FirstUseEver);
@@ -1130,7 +1128,7 @@ void Player::DrawDebugGUI()
         ImGui::SliderFloat("nextStateTimer", &nextStateTimer, 0.0f, 5.0f);
         if (ImGui::Button(u8"Start"))
         {
-            // ƒzƒƒOƒ‰ƒ€ƒVƒF[ƒ_[î•ñ‰Šú‰»
+            // ï¿½zï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½ï¿½ï¿½Vï¿½Fï¿½[ï¿½_ï¿½[ï¿½ï¿½ñ‰Šï¿½ï¿½ï¿½
             HologramShaderDataInitialize(minHeight, maxHeight);
         }
         if (ImGui::TreeNode("PBR"))
@@ -1158,14 +1156,14 @@ void Player::DrawDebugGUI()
             ImGui::SliderFloat("glitchScale", &glitchScale, 1.0f, 50.0f);
             ImGui::TreePop();
         }
-        //ƒgƒ‰ƒ“ƒXƒtƒH[ƒ€
+        //ãƒˆãƒ©ãƒ³ã‚¹ãƒ•ã‚©ãƒ¼ãƒ 
         if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
         {
-            //ˆÊ’u
+            //ä½ç½®
             ImGui::InputFloat3("Position", &position.x);
             int i = GetState();
             ImGui::InputInt("stat", &i);
-            //‰ñ“]
+            //å›è»¢
             DirectX::XMFLOAT3 a;
             a.x = DirectX::XMConvertToDegrees(angle.x);
             a.y = DirectX::XMConvertToDegrees(angle.y);
@@ -1174,7 +1172,7 @@ void Player::DrawDebugGUI()
             angle.x = DirectX::XMConvertToRadians(a.x);
             angle.y = DirectX::XMConvertToRadians(a.y);
             angle.z = DirectX::XMConvertToRadians(a.z);
-            //ƒXƒP[ƒ‹
+            //ã‚¹ã‚±ãƒ¼ãƒ«
             ImGui::InputFloat3("Scale", &scale.x);
             ImGui::InputInt("health", &health);
             ImGui::SliderFloat("skillcool", &skillCoolTime[0], 0.0f, 1.0f);
@@ -1246,7 +1244,7 @@ void Player::DrawDebugPrimitive()
 {
     DebugRenderer* debugRenderer = Graphics::Instance().GetDebugRenderer();
 
-    //Õ“Ë”»’è—p‚ÌƒfƒoƒbƒN‹…‚ğ•`‰æ
+    //è¡çªåˆ¤å®šç”¨ã®ãƒ‡ãƒãƒƒã‚¯çƒã‚’æç”»
     debugRenderer->DrawSphere(position, radius, DirectX::XMFLOAT4(1, 1, 1, 1));
     debugRenderer->DrawCylinder(position, radius, height, DirectX::XMFLOAT4(1, 0, 0, 1));
     //debugRenderer->DrawSphere(wepon->GetWeaponEPoint(), 0.2, DirectX::XMFLOAT4(0, 1, 0, 1));
@@ -1269,18 +1267,18 @@ void Player::DrawDebugPrimitive()
     //    DirectX::XMFLOAT4(1, 0, 0, 1));
 }
 
-//ƒvƒŒƒCƒ„[‚Æ“G‚Æ‚ÌÕ“Ëˆ—
+//ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã¨æ•µã¨ã®è¡çªå‡¦ç†
 void Player::CollisionPlayerVsEnemies()
 {
     EnemyManager& enemyManager = EnemyManager::Instance();
     enemyhitflag = false;
-    //‘S‚Ä‚Ì“G‚Æ‘“–‚½‚è‚ÅÕ“Ëˆ—
+    //å…¨ã¦ã®æ•µã¨ç·å½“ãŸã‚Šã§è¡çªå‡¦ç†
     int enemyCount = enemyManager.GetEnemyCount();
     for (int i = 0; i < enemyCount; i++) {
         Enemy* enemy = enemyManager.GetEnemy(i);
-        //Õ“Ëˆ—
+        //è¡çªå‡¦ç†
         DirectX::XMFLOAT3 outPosition;
-        if (enemy->GetEnemyKeyframe().nodes.size() > 0) {//“–‚½‚è”»’è—p‚Ìƒm[ƒh‚ª‚ ‚ê‚Î
+        if (enemy->GetEnemyKeyframe().nodes.size() > 0) {//å½“ãŸã‚Šåˆ¤å®šç”¨ã®ãƒãƒ¼ãƒ‰ãŒã‚ã‚Œã°
             for (Animation::Keyframe::node& node : enemy->GetEnemyKeyframe().nodes)
             {
                 if (Collision::IntersectSphereVsCylinder(node.translation,
@@ -1291,7 +1289,7 @@ void Player::CollisionPlayerVsEnemies()
                     outPosition)) {
                     enemyhitflag = true;
                          {
-                             //	 ‰Ÿ‚µo‚µŒã‚ÌˆÊ’uİ’è
+                             //	 æŠ¼ã—å‡ºã—å¾Œã®ä½ç½®è¨­å®š
                              position.x = outPosition.x;
                              position.y = outPosition.y;
                              position.z = outPosition.z;
@@ -1309,7 +1307,7 @@ void Player::CollisionPlayerVsEnemies()
             )) {
                 enemyhitflag = true;
                 {
-                    //	 ‰Ÿ‚µo‚µŒã‚ÌˆÊ’uİ’è
+                    //	 æŠ¼ã—å‡ºã—å¾Œã®ä½ç½®è¨­å®š
                     position.x = outPosition.x;
                     position.y = outPosition.y;
                     position.z = outPosition.z;
@@ -1320,7 +1318,7 @@ void Player::CollisionPlayerVsEnemies()
 }
 void Player::CollisionNodeVsEnemies(float nodeRadius,DirectX::XMFLOAT2 pow, float Damage, float InvincibleTime)
 {
-    //w’è‚Ìƒm[ƒh‚Æ‘S‚Ä‚Ì“G‚ğ‘“–‚½‚è‚ÅÕ“Ëˆ—
+    //æŒ‡å®šã®ãƒãƒ¼ãƒ‰ã¨å…¨ã¦ã®æ•µã‚’ç·å½“ãŸã‚Šã§è¡çªå‡¦ç†
     EnemyManager& enemyManager = EnemyManager::Instance();
     DirectX::XMFLOAT3 node = SearchNodePos(attackNode[combo]);
     int enemyCount = enemyManager.GetEnemyCount();
@@ -1336,13 +1334,13 @@ void Player::CollisionNodeVsEnemies(float nodeRadius,DirectX::XMFLOAT2 pow, floa
                 enemy->GetRadius(),impulse))
             {
                 if (enemy->ApplyDamage(Damage, InvincibleTime)) {
-                    //ƒmƒbƒNƒoƒbƒN
+                    //ãƒãƒƒã‚¯ãƒãƒƒã‚¯
                     KnockBack(*enemy, this->position, enemy->GetPosition(), pow.x, pow.y);
-                    //ƒqƒbƒgî•ñ“ü—Íˆ—
+                    //ãƒ’ãƒƒãƒˆæƒ…å ±å…¥åŠ›å‡¦ç†
                     HitInput(Damage, InvincibleTime);
                     //DirectX::XMFLOAT3 trailDir = GetSlashDir();
-                    //ƒqƒbƒgƒGƒtƒFƒNƒg
-                    ParticleSprite* particleSprite = new ParticleSprite(node, {0,0,0}, ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Sumi), 2000, 1.0, 0, true, 0.002,0.03, { 1,1,1,1 });
+                    //ãƒ’ãƒƒãƒˆã‚¨ãƒ•ã‚§ã‚¯ãƒˆ
+                    ParticleSprite* particleSprite = new ParticleSprite(node, {0,0,0}, ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Sumi),500, 0.4, 0, true, 0.002,0.03, { 1,1,1,1 });
                     particleSprite = new ParticleSprite(node, {0,0,0}, ParticleSprite::ParticleImpact, ParticleSprite::Expansion, int(EffectTexAll::EfTexAll::Impact), 1, 0.3, 0.1);
                     if (enemy->GetBarrierFlag()) {
                         //particleSprite = new ParticleSprite(enemyPosition, wepon->GetWeaponEFPoint(), ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Distortion), 1000, 0.5);
@@ -1358,7 +1356,7 @@ void Player::CollisionProjectilesVsEnemies()
 {
     EnemyManager& enemyManager = EnemyManager::Instance();
 
-    //‘S‚Ä‚Ì’eŠÛ‚Æ‚·‚×‚Ä‚Ì“G‚ğ‘“–‚½‚è‚ÅÕ“Ë”»’è
+    //å…¨ã¦ã®å¼¾ä¸¸ã¨ã™ã¹ã¦ã®æ•µã‚’ç·å½“ãŸã‚Šã§è¡çªåˆ¤å®š
     int enemyCount = enemyManager.GetEnemyCount();
     int projectileCount = objectManager.GetObjectCount();
 
@@ -1368,7 +1366,7 @@ void Player::CollisionProjectilesVsEnemies()
         for (int j = 0; j < enemyCount; ++j)
         {
             Enemy* enemy = enemyManager.GetEnemy(j);
-            //Õ“Ëˆ—
+            //è¡çªå‡¦ç†
             DirectX::XMFLOAT3 outPosition;
             if (Collision::IntersectSphereVsCylinder(
                 object->GetPosition(),
@@ -1378,14 +1376,14 @@ void Player::CollisionProjectilesVsEnemies()
                 enemy->GetHeight(),
                 outPosition))
             {
-                // ƒ_ƒ[ƒW‚ğ—^‚¦‚é
+                // ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚’ä¸ãˆã‚‹
                 
                   if (enemy->ApplyDamage(object->GetDamage(),object->GetInvincibleTime()))
                   {
                       
                       KnockBack(*enemy, this->position, enemy->GetPosition(), 1, 0);
                     
-                      SetShakeInput({ NULL,1,NULL }, object->GetDamage());//ƒJƒƒ‰ƒVƒFƒCƒN
+                      SetShakeInput({ NULL,1,NULL }, object->GetDamage());//ã‚«ãƒ¡ãƒ©ã‚·ã‚§ã‚¤ã‚¯
                       if (object->GetType() == Type::Straight) {
                           //ParticleSystem::Instance().BoomEffect(object->GetPosition(), 1, int(EffectTexAll::EfTexAll::Sumi), 2, { 1,1,1,1 });
                           AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::boom1)->Stop();
@@ -1407,7 +1405,7 @@ void Player::CollisionProjectilesVsEnemies()
                           //object->Destroy();
                           continue;
                       }
-                      //ƒ‰ƒ“ƒ_ƒ€aŒ‚ƒGƒtƒFƒNƒg
+                      //ãƒ©ãƒ³ãƒ€ãƒ æ–¬æ’ƒã‚¨ãƒ•ã‚§ã‚¯ãƒˆ
                       DirectX::XMFLOAT3 trailDir;
                       float angle = DirectX::XMConvertToRadians(rand() % 360);
                       trailDir.x = sinf(angle);
@@ -1417,7 +1415,7 @@ void Player::CollisionProjectilesVsEnemies()
                       ParticleSprite* particleSprite = new ParticleSprite(object->GetPosition(), trailDir, ParticleSprite::ParticleLine, ParticleSprite::Slash, int(EffectTexAll::EfTexAll::Distortion), 1, 0.5);
                       AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Slash1)->Stop();
                       AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Slash1)->Play(false, SE);
-                      //’eŠÛ”jŠü
+                      //å¼¾ä¸¸ç ´æ£„
                      
                   }
                
@@ -1431,7 +1429,7 @@ void Player::CollisionBoomVsEnemies()
 {
     EnemyManager& enemyManager = EnemyManager::Instance();
     ParticleManager& particleManager = ParticleManager::Instance();
-    //‘S‚Ä‚Ì’eŠÛ‚Æ‚·‚×‚Ä‚Ì“G‚ğ‘“–‚½‚è‚ÅÕ“Ë”»’è
+    //å…¨ã¦ã®å¼¾ä¸¸ã¨ã™ã¹ã¦ã®æ•µã‚’ç·å½“ãŸã‚Šã§è¡çªåˆ¤å®š
     int enemyCount = enemyManager.GetEnemyCount();
     int projectileCount = particleManager.GetParticleCount();
 
@@ -1444,7 +1442,7 @@ void Player::CollisionBoomVsEnemies()
             for (int j = 0; j < enemyCount; ++j)
             {
                 Enemy* enemy = enemyManager.GetEnemy(j);
-                //Õ“Ëˆ—
+                //è¡çªå‡¦ç†
                 DirectX::XMFLOAT3 outPosition;
                 if (Collision::IntersectSphereVsCylinder(
                     move.position,
@@ -1454,7 +1452,7 @@ void Player::CollisionBoomVsEnemies()
                     enemy->GetHeight(),
                     outPosition))
                 {
-                    // ƒ_ƒ[ƒW‚ğ—^‚¦‚é
+                    // ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚’ä¸ãˆã‚‹
                     if (enemy->ApplyDamage(1, 0.5));
                 }
             }
@@ -1462,7 +1460,7 @@ void Player::CollisionBoomVsEnemies()
     }
 }
 void Player::Sprite2DRender(ID3D11DeviceContext* dc, RenderContext& rc, SpriteShader* shader) {
-    //UIŒn•`‰æ
+    //UIç³»æç”»
     //wepon->DrawUI(dc,rc,shader);
 }
 void Player::UpdateUI(float elapsedTime) {

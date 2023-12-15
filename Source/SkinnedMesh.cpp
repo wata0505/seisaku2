@@ -498,10 +498,9 @@ void SkinnedMeshResouurce::CreateComObjects(ID3D11Device* device, const char* fb
                 if (texture_index == 1)
                 {
                     std::filesystem::path path(dirname);
-                    char filename[256];
-                    const char* nomal = "Normal";
+                    const char* searchName = "Normal";
                     path.replace_filename(dir);
-                    path.replace_filename(nomal);
+                    path.replace_filename(searchName);
                     // テクスチャ読み込み
                     std::filesystem::path dds_filename(path);
                     dds_filename.replace_extension("dds");
@@ -516,10 +515,9 @@ void SkinnedMeshResouurce::CreateComObjects(ID3D11Device* device, const char* fb
                 if (texture_index == 2)
                 {
                     std::filesystem::path path(dirname);
-                    char filename[256];
-                    const char* nomal = "MetalSmoothness";
+                    const char* searchName = "MetalSmoothness";
                     path.replace_filename(dir);
-                    path.replace_filename(nomal);
+                    path.replace_filename(searchName);
                     // テクスチャ読み込み
                     std::filesystem::path dds_filename(path);
                     dds_filename.replace_extension("dds");
@@ -536,10 +534,9 @@ void SkinnedMeshResouurce::CreateComObjects(ID3D11Device* device, const char* fb
                 if (texture_index == 3)
                 {
                     std::filesystem::path path(dirname);
-                    char filename[256];
-                    const char* nomal = "AO";
+                    const char* searchName = "AO";
                     path.replace_filename(dir);
-                    path.replace_filename(nomal);
+                    path.replace_filename(searchName);
                     // テクスチャ読み込み
                     std::filesystem::path dds_filename(path);
                     dds_filename.replace_extension("dds");
@@ -556,10 +553,9 @@ void SkinnedMeshResouurce::CreateComObjects(ID3D11Device* device, const char* fb
                 if (texture_index == 4)
                 {
                     std::filesystem::path path(dirname);
-                    char filename[256];
-                    const char* nomal = "Emission";
+                    const char* searchName = "Emission";
                     path.replace_filename(dir);
-                    path.replace_filename(nomal);
+                    path.replace_filename(searchName);
                     // テクスチャ読み込み
                     std::filesystem::path dds_filename(path);
                     dds_filename.replace_extension("dds");

@@ -105,6 +105,8 @@ private:
 
 	float waveTimer = 3;
 
+	float gameTimer = 0;
+
 	// ジッタードリフト定数バッファ
 	struct JitterDriftConstantBuffer
 	{

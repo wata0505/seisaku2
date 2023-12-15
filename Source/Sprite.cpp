@@ -313,8 +313,8 @@ void Sprite::Render(ID3D11DeviceContext* dc, float d, float ds, float dd, bool i
 
 	float sx = 0.0f;
 	float sy = 0.0f;
-	float sw = textureWidth;
-	float sh = textureHeight;
+	float sw = static_cast<float>(textureWidth);
+	float sh = static_cast<float>(textureHeight);
 	// スプライトを構成する４頂点のテクスチャ座標を計算する
 	DirectX::XMFLOAT2 texcoords[] = 
 	{
@@ -418,8 +418,8 @@ void Sprite::Render(ID3D11DeviceContext* dc,
 
 		float sx = 0.0f;
 		float sy = 0.0f;
-		float sw = textureWidth;
-		float sh = textureHeight;
+		float sw = static_cast<float>(textureWidth);
+		float sh = static_cast<float>(textureHeight);
 		// スプライトを構成する４頂点のテクスチャ座標を計算する
 		DirectX::XMFLOAT2 texcoords[] = 
 		{
@@ -523,8 +523,8 @@ void Sprite::RotateRender(ID3D11DeviceContext* dc,
 
 		float sx = 0.0f;
 		float sy = 0.0f;
-		float sw = textureWidth;
-		float sh = textureHeight;
+		float sw = static_cast<float>(textureWidth);
+		float sh = static_cast<float>(textureHeight);
 		// スプライトを構成する４頂点のテクスチャ座標を計算する
 		DirectX::XMFLOAT2 texcoords[] = 
 		{
@@ -653,7 +653,7 @@ void Sprite::RenderCircle(ID3D11DeviceContext* dc,
 
 		D3D11_MAPPED_SUBRESOURCE msr;
 		dc->Map(vertexBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &msr);
-		memcpy(msr.pData, vertices, sizeof(vertex) * (n + 1) * 2);
+		memcpy(msr.pData, vertices, sizeof(vertex) * (size_t)(n + 1) * 2);
 		dc->Unmap(vertexBuffer.Get(), 0);
 
 		UINT stride = sizeof(vertex);
@@ -666,7 +666,7 @@ void Sprite::RenderCircle(ID3D11DeviceContext* dc,
 		dc->PSSetShader(pixelShader.Get(), NULL, 0);
 		dc->OMSetDepthStencilState(depthStencilState.Get(), 1);
 
-		dc->Draw((n + 1) * 2 - 1, 0);
+		dc->Draw(((UINT)n + 1) * 2 - 1, 0);
 
 
 	}

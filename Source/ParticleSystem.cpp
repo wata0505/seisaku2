@@ -172,6 +172,40 @@ void ParticleSystem::Rubble2Effect(DirectX::XMFLOAT3 position, int Max, int Spee
     particleManager.Register(particle);
 }
 
+void ParticleSystem::Rubble3Effect(DirectX::XMFLOAT3 position, int Max, int SpeedMax) {
+    ParticleManager& particleManager = ParticleManager::Instance();
+    Particle::MoveConstants move;
+    std::vector<Particle::MoveConstants> moveConst;
+    for (int i = 0; i < Max; i++) {
+        float angle = DirectX::XMConvertToRadians(rand() % 360);
+        float length = rand() % 5;
+        DirectX::XMFLOAT3 Vec, pos;
+        Vec.x = sinf(angle);
+        Vec.z = cosf(angle);
+        pos.x = position.x;
+        pos.y = position.y;
+        pos.z = position.z;
+        //ãŒü‚«ƒ‰ƒ“ƒ_ƒ€‚Å
+        float angleX = DirectX::XMConvertToRadians(rand() % 360);
+        float angleY = DirectX::XMConvertToRadians(60);
+        Vec.y = sin(angleY);
+        Vec.x = cosf(angleY) * sinf(angleX);
+        Vec.z = cosf(angleY) * cosf(angleX);
+        //Vec = Vector3::add({0,1,0}, Vec);
+        float speed = rand() % SpeedMax + 10;
+        move.position = pos;
+        move.direction = Vec;
+        move.speed = speed;
+        moveConst.push_back(move);
+
+    }
+    Particle* particle = new Particle;
+    //ƒ‰ƒ“ƒ_ƒ€‚ÌŠâƒ‚ƒfƒ‹
+    particle->Launch(moveConst, ParticleType::Rubble2, rockType[rand() % Particle::Rock3 + Particle::Lance], static_cast<int>(ParticleShader::ModelPSType::Default), NULL, 1.5, { 1,0,0,1 });
+    particleManager.Register(particle);
+}
+
+
 
 void ParticleSystem::BoomEffect(DirectX::XMFLOAT3 position, int max, int textype, float size, float liftimer, DirectX::XMFLOAT4 color) {
     ParticleManager& particleManager = ParticleManager::Instance();

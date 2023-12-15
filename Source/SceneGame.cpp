@@ -50,7 +50,7 @@ void SceneGame::Initialize()
 		stageManager.Register(stageObj);
 	}
 	
-	pos[0] = { 100,-2.5,-120 };
+	pos[0] = { 100,-2.5,-140 };
 	Camera& camera = Camera::Instance();
 	camera.SetLookAt(
 		DirectX::XMFLOAT3(0, 0, -10),
@@ -159,8 +159,8 @@ void SceneGame::Finalize()
 	UIManager::Instance().Clear();
 	AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Bgm)->Stop();
 	AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::BgmBoss)->Stop();
-
 	TrapManager::Instance().Clear();
+	
 }
 void SceneGame::Update(float elapsedTime)
 {
@@ -185,6 +185,12 @@ void SceneGame::Update(float elapsedTime)
 
 	TrapManager::Instance().Update(elapsedTime);
 	TrapManager::Instance().DrawDebugPrimitive();
+
+	if (Base::Instance().GetJitterStrength() > 0) {
+		jitterDriftData.jitterStrength = Base::Instance().GetJitterStrength();
+	}
+	jitterDriftData.jitterStrength -= elapsedTime;
+	if (jitterDriftData.jitterStrength < 0)jitterDriftData.jitterStrength = 0;
 	
 	if (base->GetHP() != 0 && player->GetHealth() > 0 && EnemySystem::Instance().GetWave() < 3) {
 		dissolveTimer += elapsedTime;
@@ -192,6 +198,7 @@ void SceneGame::Update(float elapsedTime)
 	}
 	else
 	{
+		jitterDriftData.jitterStrength = 0.3;
 		dissolveTimer -= elapsedTime;
 	}
 	haikeiTimer += elapsedTime;
@@ -204,7 +211,7 @@ void SceneGame::Update(float elapsedTime)
 		waveTimer += elapsedTime;
 		if (waveTimer > 3) waveTimer = 3;
 	}
-
+	gameTimer++;
 }
 void SceneGame::Render()
 {
@@ -315,7 +322,7 @@ void SceneGame::Render()
 	EnemyManager::Instance().Render(immediate_context, shader);
 	StageManager::Instance().InstaningRender(immediate_context, shader);
 	TrapManager::Instance().Render(immediate_context, shader);
-
+	
 	shader->End(immediate_context);
 	//レンダーターゲット切り替え
 	immediate_context->OMSetRenderTargets(1, render_target_view.GetAddressOf(), graphics.GetDepthStencilView());
@@ -463,7 +470,7 @@ void SceneGame::Render()
 	}
 	loodSprite->Render(immediate_context,
 		0, 0, 1280, 720,
-		0, 0, loodSprite->GetTextureWidth(), loodSprite->GetTextureHeight(),
+		0, gameTimer*10, loodSprite->GetTextureWidth(), loodSprite->GetTextureHeight(),
 		0.0f,
 		1.0f, 1.0f, 1.0f, 1.0f,
 		dissolveTimer,0,0

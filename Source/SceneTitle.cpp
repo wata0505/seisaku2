@@ -96,6 +96,20 @@ void SceneTitle::Initialize()
 		create_ps_from_cso(device, "Shader\\PostEffectPS.cso", pixelShader[PixelShaderKind::PostEffect].GetAddressOf());
 		create_ps_from_cso(device, "Shader\\BlurPS.cso", pixelShader[PixelShaderKind::GaussianBlur].GetAddressOf());
 		create_ps_from_cso(device, "Shader\\EffectPS.cso", pixelShader[PixelShaderKind::RadiationBlur].GetAddressOf());
+		// ジッタードリフト定数バッファ
+		{
+			// 定数バッファオブジェクト作成
+			D3D11_BUFFER_DESC bufferDesc{};
+			bufferDesc.ByteWidth = sizeof(JitterDriftConstantBuffer);
+			bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+			bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+			bufferDesc.CPUAccessFlags = 0;
+			bufferDesc.MiscFlags = 0;
+			bufferDesc.StructureByteStride = 0;
+			HRESULT hr = device->CreateBuffer(&bufferDesc, nullptr, jitterDriftConstantBuffer.GetAddressOf());
+			_ASSERT_EXPR(SUCCEEDED(hr), HRTrace(hr));
+		}
+		create_ps_from_cso(device, "Shader\\JitterDriftPS.cso", pixelShader[PixelShaderKind::JitterDriftPS].GetAddressOf());
 		bitBlockTransfer = std::make_unique<FullscreenQuad>(device);
 
 		// 描画バッファ
@@ -103,6 +117,7 @@ void SceneTitle::Initialize()
 		subframebuffers[SubFrameBufferKind::Luminance] = std::make_unique<SubFramebuffer>(device, SCREEN_WIDTH, SCREEN_HEIGHT);
 		subframebuffers[SubFrameBufferKind::Bloom] = std::make_unique<SubFramebuffer>(device, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
 		subframebuffers[SubFrameBufferKind::Synthesis] = std::make_unique<SubFramebuffer>(device, SCREEN_WIDTH, SCREEN_HEIGHT);
+		subframebuffers[SubFrameBufferKind::JitterDriftSFB] = std::make_unique<SubFramebuffer>(device, SCREEN_WIDTH, SCREEN_HEIGHT);
 		// シャドウバッファ
 		static const int ShadowMapSize = 2096;
 		shadowbuffer = std::make_unique<Shadowbuffer>(device, ShadowMapSize, ShadowMapSize);
@@ -249,6 +264,11 @@ void SceneTitle::Update(float elapsedTime)
 	progressTimer++;
 	// スカイボックス経過時間加算
 	skyboxTimer += elapsedTime;
+	skyboxColor -= elapsedTime;
+	if (skyboxColor <= 0.0f)
+	{
+		skyboxColor = 0.0f;
+	}
 	// ゲームモードの選択切り替えによる処理
 	{
 		// 線形補完速度
@@ -346,7 +366,7 @@ void SceneTitle::Render()
 		{
 			SpriteShader* skyboxShader = graphics.GetShader(Graphics::SpriteShaderId::Skybox);
 			skyboxShader->Begin(rc);
-			spriteBatchs[SpriteKind::Skybox]->Render(immediate_context, 0.0f, skyboxTimer);
+			spriteBatchs[SpriteKind::Skybox]->Render(immediate_context, skyboxColor, skyboxTimer);
 			skyboxShader->Draw(rc, spriteBatchs[SpriteKind::Skybox].get());
 			skyboxShader->End(rc);
 		}
@@ -391,8 +411,18 @@ void SceneTitle::Render()
 			bitBlockTransfer->blit(immediate_context, shaderResourceViews, 0, viewCount, pixelShader[PixelShaderKind::PostEffect].Get());
 			subframebuffers[SubFrameBufferKind::Synthesis]->Deactivate(immediate_context);
 		}
+		// ジッタードリフトシェーダー描画バッファ
+		{
+			// ジッタードリフトシェーダー
+			jitterDriftData.time += 1.0f / 60.0f;
+			jitterDriftData.jitterStrength = skyboxColor / 200.0f;
+			subframebuffers[SubFrameBufferKind::JitterDriftSFB]->Clear(immediate_context);
+			subframebuffers[SubFrameBufferKind::JitterDriftSFB]->Activate(immediate_context);
+			bitBlockTransfer->JitterDrift(immediate_context, subframebuffers[SubFrameBufferKind::Synthesis]->shaderResourceViews.GetAddressOf(), 13, 1, jitterDriftData, pixelShader[PixelShaderKind::JitterDriftPS].Get());
+			subframebuffers[SubFrameBufferKind::JitterDriftSFB]->Deactivate(immediate_context);
+		}
 		// ポストエフェクトを掛け終わった画面をスプライトに設定
-		renderSprite->SetShaderResourceView(subframebuffers[SubFrameBufferKind::Synthesis]->shaderResourceViews.Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
+		renderSprite->SetShaderResourceView(subframebuffers[SubFrameBufferKind::JitterDriftSFB]->shaderResourceViews.Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
 	}
 
 	// 2D描画
@@ -529,6 +559,18 @@ void SceneTitle::ImGuiRender()
 	ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_FirstUseEver);
 	if (ImGui::Begin("Debug", nullptr, ImGuiWindowFlags_None))
 	{
+		if (ImGui::Button(u8"Damage"))
+		{
+			skyboxColor = 1.0f;
+		}
+#if 0
+		if (ImGui::TreeNode("JitterDrift"))
+		{
+			ImGui::SliderFloat("JitterStrength", &jitterDriftData.jitterStrength, 0.0f, 1.0f);
+			ImGui::TreePop();
+		}
+		ImGui::SliderFloat("skyboxColor", &skyboxColor, 0.0f, 1.0f);
+#endif
 		ImGui::SliderFloat("punchScale", &punchScale, 1.0f, 3.0f);
 		ImGui::SliderFloat("lerpScale", &lerpScale, 1.0f, 3.0f);
 		ImGui::SliderFloat("punchPosition", &punchPosition, 0.0f, 1.0f);
@@ -555,6 +597,7 @@ void SceneTitle::ImGuiRender()
 			ImGui::Image(subframebuffers[SubFrameBufferKind::Luminance]->shaderResourceViews.Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
 			ImGui::Image(subframebuffers[SubFrameBufferKind::Bloom]->shaderResourceViews.Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
 			ImGui::Image(subframebuffers[SubFrameBufferKind::Synthesis]->shaderResourceViews.Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
+			ImGui::Image(subframebuffers[SubFrameBufferKind::JitterDriftSFB]->shaderResourceViews.Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
 			ImGui::TreePop();
 		}
 		ImGui::End();

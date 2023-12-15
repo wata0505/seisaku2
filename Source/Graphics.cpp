@@ -353,7 +353,7 @@ Graphics::Graphics(HWND hWnd)
 	{
 		dissolveSprite[static_cast<int>(DissolveSpriteId::Dissolve)] = std::make_unique<Sprite>(L".\\resources\\UI\\dissolve.jpg");
 		dissolveSprite[static_cast<int>(DissolveSpriteId::DissolveCircle)] = std::make_unique<Sprite>(L".\\resources\\UI\\dissolve Circle.png");
-		dissolveSprite[static_cast<int>(DissolveSpriteId::DissolveDiagonal)] = std::make_unique<Sprite>(L".\\resources\\UI\\2.png");
+		dissolveSprite[static_cast<int>(DissolveSpriteId::DissolveDiagonal)] = std::make_unique<Sprite>(L".\\resources\\UI\\3.png");
 	}
 }
 

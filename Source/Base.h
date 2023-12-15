@@ -45,6 +45,8 @@ public:
 
 	int GetHP() { return hp; }
 
+	float GetJitterStrength() { return jitterStrength; }
+
 private:
 	std::unique_ptr<Model> obj = nullptr;
 	std::unique_ptr<Sprite> uiSprite;
@@ -57,5 +59,6 @@ private:
 	float height = 10;
 	int hp = 1000;
 	int hpMax = 1000;
-
+	float jitterStrength = 0;
+	
 };

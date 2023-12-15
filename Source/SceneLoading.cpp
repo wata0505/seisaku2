@@ -50,12 +50,12 @@ void SceneLoading::Update(float elapsedTime)
             nextScene = nullptr;
         }
     }
-    tipsTimer += elapsedTime;
-    if (tipsTimer > 3) {
-        tipsNo++;
-        tipsTimer = 0;
-        if (tipsNo >= tipsMax)tipsNo = 0;
-    }
+    tipsTimer++;
+    //if (tipsTimer > 3) {
+    //    tipsNo++;
+    //    tipsTimer = 0;
+    //    if (tipsNo >= tipsMax)tipsNo = 0;
+    //}
 }
 
 // •`‰æˆ—
@@ -85,7 +85,7 @@ void SceneLoading::Render()
             shader->Begin(rc);
             sprite[1]->Render(dc,
                 0, 0, 1280, 720,
-                0, 0, sprite[1]->GetTextureWidth(), sprite[1]->GetTextureHeight(),
+                0, tipsTimer * 10, sprite[1]->GetTextureWidth(), sprite[1]->GetTextureHeight(),
                 0.0f,
                 1.0f, 1.0f, 1.0f, 1.0f
             );

@@ -59,6 +59,7 @@ private:
 		PostEffect,		// ポストエフェクト
 		GaussianBlur,	// ガウシアンブラー
 		RadiationBlur,	// 放射ブラー
+		JitterDriftPS,	// ジッタードリフト
 
 		PSMax
 	};
@@ -69,6 +70,7 @@ private:
 		Luminance,		// 輝度抽出
 		Bloom,			// ブルーム
 		Synthesis,		// 合成
+		JitterDriftSFB,	// ジッタードリフト
 
 		SFBMax
 	};
@@ -113,4 +115,14 @@ private:
 	int												progressTimer = 0;								// 経過時間
 	int												titleMode = 0;									// タイトルモード
 	int												gameMode = 0;									// ゲームモード
+	float skyboxColor = 0.0f;
+	// ジッタードリフト定数バッファ
+	struct JitterDriftConstantBuffer
+	{
+		float jitterStrength = 0.0f;
+		float time = 0.0f;
+		DirectX::XMFLOAT2 dummy;
+	};
+	Microsoft::WRL::ComPtr<ID3D11Buffer> jitterDriftConstantBuffer;	// ジッタードリフト定数バッファ
+	JitterDriftData jitterDriftData;
 };

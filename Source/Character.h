@@ -117,6 +117,11 @@ public:
 
 	float GetMaxMoveSpeed() { return maxMoveSpeed; }
 
+	// ホログラムシェーダー情報初期化
+	void HologramShaderDataInitialize(float minHeight, float maxHeight);
+	// ホログラムシェーダー更新処理
+	bool UpdateHologramShader(float elapsedTime);
+
 protected:
 
 	//移動処理
@@ -144,10 +149,7 @@ protected:
 	// 無敵時間更新
 	void UpdateInvincibleTimer(float elapsedTime);
 
-	// ホログラムシェーダー情報初期化
-	void HologramShaderDataInitialize(float minHeight, float maxHeight);
-	// ホログラムシェーダー更新処理
-	bool UpdateHologramShader(float elapsedTime);
+	
 
 private:
 	// 垂直速力更新処理

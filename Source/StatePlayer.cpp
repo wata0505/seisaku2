@@ -168,6 +168,7 @@ void LandState::Enter()
     if (owner->GetVelocity().y < -50.5 && owner->GetModel()->GetCurrentAnimationIndex() == Player::AnimJumpAttack) {//一定以上の落下速度でハルバートなら
         owner->GetModel()->PlayAnimation(Player::AnimLound, false);
         ParticleSystem::Instance().RubbleEffect({ owner->GetPosition().x,owner->GetPosition().y -5,owner->GetPosition().z }, 20, 100);
+        ParticleSystem::Instance().Rubble3Effect({ owner->GetPosition().x,owner->GetPosition().y - 5,owner->GetPosition().z }, 20, 100);
         ParticleSprite* particleSprite = new ParticleSprite(owner->GetPosition(), {0,0,0}, ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Sumi), 2000, 1.5, 0, true, 0.005, 0.06, { 1,1,1,1 });
         owner->combo = 3;
     }
@@ -865,6 +866,7 @@ void DamageState::Enter()
 {
     owner->SetState(Player::State::Damage);
     // アニメーション再生
+    owner->GetModel()->PlayAnimation(static_cast<int>(Player::AnimHit), false,0.0f);
     owner->landflag = false;
     owner->SetGravity(-1.0f);
 }
@@ -912,6 +914,7 @@ void DownState::Exit() {}
 void DieState::Enter()
 {
     owner->SetState(Player::State::Dead);
+    owner->GetModel()->PlayAnimation(Player::AnimDie, false, 0.0);
     // アニメーション再生
     owner->landflag = false;
 }

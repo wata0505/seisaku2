@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <windows.h>
 #include <tchar.h>
 #include <sstream>
@@ -28,27 +28,27 @@ class Player : public Character
 public:
     enum  State
     {
-        Idle,              //‘Ò‹@
-        Move,              //ˆÚ“®
-        JumpStandby,       //ƒWƒƒƒ“ƒv€”õ
-        Jump,              //ƒWƒƒƒ“ƒv
-        Land,              //’…’n
-        Roll,              //‰ñ”ğ
-        Stinger,           //’·Œ•“Áê
-        Shift,             //ƒVƒtƒg
-        ShiftAttack,       //ƒVƒtƒgUŒ‚
-        Lance,             //ƒnƒ‹ƒo[ƒg“Áê
-        Charge,            //ƒAƒbƒNƒX“Áêƒ`ƒƒ[ƒW
-        ChargeAttack,      //ƒ`ƒƒ[ƒWƒAƒ^ƒbƒN
-        Attack,            //•Ší‚²‚Æ‚ÌUŒ‚
-        FallAttack,        //—‰ºUŒ‚
-        Guard,             //ƒK[ƒh
-        CounterStandby,    //ƒJƒEƒ“ƒ^[ƒXƒ^ƒ“ƒoƒC
-        Counter,           //ƒJƒEƒ“ƒ^[
-        Teleport,          //ƒeƒŒƒ|[ƒg
-        Damage,            //ƒ_ƒ[ƒW
-        Down,              //ƒ_ƒEƒ“
-        Dead               //€–S
+        Idle,              //å¾…æ©Ÿ
+        Move,              //ç§»å‹•
+        JumpStandby,       //ã‚¸ãƒ£ãƒ³ãƒ—æº–å‚™
+        Jump,              //ã‚¸ãƒ£ãƒ³ãƒ—
+        Land,              //ç€åœ°
+        Roll,              //å›é¿
+        Stinger,           //é•·å‰£ç‰¹æ®Š
+        Shift,             //ã‚·ãƒ•ãƒˆ
+        ShiftAttack,       //ã‚·ãƒ•ãƒˆæ”»æ’ƒ
+        Lance,             //ãƒãƒ«ãƒãƒ¼ãƒˆç‰¹æ®Š
+        Charge,            //ã‚¢ãƒƒã‚¯ã‚¹ç‰¹æ®Šãƒãƒ£ãƒ¼ã‚¸
+        ChargeAttack,      //ãƒãƒ£ãƒ¼ã‚¸ã‚¢ã‚¿ãƒƒã‚¯
+        Attack,            //æ­¦å™¨ã”ã¨ã®æ”»æ’ƒ
+        FallAttack,        //è½ä¸‹æ”»æ’ƒ
+        Guard,             //ã‚¬ãƒ¼ãƒ‰
+        CounterStandby,    //ã‚«ã‚¦ãƒ³ã‚¿ãƒ¼ã‚¹ã‚¿ãƒ³ãƒã‚¤
+        Counter,           //ã‚«ã‚¦ãƒ³ã‚¿ãƒ¼
+        Teleport,          //ãƒ†ãƒ¬ãƒãƒ¼ãƒˆ
+        Damage,            //ãƒ€ãƒ¡ãƒ¼ã‚¸
+        Down,              //ãƒ€ã‚¦ãƒ³
+        Dead               //æ­»äº¡
     };
     enum Animations
     {
@@ -64,6 +64,8 @@ public:
         Anim1Combo2,
         Anim1Combo3,
         Anim1Combo4,
+        AnimHit,
+        AnimDie
     };
     
     enum AttackNo
@@ -98,28 +100,24 @@ public:
         ProjectileRotate,
         SkillMax
     };
-
-    // ƒ^ƒCƒgƒ‹‚Å‚Ìó‘Ô
     enum TitleState
     {
-        TitleDefault,            // –¢“ü—Í
-        TitleSelect,             // ƒ^ƒCƒgƒ‹‚ÅƒQ[ƒ€ƒ‚[ƒh‘I‘ğ
-        TitlePunchStart,         // ‰£‚èƒAƒjƒ[ƒVƒ‡ƒ“ŠJn
-        TitlePunchNow,           // ‰£‚èƒAƒjƒ[ƒVƒ‡ƒ“’†
-        TitlePunchReverberation, // ‰£‚èƒAƒjƒ[ƒVƒ‡ƒ“—]‰C
-        TitleKickStart,          // R—‚Æ‚µƒAƒjƒ[ƒVƒ‡ƒ“ŠJn
-        TitleKickNow,            // R—‚Æ‚µƒAƒjƒ[ƒVƒ‡ƒ“’†
-        TitleKickReverberation,  // R—‚Æ‚µƒAƒjƒ[ƒVƒ‡ƒ“—]‰C
+        TitleDefault,            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+        TitleSelect,             // ï¿½^ï¿½Cï¿½gï¿½ï¿½ï¿½ÅƒQï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½[ï¿½hï¿½Iï¿½ï¿½
+        TitlePunchStart,         // ï¿½ï¿½ï¿½ï¿½Aï¿½jï¿½ï¿½ï¿½[ï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½Jï¿½n
+        TitlePunchNow,           // ï¿½ï¿½ï¿½ï¿½Aï¿½jï¿½ï¿½ï¿½[ï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+        TitlePunchReverberation, // ï¿½ï¿½ï¿½ï¿½Aï¿½jï¿½ï¿½ï¿½[ï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½]ï¿½C
+        TitleKickStart,          // ï¿½Rï¿½ï¿½ï¿½Æ‚ï¿½ï¿½Aï¿½jï¿½ï¿½ï¿½[ï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½Jï¿½n
+        TitleKickNow,            // ï¿½Rï¿½ï¿½ï¿½Æ‚ï¿½ï¿½Aï¿½jï¿½ï¿½ï¿½[ï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+        TitleKickReverberation,  // ï¿½Rï¿½ï¿½ï¿½Æ‚ï¿½ï¿½Aï¿½jï¿½ï¿½ï¿½[ï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½]ï¿½C
     };
-
-
 public:
     Player();
     ~Player() override;
 
     static Player& Instance();
 
-    // ƒ}ƒeƒŠƒAƒ‹ƒJƒ‰[
+    // ãƒãƒ†ãƒªã‚¢ãƒ«ã‚«ãƒ©ãƒ¼
     DirectX::XMFLOAT4 materialColor{ 1 ,1, 1, 1 };
 
 
@@ -127,18 +125,18 @@ public:
     void update(float elapsed_time);
     void TitleUpdate(float elapsedTime);
     void render(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader);
-    //c‘œƒGƒtƒFƒNƒg•`‰æ
+    //æ®‹åƒã‚¨ãƒ•ã‚§ã‚¯ãƒˆæç”»
     void Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader);
-    //ƒ\[ƒhc‘œƒGƒtƒFƒNƒg•`‰æ
+    //ã‚½ãƒ¼ãƒ‰æ®‹åƒã‚¨ãƒ•ã‚§ã‚¯ãƒˆæç”»
     void SwordTrailrender(RenderContext& rc, SwordTrailShader* shader);
 
-    //ƒWƒƒƒ“ƒv“ü—Íˆ—
+    //ã‚¸ãƒ£ãƒ³ãƒ—å…¥åŠ›å‡¦ç†
     bool InputJump();
 
-    // UŒ‚“ü—Íˆ—
+    // æ”»æ’ƒå…¥åŠ›å‡¦ç†
     bool InputAttack();
    
-    //’e”­Ëˆ—
+    //å¼¾ç™ºå°„å‡¦ç†
     void InputProjectile();
 
     void DrawDebugPrimitive();
@@ -147,9 +145,9 @@ public:
 
     std::shared_ptr<Model> GetSword() { return sword; }
 
-    //ƒfƒoƒbƒO—pGUI•`‰æ
+    //ãƒ‡ãƒãƒƒã‚°ç”¨GUIæç”»
     void DrawDebugGUI();
-    //ƒƒbƒNƒIƒ“
+    //ãƒ­ãƒƒã‚¯ã‚ªãƒ³
     void Sprite2DRender(ID3D11DeviceContext* dc, RenderContext& rc, SpriteShader* shader);
 
     bool GetQuickflag() { return quickFlag; };
@@ -163,304 +161,304 @@ public:
     void SetState(State index) { state = index; };
 
     void SetCounterflag(bool Counter) { counterFlag = Counter; };
-    //ƒƒbƒNƒIƒ“ƒtƒ‰ƒOæ“¾
+    //ãƒ­ãƒƒã‚¯ã‚ªãƒ³ãƒ•ãƒ©ã‚°å–å¾—
     bool GetLockOnflag() { return lockOn; };
 
     void PlayerKnockBack(DirectX::XMFLOAT3 mypos, DirectX::XMFLOAT3 targetpos, float power, float powerY,float damage);
-    //ƒƒbƒNƒIƒ“ƒGƒlƒ~[ˆÊ’uæ“¾
+    //ãƒ­ãƒƒã‚¯ã‚ªãƒ³ã‚¨ãƒãƒŸãƒ¼ä½ç½®å–å¾—
     DirectX::XMFLOAT3 GetLockEnemyPos() { return epos; };
-    //Œ•‚ÌèŒ³æ“¾
+    //å‰£ã®æ‰‹å…ƒå–å¾—
     DirectX::XMFLOAT3 GetHeadPos() { return head; };
     
-    //‚‚ÌèŒ³æ“¾
+    //ç›¾ã®æ‰‹å…ƒå–å¾—
     DirectX::XMFLOAT3 GetShieldHeadPos() { return  shieldHead; };
-    //Œ•ææ“¾
+    //å‰£å…ˆå–å¾—
     DirectX::XMFLOAT3 GetTailPos() { return tail; };
-    //Œ••¿æ“¾
+    //å‰£æŸ„å–å¾—
     DirectX::XMFLOAT3 GetPatternPos() { return pattern; };
-    //Œ•‚ÌŒü‚«æ“¾
+    //å‰£ã®å‘ãå–å¾—
     DirectX::XMFLOAT3 GetSworddir() { return sworddir; };
 
     DirectX::XMFLOAT3 GetDir() { return dir; };
-    //UŒ‚•ûŒü
+    //æ”»æ’ƒæ–¹å‘
     DirectX::XMFLOAT3 GetAttackDir() { return attackDir; };
-    //•Ší‚Ìƒgƒ‰ƒ“ƒXƒtƒH[ƒ€
+    //æ­¦å™¨ã®ãƒˆãƒ©ãƒ³ã‚¹ãƒ•ã‚©ãƒ¼ãƒ 
     DirectX::XMFLOAT4X4 GetWeponTransform() { return weponTransform; }
 
     bool GetAttackHitflag() { return attackHitflag; }
-    //•ŠíØ‚è‘Ö‚¦ó‘Ôæ“¾
+    //æ­¦å™¨åˆ‡ã‚Šæ›¿ãˆçŠ¶æ…‹å–å¾—
     bool GetWeponChange() { return weponChange; }
-    //g‚Á‚Ä‚é•Ší‚ª‰ó‚ê‚Ä‚¢‚é‚©
+    //ä½¿ã£ã¦ã‚‹æ­¦å™¨ãŒå£Šã‚Œã¦ã„ã‚‹ã‹
     //bool GetUseWeponBreak() { return wepon->GetBreakFlag(weponType); }
-    //•`‰æ‚µ‚Ä‚¢‚é‚©
+    //æç”»ã—ã¦ã„ã‚‹ã‹
     bool GetRenderflag() { return renderflag; }
-    //ƒVƒtƒgUŒ‚‚µ‚Ä‚¢‚é‚©
+    //ã‚·ãƒ•ãƒˆæ”»æ’ƒã—ã¦ã„ã‚‹ã‹
     bool GetShiftAttackflag() { return shiftAttackflag; }
-    //ƒJƒƒ‰ƒVƒFƒCƒN“ü—Í
+    //ã‚«ãƒ¡ãƒ©ã‚·ã‚§ã‚¤ã‚¯å…¥åŠ›
     void SetShakeInput(DirectX::XMFLOAT3 dir, float Damage);
-    //€–Sƒ^ƒCƒ}[
+    //æ­»äº¡ã‚¿ã‚¤ãƒãƒ¼
     float GetDidTimer() { return disslveTimer; }
-    //ƒvƒŒƒCƒ„[—p‚Ì“–‚½‚è”»’èˆÊ’u
+    //ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ç”¨ã®å½“ãŸã‚Šåˆ¤å®šä½ç½®
     DirectX::XMFLOAT3 GetHitPos() { return { position.x,(position.y - (height / 2)),position.z }; }
-    //‚•`‰æƒtƒ‰ƒO
+    //ç›¾æç”»ãƒ•ãƒ©ã‚°
     bool GetShildFlag() { return shildFlag; };
-    //ƒƒbƒNƒIƒ“ƒGƒlƒ~[I‚„
+    //ãƒ­ãƒƒã‚¯ã‚ªãƒ³ã‚¨ãƒãƒŸãƒ¼Iï½„
     int GetLockEnemyId() { return enemyId; }
-    //“G‚Æ‚Ì‹——£
+    //æ•µã¨ã®è·é›¢
     float GetEnemyLength() { return enemyLength; }
-    //•Šíæ“¾
+    //æ­¦å™¨å–å¾—
    // MainWepon* GetWepon() { return wepon.get(); };
 
-    // ƒ^ƒCƒgƒ‹‚Å‚Ìó‘Ôæ“¾‚Æİ’è
-    int GetTitleState() { return titleState; }
-    void SetTitleState(int index) { titleState = index; }
-
-    //ˆÚ“®“ü—Íˆ—
+    //ç§»å‹•å…¥åŠ›å‡¦ç†
     bool InputMove(float elapsedTime);
 
     StateMachine<Player>* GetStateMachine() { return stateMachine.get(); }
+    int GetTitleState() { return titleState; }
+    void SetTitleState(int index) { titleState = index; }
 
-    // ƒm[ƒh‚ÆƒGƒlƒ~[‚ÌÕ“Ëˆ—
+    // ãƒãƒ¼ãƒ‰ã¨ã‚¨ãƒãƒŸãƒ¼ã®è¡çªå‡¦ç†
     void CollisionNodeVsEnemies(float nodeRadius, DirectX::XMFLOAT2 pow, float Damage, float InvincibleTime);
 
-    //ƒXƒeƒBƒbƒN“ü—Í’l‚©‚çˆÚ“®ƒxƒNƒgƒ‹‚ğæ“¾
+    //ã‚¹ãƒ†ã‚£ãƒƒã‚¯å…¥åŠ›å€¤ã‹ã‚‰ç§»å‹•ãƒ™ã‚¯ãƒˆãƒ«ã‚’å–å¾—
     DirectX::XMFLOAT3 GetMoveVec() const;
 
-    //UŒ‚î•ñ“ü—Í
+    //æ”»æ’ƒæƒ…å ±å…¥åŠ›
     void SetAttackStatus(DirectX::XMFLOAT4 Status, DirectX::XMFLOAT4 Pow);
-    //Œ•‚Ì‹OÕ
+    //å‰£ã®è»Œè·¡
     void SwordEffect();
-    //Å‚à‹ß‚¢“G‚Ìî•ñ
+    //æœ€ã‚‚è¿‘ã„æ•µã®æƒ…å ±
     Enemy* CloseEnemy(float lenght);
-    //ƒ^[ƒQƒbƒg‚Ì‹——£‚Æ•ûŒüæ“¾
+    //ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã®è·é›¢ã¨æ–¹å‘å–å¾—
     void DirToLength(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 target, DirectX::XMFLOAT3& dir, float& length);
-    //U‚é“ü—Í
+    //æŒ¯ã‚‹å…¥åŠ›
     void SwingInput();
-    //”ò‚ÔaŒ‚“ü—Í
+    //é£›ã¶æ–¬æ’ƒå…¥åŠ›
     void SlashInput();
-    //ƒXƒeƒbƒN•ûŒü‚ÉŒü‚­
+    //ã‚¹ãƒ†ãƒƒã‚¯æ–¹å‘ã«å‘ã
     bool InputStick(float elapsedTime);
 
-    //í“¬s“®“ü—ÍƒAƒjƒ[ƒVƒ‡ƒ“XV
+    //æˆ¦é—˜è¡Œå‹•å…¥åŠ›ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³æ›´æ–°
     void BattleMoveUpdate();
-    //•œ‹Aƒ‚[ƒVƒ‡ƒ“ƒAƒjƒ[ƒVƒ‡ƒ“XV
+    //å¾©å¸°ãƒ¢ãƒ¼ã‚·ãƒ§ãƒ³ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³æ›´æ–°
     void DownUpdate();
-    //’‹‚µ‚Ä‚¢‚é“®‚«
+    //æ³¨è¦–ã—ã¦ã„ã‚‹æ™‚å‹•ã
     bool InputBattleMove(float elapsedTime);
-    //•ŠíØ‚è‘Ö‚¦
+    //æ­¦å™¨åˆ‡ã‚Šæ›¿ãˆ
     void ChangeWepon();
 private:
-    //ƒvƒŒƒCƒ„[‚ÆƒGƒlƒ~[‚Æ‚ÌÕ“Ë”»’èˆ—
+    //ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã¨ã‚¨ãƒãƒŸãƒ¼ã¨ã®è¡çªåˆ¤å®šå‡¦ç†
     void CollisionPlayerVsEnemies();
 
-    //’e‚ÆƒGƒlƒ~[‚ÌÕ“Ëˆ—
+    //å¼¾ã¨ã‚¨ãƒãƒŸãƒ¼ã®è¡çªå‡¦ç†
     void CollisionProjectilesVsEnemies();
 
     void CollisionBoomVsEnemies();
 
-    //ƒƒbƒNƒIƒ“ƒJƒƒ‰
+    //ãƒ­ãƒƒã‚¯ã‚ªãƒ³ã‚«ãƒ¡ãƒ©
     void  ComeTerget(float elapsedTime);
 
-    // ƒXƒLƒ‹Œø‰Ê
+    // ã‚¹ã‚­ãƒ«åŠ¹æœ
     void UpdateSkill(float elapsedTime);
-    //‰Á‘¬ƒXƒLƒ‹
+    //åŠ é€Ÿã‚¹ã‚­ãƒ«
     void SkillQuick(float elapsedTime);
 
     void UpdateQuick(float elapsedTime);
-    //•Šíƒ`ƒFƒ“ƒWƒXƒLƒ‹
+    //æ­¦å™¨ãƒã‚§ãƒ³ã‚¸ã‚¹ã‚­ãƒ«
     void SkillWeponChange(float elapsedTime);
-    //•Šíƒ`ƒFƒ“ƒWXV
+    //æ­¦å™¨ãƒã‚§ãƒ³ã‚¸æ›´æ–°
     void UpdateWeponChange(float elapsedTime);
-    //“ü—Í•Šíƒ`ƒFƒ“ƒW
+    //å…¥åŠ›æ­¦å™¨ãƒã‚§ãƒ³ã‚¸
     void ButtonWeponChange(int type);
    
-    //ƒƒbƒNƒIƒ“•`‰æ
+    //ãƒ­ãƒƒã‚¯ã‚ªãƒ³æç”»
     void DrawLockOn(ID3D11DeviceContext* dc, RenderContext& rc, SpriteShader* shader);
-    //UI•`‰æ
+    //UIæç”»
     void DrawUI(ID3D11DeviceContext* dc, RenderContext& rc, SpriteShader* shader);
-    //UIXV
+    //UIæ›´æ–°
     void UpdateUI(float elapsedTime);
-    //•Šíî•ñ“ü—Í
+    //æ­¦å™¨æƒ…å ±å…¥åŠ›
     void SetWepon();
-    //ƒm[ƒhŒŸõ
+    //ãƒãƒ¼ãƒ‰æ¤œç´¢
     void SearchNode(DirectX::XMFLOAT4X4& Transform, const char* nodeName);
    
     
-    //ƒqƒbƒgƒtƒ‰ƒOXV
+    //ãƒ’ãƒƒãƒˆãƒ•ãƒ©ã‚°æ›´æ–°
     void UpdateHitflag(float elapsedTime);
-    //SEXV
+    //SEæ›´æ–°
     void AudioUpdate();
-    //ƒqƒbƒgaŒ‚•ûŒüæ“¾
+    //ãƒ’ãƒƒãƒˆæ–¬æ’ƒæ–¹å‘å–å¾—
     //DirectX::XMFLOAT3 GetSlashDir();
     
-    //ƒqƒbƒgî•ñ“ü—Í
+    //ãƒ’ãƒƒãƒˆæƒ…å ±å…¥åŠ›
     void HitInput(float damge,float invincibleTime);
-    //•Ší•`‰æî•ñ
+    //æ­¦å™¨æç”»æƒ…å ±
     void weponRenderUpdate();
    
 public:
-    //“Áê‚ÈƒAƒNƒVƒ‡ƒ““ü—ÍXV
+    //ç‰¹æ®Šãªã‚¢ã‚¯ã‚·ãƒ§ãƒ³å…¥åŠ›æ›´æ–°
     void SpecialUpdate();
-    //ƒm[ƒh‚ÌˆÊ’u
+    //ãƒãƒ¼ãƒ‰ã®ä½ç½®
     DirectX::XMFLOAT3 SearchNodePos(const char* nodeName);
 
+    int GetFrameTimer() { return frameTimer; }
+
 protected:
-    //’…’n‚µ‚½‚ÉŒÄ‚Î‚ê‚é
+    //ç€åœ°ã—ãŸæ™‚ã«å‘¼ã°ã‚Œã‚‹
     void OnLanding() override;
 
-    // €–S‚µ‚½‚ÉŒÄ‚Î‚ê‚é
+    // æ­»äº¡ã—ãŸæ™‚ã«å‘¼ã°ã‚Œã‚‹
     void OnDead() override;
 
-    // ƒ_ƒ[ƒW‚ğó‚¯‚½‚ÉŒÄ‚Î‚ê‚é
+    // ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚’å—ã‘ãŸæ™‚ã«å‘¼ã°ã‚Œã‚‹
     void OnDamaged()override;
-public://•ÏX–”æ“¾‚ª‘½‚¢•Ï”
-    //’…’nƒtƒ‰ƒO
+public://å¤‰æ›´åˆå–å¾—ãŒå¤šã„å¤‰æ•°
+    //ç€åœ°ãƒ•ãƒ©ã‚°
     bool  landflag = true;
-    //ƒ_ƒEƒ“ƒtƒ‰ƒO
+    //ãƒ€ã‚¦ãƒ³ãƒ•ãƒ©ã‚°
     bool  downflag = false;
-    //”ò‚ÔaŒ‚ƒRƒ“ƒ{
+    //é£›ã¶æ–¬æ’ƒã‚³ãƒ³ãƒœ
     int slashCombo = -1;
-    //ƒRƒ“ƒ{”
+    //ã‚³ãƒ³ãƒœæ•°
     int combo = 0;
-    //‰ñ”ğŠÔ
+    //å›é¿æ™‚é–“
     bool rollflag = false;
-    //ƒV[ƒ‹ƒh•`‰æ”»’è
+    //ã‚·ãƒ¼ãƒ«ãƒ‰æç”»åˆ¤å®š
     bool shildFlag = true;
-    //‘O•ûŒü
+    //å‰æ–¹å‘
     DirectX::XMFLOAT3 dir;
-    //ù‰ñ‘¬“x
+    //æ—‹å›é€Ÿåº¦
     float turnSpeed = DirectX::XMConvertToRadians(720);
-    //•Šíƒ^ƒCƒv
+    //æ­¦å™¨ã‚¿ã‚¤ãƒ—
     int weponType = 0;
-    //ƒWƒƒƒ“ƒvƒpƒ[
+    //ã‚¸ãƒ£ãƒ³ãƒ—ãƒ‘ãƒ¯ãƒ¼
     float jumpSpeed = 30.0f;
-    //ƒWƒƒƒ“ƒv‰ñ”
+    //ã‚¸ãƒ£ãƒ³ãƒ—å›æ•°
     int   jumpCount = 0;
-    //ƒWƒƒƒ“ƒvŒÀŠE”
+    //ã‚¸ãƒ£ãƒ³ãƒ—é™ç•Œæ•°
     int   jumpLimit = 2;
 
-    //‰ñ”ğ‹——£
+    //å›é¿è·é›¢
     float rollPow = 25;
-    //‰ñ”ğ–³“GŠÔ
+    //å›é¿ç„¡æ•µæ™‚é–“
     float rollInvincibleTimer = 0.3;
 
     Effekseer::Handle stingerEffect;
 
     float quickFlag = false;
 
-    float effectSpeed = 5.0f;//ƒGƒtƒFƒNƒgƒXƒs[ƒh
+    float effectSpeed = 5.0f;//ã‚¨ãƒ•ã‚§ã‚¯ãƒˆã‚¹ãƒ”ãƒ¼ãƒ‰
 
-    //UŒ‚ƒXƒe[ƒ^ƒX
+    //æ”»æ’ƒã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹
     //{
     DirectX::XMFLOAT3 attackDir = { 0,0,0 };
-    //UŒ‚”¼Œa
+    //æ”»æ’ƒåŠå¾„
     float weponRadius = 0.5;
 
-    //ƒRƒ“ƒ{æs“ü—Í
+    //ã‚³ãƒ³ãƒœå…ˆè¡Œå…¥åŠ›
     bool comboflag = false;
-    //ƒAƒ^ƒbƒN”»’è
+    //ã‚¢ã‚¿ãƒƒã‚¯åˆ¤å®š
     bool attackCollisionFlag = false;
-    //UŒ‚”»’èn‚Ü‚è
+    //æ”»æ’ƒåˆ¤å®šå§‹ã¾ã‚Š
     float  attackStart = 0;
-    //UŒ‚”»’èI‚í‚è
+    //æ”»æ’ƒåˆ¤å®šçµ‚ã‚ã‚Š
     float  attackEnd = 0;
-    //UŒ‚ƒ^ƒCƒ}[
+    //æ”»æ’ƒã‚¿ã‚¤ãƒãƒ¼
     float attackTime = 0;
-    //ƒVƒtƒgƒ^ƒCƒ}[
+    //ã‚·ãƒ•ãƒˆã‚¿ã‚¤ãƒãƒ¼
     float shiftTime = 0.8;
-    //UŒ‚ƒ_ƒ[ƒW
+    //æ”»æ’ƒãƒ€ãƒ¡ãƒ¼ã‚¸
     float attackDamage = 0;
-    //UŒ‚–³“GŠÔ
+    //æ”»æ’ƒç„¡æ•µæ™‚é–“
     float attackInvincibleTime = 0;
-    //ƒnƒ‹ƒo[ƒg“Áêƒ^ƒCƒ}[
+    //ãƒãƒ«ãƒãƒ¼ãƒˆç‰¹æ®Šã‚¿ã‚¤ãƒãƒ¼
     float lanceTimer = 2.0;
-    //ƒnƒ‹ƒo[ƒg“Áê“–‚½‚è”»’è
+    //ãƒãƒ«ãƒãƒ¼ãƒˆç‰¹æ®Šå½“ãŸã‚Šåˆ¤å®š
     float lanceRudius = 10.0;
-    //ƒ`ƒƒ[ƒWƒAƒ^ƒbƒNƒ^ƒCƒ}[
+    //ãƒãƒ£ãƒ¼ã‚¸ã‚¢ã‚¿ãƒƒã‚¯ã‚¿ã‚¤ãƒãƒ¼
     float chargeAttackTimer = 0.55;
-    //ƒ`ƒƒ[ƒWƒAƒ^ƒbƒN“–‚½‚è”»’è
+    //ãƒãƒ£ãƒ¼ã‚¸ã‚¢ã‚¿ãƒƒã‚¯å½“ãŸã‚Šåˆ¤å®š
     float chargeAttackRudius = 5.0;
-    //ƒqƒbƒgƒXƒgƒbƒvŠÔ
+    //ãƒ’ãƒƒãƒˆã‚¹ãƒˆãƒƒãƒ—æ™‚é–“
     float hitInvincibleTime = 0;
-    //ƒqƒbƒgƒXƒgƒbƒv’†
+    //ãƒ’ãƒƒãƒˆã‚¹ãƒˆãƒƒãƒ—ä¸­
     bool  attackHitflag = false;
-    //ƒqƒbƒgƒXƒgƒbƒvƒpƒ[
+    //ãƒ’ãƒƒãƒˆã‚¹ãƒˆãƒƒãƒ—ãƒ‘ãƒ¯ãƒ¼
     float  attackHitPow = 0.0;
-    //ƒGƒlƒ~[‚ÆÚG‚µ‚Ä‚¢‚é‚©
+    //ã‚¨ãƒãƒŸãƒ¼ã¨æ¥è§¦ã—ã¦ã„ã‚‹ã‹
     bool                enemyhitflag = false;
 
-    //”ò‚ÔaŒ‚‘å‚«‚³
+    //é£›ã¶æ–¬æ’ƒå¤§ãã•
     DirectX::XMFLOAT3 slashScale = { 0.6,0.6,0.6 };
-    //U‚éSE‚·‚é‚©
+    //æŒ¯ã‚‹SEã™ã‚‹ã‹
     bool swingSe = false;
-    //U‚éSEƒ^ƒCƒ€
+    //æŒ¯ã‚‹SEã‚¿ã‚¤ãƒ 
     int swingTimer = false;
-    //U‚éSEƒXƒs[ƒh
+    //æŒ¯ã‚‹SEã‚¹ãƒ”ãƒ¼ãƒ‰
     int swingSpeed = 3;
-    //ƒAƒ^ƒbƒNƒ€[ƒuƒpƒ[
+    //ã‚¢ã‚¿ãƒƒã‚¯ãƒ ãƒ¼ãƒ–ãƒ‘ãƒ¯ãƒ¼
     float attackMove = 0;
-    //ƒAƒ^ƒbƒNƒ€[ƒuƒpƒ[”{—¦
+    //ã‚¢ã‚¿ãƒƒã‚¯ãƒ ãƒ¼ãƒ–ãƒ‘ãƒ¯ãƒ¼å€ç‡
     //float attackMoveRate = 0;
-    //ƒAƒ^ƒbƒNƒGƒlƒ~[ID
+    //ã‚¢ã‚¿ãƒƒã‚¯ã‚¨ãƒãƒŸãƒ¼ID
     int attackMoveID = 0;
 
     float animeTimer = 0;
-    //ƒmƒbƒNƒoƒbƒNƒpƒ[
+    //ãƒãƒƒã‚¯ãƒãƒƒã‚¯ãƒ‘ãƒ¯ãƒ¼
     DirectX::XMFLOAT2 knockBackpow;
 
     //}
-   //“Áê‚ÈƒAƒNƒVƒ‡ƒ“ŠÖŒW
+   //ç‰¹æ®Šãªã‚¢ã‚¯ã‚·ãƒ§ãƒ³é–¢ä¿‚
    //{
     float mp = 0;
-    //ãŒÀ
+    //ä¸Šé™
     float mpMax = 20;
-    //ƒeƒŒƒ|[ƒgŠÖŒW
+    //ãƒ†ãƒ¬ãƒãƒ¼ãƒˆé–¢ä¿‚
     DirectX::XMFLOAT3 teleportPos;
-    //ƒeƒŒƒ|[ƒg‹——£
+    //ãƒ†ãƒ¬ãƒãƒ¼ãƒˆè·é›¢
     float teleportLength;
-    //ƒeƒŒƒ|[ƒg‘O•ûŒü
+    //ãƒ†ãƒ¬ãƒãƒ¼ãƒˆå‰æ–¹å‘
     DirectX::XMFLOAT3 telportDir;
-    //ƒeƒŒƒ|[ƒg‘O•ûŒü
+    //ãƒ†ãƒ¬ãƒãƒ¼ãƒˆå‰æ–¹å‘
     float telportSpeed = 40;
-    //•`‰æƒtƒ‰ƒO
+    //æç”»ãƒ•ãƒ©ã‚°
     bool renderflag = true;
-    //ƒXƒLƒ‹ŠÖŒW
-    float skillCoolTime[SkillMax] = { 0,0,0,0 };	// ƒXƒLƒ‹‚²‚Æ‚ÌƒN[ƒ‹ƒ^ƒCƒ€
-    float skillCoolTimeDefault[SkillMax] = { 1,1,1,1 };// ƒXƒLƒ‹‚²‚Æ‚ÌƒN[ƒ‹ƒ^ƒCƒ€(ŒÅ’è)
-    float skillTime[SkillMax];	// ƒXƒLƒ‹Œp‘±ŠÔ
+    //ã‚¹ã‚­ãƒ«é–¢ä¿‚
+    float skillCoolTime[SkillMax] = { 0,0,0,0 };	// ã‚¹ã‚­ãƒ«ã”ã¨ã®ã‚¯ãƒ¼ãƒ«ã‚¿ã‚¤ãƒ 
+    float skillCoolTimeDefault[SkillMax] = { 1,1,1,1 };// ã‚¹ã‚­ãƒ«ã”ã¨ã®ã‚¯ãƒ¼ãƒ«ã‚¿ã‚¤ãƒ (å›ºå®š)
+    float skillTime[SkillMax];	// ã‚¹ã‚­ãƒ«ç¶™ç¶šæ™‚é–“
 
-    float guardFlag = false;//ƒK[ƒhƒtƒ‰ƒO
-    float pGuardFlag = false;//ƒK[ƒhƒtƒ‰ƒO
+    float guardFlag = false;//ã‚¬ãƒ¼ãƒ‰ãƒ•ãƒ©ã‚°
+    float pGuardFlag = false;//ã‚¬ãƒ¼ãƒ‰ãƒ•ãƒ©ã‚°
     float counterFlag = false;
-    bool  shiftAttackflag = false;//ƒVƒtƒgƒAƒ^ƒbƒNƒqƒbƒg
-    //ƒK[ƒh‘O•ûŒü
+    bool  shiftAttackflag = false;//ã‚·ãƒ•ãƒˆã‚¢ã‚¿ãƒƒã‚¯ãƒ’ãƒƒãƒˆ
+    //ã‚¬ãƒ¼ãƒ‰å‰æ–¹å‘
     DirectX::XMFLOAT2 guardDir = { 0,0 };
 
-     //ƒƒbƒNƒIƒ“‘ÎÛ‚Æ‚Ì‹——£
+     //ãƒ­ãƒƒã‚¯ã‚ªãƒ³å¯¾è±¡ã¨ã®è·é›¢
     float enemyLength = 0;
 
-    //ƒƒbƒNƒIƒ“‚µ‚Ä‚é‚©
+    //ãƒ­ãƒƒã‚¯ã‚ªãƒ³ã—ã¦ã‚‹ã‹
     bool lockOn = false;
 
-    //ƒGƒtƒFƒNƒgŠÖŒW
+    //ã‚¨ãƒ•ã‚§ã‚¯ãƒˆé–¢ä¿‚
     //{
-    bool effectflag = false; //ƒGƒtƒFƒNƒgƒtƒ‰ƒO
-    DirectX::XMFLOAT3 efDir; //ƒGƒtƒFƒNƒg•ûŒü
-    DirectX::XMFLOAT3 efPos; //ƒGƒtƒFƒNƒgˆÊ’u
+    bool effectflag = false; //ã‚¨ãƒ•ã‚§ã‚¯ãƒˆãƒ•ãƒ©ã‚°
+    DirectX::XMFLOAT3 efDir; //ã‚¨ãƒ•ã‚§ã‚¯ãƒˆæ–¹å‘
+    DirectX::XMFLOAT3 efPos; //ã‚¨ãƒ•ã‚§ã‚¯ãƒˆä½ç½®
 
-    //ƒfƒBƒ]ƒ‹ƒuƒ^ƒCƒ}[
+    //ãƒ‡ã‚£ã‚¾ãƒ«ãƒ–ã‚¿ã‚¤ãƒãƒ¼
     float disslveTimer = 3;
 
-    //ƒ`ƒƒ[ƒWƒJƒEƒ“ƒ^[
+    //ãƒãƒ£ãƒ¼ã‚¸ã‚«ã‚¦ãƒ³ã‚¿ãƒ¼
     int chargeCount = 0;
-    //ƒ`ƒƒ[ƒW”{—¦
+    //ãƒãƒ£ãƒ¼ã‚¸å€ç‡
     int chargeDamage = 2;
-    //ƒ`ƒƒ[ƒWãŒÀ
+    //ãƒãƒ£ãƒ¼ã‚¸ä¸Šé™
     int chargeMax = 3;
 
-    //•Ší‚²‚Æ‚ÌƒAƒjƒ[ƒVƒ‡ƒ“
+    //æ­¦å™¨ã”ã¨ã®ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³
     int WeponCombo[4] = { Anim1Combo1,Anim1Combo2,Anim1Combo3,Anim1Combo4 };
-    //•Ší‚ÌƒAƒNƒVƒ‡ƒ“ƒXƒe[ƒ^ƒX
+    //æ­¦å™¨ã®ã‚¢ã‚¯ã‚·ãƒ§ãƒ³ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹
     DirectX::XMFLOAT4 WeponComboStatus[WeponType::WeponMax][4] = {
         {{0.5, 0, 0.1f, 0.4f},{0.5, 0, 0.1f, 0.4f},{1, 0, 0.2f, 0.8f},{0.1, 0, 0.2f, 0.8f},},
         {{0.6, 0, 0.5f,0.8f},{0.8, 0, 0.9f, 1.32f},{0.8, 0, 1.1f, 1.5f},{ 0,  0,0.0f, 0.0f},},
@@ -468,7 +466,7 @@ public://•ÏX–”æ“¾‚ª‘½‚¢•Ï”
         {{1, 0, 0.4f, 0.75f},{1, 0, 0.75f, 1.05f},{1, 0, 1.08f, 1.38f},{ 0,  0,0.0f, 0.0f},},
         {{ 0, 0, 0.0f, 0.0f},{ 0, 0, 0.0f, 0.0f},{10, 0, 0.0f, 0.0f},{ 0,  0,0.0f, 0.0f},},
     };
-    //•Ší‚²‚ÆƒAƒNƒVƒ‡ƒ“ƒpƒ[
+    //æ­¦å™¨ã”ã¨ã‚¢ã‚¯ã‚·ãƒ§ãƒ³ãƒ‘ãƒ¯ãƒ¼
     DirectX::XMFLOAT4 WeponComboPow[WeponType::WeponMax][4] = {
         {{10, 0,1,0.3},{10, 0,1,0.5},{10, 0,1,0.2},{20, 0,1,0.5},},
         {{40, 0,4,0.5},{50, 0,5,0.5},{70, 0,6,0.5},{20, 0,1,0.5},},
@@ -478,7 +476,7 @@ public://•ÏX–”æ“¾‚ª‘½‚¢•Ï”
 
     };
    
-    //•Ší‚²‚Æ‚ÌƒRƒ“ƒ{Å‘å”
+    //æ­¦å™¨ã”ã¨ã®ã‚³ãƒ³ãƒœæœ€å¤§æ•°
     int WeponComboMax[5] = { 3,2,2,2,0 };
 
     DirectX::XMFLOAT4 ShifPow = { 0, 0,1,0.3 };
@@ -486,11 +484,11 @@ public://•ÏX–”æ“¾‚ª‘½‚¢•Ï”
     DirectX::XMFLOAT4 FallAttackStatus = { -30, 0,0.3,0.9 };
     DirectX::XMFLOAT4 FallAttackPow = { 10, 0.1,1,0.9 };
 
-    //UŒ‚ƒAƒjƒ[ƒVƒ‡ƒ“ƒm[ƒhŠi”[
+    //æ”»æ’ƒã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ãƒãƒ¼ãƒ‰æ ¼ç´
     const char* attackNode[4] = { "te_R_1" ,"te_L_1","ashikubi_R","te_R_1" };
     const char* attackENode[4] = { "hiji_R" ,"hiji_L","hiza_R","hiji_R" };
 
-    //’eŠÖŒW
+    //å¼¾é–¢ä¿‚
     ObjectManager objectManager;
 
     std::vector<SkinnedMeshResouurce::constants> renderdata;
@@ -503,12 +501,12 @@ public://•ÏX–”æ“¾‚ª‘½‚¢•Ï”
 
     const float correctionSpeedMax = 20;
 private:
-    //ƒ‚ƒfƒ‹
+    //ãƒ¢ãƒ‡ãƒ«
     std::unique_ptr<Model> player;
     std::shared_ptr<Model> sword;
     std::shared_ptr<Model> slash;
     std::shared_ptr<Model> beem;
-    //‰º”¼gƒm[ƒh
+    //ä¸‹åŠèº«ãƒãƒ¼ãƒ‰
     std::vector <const char*> lowerBody;
     const char* lower[13] = {
         {"root_x"},
@@ -528,17 +526,17 @@ private:
     //UI
     GaugeUI* uiHp;
     GaugeUI* uiMp;
-    //UIŠÖŒW
-    //HPƒ^ƒCƒ}[
+    //UIé–¢ä¿‚
+    //HPã‚¿ã‚¤ãƒãƒ¼
     float hpTimer = 0;
-    //ƒwƒ‹ƒX—¦
+    //ãƒ˜ãƒ«ã‚¹ç‡
     float healthrate = 1;
-    //UIXV‘¬“x
+    //UIæ›´æ–°é€Ÿåº¦
     float uiSpeed = 0.5;
-    //MP—¦
+    //MPç‡
     float mpthrate = 1;
     
-    //•ŠíŠÖŒW
+    //æ­¦å™¨é–¢ä¿‚
     std::shared_ptr<SwordTrail> swordTrail;
     //std::unique_ptr<MainWepon> wepon;
     
@@ -560,86 +558,88 @@ private:
        0,0,1,0,
        0,0,0,1
     };
-    //‚‚¿è
+    //ç›¾æŒã¡æ‰‹
     DirectX::XMFLOAT3 shieldHead;
-    //Œ•‚¿è
+    //å‰£æŒã¡æ‰‹
     DirectX::XMFLOAT3 head;
-    //Œ•æ
+    //å‰£å…ˆ
     DirectX::XMFLOAT3 tail;
-    //Œ•‚Ì•¿
+    //å‰£ã®æŸ„
     DirectX::XMFLOAT3 pattern;
-    //Œ•‚ÌŒü‚«
+    //å‰£ã®å‘ã
     DirectX::XMFLOAT3 sworddir;
 
-    //Œ•‚ÌƒŠ[ƒ`
+    //å‰£ã®ãƒªãƒ¼ãƒ
     float swordLength = 55;
     
-    //•Šíƒ`ƒFƒ“ƒWƒ^ƒCƒv
+    //æ­¦å™¨ãƒã‚§ãƒ³ã‚¸ã‚¿ã‚¤ãƒ—
     int weponChangeType = 0;
-    //Ÿ‚Ì•Šíƒ^ƒCƒv
+    //æ¬¡ã®æ­¦å™¨ã‚¿ã‚¤ãƒ—
     int nextWepon = 0;
-    //‚ƒ`ƒFƒ“ƒWƒ^ƒCƒv
+    //ç›¾ãƒã‚§ãƒ³ã‚¸ã‚¿ã‚¤ãƒ—
     float GuardChangeTimer = 0;
-    //•Šíƒ`ƒFƒ“ƒWƒ^ƒCƒ}[
+    //æ­¦å™¨ãƒã‚§ãƒ³ã‚¸ã‚¿ã‚¤ãƒãƒ¼
     int weponChangeTimer = 5;
-    //•Šíƒ`ƒFƒ“ƒWƒtƒ‰ƒO
+    //æ­¦å™¨ãƒã‚§ãƒ³ã‚¸ãƒ•ãƒ©ã‚°
     bool weponChange = false;  
     //{
-    //“®‚«ŠÖŒW
+    //å‹•ãé–¢ä¿‚
     //}
     State          state = State::Idle;
     float moveSpeed = 8.0f;
   
-    //ƒmƒbƒNƒoƒbƒNƒpƒ[’è”
+    //ãƒãƒƒã‚¯ãƒãƒƒã‚¯ãƒ‘ãƒ¯ãƒ¼å®šæ•°
     float kbpow = 15;
 
-    //ƒJ[ƒhƒmƒbƒNƒoƒbƒNŒ¸Š
+    //ã‚«ãƒ¼ãƒ‰æ™‚ãƒãƒƒã‚¯ãƒãƒƒã‚¯æ¸›è¡°
     float  guardKnockBack = 0.5;
-    //ã•ûŒü“ü—ÍŠ´“x
+    //ä¸Šæ–¹å‘å…¥åŠ›æ„Ÿåº¦
     float upSens = DirectX::XMConvertToRadians(15);
-    //Î‚ß•ûŒü“ü—ÍŠ´“x
+    //æ–œã‚æ–¹å‘å…¥åŠ›æ„Ÿåº¦
     float disUpSens = DirectX::XMConvertToRadians(75);
-    //Î‚ß‰º•ûŒü“ü—ÍŠ´“x
+    //æ–œã‚ä¸‹æ–¹å‘å…¥åŠ›æ„Ÿåº¦
     float disDownSens = DirectX::XMConvertToRadians(105);
-    //‰º•ûŒü“ü—ÍŠ´“x
+    //ä¸‹æ–¹å‘å…¥åŠ›æ„Ÿåº¦
     float downSens = DirectX::XMConvertToRadians(165);
-    //•œ‹Aƒpƒ[
+    //å¾©å¸°ãƒ‘ãƒ¯ãƒ¼
     float returnPow = 0.5;
-    //ƒ‚[ƒVƒ‡ƒ“ƒXƒs[ƒh
+    //ãƒ¢ãƒ¼ã‚·ãƒ§ãƒ³ã‚¹ãƒ”ãƒ¼ãƒ‰
     float modelSpeed = 1.5f;
-    //’‹ˆÚ“®’l
+    //æ³¨è¦–ç§»å‹•å€¤
     float battelMove = 0.5;
 
     //}
-    //ƒJƒƒ‰ŠÖŒW
+    //ã‚«ãƒ¡ãƒ©é–¢ä¿‚
     //{
     std::shared_ptr<CameraController> cameraController = nullptr;
  
-    //ƒƒbƒNƒIƒ“‘ÎÛ
+    //ãƒ­ãƒƒã‚¯ã‚ªãƒ³å¯¾è±¡
     int enemyLock = 0;
-    //ƒƒbƒNƒIƒ“‘ÎÛ‚ÌID
+    //ãƒ­ãƒƒã‚¯ã‚ªãƒ³å¯¾è±¡ã®ID
     int enemyId = 0;
-    //ƒƒbƒNƒIƒ“‘ÎÛØ‚è‘Ö‚¦
+    //ãƒ­ãƒƒã‚¯ã‚ªãƒ³å¯¾è±¡åˆ‡ã‚Šæ›¿ãˆ
     bool lockflag = false;
-    //ƒƒbƒNƒIƒ““ü—Í
+    //ãƒ­ãƒƒã‚¯ã‚ªãƒ³å…¥åŠ›
     bool locklength = false;
-    //n‚ß‚Ä‚ÌƒƒbƒNƒIƒ““ü—Í
+    //å§‹ã‚ã¦ã®ãƒ­ãƒƒã‚¯ã‚ªãƒ³å…¥åŠ›
     bool fistlock = false;
-    //ƒƒbƒNƒIƒ“UI‰ñ“]
+    //ãƒ­ãƒƒã‚¯ã‚ªãƒ³UIå›è»¢
     float lockonAngle = 0.0f;
-    //ƒƒbƒNƒIƒ“ƒGƒlƒ~[ˆÊ’u•Û‘¶
+    //ãƒ­ãƒƒã‚¯ã‚ªãƒ³ã‚¨ãƒãƒŸãƒ¼ä½ç½®ä¿å­˜
     DirectX::XMFLOAT3 epos;
-    //ƒJƒƒ‰ƒVƒFƒCƒNƒpƒ[
+    //ã‚«ãƒ¡ãƒ©ã‚·ã‚§ã‚¤ã‚¯ãƒ‘ãƒ¯ãƒ¼
     float shakePow = 2;
    
-    //’eÁ–ÕMP
+    //ãƒ•ãƒ¬ãƒ¼ãƒ ã‚¿ã‚¤ãƒãƒ¼
+    int frameTimer = 0;
+    //å¼¾æ¶ˆè€—MP
     float swordMp = 4;
     
     float  efLength = 5;
-    //‰½ƒtƒŒ[ƒ€‘O‚ÌŒ•À•W
+    //ä½•ãƒ•ãƒ¬ãƒ¼ãƒ å‰ã®å‰£åº§æ¨™
     int  swordFlame = 0;
     //}
-    //ƒRƒ“ƒ{ƒXƒe[ƒ^ƒX
+    //ã‚³ãƒ³ãƒœã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹
     //{
   
     DirectX::XMFLOAT4 JumpComboStatus[4] = {
@@ -655,28 +655,28 @@ private:
         {0, 0,1,0.5},
         {0, 0,1,0.5}
     };
-    //ƒGƒlƒ~[‚ÆÚG‚µ‚Ä‚¢‚é‚©
+    //ã‚¨ãƒãƒŸãƒ¼ã¨æ¥è§¦ã—ã¦ã„ã‚‹ã‹
     bool                enemyflyflag = false;
 
-    //‰ñ”ğ‹——£
+    //å›é¿è·é›¢
     float cameraLength = 0;
-    //ƒXƒe[ƒgƒ}ƒV[ƒ“¶¬
+    //ã‚¹ãƒ†ãƒ¼ãƒˆãƒã‚·ãƒ¼ãƒ³ç”Ÿæˆ
     std::shared_ptr<StateMachine<Player>> stateMachine = nullptr;
 
     
     std::vector<SkinnedMeshResouurce::constants> swordrenderdata;
 
-    float adjustMetalness = 0.0f;	// ‹à‘®“x
-    float adjustSmoothness = 0.0f;	// ‘e‚³
-    float timer = 0.0f;				// XVŠÔ
-    
-  
-    DirectX::XMFLOAT3 hologramColor = { 0.0f, 0.0f, 1.0f }; // ƒzƒƒOƒ‰ƒ€F
-    float glitchSpeed = 50.0f;		// ƒXƒNƒ[ƒ‹‘¬“x
-    float glitchIntensity = 0.0f;	// ‹­“x
-    float lerpGlitchIntensity = 0.0f;	// ‹­“x
-    float glitchScale = 50.0f;		// U‚ê•    
-    float deathTimer = 0.0f;		// €–SŠÔ
+    float adjustMetalness = 0.0f;    // ï¿½ï¿½ï¿½ï¿½x
+    float adjustSmoothness = 0.0f;    // ï¿½eï¿½ï¿½
+    float timer = 0.0f;                // ï¿½Xï¿½Vï¿½ï¿½ï¿½ï¿½
+
+
+    DirectX::XMFLOAT3 hologramColor = { 0.0f, 0.0f, 1.0f }; // ï¿½zï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½ï¿½ï¿½F
+    float glitchSpeed = 50.0f;        // ï¿½Xï¿½Nï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½x
+    float glitchIntensity = 0.0f;    // ï¿½ï¿½ï¿½x
+    float lerpGlitchIntensity = 0.0f;    // ï¿½ï¿½ï¿½x
+    float glitchScale = 50.0f;        // ï¿½Uï¿½ê•    
+    float deathTimer = 0.0f;        // ï¿½ï¿½ï¿½Sï¿½ï¿½ï¿½ï¿½
     int titleState = TitleState::TitleDefault;
     float nextStateTimer = 0.0f;
     float animationTimer = 0.0f;

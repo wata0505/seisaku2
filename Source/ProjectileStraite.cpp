@@ -64,6 +64,7 @@ void ProjectileStraite::Update(float elapsedTime)
 		break;
 	case Type::ChangeWp:
 		ChangeWpUpdate(elapsedTime);
+		break;
 	case Type::Beem:
 		BeemUpdate(elapsedTime);
 	
@@ -288,7 +289,7 @@ void ProjectileStraite::BeemUpdate(float elapsedTime) {
 //•`‰æˆ—
 void ProjectileStraite::Render(ID3D11DeviceContext* dc, ModelShader* shader)
 {
-	if (type = Type::Straight) {
+	if (type != Type::Straight) {
 		shader->Draw(dc, model.get(), uvStatus, materialColor);
 	}
 }

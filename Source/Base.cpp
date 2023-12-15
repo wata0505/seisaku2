@@ -12,14 +12,14 @@ Base::Base(DirectX::XMFLOAT3 pos)
 {
 	instance = this;
 
-	obj = std::make_unique<Model>(".\\resources\\Stag\\Pillar.fbx", true, false);
-	obj->ModelSerialize(".\\resources\\Stag\\Pillar.fbx");
+	obj = std::make_unique<Model>(".\\resources\\SecurityGate\\SecurityGate.fbx", true, false);
+	obj->ModelSerialize(".\\resources\\SecurityGate\\SecurityGate.fbx");
 	//model->ModelCreate(".\\resources\\ExampleStage\\ExampleStage.fbx");
-	obj->ModelRegister(".\\resources\\Stag\\Pillar.fbx");
+	obj->ModelRegister(".\\resources\\SecurityGate\\SecurityGate.fbx","Texture//Albedo.png");
 	// 行列更新
 	uiSprite = std::make_unique<Sprite>(L".\\resources\\HP.png");
 	position = pos;
-	scale.x = scale.y = scale.z = 1.0;
+	scale.x = scale.y = scale.z = 10.0;
 	UpdateTransform();
 	obj->UpdateBufferDara(transform);
 	transform = obj->GetBufferTransform();
@@ -51,6 +51,7 @@ void Base::Render(ID3D11DeviceContext* dc, ModelShader* shader)
 	obj->UpdateBufferDara(transform);
 	//シェーダーにモデルを描画してもらう
 	shader->Draw(dc,obj.get());
+	jitterStrength = 0;
 }
 
 void Base::HpDisplay(RenderContext& rc, SpriteShader* shader) {
@@ -107,6 +108,7 @@ void Base::HpDisplay(RenderContext& rc, SpriteShader* shader) {
 void Base::InputDamage(int damage) {
 	if (hp > 0) {
 		hp -= damage;
+		jitterStrength = 0.05;
 		if (hp < 0) {
 			hp = 0;
 		}
