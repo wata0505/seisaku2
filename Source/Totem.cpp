@@ -12,6 +12,7 @@ Totem::Totem()
     model->ModelRegister(".\\resources\\Trap\\AttacheCase\\AttacheCase.fbx", "Texture\\AO.png");
 
     scale.x = scale.y = scale.z = 3.0f;
+    territoryRange = 10.0f;
 
 
     UpdateTransform(0, 0);
@@ -26,7 +27,10 @@ Totem::~Totem()
 
 void Totem::Update(float elapsedTime)
 {
-    CollisionVsEnemies();
+    if (activateFlag)
+    {
+        CollisionVsEnemies();
+    }
     UpdateTransform(0, 0);
     model->UpdateBufferDara(transform);
     //ƒ‚ƒfƒ‹•`‰æî•ñó‚¯“n‚µ

@@ -231,7 +231,7 @@ void EnemyBag::FireBallShoat()
 }
 
 void EnemyBag::TargetUpdate() {
-	if (SearchPlayer()|| rootNo >= MAX_ROOT_POINT) {
+	if (SearchTrap()||SearchPlayer()|| rootNo >= MAX_ROOT_POINT) {
 		switch (targetNo)
 		{
 		case BaseTarget:
@@ -240,17 +240,15 @@ void EnemyBag::TargetUpdate() {
 		case PlayerTarget:
 			targetPosition = Player::Instance().GetPosition();
 			break;
+		case TrapTarget:
+			break;
 		default:
 			break;
 		}
-
 	}
 	else
 	{
-
-	
 		targetPosition = rootPoint[rootNo];
-
 	}
 	
 }
@@ -419,6 +417,10 @@ bool EnemyBag::SearchTrap()
 	for (int i = 0; i < count; i++)
 	{
 		Trap* trap = TrapManager::Instance().GetTrap(i);
+		if (trap->GetActiveFlag() == false)
+		{
+			continue;
+		}
 		//タレットとデコイ以外はスルー
 		if (trap->GetType() != Trap::TrapType::TrapDecoy)
 		{

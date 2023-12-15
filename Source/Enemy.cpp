@@ -256,6 +256,10 @@ void Enemy::CollisionNodeVsTrap(const char* nodeName, float nodeRadius, DirectX:
 	for (int i = 0; i < count; i++)
 	{
 		Trap* trap = TrapManager::Instance().GetTrap(i);
+		if (trap->GetActiveFlag() == false)
+		{
+			continue;
+		}
 		//タレットとデコイ以外はスルー
 		if (trap->GetType() != Trap::TrapType::TrapDecoy)
 		{

@@ -10,6 +10,8 @@
 #include"Player.h"
 #include "Input.h"
 
+#include "StageManager.h"
+
 TrapManager::TrapManager()
 {
 	uiTrap[0] = std::make_unique<Sprite>(L".\\resources\\Trap\\Turret.png");
@@ -22,6 +24,7 @@ TrapManager::TrapManager()
 	sprite = std::make_unique<Sprite>(L".\\resources\\Trap\\TrapSlot.png");
 	spriteNo = std::make_unique<Sprite>(L".\\resources\\Trap\\No.png");
 	font = std::make_unique<Sprite>(L".\\resources\\Font\\Number.png");
+	trapPoint = 100;
 }
 
 //更新処理
@@ -52,21 +55,126 @@ void TrapManager::Update(float elapsedTime)
 	CollisionTrapVstraps();
 
 
+	GamePad& gamePad = Input::Instance().GetGamePad();
 	//トラップ設置（仮）
 	{
-		GamePad& gamePad = Input::Instance().GetGamePad();
-		if (gamePad.GetButtonDown() & GamePad::BTN_LEFT) type--;
-		if (gamePad.GetButtonDown() & GamePad::BTN_RIGHT) type++;
-		if (type >= Trap::TrapType::TrapMax) type = Trap::TrapType::TrapTurret;//上限
-		if (type < Trap::TrapType::TrapTurret)type = Trap::TrapType::TrapDecoy;//下限
 
-		if (Input::Instance().GetGamePad().GetButtonDown() & GamePad::BTN_UP && CollisionVsPlayer() == false)
+		if (buildFlag == false)
 		{
-			SetTrap();
+			if (gamePad.GetButtonDown() & GamePad::BTN_LEFT)type--;
+			if (gamePad.GetButtonDown() & GamePad::BTN_RIGHT)type++;
+			if (type >= Trap::TrapType::TrapMax) type = Trap::TrapType::TrapTurret;//上限
+			if (type < Trap::TrapType::TrapTurret)type = Trap::TrapType::TrapDecoy;//下限
 		}
+
 		if (Input::Instance().GetGamePad().GetButtonDown() & GamePad::BTN_DOWN)
 		{
-			trapPoint++;
+			if (buildFlag)
+			{
+				buildFlag = false;
+			}
+			else
+			{
+				buildFlag = true;
+				SetTrap();
+			}
+		}
+	}
+	if (buildFlag)
+	{
+		canSetFlag = true;
+		Trap* trap = GetTrap(GetTrapCount() - 1);
+		//設置するトラップが被っていないか
+		int TrapCount = static_cast<int>(traps.size());
+		for (int a = 0; a < TrapCount; a++)
+		{
+			Trap* TrapA = traps.at(a);
+			if (a == GetTrapCount() - 1)continue;
+			DirectX::XMFLOAT3 outPosition;
+			if (Collision::IntersectSphereVsSphere(
+				TrapA->GetPosition(), TrapA->GetRadius(),
+				trap->GetPosition(), trap->GetRadius(),
+				outPosition)
+				)
+			{
+				//設置できない
+				canSetFlag = false;
+			}
+		}
+		//位置調整
+		if (trap->GetActiveFlag() == false)
+		{
+			float frontX = sinf(Player::Instance().GetAngle().y);
+			float frontZ = cosf(Player::Instance().GetAngle().y);
+			float add = 3.5f;
+			if (type == Trap::TrapType::TrapTurret)
+			{
+				trap->SetPosition({ (Player::Instance().GetPosition().x + frontX * add),(Player::Instance().GetPosition().y + 2.5f),(Player::Instance().GetPosition().z + frontZ * add) });
+			}
+			else
+			{
+				trap->SetPosition({ (Player::Instance().GetPosition().x + frontX * add),(Player::Instance().GetPosition().y),(Player::Instance().GetPosition().z + frontZ * add) });
+			}
+		}
+
+		//左切り替え
+		if (gamePad.GetButtonDown() & GamePad::BTN_LEFT)
+		{
+			type--;
+			if (type < Trap::TrapType::TrapTurret)type = Trap::TrapType::TrapDecoy;//下限
+			trap->Destroy();
+
+			SetTrap();
+		}
+		//右切り替え
+		if (gamePad.GetButtonDown() & GamePad::BTN_RIGHT)
+		{
+			type++;
+			if (type >= Trap::TrapType::TrapMax) type = Trap::TrapType::TrapTurret;//上限
+			trap->Destroy();
+			SetTrap();
+		}
+
+		//ポイント消費・アクティブ化
+		if (Input::Instance().GetGamePad().GetButtonDown() & GamePad::BTN_UP)
+		{
+
+			//必要ポイントを所持していて、着地している、設置可能である
+			if (cost[type] <= trapPoint && Player::Instance().IsGround() && canSetFlag)
+			{
+				// レイの開始位置は足元より少し上
+				DirectX::XMFLOAT3 start = { trap->GetPosition().x,trap->GetPosition().y ,trap->GetPosition().z };
+				// レイの終点位置は移動後の位置
+				DirectX::XMFLOAT3 end = { trap->GetPosition().x,trap->GetPosition().y - 5 ,trap->GetPosition().z };
+				HitResult hit;
+				if (type == Trap::TrapType::TrapTurret && Player::Instance().GetPosition().y > 5 && StageManager::Instance().RayCast(start, end, hit))
+				{
+					trapPoint -= cost[type];
+					trap->SetActiveFlag(true);
+					SetTrap();
+				}
+
+				// レイの開始位置は足元より少し上
+				start = { trap->GetPosition().x,trap->GetPosition().y ,trap->GetPosition().z };
+				// レイの終点位置は移動後の位置
+				end = { trap->GetPosition().x,trap->GetPosition().y + 1 ,trap->GetPosition().z };
+				if (type != Trap::TrapType::TrapTurret && Player::Instance().GetPosition().y < 5 && StageManager::Instance().RayCast(start, end, hit) == false)
+				{
+					trapPoint -= cost[type];
+					trap->SetActiveFlag(true);
+					SetTrap();
+				}
+			}
+		}
+	}
+
+	//アクティブにしなかったら削除
+	if (buildFlag == false && GetTrapCount() >= 1)
+	{
+		Trap* trap = GetTrap(GetTrapCount() - 1);
+		if (trap->GetActiveFlag() == false)
+		{
+			trap->Destroy();
 		}
 	}
 }
@@ -98,67 +206,43 @@ void TrapManager::Register(Trap* Trap)
 
 void TrapManager::SetTrap()
 {
-	//必要ポイントを所持していて、着地している
-	if (cost[type] <= trapPoint && Player::Instance().IsGround())
+	float frontX = sinf(Player::Instance().GetAngle().y);
+	float frontZ = cosf(Player::Instance().GetAngle().y);
+	float add = 3.5f;
+	switch (type)
 	{
-		trapPoint -= cost[type];
-
-		switch (type)
-		{
-		case Trap::TrapType::TrapTurret:
-		{
-			//台上
-			if (Player::Instance().GetPosition().y > 5)
-			{
-				Turret* turret = new Turret();
-				turret->SetPosition({ Player::Instance().GetPosition().x,12.5f,Player::Instance().GetPosition().z });
-				turret->SetTerritory(turret->GetPosition(), 10.0f);
-				Register(turret);
-			}
-			break;
-		}
-		case Trap::TrapType::TrapMine:
-		{
-			//地面
-			if (Player::Instance().GetPosition().y < 5)
-			{
-				Mine* mine = new Mine();
-				mine->SetPosition(Player::Instance().GetPosition());
-				mine->SetTerritory(mine->GetPosition(), 10.0f);
-				Register(mine);
-			}
-			break;
-		}
-		case Trap::TrapType::TrapTotem:
-		{
-			//地面
-			if (Player::Instance().GetPosition().y < 5)
-			{
-				Totem* totem = new Totem();
-				totem->SetPosition(Player::Instance().GetPosition());
-				totem->SetTerritory(totem->GetPosition(), 10.0f);
-				Register(totem);
-			}
-			break;
-		}
-		case Trap::TrapType::TrapDecoy:
-		{
-			//地面
-			if (Player::Instance().GetPosition().y < 5)
-			{
-				Decoy* decoy = new Decoy();
-				decoy->SetPosition(Player::Instance().GetPosition());
-				decoy->SetTerritory(decoy->GetPosition(), 10.0f);
-				Register(decoy);
-			}
-			break;
-		}
-		}
+	case Trap::TrapType::TrapTurret:
+	{
+		//台上
+		Turret* turret = new Turret();
+		turret->SetPosition({ (Player::Instance().GetPosition().x + frontX * add),(Player::Instance().GetPosition().y + 2.5f),(Player::Instance().GetPosition().z + frontZ * add) });
+		Register(turret);
+		break;
 	}
-
-
-
-
+	case Trap::TrapType::TrapMine:
+	{
+		//地面
+		Mine* mine = new Mine();
+		mine->SetPosition({ (Player::Instance().GetPosition().x + frontX * add),(Player::Instance().GetPosition().y),(Player::Instance().GetPosition().z + frontZ * add) });
+		Register(mine);
+		break;
+	}
+	case Trap::TrapType::TrapTotem:
+	{
+		//地面
+		Totem* totem = new Totem();
+		totem->SetPosition({ (Player::Instance().GetPosition().x + frontX * add),(Player::Instance().GetPosition().y),(Player::Instance().GetPosition().z + frontZ * add) });
+		Register(totem);
+		break;
+	}
+	case Trap::TrapType::TrapDecoy:
+	{
+		Decoy* decoy = new Decoy();
+		decoy->SetPosition({ (Player::Instance().GetPosition().x + frontX * add),(Player::Instance().GetPosition().y),(Player::Instance().GetPosition().z + frontZ * add) });
+		Register(decoy);
+		break;
+	}
+	}
 }
 
 //トラップ全削除
@@ -210,9 +294,11 @@ void TrapManager::CollisionTrapVstraps()
 				)
 			{
 				TrapB->SetPosition(outPosition);
+
 			}
 		}
 	}
+
 }
 
 bool TrapManager::CollisionVsPlayer()
@@ -249,6 +335,7 @@ void TrapManager::Sprite2DRender(ID3D11DeviceContext* dc, RenderContext& rc, Spr
 	DirectX::XMMATRIX Projection = DirectX::XMLoadFloat4x4(&rc.projection);
 	DirectX::XMMATRIX World = DirectX::XMMatrixIdentity();
 
+	TrapManager::Instance().Text(shader, dc, std::to_string(trapPoint), 50, 50, 100, 100, 0.0f, 1.0f, 0.0f, 1.0f);
 
 	DirectX::XMFLOAT2 positon = { 1100,480 };
 	float size = 80;

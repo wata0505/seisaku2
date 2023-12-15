@@ -6,6 +6,9 @@
 #include "AudioAll.h"
 #include "ParticleSystem.h"
 #include "Camera.h"
+#include "TrapManager.h"
+#include "Player.h"
+#include "Input.h"
 Turret::Turret()
 {
 
@@ -35,9 +38,10 @@ Turret::Turret()
 	renderdata2 = model2->GetBufferData();
 
 
-	radius = 5.0f;
+	radius = 1.0f;
 	height = 10;
 	notAttackRange = 10.0f;
+	territoryRange = 20.0f;
 
 	health = 10;
 	maxHealth = 100;
@@ -54,20 +58,22 @@ Turret::~Turret()
 
 void Turret::Update(float elapsedTime)
 {
-	// ステート毎の更新処理
-	switch (state)
+	if (activateFlag)
 	{
-	case State::Idle:
-		UpdateIdleState(elapsedTime);
-		break;
-	case State::Attack:
-		UpdateAttackState(elapsedTime);
-		break;
-	case State::Dead:
-		UpdateDeadState(elapsedTime);
-		break;
+		// ステート毎の更新処理
+		switch (state)
+		{
+		case State::Idle:
+			UpdateIdleState(elapsedTime);
+			break;
+		case State::Attack:
+			UpdateAttackState(elapsedTime);
+			break;
+		case State::Dead:
+			UpdateDeadState(elapsedTime);
+			break;
+		}
 	}
-
 
 
 	UpdateTransform(0, 0);
@@ -116,7 +122,7 @@ void Turret::DrawDebugPrimitive()
 	DebugRenderer* debugRenderer = Graphics::Instance().GetDebugRenderer();
 
 	//衝突判定用のデバック円柱を描画
-	//debugRenderer->DrawCylinder({ position.x,-2.5f,position.z }, radius, height, DirectX::XMFLOAT4(1, 0, 1, 1));
+	debugRenderer->DrawCylinder({ position.x,6.0f,position.z }, radius, height, DirectX::XMFLOAT4(1, 0, 1, 1));
 	//
 	////衝突判定用のデバック円柱を描画
 	//debugRenderer->DrawCylinder({ position.x,-2.5f,position.z }, notAttackRange, height, DirectX::XMFLOAT4(1, 0, 0, 1));
@@ -190,9 +196,9 @@ void Turret::UpdateAttackState(float elapsedTime)
 	coolTime--;
 	if (coolTime <= 0)
 	{
-		// 前方向   		
-		float h = 0;
-		// 発射
+		//// 前方向   		
+		//float h = 0;
+		//// 発射
 		//for (int i = 1; i < 4; i++) {
 		//	h = 0.4 * i;
 		//	ProjectileStraite* projectile = new ProjectileStraite(&objectManager);

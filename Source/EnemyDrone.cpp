@@ -264,6 +264,10 @@ void EnemyDrone::CollisionBeemVSTrap()
 		for (int l = 0; l < count; l++)
 		{
 			Trap* trap = TrapManager::Instance().GetTrap(l);
+			if (trap->GetActiveFlag() == false)
+			{
+				continue;
+			}
 			//タレットとデコイ以外はスルー
 			if (trap->GetType() != Trap::TrapType::TrapTurret)
 			{
@@ -407,6 +411,10 @@ bool EnemyDrone::SearchTrap()
 	for (int i = 0; i < count; i++)
 	{
 		Trap* trap = TrapManager::Instance().GetTrap(i);
+		if (trap->GetActiveFlag() == false)
+		{
+			continue;
+		}
 		//タレット以外はスルー
 		if (trap->GetType() != Trap::TrapType::TrapTurret)//&& trap->GetType() != Trap::TrapType::TrapDecoy)
 		{

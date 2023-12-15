@@ -21,7 +21,7 @@ Decoy::Decoy()
     height = 5;
     health = 10;
     maxHealth = 100;
-
+    territoryRange = 10.0f;
     radius = 1;
     type = Trap::TrapType::TrapDecoy;
 }
@@ -36,8 +36,10 @@ void Decoy::Update(float elapsedTime)
     {
         Destroy();
     }
-
-    CollisionVsEnemies();
+    if (activateFlag)
+    {
+        CollisionVsEnemies();
+    }
     UpdateTransform(0, 0);
     model->UpdateBufferDara(transform);
     //ƒ‚ƒfƒ‹•`‰æî•ñó‚¯“n‚µ

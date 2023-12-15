@@ -72,6 +72,8 @@ public:
 	//“GŽí—Þ
 	void	SetType(int type) { this->type = type; }
 	int		GetType() { return type; }
+	bool GetActiveFlag() { return this->activateFlag; }
+	void SetActiveFlag(bool activateflag) { this->activateFlag = activateflag; }
 protected:
 
 	int type = 0;//“G‚ÌŽí—Þ
@@ -102,5 +104,7 @@ protected:
 	bool center = false;
 
 	bool hpRenderFlag = false;
+
+	bool activateFlag = false;
 
 };

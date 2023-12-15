@@ -52,6 +52,9 @@ public:
 	float GetTrapPoint() { return trapPoint; }
 	void  SetTrapPoint(int point) { this->trapPoint = point; }
 
+	bool GetBuidFlag() { return buildFlag; }
+
+
 
 private:
 	//ƒgƒ‰ƒbƒv“¯m‚ÌÕ“Ëˆ—
@@ -79,4 +82,5 @@ private:
 
 
 	bool buildFlag = false;
+	bool canSetFlag = false;
 };
