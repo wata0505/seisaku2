@@ -224,3 +224,91 @@ void Trap::InputDamage(int damage) {
 		}
 	}
 }
+
+// ホログラムシェーダー情報初期化
+void Trap::HologramShaderDataInitialize(float minHeight, float maxHeight)
+{
+	scanTimer = 1.0f;		// スキャンラインの時間
+	scanBorder = 0.0f;		// スキャンラインの描画範囲
+	glowTimer = 1.0f;		// グロウラインの時間
+	glowBorder = 0.0f;		// グロウラインの描画範囲
+	hologramTimer = 0.0f;	// ホログラムラインの時間
+	hologramBorder = 0.0f;	// ホログラムラインの描画範囲
+	this->minHeight = minHeight;	// 最低点
+	this->maxHeight = maxHeight;	// 最高点
+	isActiveStart = false;	// ホログラムシェーダー実行中フラグ
+}
+// ホログラムシェーダー更新処理
+bool Trap::UpdateHologramShader(float elapsedTime, bool isActive)
+{
+	// minHeight : 足元位置
+	// maxHeight : 頭長位置
+	// 高さ算出
+	float length = maxHeight - minHeight;
+
+	float inverse = -1.0f;
+	length *= inverse;
+	float startPosition = minHeight;
+	if (minHeight < 0.0f)
+	{
+		startPosition = maxHeight;
+	}
+
+	// 許容時間
+	static constexpr float permissionTimer = 1.0f;
+#if 0
+	// スキャンラインの時間加算(倍速)
+	scanTimer += elapsedTime * 2.0f;
+	// スキャンラインの時間が許容時間以上なら固定
+	if (scanTimer >= permissionTimer)
+	{
+		scanTimer = permissionTimer;
+	}
+	// スキャンラインの時間が一定値(0.4f)以上なら
+	if (scanTimer >= 0.4f)
+	{
+		// グロウラインの時間加算(3/4倍速)
+		glowTimer += elapsedTime * 0.75f;
+		// グロウラインの時間が許容時間以上なら固定
+		if (glowTimer >= permissionTimer)
+		{
+			glowTimer = permissionTimer;
+		}
+	}
+	// グロウラインの時間が一定値(0.4f)以上なら
+	if (glowTimer >= permissionTimer)
+	{
+		// ホログラムラインの時間加算
+		hologramTimer += elapsedTime;
+		// ホログラムラインの時間が許容時間以上なら固定
+		if (hologramTimer >= permissionTimer)
+		{
+			hologramTimer = permissionTimer;
+		}
+	}
+#else
+	if (isActive)
+	{
+		// ホログラムラインの時間加算
+		hologramTimer += elapsedTime;
+		// ホログラムラインの時間が許容時間以上なら固定
+		if (hologramTimer >= permissionTimer)
+		{
+			hologramTimer = permissionTimer;
+		}
+	}
+#endif
+	// スキャンラインの描画範囲を足元位置から高さに時間割合で算出
+	scanBorder = length * scanTimer + startPosition;
+	// グロウラインの描画範囲を足元位置から高さに時間割合で算出
+	glowBorder = length * glowTimer + startPosition;
+	// ホログラムラインの描画範囲を足元位置から高さに時間割合で算出
+	hologramBorder = length * hologramTimer + startPosition;
+
+	// ホログラムラインの時間が許容時間以上なら固定
+	//if (hologramTimer >= permissionTimer)
+	{
+		return true;
+	}
+	return false;
+}

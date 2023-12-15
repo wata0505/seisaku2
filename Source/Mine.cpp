@@ -3,6 +3,8 @@
 #include "Collision.h"
 #include "Graphics.h"
 #include "Camera.h"
+#include "TrapManager.h"
+
 Mine::Mine()
 {
 
@@ -18,6 +20,9 @@ Mine::Mine()
     attack = 1.0f;
     height = 5.0f;
     type = Trap::TrapType::TrapMine;
+
+    // ホログラムシェーダー情報初期化
+    HologramShaderDataInitialize(0.0f, 0.6f);
 }
 Mine::~Mine()
 {
@@ -26,7 +31,21 @@ Mine::~Mine()
 
 void Mine::Update(float elapsedTime)
 {
-    CollisionVsEnemies();
+    timer += elapsedTime;
+    model->ShaderAdjustment(adjustMetalness, adjustSmoothness, glitchScale, timer, maxHeight);
+    
+    // ホログラムシェーダー更新処理
+    UpdateHologramShader(elapsedTime, activateFlag);
+
+    if (activateFlag)
+    {
+        hologramColor = { 0.0f, 1.0f, 0.0f, 1.0f };
+        CollisionVsEnemies();
+    }
+    else
+    {
+        hologramColor = TrapManager::Instance().GetHologramColor();
+    }
     UpdateTransform(0, 0);
     model->UpdateBufferDara(transform);
     //モデル描画情報受け渡し
@@ -44,13 +63,12 @@ void Mine::Update(float elapsedTime)
 
 void Mine::Render(ID3D11DeviceContext* dc, ModelShader* shader)
 {
-    shader->Draw(dc, model.get());
+    shader->Draw(dc, model.get(), { glitchIntensity, scanBorder, glowBorder, hologramBorder }, hologramColor);
 }
 void Mine::Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader)
 {
     objectManager.Render(immediate_context.Get(), shader);
 }
-
 void Mine::DrawDebugPrimitive()
 {
     // 基底クラスのデバッグプリミティブ描画
@@ -61,6 +79,38 @@ void Mine::DrawDebugPrimitive()
     debugRenderer->DrawCylinder(position, radius, 1.0f, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
     // 攻撃範囲
     debugRenderer->DrawCylinder(position, territoryRange, 1.0f, DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
+}
+// デバッグ情報表示
+void Mine::DrawDebugGUI()
+{
+    //トランスフォーム
+    if (ImGui::CollapsingHeader("Mine", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        if (ImGui::TreeNode("PBR"))
+        {
+            ImGui::SliderFloat("adjustMetalness", &adjustMetalness, -1.0f, 1.0f);
+            ImGui::SliderFloat("adjustSmoothness", &adjustSmoothness, -1.0f, 1.0f);
+            ImGui::TreePop();
+        }
+        if (ImGui::TreeNode("Hologram"))
+        {
+            ImGui::SliderFloat("scanBorder", &scanBorder, minHeight, maxHeight);
+            ImGui::SliderFloat("glowBorder", &glowBorder, minHeight, maxHeight);
+            ImGui::SliderFloat("hologramBorder", &hologramBorder, minHeight, maxHeight);
+            ImGui::SliderFloat("scanTimer", &scanTimer, -1.0f, 2.0f);
+            ImGui::SliderFloat("glowTimer", &glowTimer, -1.0f, 2.0f);
+            ImGui::SliderFloat("hologramTimer", &hologramTimer, -1.0f, 2.0f);
+            ImGui::TreePop();
+        }
+        if (ImGui::TreeNode("Glitch"))
+        {
+            //ImGui::SliderFloat("glitchSpeed", &glitchSpeed, 0.0f, 10.0f);
+            ImGui::SliderFloat("glitchSpeed", &glitchSpeed, 1.0f, 50.0f);
+            ImGui::SliderFloat("glitchIntensity", &glitchIntensity, 0.0f, 1.0f);
+            ImGui::SliderFloat("glitchScale", &glitchScale, 1.0f, 50.0f);
+            ImGui::TreePop();
+        }
+    }
 }
 
 //敵との衝突処理

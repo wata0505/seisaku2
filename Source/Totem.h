@@ -17,6 +17,8 @@ public:
 	void Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader)override;
 	// デバッグプリミティブ描画
 	void DrawDebugPrimitive()override;
+	// デバッグ情報表示
+	void DrawDebugGUI() override;
 
 	void CollisionVsEnemies();
 
@@ -25,5 +27,6 @@ private:
 	std::unique_ptr<Model> model = nullptr;
 	//描画情報格納
 	std::vector<SkinnedMeshResouurce::constants> renderdata;
+
 
 };

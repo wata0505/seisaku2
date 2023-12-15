@@ -19,6 +19,9 @@ Totem::Totem()
     model->UpdateBufferDara(transform);
     renderdata = model->GetBufferData();
     type = Trap::TrapType::TrapTotem;
+
+    // ホログラムシェーダー情報初期化
+    HologramShaderDataInitialize(-15.0f, 15.0f);
 }
 Totem::~Totem()
 {
@@ -27,9 +30,20 @@ Totem::~Totem()
 
 void Totem::Update(float elapsedTime)
 {
+    timer += elapsedTime;
+    model->ShaderAdjustment(adjustMetalness, adjustSmoothness, glitchScale, timer, maxHeight);
+    
+    // ホログラムシェーダー更新処理
+    UpdateHologramShader(elapsedTime, activateFlag);
+
     if (activateFlag)
     {
+        hologramColor = { 0.0f, 1.0f, 0.0f, 1.0f };
         CollisionVsEnemies();
+    }
+    else
+    {
+        hologramColor = TrapManager::Instance().GetHologramColor();
     }
     UpdateTransform(0, 0);
     model->UpdateBufferDara(transform);
@@ -46,7 +60,7 @@ void Totem::Update(float elapsedTime)
 
 void Totem::Render(ID3D11DeviceContext* dc, ModelShader* shader)
 {
-    shader->Draw(dc, model.get());
+    shader->Draw(dc, model.get(), { glitchIntensity, scanBorder, glowBorder, hologramBorder }, hologramColor);
 }
 void Totem::Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader)
 {
@@ -64,6 +78,38 @@ void Totem::DrawDebugPrimitive()
 
     // 縄張り範囲をデバッグ円柱描画
     debugRenderer->DrawCylinder(position, territoryRange, 1.0f, DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
+}
+// デバッグ情報表示
+void Totem::DrawDebugGUI()
+{
+    //トランスフォーム
+    if (ImGui::CollapsingHeader("Totem", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        if (ImGui::TreeNode("PBR"))
+        {
+            ImGui::SliderFloat("adjustMetalness", &adjustMetalness, -1.0f, 1.0f);
+            ImGui::SliderFloat("adjustSmoothness", &adjustSmoothness, -1.0f, 1.0f);
+            ImGui::TreePop();
+        }
+        if (ImGui::TreeNode("Hologram"))
+        {
+            ImGui::SliderFloat("scanBorder", &scanBorder, minHeight, maxHeight);
+            ImGui::SliderFloat("glowBorder", &glowBorder, minHeight, maxHeight);
+            ImGui::SliderFloat("hologramBorder", &hologramBorder, minHeight, maxHeight);
+            ImGui::SliderFloat("scanTimer", &scanTimer, -1.0f, 2.0f);
+            ImGui::SliderFloat("glowTimer", &glowTimer, -1.0f, 2.0f);
+            ImGui::SliderFloat("hologramTimer", &hologramTimer, -1.0f, 2.0f);
+            ImGui::TreePop();
+        }
+        if (ImGui::TreeNode("Glitch"))
+        {
+            //ImGui::SliderFloat("glitchSpeed", &glitchSpeed, 0.0f, 10.0f);
+            ImGui::SliderFloat("glitchSpeed", &glitchSpeed, 1.0f, 50.0f);
+            ImGui::SliderFloat("glitchIntensity", &glitchIntensity, 0.0f, 1.0f);
+            ImGui::SliderFloat("glitchScale", &glitchScale, 1.0f, 50.0f);
+            ImGui::TreePop();
+        }
+    }
 }
 
 //敵との衝突処理

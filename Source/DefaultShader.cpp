@@ -180,7 +180,10 @@ void DefaultShader::Draw(ID3D11DeviceContext* dc, Model* model, const DirectX::X
 			cbSubset.scanBorder = uvstatus.y;
 			cbSubset.glowBorder = uvstatus.z;
 			cbSubset.hologramBorder = uvstatus.w;
-			cbSubset.hologramColor = material.pbr.hologramColor;
+			//cbSubset.hologramColor = material.pbr.hologramColor;
+			cbSubset.hologramColor.x = color.x;
+			cbSubset.hologramColor.y = color.y;
+			cbSubset.hologramColor.z = color.z;
 			cbSubset.maxHeight = material.pbr.maxHeight;
 			dc->UpdateSubresource(subsetConstantBuffer.Get(), 0, 0, &cbSubset, 0, 0);
 

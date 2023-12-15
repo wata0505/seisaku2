@@ -27,8 +27,12 @@ public:
 
 	//描画処理
 	void Render(ID3D11DeviceContext* dc, ModelShader* shader);
-
+	//残像エフェクト描画
 	void Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader);
+	//デバッグプリミティブ描画
+	void DrawDebugPrimitive();
+	// デバッグ情報表示
+	void DrawDebugGUI();
 
 	void Text(SpriteShader* shader, ID3D11DeviceContext* dc, std::string s, float x, float y, float w, float h, float r, float g, float b, float a);
 	void Sprite2DRender(ID3D11DeviceContext* dc, RenderContext& rc, SpriteShader* shader);
@@ -38,9 +42,6 @@ public:
 
 	//トラップ削除
 	void Remove(Trap* Trap);
-
-	//デバッグプリミティブ描画
-	void DrawDebugPrimitive();
 
 	//トラップ数取得
 	int GetTrapCount()const { return static_cast<int>(traps.size()); }
@@ -54,7 +55,7 @@ public:
 
 	bool GetBuidFlag() { return buildFlag; }
 
-
+	DirectX::XMFLOAT4 GetHologramColor() { return hologramColor; }
 
 private:
 	//トラップ同士の衝突処理
@@ -83,4 +84,6 @@ private:
 
 	bool buildFlag = false;
 	bool canSetFlag = false;
+
+	DirectX::XMFLOAT4 hologramColor = { 0.0f, 1.0f, 0.0f, 1.0f }; // ホログラム色
 };

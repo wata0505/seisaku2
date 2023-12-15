@@ -148,6 +148,7 @@ PS_OUT main(VS_OUT pin)
     //float emissiveMax = max(emissive.r, max(emissive.g, max(emissive.b, emissive.a)));
     float emissiveMax = max(emissive.r, max(emissive.g, emissive.b));
     // 最大値が0なら透明ピクセルやからマテリアルカラーを代入(後にエミッシブも追加で判定)
+#if 0
     if (albedo.a < 0.9f)
     {
         if (emissiveMax <= 0.0f && emissive.a <= 0.0f)
@@ -165,7 +166,8 @@ PS_OUT main(VS_OUT pin)
             }
         }
     }
-
+#endif
+    
     // Inverse gamma process
     const float GAMMA = 1.5f;
     albedo.rgb = pow(albedo.rgb, GAMMA);
@@ -281,7 +283,8 @@ PS_OUT main(VS_OUT pin)
         float edgeValue = saturate(1.0f - abs(hologramBorder - (-pin.world_position.y)) * (1.0f / size));
 #else
         // モデルのローカル空間での処理の性質上、モデルサイズが大きければ大きいほどsizeの値を大きくしないと見えない
-        float size = 5.0f;
+        //float size = 5.0f;
+        float size = 0.2f;
         float edgeValue = saturate(1.0f - abs(hologramBorder - (-pin.localPosition.y)) * (1.0f / size));
 #endif        
         

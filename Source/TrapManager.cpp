@@ -12,6 +12,8 @@
 
 #include "StageManager.h"
 
+#include <imgui.h>
+
 TrapManager::TrapManager()
 {
 	uiTrap[0] = std::make_unique<Sprite>(L".\\resources\\Trap\\Turret.png");
@@ -52,7 +54,7 @@ void TrapManager::Update(float elapsedTime)
 	removes.clear();
 
 	//トラップ同士の衝突処理
-	CollisionTrapVstraps();
+	//CollisionTrapVstraps();
 
 
 	GamePad& gamePad = Input::Instance().GetGamePad();
@@ -109,7 +111,8 @@ void TrapManager::Update(float elapsedTime)
 			// レイの終点位置は移動後の位置
 			DirectX::XMFLOAT3 end = { trap->GetPosition().x,trap->GetPosition().y - 5 ,trap->GetPosition().z };
 			HitResult hit;
-			if (Player::Instance().GetPosition().y > 5 && StageManager::Instance().RayCast(start, end, hit) == false)
+			//if (Player::Instance().GetPosition().y > 5 && StageManager::Instance().RayCast(start, end, hit) == false)
+			if (Player::Instance().GetPosition().y < 5 || StageManager::Instance().RayCast(start, end, hit) == false)
 			{
 				canSetFlag = false;
 			}
@@ -121,7 +124,8 @@ void TrapManager::Update(float elapsedTime)
 			// レイの終点位置は移動後の位置
 			DirectX::XMFLOAT3 end = { trap->GetPosition().x,trap->GetPosition().y,trap->GetPosition().z };
 			HitResult hit;
-			if (Player::Instance().GetPosition().y < 5 && StageManager::Instance().RayCast(start, end, hit))
+			//if (Player::Instance().GetPosition().y < 5 && StageManager::Instance().RayCast(start, end, hit))
+			if (Player::Instance().GetPosition().y > 5 || StageManager::Instance().RayCast(start, end, hit))
 			{
 				canSetFlag = false;
 			}
@@ -146,6 +150,7 @@ void TrapManager::Update(float elapsedTime)
 			{
 				trap->SetPosition({ (Player::Instance().GetPosition().x + frontX * add),(Player::Instance().GetPosition().y),(Player::Instance().GetPosition().z + frontZ * add) });
 			}
+			trap->SetAngle(Player::Instance().GetAngle());
 		}
 
 		//左切り替え
@@ -188,6 +193,15 @@ void TrapManager::Update(float elapsedTime)
 			trap->Destroy();
 		}
 	}
+
+	if (canSetFlag)
+	{
+		hologramColor = { 0.0f, 1.0f, 0.0f, 1.0f };
+	}
+	else
+	{
+		hologramColor = { 1.0f, 0.0f, 0.0f, 1.0f };
+	}
 }
 
 //描画処理
@@ -206,7 +220,28 @@ void TrapManager::Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> i
 		Trap->Afterimagerender(immediate_context, shader);
 	}
 }
-
+//トラップのデバッグプリミティブ描画
+void TrapManager::DrawDebugPrimitive()
+{
+	for (Trap* Trap : traps)
+	{
+		Trap->DrawDebugPrimitive();
+	}
+}
+// デバッグ情報表示
+void TrapManager::DrawDebugGUI()
+{
+	ImGui::SetNextWindowPos(ImVec2(980, 10), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_FirstUseEver);
+	if (ImGui::Begin("Trap", nullptr, ImGuiWindowFlags_None))
+	{
+		for (Trap* trap : traps) {
+			// トラップ情報表示
+			trap->DrawDebugGUI();
+		}
+	}
+	ImGui::End();
+}
 
 
 //トラップ登録
@@ -271,16 +306,6 @@ void TrapManager::Remove(Trap* Trap)
 {
 	//破棄リストに追加
 	removes.emplace_back(Trap);
-}
-
-
-//トラップのデバッグプリミティブ描画
-void TrapManager::DrawDebugPrimitive()
-{
-	for (Trap* Trap : traps)
-	{
-		Trap->DrawDebugPrimitive();
-	}
 }
 
 //トラップ同士の衝突処理
@@ -372,9 +397,13 @@ void TrapManager::Sprite2DRender(ID3D11DeviceContext* dc, RenderContext& rc, Spr
 	TrapManager::Instance().Text(shader, dc, std::to_string(cost[type]), positon.x + 115, positon.y + 137, 22, 22, 1.0f, 0.0f, 0.0f, 1.0f);
 
 	//使用不可マーク表示
+#if 0
 	if (Player::Instance().IsGround() == false ||
 		(Player::Instance().GetPosition().y > 5 && type != Trap::TrapType::TrapTurret) ||
 		(Player::Instance().GetPosition().y < 5 && type == Trap::TrapType::TrapTurret))
+#else
+	if(!canSetFlag)
+#endif
 	{
 		//台上で、タレットじゃない
 		spriteNo->Render(dc,

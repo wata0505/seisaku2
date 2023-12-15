@@ -1101,7 +1101,7 @@ void Player::render(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_contex
 {
     if (renderflag)
     {
-        shader->Draw(immediate_context.Get(), player.get(), { glitchIntensity, scanBorder, glowBorder, hologramBorder });
+        shader->Draw(immediate_context.Get(), player.get(), { glitchIntensity, scanBorder, glowBorder, hologramBorder }, { 0.0f, 0.0f, 1.0f, 1.0f });
     }
     //wepon->Render(immediate_context.Get(), shader);
 }

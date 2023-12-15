@@ -305,7 +305,7 @@ void EnemyBag::Render(ID3D11DeviceContext* dc, ModelShader* shader)
 	//if (health <= 0) {
 	//	return;
 	//}
-	if (renderflag)shader->Draw(dc, model.get(), { glitchIntensity, scanBorder, glowBorder, hologramBorder});
+	if (renderflag)shader->Draw(dc, model.get(), { glitchIntensity, scanBorder, glowBorder, hologramBorder }, { 1.0f, 0.0f, 0.0f, 1.0f });
 }
 void EnemyBag::Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader)
 {

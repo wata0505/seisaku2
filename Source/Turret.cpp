@@ -50,6 +50,9 @@ Turret::Turret()
 	TransitionIdleState();
 	attack = 1;
 	type = Trap::TrapType::TrapTurret;
+
+	// ホログラムシェーダー情報初期化
+	HologramShaderDataInitialize(-2.5f, 2.0f);
 }
 Turret::~Turret()
 {
@@ -58,8 +61,17 @@ Turret::~Turret()
 
 void Turret::Update(float elapsedTime)
 {
+	timer += elapsedTime;
+	model->ShaderAdjustment(adjustMetalness, adjustSmoothness, glitchScale, timer, maxHeight);
+	model2->ShaderAdjustment(adjustMetalness, adjustSmoothness, glitchScale, timer, maxHeight);
+
+	// ホログラムシェーダー更新処理
+	UpdateHologramShader(elapsedTime, activateFlag);
+
 	if (activateFlag)
 	{
+		hologramColor = { 0.0f, 1.0f, 0.0f, 1.0f };
+
 		// ステート毎の更新処理
 		switch (state)
 		{
@@ -74,7 +86,10 @@ void Turret::Update(float elapsedTime)
 			break;
 		}
 	}
-
+	else
+	{
+		hologramColor = TrapManager::Instance().GetHologramColor();
+	}
 
 	UpdateTransform(0, 0);
 	UpdateTransform2(0, 0);
@@ -107,8 +122,8 @@ void Turret::Update(float elapsedTime)
 
 void Turret::Render(ID3D11DeviceContext* dc, ModelShader* shader)
 {
-	shader->Draw(dc, model.get());
-	shader->Draw(dc, model2.get());
+	shader->Draw(dc, model.get(), { glitchIntensity, scanBorder, glowBorder, hologramBorder }, hologramColor);
+	shader->Draw(dc, model2.get(), { glitchIntensity, scanBorder, glowBorder, hologramBorder }, hologramColor);
 }
 void Turret::Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader)
 {
@@ -130,6 +145,38 @@ void Turret::DrawDebugPrimitive()
 	//
 	//// 縄張り範囲をデバッグ円柱描画
 	//debugRenderer->DrawCylinder({ territoryOrigin.x,-2.5f,territoryOrigin.z }, territoryRange, height, DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
+}
+// デバッグ情報表示
+void Turret::DrawDebugGUI()
+{
+	//トランスフォーム
+	if (ImGui::CollapsingHeader("Turret", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		if (ImGui::TreeNode("PBR"))
+		{
+			ImGui::SliderFloat("adjustMetalness", &adjustMetalness, -1.0f, 1.0f);
+			ImGui::SliderFloat("adjustSmoothness", &adjustSmoothness, -1.0f, 1.0f);
+			ImGui::TreePop();
+		}
+		if (ImGui::TreeNode("Hologram"))
+		{
+			ImGui::SliderFloat("scanBorder", &scanBorder, minHeight, maxHeight);
+			ImGui::SliderFloat("glowBorder", &glowBorder, minHeight, maxHeight);
+			ImGui::SliderFloat("hologramBorder", &hologramBorder, minHeight, maxHeight);
+			ImGui::SliderFloat("scanTimer", &scanTimer, -1.0f, 2.0f);
+			ImGui::SliderFloat("glowTimer", &glowTimer, -1.0f, 2.0f);
+			ImGui::SliderFloat("hologramTimer", &hologramTimer, -1.0f, 2.0f);
+			ImGui::TreePop();
+		}
+		if (ImGui::TreeNode("Glitch"))
+		{
+			//ImGui::SliderFloat("glitchSpeed", &glitchSpeed, 0.0f, 10.0f);
+			ImGui::SliderFloat("glitchSpeed", &glitchSpeed, 1.0f, 50.0f);
+			ImGui::SliderFloat("glitchIntensity", &glitchIntensity, 0.0f, 1.0f);
+			ImGui::SliderFloat("glitchScale", &glitchScale, 1.0f, 50.0f);
+			ImGui::TreePop();
+		}
+	}
 }
 
 //行列更新処理

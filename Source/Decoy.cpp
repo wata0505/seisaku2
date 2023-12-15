@@ -4,12 +4,13 @@
 #include "Graphics.h"
 #include "TrapManager.h"
 #include "Camera.h"
+
 Decoy::Decoy()
 {
 
     model = std::make_unique<Model>(".\\resources\\Trap\\Decoy\\Decoy.fbx", true);
     model->ModelSerialize(".\\resources\\Trap\\Decoy\\Decoy.fbx");
-    model->ModelRegister(".\\resources\\Trap\\Decoy\\Decoy.fbx");
+    model->ModelRegister(".\\resources\\Trap\\Decoy\\Decoy.fbx", "Texture\\Albedo.png");
 
 
     scale.x = scale.y = scale.z = 3.0f;
@@ -24,6 +25,9 @@ Decoy::Decoy()
     territoryRange = 10.0f;
     radius = 1;
     type = Trap::TrapType::TrapDecoy;
+
+    // ホログラムシェーダー情報初期化
+    HologramShaderDataInitialize(-1.2f, 1.4f);
 }
 Decoy::~Decoy()
 {
@@ -32,13 +36,25 @@ Decoy::~Decoy()
 
 void Decoy::Update(float elapsedTime)
 {
+    timer += elapsedTime;
+
+    model->ShaderAdjustment(adjustMetalness, adjustSmoothness, glitchScale, timer, maxHeight);
+    
+    // ホログラムシェーダー更新処理
+    UpdateHologramShader(elapsedTime, activateFlag);
+
     if (health <= 0)
     {
         Destroy();
     }
     if (activateFlag)
     {
+        hologramColor = { 0.0f, 1.0f, 0.0f, 1.0f };
         CollisionVsEnemies();
+    }
+    else
+    {
+        hologramColor = TrapManager::Instance().GetHologramColor();
     }
     UpdateTransform(0, 0);
     model->UpdateBufferDara(transform);
@@ -55,7 +71,7 @@ void Decoy::Update(float elapsedTime)
 
 void Decoy::Render(ID3D11DeviceContext* dc, ModelShader* shader)
 {
-    shader->Draw(dc, model.get());
+    shader->Draw(dc, model.get(), { glitchIntensity, scanBorder, glowBorder, hologramBorder }, hologramColor);
 }
 void Decoy::Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader)
 {
@@ -74,6 +90,38 @@ void Decoy::DrawDebugPrimitive()
 
     // 縄張り範囲をデバッグ円柱描画
     debugRenderer->DrawCylinder(territoryOrigin, territoryRange, 1.0f, DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
+}
+// デバッグ情報表示
+void Decoy::DrawDebugGUI()
+{
+    //トランスフォーム
+    if (ImGui::CollapsingHeader("Decoy", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        if (ImGui::TreeNode("PBR"))
+        {
+            ImGui::SliderFloat("adjustMetalness", &adjustMetalness, -1.0f, 1.0f);
+            ImGui::SliderFloat("adjustSmoothness", &adjustSmoothness, -1.0f, 1.0f);
+            ImGui::TreePop();
+        }
+        if (ImGui::TreeNode("Hologram"))
+        {
+            ImGui::SliderFloat("scanBorder", &scanBorder, minHeight, maxHeight);
+            ImGui::SliderFloat("glowBorder", &glowBorder, minHeight, maxHeight);
+            ImGui::SliderFloat("hologramBorder", &hologramBorder, minHeight, maxHeight);
+            ImGui::SliderFloat("scanTimer", &scanTimer, -1.0f, 2.0f);
+            ImGui::SliderFloat("glowTimer", &glowTimer, -1.0f, 2.0f);
+            ImGui::SliderFloat("hologramTimer", &hologramTimer, -1.0f, 2.0f);
+            ImGui::TreePop();
+        }
+        if (ImGui::TreeNode("Glitch"))
+        {
+            //ImGui::SliderFloat("glitchSpeed", &glitchSpeed, 0.0f, 10.0f);
+            ImGui::SliderFloat("glitchSpeed", &glitchSpeed, 1.0f, 50.0f);
+            ImGui::SliderFloat("glitchIntensity", &glitchIntensity, 0.0f, 1.0f);
+            ImGui::SliderFloat("glitchScale", &glitchScale, 1.0f, 50.0f);
+            ImGui::TreePop();
+        }
+    }
 }
 
 //敵との衝突処理

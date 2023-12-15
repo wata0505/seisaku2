@@ -1,9 +1,11 @@
 #pragma once
-#include<DirectXMath.h>
+
+#include <DirectXMath.h>
 #include "shader.h"
 #include "Model.h"
 #include "Trap.h"
 #include "ObjectManager.h"
+
 class Turret :public Trap
 {
 public:
@@ -18,6 +20,8 @@ public:
 	void Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader)override;
 	// デバッグプリミティブ描画
 	void DrawDebugPrimitive()override;
+	// デバッグ情報表示
+	void DrawDebugGUI() override;
 
 private:
 	//行列更新処理
