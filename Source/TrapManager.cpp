@@ -101,6 +101,37 @@ void TrapManager::Update(float elapsedTime)
 				canSetFlag = false;
 			}
 		}
+		//台との判定
+		if (trap->GetType() == Trap::TrapType::TrapTurret)
+		{
+			// レイの開始位置は足元より少し上
+			DirectX::XMFLOAT3 start = { trap->GetPosition().x,trap->GetPosition().y ,trap->GetPosition().z };
+			// レイの終点位置は移動後の位置
+			DirectX::XMFLOAT3 end = { trap->GetPosition().x,trap->GetPosition().y - 5 ,trap->GetPosition().z };
+			HitResult hit;
+			if (Player::Instance().GetPosition().y > 5 && StageManager::Instance().RayCast(start, end, hit) == false)
+			{
+				canSetFlag = false;
+			}
+		}
+		else
+		{
+			// レイの開始位置は足元より少し上
+			DirectX::XMFLOAT3 start = { trap->GetPosition().x,trap->GetPosition().y+10 ,trap->GetPosition().z };
+			// レイの終点位置は移動後の位置
+			DirectX::XMFLOAT3 end = { trap->GetPosition().x,trap->GetPosition().y,trap->GetPosition().z };
+			HitResult hit;
+			if (Player::Instance().GetPosition().y < 5 && StageManager::Instance().RayCast(start, end, hit))
+			{
+				canSetFlag = false;
+			}
+		}
+		//ポイントが足りない、着地していない
+		if (cost[type] > trapPoint || Player::Instance().IsGround() == false)
+		{
+			canSetFlag = false;
+		}
+		
 		//位置調整
 		if (trap->GetActiveFlag() == false)
 		{
@@ -138,32 +169,12 @@ void TrapManager::Update(float elapsedTime)
 		//ポイント消費・アクティブ化
 		if (Input::Instance().GetGamePad().GetButtonDown() & GamePad::BTN_UP)
 		{
-
-			//必要ポイントを所持していて、着地している、設置可能である
-			if (cost[type] <= trapPoint && Player::Instance().IsGround() && canSetFlag)
+			//設置可能である
+			if (canSetFlag)
 			{
-				// レイの開始位置は足元より少し上
-				DirectX::XMFLOAT3 start = { trap->GetPosition().x,trap->GetPosition().y ,trap->GetPosition().z };
-				// レイの終点位置は移動後の位置
-				DirectX::XMFLOAT3 end = { trap->GetPosition().x,trap->GetPosition().y - 5 ,trap->GetPosition().z };
-				HitResult hit;
-				if (type == Trap::TrapType::TrapTurret && Player::Instance().GetPosition().y > 5 && StageManager::Instance().RayCast(start, end, hit))
-				{
-					trapPoint -= cost[type];
-					trap->SetActiveFlag(true);
-					SetTrap();
-				}
-
-				// レイの開始位置は足元より少し上
-				start = { trap->GetPosition().x,trap->GetPosition().y ,trap->GetPosition().z };
-				// レイの終点位置は移動後の位置
-				end = { trap->GetPosition().x,trap->GetPosition().y + 1 ,trap->GetPosition().z };
-				if (type != Trap::TrapType::TrapTurret && Player::Instance().GetPosition().y < 5 && StageManager::Instance().RayCast(start, end, hit) == false)
-				{
-					trapPoint -= cost[type];
-					trap->SetActiveFlag(true);
-					SetTrap();
-				}
+				trapPoint -= cost[type];
+				trap->SetActiveFlag(true);
+				SetTrap();
 			}
 		}
 	}
