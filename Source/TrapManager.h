@@ -50,12 +50,12 @@ public:
 	Trap* GetTrap(int index) { return traps.at(index); }
 
 
-	float GetTrapPoint() { return trapPoint; }
+	int GetTrapPoint() { return trapPoint; }
 	void  SetTrapPoint(int point) { this->trapPoint = point; }
 
 	bool GetBuidFlag() { return buildFlag; }
 
-	DirectX::XMFLOAT4 GetHologramColor() { return hologramColor; }
+	DirectX::XMFLOAT3 GetHologramColor() { return hologramColor; }
 
 private:
 	//トラップ同士の衝突処理
@@ -85,5 +85,5 @@ private:
 	bool buildFlag = false;
 	bool canSetFlag = false;
 
-	DirectX::XMFLOAT4 hologramColor = { 0.0f, 1.0f, 0.0f, 1.0f }; // ホログラム色
+	DirectX::XMFLOAT3 hologramColor = { 0.0f, 1.0f, 0.0f }; // ホログラム色
 };

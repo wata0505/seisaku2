@@ -46,6 +46,7 @@ public:
 	int GetHP() { return hp; }
 
 	float GetJitterStrength() { return jitterStrength; }
+	float GetSkyboxColor() { return skyboxColor; }
 
 private:
 	std::unique_ptr<Model> obj = nullptr;
@@ -60,5 +61,5 @@ private:
 	int hp = 1000;
 	int hpMax = 1000;
 	float jitterStrength = 0;
-	
+	float skyboxColor = 0.0f;
 };

@@ -49,7 +49,7 @@ void Decoy::Update(float elapsedTime)
     }
     if (activateFlag)
     {
-        hologramColor = { 0.0f, 1.0f, 0.0f, 1.0f };
+        hologramColor = { 0.0f, 1.0f, 0.0f };
         CollisionVsEnemies();
     }
     else
@@ -71,7 +71,7 @@ void Decoy::Update(float elapsedTime)
 
 void Decoy::Render(ID3D11DeviceContext* dc, ModelShader* shader)
 {
-    shader->Draw(dc, model.get(), { glitchIntensity, scanBorder, glowBorder, hologramBorder }, hologramColor);
+    shader->Draw(dc, model.get(), { glitchIntensity, scanBorder, glowBorder, hologramBorder }, { hologramColor.x, hologramColor.y, hologramColor.z, 0.0f });
 }
 void Decoy::Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader)
 {

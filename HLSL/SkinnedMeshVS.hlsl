@@ -35,7 +35,7 @@ VS_OUT main(VS_IN vin)
     vin.normal = float4(blended_normal.xyz, 0.0f);
     vin.tangent = float4(blended_tangent.xyz, 0.0f);
 
-    float4 position = mul(vin.position, mul(world, view_projection));    
+    float4 position = mul(vin.position, mul(world, view_projection));
     float scan = step(scanBorder, -vin.position.y);    
     // ƒXƒLƒƒƒ“‚Ì‹«ŠE”»’è
     //if (scan < 1.0f)

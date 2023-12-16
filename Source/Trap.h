@@ -40,7 +40,7 @@ public:
 	// ホログラムシェーダー情報初期化
 	void HologramShaderDataInitialize(float minHeight, float maxHeight);
 	// ホログラムシェーダー更新処理
-	bool UpdateHologramShader(float elapsedTime, bool isActivate);
+	void UpdateHologramShader(float elapsedTime, bool isActivate);
 
 	//位置設定
 	void SetPosition(const DirectX::XMFLOAT3& position) { this->position = position; }
@@ -99,7 +99,7 @@ protected:
 	};
 	int health = 10;
 	int maxHealth = 10;
-	float attack = 1.0;
+	int attack = 1;
 	float radius = 1.0f;
 	float height = 1.0f;
 	float turnSpeed = 5.0f;
@@ -116,7 +116,7 @@ protected:
 
 	bool activateFlag = false;
 	
-	DirectX::XMFLOAT4 hologramColor = { 0.0f, 1.0f, 0.0f, 1.0f };
+	DirectX::XMFLOAT3 hologramColor = { 0.0f, 1.0f, 0.0f };
 	float scanTimer = 0.0f;			// スキャンラインの時間
 	float scanBorder = 0.0f;		// スキャンラインの描画範囲
 	float glowTimer = 0.0f;			// グロウラインの時間
@@ -125,7 +125,6 @@ protected:
 	float hologramBorder = 0.0f;	// ホログラムラインの描画範囲
 	float minHeight = 0.0f;			// 最低点
 	float maxHeight = 0.0f;			// 最高点
-	bool isActiveStart = false;		// ホログラムシェーダー実行中フラグ
 	float adjustMetalness = 0.0f;	// 金属度
 	float adjustSmoothness = 0.0f;	// 粗さ
 	float timer = 0.0f;				// 更新時間	
@@ -133,5 +132,4 @@ protected:
 	float glitchIntensity = 0.0f;	// 強度
 	float lerpGlitchIntensity = 0.0f;	// 強度
 	float glitchScale = 50.0f;		// 振れ幅	
-	float deathTimer = 0.0f;		// 死亡時間
 };

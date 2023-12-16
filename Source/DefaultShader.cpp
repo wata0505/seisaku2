@@ -185,6 +185,7 @@ void DefaultShader::Draw(ID3D11DeviceContext* dc, Model* model, const DirectX::X
 			cbSubset.hologramColor.y = color.y;
 			cbSubset.hologramColor.z = color.z;
 			cbSubset.maxHeight = material.pbr.maxHeight;
+			cbSubset.yUp = static_cast<int>(color.w);
 			dc->UpdateSubresource(subsetConstantBuffer.Get(), 0, 0, &cbSubset, 0, 0);
 
 			XMStoreFloat4(&buffers.materialColor, XMLoadFloat4(&color) * XMLoadFloat4(&material.Kd));

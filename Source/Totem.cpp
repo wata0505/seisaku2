@@ -9,7 +9,7 @@ Totem::Totem()
 
     model = std::make_unique<Model>(".\\resources\\Trap\\AttacheCase\\AttacheCase.fbx", true);
     model->ModelSerialize(".\\resources\\Trap\\AttacheCase\\AttacheCase.fbx");
-    model->ModelRegister(".\\resources\\Trap\\AttacheCase\\AttacheCase.fbx", "Texture\\AO.png");
+    model->ModelRegister(".\\resources\\Trap\\AttacheCase\\AttacheCase.fbx", "Texture\\Albedo.png");
 
     scale.x = scale.y = scale.z = 3.0f;
     territoryRange = 10.0f;
@@ -38,7 +38,7 @@ void Totem::Update(float elapsedTime)
 
     if (activateFlag)
     {
-        hologramColor = { 0.0f, 1.0f, 0.0f, 1.0f };
+        hologramColor = { 0.0f, 1.0f, 0.0f };
         CollisionVsEnemies();
     }
     else
@@ -60,7 +60,7 @@ void Totem::Update(float elapsedTime)
 
 void Totem::Render(ID3D11DeviceContext* dc, ModelShader* shader)
 {
-    shader->Draw(dc, model.get(), { glitchIntensity, scanBorder, glowBorder, hologramBorder }, hologramColor);
+    shader->Draw(dc, model.get(), { glitchIntensity, scanBorder, glowBorder, hologramBorder }, { hologramColor.x, hologramColor.y, hologramColor.z, 0.0f });
 }
 void Totem::Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader)
 {

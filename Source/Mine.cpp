@@ -17,7 +17,7 @@ Mine::Mine()
     model->UpdateBufferDara(transform);
     renderdata = model->GetBufferData();
 
-    attack = 1.0f;
+    attack = 1;
     height = 5.0f;
     type = Trap::TrapType::TrapMine;
 
@@ -39,7 +39,7 @@ void Mine::Update(float elapsedTime)
 
     if (activateFlag)
     {
-        hologramColor = { 0.0f, 1.0f, 0.0f, 1.0f };
+        hologramColor = { 0.0f, 1.0f, 0.0f };
         CollisionVsEnemies();
     }
     else
@@ -63,7 +63,7 @@ void Mine::Update(float elapsedTime)
 
 void Mine::Render(ID3D11DeviceContext* dc, ModelShader* shader)
 {
-    shader->Draw(dc, model.get(), { glitchIntensity, scanBorder, glowBorder, hologramBorder }, hologramColor);
+    shader->Draw(dc, model.get(), { glitchIntensity, scanBorder, glowBorder, hologramBorder }, { hologramColor.x, hologramColor.y, hologramColor.z, 1.0f });
 }
 void Mine::Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader)
 {

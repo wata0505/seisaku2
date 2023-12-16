@@ -235,7 +235,15 @@ PS_OUT main(VS_OUT pin)
         float hologram = step(hologramBorder, -pin.world_position.y);
 #else
         // モデルのローカル空間での境界判定
-        float hologram = step(hologramBorder, -pin.localPosition.y);
+        float hologram = 0.0f;
+        if (yUp)
+        {
+            hologram = step(hologramBorder, -pin.localPosition.y);
+        }
+        else
+        {
+            hologram = step(hologramBorder, -pin.localPosition.z);
+        }
 #endif
         // ホログラムなら
         if (hologram <= 0.0f)
@@ -259,8 +267,16 @@ PS_OUT main(VS_OUT pin)
             scan *= step(scanBorder, -pin.world_position.y);
             glow *= step(glowBorder, -pin.world_position.y);
 #else
-            scan *= step(scanBorder, -pin.localPosition.y);
-            glow *= step(glowBorder, -pin.localPosition.y);
+            if (yUp)
+            {
+                scan *= step(scanBorder, -pin.localPosition.y);
+                glow *= step(glowBorder, -pin.localPosition.y);
+            }
+            else
+            {
+                scan *= step(scanBorder, -pin.localPosition.z);
+                glow *= step(glowBorder, -pin.localPosition.z);
+            }
 #endif            
             //scan *= (1.0f - hologram);
             //glow *= (1.0f - hologram);
@@ -285,7 +301,15 @@ PS_OUT main(VS_OUT pin)
         // モデルのローカル空間での処理の性質上、モデルサイズが大きければ大きいほどsizeの値を大きくしないと見えない
         //float size = 5.0f;
         float size = 0.2f;
-        float edgeValue = saturate(1.0f - abs(hologramBorder - (-pin.localPosition.y)) * (1.0f / size));
+        float edgeValue = 0.0f;
+        if (yUp)
+        {
+            edgeValue = saturate(1.0f - abs(hologramBorder - (-pin.localPosition.y)) * (1.0f / size));
+        }
+        else
+        {
+            edgeValue = saturate(1.0f - abs(hologramBorder - (-pin.localPosition.z)) * (1.0f / size));
+        }
 #endif        
         
         // モデル色 += オブジェクト別色を実体とホログラムの境界線の淵の幅 + グリッチの強さ分赤色

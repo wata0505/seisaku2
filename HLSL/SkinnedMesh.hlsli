@@ -68,4 +68,6 @@ cbuffer SubsetConstantBuffer : register(b6)
     float hologramBorder;	// 描画範囲
     float3 hologramColor;   // ホログラム色
     float maxHeight;        // 最高点
+    int yUp;
+    float3 dummy;
 };

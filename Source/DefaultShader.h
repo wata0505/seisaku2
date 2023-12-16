@@ -49,6 +49,8 @@ private:
 		float hologramBorder = 10.0f;	// 描画範囲
 		DirectX::XMFLOAT3 hologramColor = { 1.0f, 0.0f, 0.0f }; // ホログラム色
 		float maxHeight;				// 最高点
+		int yUp = 1;
+		DirectX::XMFLOAT3 dummy;
 	};
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> shadowBuffer;

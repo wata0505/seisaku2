@@ -229,7 +229,6 @@ void Sprite::Render(ID3D11DeviceContext* immediate_context,
 			p.y -= my;
 		}
 
-
 		// 頂点を回転させる
 		const float PI = 3.141592653589793f;
 		float theta = angle * (PI / 180.0f);	// 角度をラジアン(θ)に変換
@@ -243,13 +242,11 @@ void Sprite::Render(ID3D11DeviceContext* immediate_context,
 		}
 
 		// 回転のために移動させた頂点を元の位置に戻す
-
 		for (auto& p : positions)
 		{
 			p.x += mx;
 			p.y += my;
 		}
-
 
 		// スクリーン座標系からNDC座標系へ変換する。
 		for (auto& p : positions)
@@ -287,7 +284,6 @@ void Sprite::Render(ID3D11DeviceContext* immediate_context,
 		// 頂点バッファの内容の編集を終了する。
 		immediate_context->Unmap(vertexBuffer.Get(), 0);
 	}
-
 }
 void Sprite::Render(ID3D11DeviceContext* dc, float d, float ds, float dd, bool i) const
 {

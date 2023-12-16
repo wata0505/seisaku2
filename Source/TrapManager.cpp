@@ -196,11 +196,11 @@ void TrapManager::Update(float elapsedTime)
 
 	if (canSetFlag)
 	{
-		hologramColor = { 0.0f, 1.0f, 0.0f, 1.0f };
+		hologramColor = { 0.0f, 1.0f, 0.0f };
 	}
 	else
 	{
-		hologramColor = { 1.0f, 0.0f, 0.0f, 1.0f };
+		hologramColor = { 1.0f, 0.0f, 0.0f };
 	}
 }
 
@@ -373,13 +373,13 @@ void TrapManager::Sprite2DRender(ID3D11DeviceContext* dc, RenderContext& rc, Spr
 
 	TrapManager::Instance().Text(shader, dc, std::to_string(trapPoint), 50, 50, 100, 100, 0.0f, 1.0f, 0.0f, 1.0f);
 
-	DirectX::XMFLOAT2 positon = { 1100,480 };
-	float size = 80;
+	DirectX::XMFLOAT2 positon = { 1100.0f, 480.0f };
+	float size = 80.0f;
 	//枠
 	sprite->Render(dc,
-		positon.x, positon.y, 2 * size, 3 * size,
-		0, 0,
-		sprite->GetTextureWidth(), sprite->GetTextureHeight(),
+		positon.x, positon.y, 2.0f * size, 3.0f * size,
+		0.0f, 0.0f,
+		static_cast<float>(sprite->GetTextureWidth()), static_cast<float>(sprite->GetTextureHeight()),
 		0.0f,
 		1.0f, 1.0f, 1.0f, 1.0f
 	);
@@ -387,9 +387,9 @@ void TrapManager::Sprite2DRender(ID3D11DeviceContext* dc, RenderContext& rc, Spr
 
 	//各トラップ類
 	uiTrap[type]->Render(dc,
-		positon.x, positon.y, 2 * size, 3 * size,
-		0, 0,
-		uiTrap[type]->GetTextureWidth(), uiTrap[type]->GetTextureHeight(),
+		positon.x, positon.y, 2.0f * size, 3.0f * size,
+		0.0f, 0.0f,
+		static_cast<float>(uiTrap[type]->GetTextureWidth()), static_cast<float>(uiTrap[type]->GetTextureHeight()),
 		0.0f,
 		1.0f, 1.0f, 1.0f, 1.0f
 	);
@@ -407,9 +407,9 @@ void TrapManager::Sprite2DRender(ID3D11DeviceContext* dc, RenderContext& rc, Spr
 	{
 		//台上で、タレットじゃない
 		spriteNo->Render(dc,
-			positon.x, positon.y, 2 * size, 3 * size,
-			0, 0,
-			spriteNo->GetTextureWidth(), spriteNo->GetTextureHeight(),
+			positon.x, positon.y, 2.0f * size, 3.0f * size,
+			0.0f, 0.0f,
+			static_cast<float>(spriteNo->GetTextureWidth()), static_cast<float>(spriteNo->GetTextureHeight()),
 			0.0f,
 			1.0f, 1.0f, 1.0f, 1.0f
 		);
@@ -447,15 +447,15 @@ void TrapManager::Sprite2DRender(ID3D11DeviceContext* dc, RenderContext& rc, Spr
 			DirectX::XMFLOAT2 screenPosition;
 			DirectX::XMStoreFloat2(&screenPosition, ScreenPosition);
 			uiHp->Render(rc.deviceContext,
-				screenPosition.x - 200 * 0.5,
-				screenPosition.y - 20 * 0.5,
-				200 * gaugeThrate,
-				20,
-				0, 0,
+				screenPosition.x - 200.0f * 0.5f,
+				screenPosition.y - 20.0f * 0.5f,
+				200.0f * gaugeThrate,
+				20.0f,
+				0.0f, 0.0f,
 				static_cast<float>(uiHp->GetTextureWidth() * gaugeThrate),
 				static_cast<float>(uiHp->GetTextureHeight()),
-				0,
-				3.0f, 1.0f, 1.0f, 1.0f, 0, 0
+				0.0f,
+				3.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f
 			);
 			shader->Draw(rc, uiHp.get());
 		}

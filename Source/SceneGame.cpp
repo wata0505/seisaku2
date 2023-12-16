@@ -111,14 +111,14 @@ void SceneGame::Initialize()
 	subframebuffers[5] = std::make_unique<SubFramebuffer>(device.Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
 	jitterDriftSubFramebuffer = std::make_unique<SubFramebuffer>(device.Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
 	shadowbuffer = std::make_unique<Shadowbuffer>(device.Get(), ShadowMapSize, ShadowMapSize);
-	luminanceExtractionData.threshold = 0.03;
-	luminanceExtractionData.intensity = 3;
+	luminanceExtractionData.threshold = 0.03f;
+	luminanceExtractionData.intensity = 3.0f;
 	
 	meta = std::make_unique<Meta>(player.get(), &enemyManager);
 	UIManager& uiManager = UIManager::Instance();
 	float gaugeWidth = 500.0f;
 	float gaugeHeight = 50.0f;
-	BaseUI* hpWaku    = new BaseUI(L".\\resources\\kaba.png", 10, 595, gaugeWidth * 1.1, gaugeHeight * 1.1);
+	BaseUI* hpWaku    = new BaseUI(L".\\resources\\kaba.png", 10.0f, 595.0f, gaugeWidth * 1.1f, gaugeHeight * 1.1f);
 	//BaseUI* mpWaku    = new BaseUI(L".\\resources\\Mpwaku3.png", 10, 650, gaugeWidth * 1.1, gaugeHeight * 0.5);
 	gaugeWidth = 65.0f;
 	gaugeHeight = 100.0f;
@@ -137,7 +137,7 @@ void SceneGame::Initialize()
 
 	TrapManager& trapManager = TrapManager::Instance();
 	{//scale=150
-		DirectX::XMFLOAT3 position[3] = { {84.0f, 12.5f, -35.0f},{94.4, 12.5f, -24.5f},{57.5, 12.5f, -50.0f} };
+		DirectX::XMFLOAT3 position[3] = { { 84.0f, 12.5f, -35.0f }, { 94.4f, 12.5f, -24.5f }, { 57.5f, 12.5f, -50.0f} };
 		for (int i = 0; i < 3; i++)
 		{
 			Turret* turret = new Turret();
@@ -185,22 +185,38 @@ void SceneGame::Update(float elapsedTime)
 
 	TrapManager::Instance().Update(elapsedTime);
 	TrapManager::Instance().DrawDebugPrimitive();
-
+#if 0
 	if (Base::Instance().GetJitterStrength() > 0) {
 		jitterDriftData.jitterStrength = Base::Instance().GetJitterStrength();
 	}
 	jitterDriftData.jitterStrength -= elapsedTime;
 	if (jitterDriftData.jitterStrength < 0)jitterDriftData.jitterStrength = 0;
-	
-	if (base->GetHP() != 0 && player->GetHealth() > 0 && EnemySystem::Instance().GetWave() < 3) {
+#else
+	if (Base::Instance().GetSkyboxColor() > 0.0f)
+	{
+		skyboxColor = Base::Instance().GetSkyboxColor();
+	}
+	skyboxColor -= elapsedTime;
+	if (skyboxColor <= 0.0f)
+	{
+		skyboxColor = 0.0f;
+	}
+	jitterDriftData.jitterStrength = skyboxColor / 200.0f;
+#endif
+	if (base->GetHP() != 0 && player->GetHealth() > 0 && EnemySystem::Instance().GetWave() < 3) 
+	{
 		dissolveTimer += elapsedTime;
-		if (dissolveTimer > 3) dissolveTimer = 3;
+		if (dissolveTimer > 3.0f)
+		{
+			dissolveTimer = 3.0f;
+		}
 	}
 	else
 	{
-		jitterDriftData.jitterStrength = 0.3;
+		jitterDriftData.jitterStrength = 0.3f;
 		dissolveTimer -= elapsedTime;
 	}
+
 	haikeiTimer += elapsedTime;
 	if (EnemySystem::Instance().GetWaveTimer() > 3 && EnemySystem::Instance().GetWaveTimer() < 8) {
 		waveTimer -= elapsedTime;
@@ -302,11 +318,11 @@ void SceneGame::Render()
 
 	shader2->Begin(rc);
 	sprite_batchs->Render(immediate_context,
-		0, 0, 1280, 720,
-		0, 0, sprite_batchs->GetTextureWidth(), sprite_batchs->GetTextureHeight(),
+		0.0f, 0.0f, 1280, 720.0f,
+		0.0f, 0.0f, static_cast<float>(sprite_batchs->GetTextureWidth()), static_cast<float>(sprite_batchs->GetTextureHeight()),
 		0.0f,
 		1.0f, 1.0f, 1.0f, 1.0f,
-		0, haikeiTimer,0
+		skyboxColor, haikeiTimer, 0.0f
 	);
 	//sprite_batchs[0]->SetShaderResourceView(framebuffers[0]->shaderResourceViews[2], 1280, 720);
 	shader2->Draw(rc, sprite_batchs.get());
@@ -439,11 +455,11 @@ void SceneGame::Render()
 	//sprite_batchs2->SetShaderResourceView(subframebuffers[4]->shaderResourceViews.Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
 	sprite_batchs2->SetShaderResourceView(jitterDriftSubFramebuffer->shaderResourceViews.Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
 	sprite_batchs2->Render(immediate_context,
-		0, 0, 1280, 720,
-		0, 0, sprite_batchs2->GetTextureWidth(), sprite_batchs2->GetTextureHeight(),
+		0.0f, 0.0f, 1280.0f, 720.0f,
+		0.0f, 0.0f, static_cast<float>(sprite_batchs2->GetTextureWidth()), static_cast<float>(sprite_batchs2->GetTextureHeight()),
 		0.0f,
 		1.0f, 1.0f, 1.0f, 1.0f,
-		0, 0, 0
+		0.0f, 0.0f, 0.0f
 	);
 	shader2->Draw(rc, sprite_batchs2.get());
 	//player->Sprite2DRender(immediate_context, rc, shader2);
@@ -451,8 +467,8 @@ void SceneGame::Render()
 	UIManager::Instance().Render(rc,shader2);
 	base->HpDisplay(rc, shader2);
 	claerSprite->Render(immediate_context,
-		200, 120, 1000, 200,
-		0, 0, claerSprite->GetTextureWidth(), claerSprite->GetTextureHeight(),
+		200.0f, 120.0f, 1000.0f, 200.0f,
+		0.0f, 0.0f, static_cast<float>(claerSprite->GetTextureWidth()), static_cast<float>(claerSprite->GetTextureHeight()),
 		0.0f,
 		1.0f, 1.0f, 1.0f, 1.0f,
 		dissolveTimer
@@ -460,8 +476,8 @@ void SceneGame::Render()
 	int wave = EnemySystem::Instance().GetWave();
 	if (wave < 3) {
 		waveSprite[wave]->Render(immediate_context,
-			600, 120, waveSprite[wave]->GetTextureWidth(), waveSprite[wave]->GetTextureHeight(),
-			0, 0, waveSprite[wave]->GetTextureWidth(), waveSprite[wave]->GetTextureHeight(),
+			600.0f, 120.0f, static_cast<float>(waveSprite[wave]->GetTextureWidth()), static_cast<float>(waveSprite[wave]->GetTextureHeight()),
+			0.0f, 0.0f, static_cast<float>(waveSprite[wave]->GetTextureWidth()), static_cast<float>(waveSprite[wave]->GetTextureHeight()),
 			0.0f,
 			1.0f, 1.0f, 1.0f, 1.0f,
 			waveTimer
@@ -469,11 +485,11 @@ void SceneGame::Render()
 		shader2->Draw(rc, waveSprite[wave].get());
 	}
 	loodSprite->Render(immediate_context,
-		0, 0, 1280, 720,
-		0, gameTimer*10, loodSprite->GetTextureWidth(), loodSprite->GetTextureHeight(),
+		0.0f, 0.0f, 1280.0f, 720.0f,
+		0.0f, gameTimer * 10.0f, static_cast<float>(loodSprite->GetTextureWidth()), static_cast<float>(loodSprite->GetTextureHeight()),
 		0.0f,
 		1.0f, 1.0f, 1.0f, 1.0f,
-		dissolveTimer,0,0
+		dissolveTimer, 0.0f, 0.0f
 	);
 	shader2->Draw(rc, loodSprite.get());
 	if (base->GetHP() == 0 || EnemySystem::Instance().GetWave() < 4) {
@@ -495,6 +511,7 @@ void SceneGame::projectImgui()
 	if (ImGui::Begin("Debug", nullptr, ImGuiWindowFlags_None))
 	{
 	}
+	TrapManager::Instance().DrawDebugGUI();
 	if (ImGui::TreeNode("light"))
 	{
 		ImGui::SliderFloat("light_dir.x", &light_direction.x, -1.0f, 1.0f);

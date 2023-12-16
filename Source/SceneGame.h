@@ -119,4 +119,5 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> jitterDriftPixelShader;
 	std::unique_ptr<SubFramebuffer> jitterDriftSubFramebuffer;
 	JitterDriftData jitterDriftData;
+	float skyboxColor = 0.0f;
 };

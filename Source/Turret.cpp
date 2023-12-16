@@ -70,7 +70,7 @@ void Turret::Update(float elapsedTime)
 
 	if (activateFlag)
 	{
-		hologramColor = { 0.0f, 1.0f, 0.0f, 1.0f };
+		hologramColor = { 0.0f, 1.0f, 0.0f };
 
 		// ステート毎の更新処理
 		switch (state)
@@ -108,7 +108,7 @@ void Turret::Update(float elapsedTime)
 	//弾入力
 	//InputProjectile();
 	//弾更新
-	objectManager.Update(elapsedTime * 1.5);
+	objectManager.Update(elapsedTime * 1.5f);
 	//弾当たり判定
 	CollisionProjectilesVsEnemies();
 	hpRenderFlag = Collision::IntersectFanVsSphere(
@@ -122,8 +122,8 @@ void Turret::Update(float elapsedTime)
 
 void Turret::Render(ID3D11DeviceContext* dc, ModelShader* shader)
 {
-	shader->Draw(dc, model.get(), { glitchIntensity, scanBorder, glowBorder, hologramBorder }, hologramColor);
-	shader->Draw(dc, model2.get(), { glitchIntensity, scanBorder, glowBorder, hologramBorder }, hologramColor);
+	shader->Draw(dc, model.get(), { glitchIntensity, scanBorder, glowBorder, hologramBorder }, { hologramColor.x, hologramColor.y, hologramColor.z, 1.0f });
+	shader->Draw(dc, model2.get(), { glitchIntensity, scanBorder, glowBorder, hologramBorder }, { hologramColor.x, hologramColor.y, hologramColor.z, 1.0f });
 }
 void Turret::Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader)
 {
