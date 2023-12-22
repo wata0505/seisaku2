@@ -103,32 +103,77 @@ void TrapManager::Update(float elapsedTime)
 				canSetFlag = false;
 			}
 		}
+
 		//台との判定
 		if (trap->GetType() == Trap::TrapType::TrapTurret)
-		{
-			// レイの開始位置は足元より少し上
-			DirectX::XMFLOAT3 start = { trap->GetPosition().x,trap->GetPosition().y ,trap->GetPosition().z };
-			// レイの終点位置は移動後の位置
-			DirectX::XMFLOAT3 end = { trap->GetPosition().x,trap->GetPosition().y - 5 ,trap->GetPosition().z };
-			HitResult hit;
-			//if (Player::Instance().GetPosition().y > 5 && StageManager::Instance().RayCast(start, end, hit) == false)
-			if (Player::Instance().GetPosition().y < 5 || StageManager::Instance().RayCast(start, end, hit) == false)
+		{						
+			if (Player::Instance().GetPosition().y < 5)
 			{
 				canSetFlag = false;
+			}
+			else
+			{
+				// レイの開始位置は足元より少し上
+				DirectX::XMFLOAT3 start = { trap->GetPosition().x, trap->GetPosition().y, trap->GetPosition().z };
+				// 下げ位置
+				float offset = 5.0f;
+				float frontX = sinf(Player::Instance().GetAngle().y) * trap->GetRadius();
+				float frontZ = cosf(Player::Instance().GetAngle().y) * trap->GetRadius();
+				DirectX::XMFLOAT3 frontStart = { trap->GetPosition().x + frontX, trap->GetPosition().y, trap->GetPosition().z + frontZ };
+				DirectX::XMFLOAT3 backStart = { trap->GetPosition().x - frontX, trap->GetPosition().y, trap->GetPosition().z - frontZ };
+				DirectX::XMFLOAT3 frontEnd = { trap->GetPosition().x + frontX, trap->GetPosition().y - offset, trap->GetPosition().z + frontZ };
+				DirectX::XMFLOAT3 backEnd = { trap->GetPosition().x - frontX, trap->GetPosition().y - offset, trap->GetPosition().z - frontZ };
+				frontX = sinf(Player::Instance().GetAngle().y + DirectX::XM_PIDIV2) * trap->GetRadius();
+				frontZ = cosf(Player::Instance().GetAngle().y + DirectX::XM_PIDIV2) * trap->GetRadius();
+				DirectX::XMFLOAT3 rightStart = { trap->GetPosition().x + frontX, trap->GetPosition().y, trap->GetPosition().z + frontZ };
+				DirectX::XMFLOAT3 leftStart = { trap->GetPosition().x - frontX, trap->GetPosition().y, trap->GetPosition().z - frontZ };
+				DirectX::XMFLOAT3 rightEnd = { trap->GetPosition().x + frontX, trap->GetPosition().y - offset, trap->GetPosition().z + frontZ };
+				DirectX::XMFLOAT3 leftEnd = { trap->GetPosition().x - frontX, trap->GetPosition().y - offset, trap->GetPosition().z - frontZ };
+				HitResult hit;
+#if 0
+				// 多少台からはみ出ても置ける
+				if (!StageManager::Instance().RayCast(start, frontEnd, hit) || !StageManager::Instance().RayCast(start, backEnd, hit) ||
+					!StageManager::Instance().RayCast(start, leftEnd, hit) || !StageManager::Instance().RayCast(start, rightEnd, hit))
+#else
+				// ほとんど台からはみ出てない限り置ける
+				if (!StageManager::Instance().RayCast(frontStart, frontEnd, hit) || !StageManager::Instance().RayCast(backStart, backEnd, hit) ||
+					!StageManager::Instance().RayCast(leftStart, leftEnd, hit) || !StageManager::Instance().RayCast(rightStart, rightEnd, hit))
+#endif
+				{
+					canSetFlag = false;
+				}
 			}
 		}
 		else
-		{
-			// レイの開始位置は足元より少し上
-			DirectX::XMFLOAT3 start = { trap->GetPosition().x,trap->GetPosition().y+10 ,trap->GetPosition().z };
-			// レイの終点位置は移動後の位置
-			DirectX::XMFLOAT3 end = { trap->GetPosition().x,trap->GetPosition().y,trap->GetPosition().z };
-			HitResult hit;
-			//if (Player::Instance().GetPosition().y < 5 && StageManager::Instance().RayCast(start, end, hit))
-			if (Player::Instance().GetPosition().y > 5 || StageManager::Instance().RayCast(start, end, hit))
+		{			
+			if (Player::Instance().GetPosition().y > 5)
 			{
 				canSetFlag = false;
 			}
+			else
+			{
+				// 上げ位置
+				float offset1 = 10.0f;
+				float offset2 = 1.0f;
+				// レイの開始位置は足元より少し上
+				DirectX::XMFLOAT3 start = { trap->GetPosition().x, trap->GetPosition().y + offset1, trap->GetPosition().z };
+				float frontX = sinf(Player::Instance().GetAngle().y) * trap->GetRadius();
+				float frontZ = cosf(Player::Instance().GetAngle().y) * trap->GetRadius();				
+				DirectX::XMFLOAT3 frontEnd = { trap->GetPosition().x + frontX, trap->GetPosition().y + offset2, trap->GetPosition().z + frontZ };
+				DirectX::XMFLOAT3 backEnd = { trap->GetPosition().x - frontX, trap->GetPosition().y + offset2, trap->GetPosition().z - frontZ };
+				frontX = sinf(Player::Instance().GetAngle().y + DirectX::XM_PIDIV2) * trap->GetRadius();
+				frontZ = cosf(Player::Instance().GetAngle().y + DirectX::XM_PIDIV2) * trap->GetRadius();				
+				DirectX::XMFLOAT3 rightEnd = { trap->GetPosition().x + frontX, trap->GetPosition().y + offset2, trap->GetPosition().z + frontZ };
+				DirectX::XMFLOAT3 leftEnd = { trap->GetPosition().x - frontX, trap->GetPosition().y + offset2, trap->GetPosition().z - frontZ };
+				HitResult hit;
+				// 台に重なるように置けない
+				// HACK : 壁裏の地面には置ける
+				if (StageManager::Instance().RayCast(start, frontEnd, hit) || StageManager::Instance().RayCast(start, backEnd, hit) ||
+					StageManager::Instance().RayCast(start, leftEnd, hit) || StageManager::Instance().RayCast(start, rightEnd, hit))
+				{
+					canSetFlag = false;
+				}
+			}			
 		}
 		//ポイントが足りない、着地していない
 		if (cost[type] > trapPoint || Player::Instance().IsGround() == false)
