@@ -2,6 +2,14 @@
 #include "EnemyBag.h"
 #include "EnemyDrone.h"
 EnemySystem::EnemySystem() {
+	
+	
+
+}
+
+void EnemySystem::Start() {
+	wave= 0;
+	waveTimer = 0;
 	EnemyManager& enemyManager = EnemyManager::Instance();
 	for (int i = 0; i < maxEnemyCount; i++) {
 		EnemyDrone* bag = new EnemyDrone();
@@ -13,19 +21,12 @@ EnemySystem::EnemySystem() {
 		bag->SetPosition(DirectX::XMFLOAT3(pos.x, 0.0f, pos.y));
 		bag->SetTerritory(bag->GetPosition(), 10.0f);
 		bag->SetActiveflag(true);
-		if(i >= waveMaxEnemyCount[wave])	bag->SetActiveflag(false);
+		if (i >= waveMaxEnemyCount[wave])	bag->SetActiveflag(false);
 		//bag->SetId(0);
 		enemyManager.Register(bag);
 
 	}
 	enemyManager.SetEnemyMaxCount(enemyManager.GetEnemyCount());
-	
-
-}
-
-void EnemySystem::Start() {
-	wave= 0;
-	waveTimer = 0;
 }
 
 void EnemySystem::Update(float elapsedTime) {

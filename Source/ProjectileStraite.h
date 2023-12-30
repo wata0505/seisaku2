@@ -74,7 +74,7 @@ private:
 	bool leftflag = false;
 	bool effectflag = false;
 	std::vector<SkinnedMeshResouurce::constants> data;
-	DirectX::XMFLOAT4	materialColor = { 1.0,0.0,0.0,1 };
+	DirectX::XMFLOAT4	materialColor = { 1.0,1.0,1.0,1 };
 	Light* light;
 	std::unique_ptr<AudioSource> se;
 };

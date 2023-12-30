@@ -241,6 +241,7 @@ private:
 	float lerpGlitchIntensity = 0.0f;	// ‹­“x
 	float glitchScale = 50.0f;		// U‚ê•	
 	float deathTimer = 0.0f;		// €–SŠÔ
+	float maxEria = 0.0f;
 
 	int coolTime = 0;
 };

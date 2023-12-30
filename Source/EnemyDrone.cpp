@@ -29,13 +29,13 @@ EnemyDrone::EnemyDrone(bool tutorial)
 	model->ModelSerialize(".\\resources\\Drone\\Drone.fbx");
 	model->ModelRegister(".\\resources\\Drone\\Drone.fbx", "Texture\\Albedo.png");
 	// モデルが大きいのでスケーリング
-	maxHealth = 5;
+	maxHealth = 1;
 	health = maxHealth;
-	radius = 0.5f;
+	radius = 0.7f;
 	height = 2.0f;
 	activeflag = true;
 	isActiveStart = false;
-
+	
 	//StateMachineを生成し、階層型ステートマシンに対応するように登録ステートを変更していく。
 	stateMachine = std::make_unique<StateMachine<EnemyDrone>>();
 	// ステートマシンに1層目のステートを登録(BattleStateも同様の方法で各自追加してください)
@@ -74,7 +74,12 @@ EnemyDrone::EnemyDrone(bool tutorial)
 	eria = 100;
 	targetNo = 0;
 	enemyType = EnemyType::Drone;
-
+	for (int i = 0; i < MAX_ROOT_POINT; i++) {
+		SetTerritory(rootPoint[i], 50);
+		SetRandomTargetPosition();
+		rootPoint[i] = targetPosition;
+	}
+	maxEria = 10 + (rand() % 10);
 	// ホログラムシェーダー情報初期化
 	HologramShaderDataInitialize(0.0f, 16.0f);
 }
@@ -90,6 +95,7 @@ void EnemyDrone::RootMove() {
 	DirectX::XMFLOAT2 dir = ForwardToPlayer();
 	velocity.x = dir.x * (model->GetRootPow() * rootSpeed);
 	velocity.z = dir.y * (model->GetRootPow() * rootSpeed);
+	//objectManager.Clear();
 }
 float EnemyDrone::MovePow() {
 
@@ -98,10 +104,7 @@ float EnemyDrone::MovePow() {
 void EnemyDrone::Update(float elapsedTime)
 {
 	coolTime--;
-	if (position.y <= 10.0f)
-	{
-		position.y = 10.0f;
-	}
+	
 
 	timer += elapsedTime;
 	if (stateMachine->GetStateNum() == static_cast<int>(EnemyDrone::DroneState::ReDamage))
@@ -114,7 +117,7 @@ void EnemyDrone::Update(float elapsedTime)
 	}
 	glitchIntensity = Mathf::Lerp(glitchIntensity, lerpGlitchIntensity, elapsedTime * 20.0f);
 	model->ShaderAdjustment(adjustMetalness, adjustSmoothness, glitchScale, timer, maxHeight);
-
+	objectManager.Update(elapsedTime);
 	//描画判定
 	if (reMoveflag)ReMove();
 	if (!activeflag)return;
@@ -126,7 +129,7 @@ void EnemyDrone::Update(float elapsedTime)
 		ElapsedTime *= 0.5f;
 	}
 	if (health <= 0) {
-		if (!model->IsPlayAnimation())
+		if (!model->IsPlayAnimation() && position.y < 1)
 		{
 			//死亡モーションが終わったデリート
 			//Destroy();
@@ -134,8 +137,14 @@ void EnemyDrone::Update(float elapsedTime)
 			renderflag = false;
 			//position.y = -2000;
 		}
+		// 速力処理更新
+		//velocity.y = -1.5;
+		position.y += gravity * 0.5;
+		//UpdateVelocity(elapsedTime);
 		UpdateTransform((int)Character::AxisType::RHSYUP, (int)Character::LengthType::Cm);
 		model->UpdateAnimation(elapsedTime, "pelvis");
+		
+		
 		// モデル行列更新
 		model->UpdateBufferDara(transform);
 		//renderdata = model->GetBufferData();
@@ -144,7 +153,10 @@ void EnemyDrone::Update(float elapsedTime)
 		UpdateHologramShader(elapsedTime);
 		return;
 	}
-
+	if (position.y <= maxEria && health > 0)
+	{
+		position.y = maxEria;
+	}
 	// ホログラムシェーダー実行中フラグが付いていれば
 	if (!isActiveStart)
 	{
@@ -173,7 +185,7 @@ void EnemyDrone::Update(float elapsedTime)
 	CollisionBeemVSBase();
 
 	model->UpdateAnimation(ElapsedTime, "pelvis", renderflag);
-	objectManager.Update(elapsedTime);
+	
 	// モデル行列更新
 	if (renderflag) {
 		model->UpdateBufferDara(transform);
@@ -218,12 +230,11 @@ void EnemyDrone::BeemShoat()
 		// 前方向
 		float h = 0;
 		// 発射
-		for (int i = 1; i < 4; i++)
-		{
-			h = 0.4 * i;
-			ProjectileStraite* projectile = new ProjectileStraite(&objectManager);
-			projectile->TurretLaunch(beem, h, 2.5 - 0.5 * i, position, targetPosition, angle.y, Type::Beem, (int)EffectTexAll::EfTexAll::BlueThader, 2 + 0.1 * i, 1, 0.0f);
-		}
+		
+		h = 0.4;
+		ProjectileStraite* projectile = new ProjectileStraite(&objectManager);
+		projectile->TurretLaunch(beem, h, 2.5 - 0.5, position, targetPosition, angle.y, Type::Beem, (int)EffectTexAll::EfTexAll::Distortion, 1, 1, 0.5f);
+		
 		coolTime = 180;
 	}
 }

@@ -32,9 +32,9 @@ public:
 	int identity = 0;	// •t—^‚·‚éID‚Ì’l(‚±‚Ì’l‚ÉMetaAI::Identity::Enemy‚ð‰ÁŽZ‚µ‚Ä•t—^‚·‚é)
 	int maxEnemyCount = 100;
 	float waveTimer = 0;
-	const int waveTimerMax[4] = { 60,80,100,10 };
+	const int waveTimerMax[4] = { 60,70,80,90 };
 	int waveEnemyCount = 0;
-	const int waveMaxEnemyCount[4] = {100,20,30,10};
+	const int waveMaxEnemyCount[4] = {100,100,100,100};
 	int wave = 0;
 
 };

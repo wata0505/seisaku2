@@ -270,9 +270,9 @@ void ProjectileStraite::BeemUpdate(float elapsedTime) {
 		scale.z += scalerate * 0.5;
 		DirectX::XMVECTOR dir = DirectX::XMLoadFloat3(&direction);
 
-		position.x += direction.x * scalerate * 25.0f * elapsedTime;
-		position.y += direction.y * scalerate * 25.0f * elapsedTime;
-		position.z += direction.z * scalerate * 25.0f * elapsedTime;
+		position.x += direction.x * scalerate * 28.0f * elapsedTime;
+		position.y += direction.y * scalerate * 28.0f * elapsedTime;
+		position.z += direction.z * scalerate * 28.0f * elapsedTime;
 	}
 	else
 	{
@@ -416,8 +416,8 @@ void ProjectileStraite::TurretLaunch(std::shared_ptr <Model> buffer, float heigh
 		DirectX::XMVECTOR N = DirectX::XMVector3Normalize(V);
 		DirectX::XMStoreFloat3(&direction, N);
 
-		halfLife = lifeTimer * 0.5;
-		scale.x = scale.y = 0.1;
+		halfLife = lifeTimer * 0.6;
+		scale.x = scale.y = 0.2;
 		scale.z = 0;
 		UpdateTransform();
 		model->UpdateBufferDara(transform);

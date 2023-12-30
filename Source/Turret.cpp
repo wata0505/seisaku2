@@ -40,11 +40,11 @@ Turret::Turret()
 
 	radius = 1.0f;
 	height = 10;
-	notAttackRange = 10.0f;
-	territoryRange = 20.0f;
-
-	health = 10;
+	notAttackRange = 15.0f;
+	territoryRange = 40.0f;
 	maxHealth = 100;
+	health = maxHealth;
+	
 	scale.x = scale.y = scale.z = 150.0f;
 	//scale.x = scale.y = scale.z = 300.0f;
 	TransitionIdleState();
@@ -53,6 +53,7 @@ Turret::Turret()
 
 	// ホログラムシェーダー情報初期化
 	HologramShaderDataInitialize(-2.5f, 2.0f);
+	
 }
 Turret::~Turret()
 {
@@ -67,7 +68,6 @@ void Turret::Update(float elapsedTime)
 
 	// ホログラムシェーダー更新処理
 	UpdateHologramShader(elapsedTime, activateFlag);
-
 	if (activateFlag)
 	{
 		hologramColor = { 0.0f, 1.0f, 0.0f };
@@ -146,6 +146,7 @@ void Turret::DrawDebugPrimitive()
 	//// 縄張り範囲をデバッグ円柱描画
 	//debugRenderer->DrawCylinder({ territoryOrigin.x,-2.5f,territoryOrigin.z }, territoryRange, height, DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
 }
+
 // デバッグ情報表示
 void Turret::DrawDebugGUI()
 {
@@ -244,14 +245,14 @@ void Turret::UpdateAttackState(float elapsedTime)
 	if (coolTime <= 0)
 	{
 		//// 前方向   		
-		//float h = 0;
-		//// 発射
-		//for (int i = 1; i < 4; i++) {
-		//	h = 0.4 * i;
-		//	ProjectileStraite* projectile = new ProjectileStraite(&objectManager);
-		//	projectile->TurretLaunch(beem, h, 2.5 - 0.5 * i, position, targetPosition, angle.y, Type::Beem, (int)EffectTexAll::EfTexAll::BlueThader, 2 + 0.1 * i, 1, 0.0f);
-		//}
-		//coolTime = 180;
+		float h = 0;
+		// 発射
+		
+			h = 0.4;
+			ProjectileStraite* projectile = new ProjectileStraite(&objectManager);
+			projectile->TurretLaunch(beem, h, 1.5, position, targetPosition, angle.y, Type::Beem, (int)EffectTexAll::EfTexAll::BlueThader, 1, 1, 0.0f);
+		
+		coolTime = 20;
 	}
 
 	// 攻撃アニメーションが終わって範囲内に敵がいなければ

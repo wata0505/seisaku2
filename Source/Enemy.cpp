@@ -51,14 +51,14 @@ void Enemy::UpdateVerticalMove(float elapsedTime) {
 		// レイキャストによる地面判定
 		HitResult hit;
 		//if (health > 0) {
-		if (my < 0.0f)
+		if (position.y < -2.5f + height * 0.5f)
 		{
 			
 			//バグだけ地上に配置
-			if (enemyType == EnemyType::Bag)
-			{
-				position.y = -2.5f + height * 0.5f;
-			}
+			//if (enemyType == EnemyType::Bag)
+			//{
+			position.y = -2.5f + height * 0.5f;
+			//}
 
 			// 着地した
 			if (!isGround && lowAltitude == 0)
@@ -73,6 +73,11 @@ void Enemy::UpdateVerticalMove(float elapsedTime) {
 		else
 		{
 			// 空中に浮いている
+			if (enemyType == EnemyType::Drone && health > 0)
+			{
+				velocity.y = 0.0f;
+				my = 0;
+			}
 			position.y += my;
 			isGround = false;
 		}

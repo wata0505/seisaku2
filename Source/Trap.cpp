@@ -61,7 +61,7 @@ bool Trap::SearchEnemy(float territoryRange, float radius)
 		float vz = e->GetPosition().z - position.z;
 		float d = sqrtf(vx * vx + vz * vz);
 
-		if (d < dist && radius < d)//‹ß‚·‚¬‚é‚Æ”½‰ž‚µ‚È‚¢
+		if (d < dist && radius < d && e->GetHealth() > 0)//‹ß‚·‚¬‚é‚Æ”½‰ž‚µ‚È‚¢
 		{
 			dist = d;
 			targetPosition = e->GetPosition();
