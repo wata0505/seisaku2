@@ -270,9 +270,9 @@ void ProjectileStraite::BeemUpdate(float elapsedTime) {
 		scale.z += scalerate * 0.5;
 		DirectX::XMVECTOR dir = DirectX::XMLoadFloat3(&direction);
 
-		position.x += direction.x * scalerate * 28.0f * elapsedTime;
-		position.y += direction.y * scalerate * 28.0f * elapsedTime;
-		position.z += direction.z * scalerate * 28.0f * elapsedTime;
+		position.x += direction.x * scalerate * 29.0f * elapsedTime;
+		position.y += direction.y * scalerate * 29.0f * elapsedTime;
+		position.z += direction.z * scalerate * 29.0f * elapsedTime;
 	}
 	else
 	{

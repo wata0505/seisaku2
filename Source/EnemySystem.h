@@ -20,7 +20,7 @@ public:
 		static EnemySystem instance;
 		return instance;
 	}
-	void Start();
+	void Start(int Stag);
 	// 更新処理
 	void Update(float elapsedTime);
 
@@ -30,11 +30,13 @@ public:
 
 public:
 	int identity = 0;	// 付与するIDの値(この値にMetaAI::Identity::Enemyを加算して付与する)
-	int maxEnemyCount = 100;
+	int maxEnemyCount = 0;
+	int maxEnemyDroneCount[3][3] = { { 0,0,0 },{ 100,50,50 },{ 30,20,30 } };
+	int maxEnemyBagCount[3][3] = { {10,10,10},{0,0,0} ,{10,5,5}};
 	float waveTimer = 0;
 	const int waveTimerMax[4] = { 60,70,80,90 };
 	int waveEnemyCount = 0;
-	const int waveMaxEnemyCount[4] = {100,100,100,100};
+	const int waveMaxEnemyCount[3][3] = { {10,20,30},{100,150,200} ,{40,65,100}};
 	int wave = 0;
-
+	int stag = 0;
 };

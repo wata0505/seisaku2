@@ -28,7 +28,11 @@ public:
 	// ƒV[ƒ“Ø‚è‘Ö‚¦
 	void ChangeScene(Scene* scene);
 
+	void SetStage(int s) { stag = s; }
+
+	int GetStage() { return stag; }
+
 private:
 	Scene* currentScene = nullptr;
-
+	int stag;
 };

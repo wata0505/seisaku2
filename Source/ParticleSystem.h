@@ -39,7 +39,7 @@ void FlameBreathBoomEffect(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 dir, in
 //ブレスエフェクト
 void FlameBreathEffect(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 dir);
 //渦巻収束
-void SeirlConvergenceEffect(DirectX::XMFLOAT3 position,float angle);
+void SeirlConvergenceEffect(DirectX::XMFLOAT3 position,float angle, float len = 10);
 //渦巻収束
 void VortexDiffusionEffect(DirectX::XMFLOAT3 position, float angle);
 

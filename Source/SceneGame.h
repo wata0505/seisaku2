@@ -120,4 +120,6 @@ private:
 	std::unique_ptr<SubFramebuffer> jitterDriftSubFramebuffer;
 	JitterDriftData jitterDriftData;
 	float skyboxColor = 0.0f;
+	DirectX::XMFLOAT3 objPos[3][3] = { {{ 50,-4,-50 },{60,-4,17},{130,-4,-80}},{{ 50,-4,-50 },{60,-4,17},{130,-4,-80}},{{ 50,-4,-50 },{60,-4,17},{130,-4,-80}} }; //オブジェクト位置
+	float objAngle[3][3] = { { 0,90,-45 },{ 0,0,0 },{ 0,90,-45 }};//オブジェクト回転
 };

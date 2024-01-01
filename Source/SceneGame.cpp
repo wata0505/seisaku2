@@ -35,22 +35,22 @@ void SceneGame::Initialize()
 	EnemyManager& enemyManager = EnemyManager::Instance();
 
 	EnemySystem& enemySystem = EnemySystem::Instance();
-	enemySystem.Start();
+	enemySystem.Start(SceneManager::Instance().GetStage());
 	StageManager& stageManager = StageManager::Instance();
 	stageManager.clear();
 	stageMain = new StageMain;
 	stageManager.Register(stageMain);
 
 	DirectX::XMFLOAT2 dir = { 0,0 };
-	DirectX::XMFLOAT3 pos[3] = { { 50,-4,-50 },{60,-4,17},{130,-4,-80} };
-	float angle[3] = { 0,90,-45 };
-	
+	//DirectX::XMFLOAT3 objPos[3] = { { 50,-4,-50 },{60,-4,17},{130,-4,-80} };
+	//float objAngle[3] = { 0,90,-45 };
+	int s = SceneManager::Instance().GetStage();
 	for (int i = 0; i < 3; i++) {
-		StageObj* stageObj = new StageObj(pos[i],angle[i]);
+		StageObj* stageObj = new StageObj(objPos[s][i], objAngle[s][i]);
 		stageManager.Register(stageObj);
 	}
 	
-	pos[0] = { 100,-2.5,-140 };
+	DirectX::XMFLOAT3 pos = { 100,-2.5,-140 };
 	Camera& camera = Camera::Instance();
 	camera.SetLookAt(
 		DirectX::XMFLOAT3(0, 0, -10),
@@ -68,7 +68,7 @@ void SceneGame::Initialize()
 	
 
 	player = std::make_unique<Player>();
-	base = std::make_unique<Base>(pos[0]);
+	base = std::make_unique<Base>(pos);
 	//ピクセルシェーダーオブジェクト
 	create_ps_from_cso(device.Get(), "Shader\\PostEffectPS.cso", pixel_shaders[0].GetAddressOf());
 	create_ps_from_cso(device.Get(), "Shader\\BlurPS.cso", pixel_shaders[1].GetAddressOf());

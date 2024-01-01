@@ -253,13 +253,14 @@ void SceneTitle::Update(float elapsedTime)
 		{
 		case (int)GamaMode::Game:		// ゲーム
 			SceneManager::Instance().ChangeScene(new SceneLoading(new SceneGame));
+			stagNo = 1;
 			break;
 		case (int)GamaMode::Tutorial:	// チュートリアル
 			SceneManager::Instance().ChangeScene(new SceneLoading(new SceneTutorial));
 			break;
 		}
 	}	
-	
+	SceneManager::Instance().SetStage(stagNo);
 	// 経過時間加算
 	progressTimer++;
 	// スカイボックス経過時間加算

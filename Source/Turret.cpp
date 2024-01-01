@@ -9,6 +9,7 @@
 #include "TrapManager.h"
 #include "Player.h"
 #include "Input.h"
+#include "Calculation.h"
 Turret::Turret()
 {
 
@@ -253,6 +254,15 @@ void Turret::UpdateAttackState(float elapsedTime)
 			projectile->TurretLaunch(beem, h, 1.5, position, targetPosition, angle.y, Type::Beem, (int)EffectTexAll::EfTexAll::BlueThader, 1, 1, 0.0f);
 		
 		coolTime = 20;
+	}
+	else
+	{
+		//DirectX::XMFLOAT3 v = Vector3::Subset(targetPosition,position);
+		//v = Vector3::Normalize(v);
+		//v = Vector3::PosDir(position, v, 5);
+		//ParticleSystem::Instance().SeirlConvergenceEffect(v, 90,20);
+		//ParticleSystem::Instance().SeirlConvergenceEffect(v, 180,20);
+		//ParticleSystem::Instance().SeirlConvergenceEffect(v, 270,20);
 	}
 
 	// 攻撃アニメーションが終わって範囲内に敵がいなければ

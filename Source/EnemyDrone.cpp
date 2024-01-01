@@ -505,7 +505,7 @@ void EnemyDrone::ReMove()
 {
 	activeflag = true;
 	health = maxHealth;
-	DirectX::XMFLOAT2 pos = { 105 - float(rand() % 50), 40 };
+	DirectX::XMFLOAT2 pos = { 155 - float(rand() % 95), 40 };
 	glitchIntensity = 0;
 	// ホログラムシェーダー情報初期化
 	HologramShaderDataInitialize(minHeight, maxHeight);

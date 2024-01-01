@@ -292,7 +292,7 @@ void ParticleSystem::FlameBreathEffect(DirectX::XMFLOAT3 position, DirectX::XMFL
 
 }
 
-void ParticleSystem::SeirlConvergenceEffect(DirectX::XMFLOAT3 position, float angle) {
+void ParticleSystem::SeirlConvergenceEffect(DirectX::XMFLOAT3 position, float angle,float len) {
     InstancingSpriteManager& particleManager = InstancingSpriteManager::Instance();
     
      DirectX::XMFLOAT3 pos;
@@ -304,9 +304,9 @@ void ParticleSystem::SeirlConvergenceEffect(DirectX::XMFLOAT3 position, float an
      Vec.x = cosf(angleY) * sinf(angleX);
      Vec.z = cosf(angleY) * cosf(angleX);
 
-     pos.x = position.x + Vec.x * 10;
-     pos.y = position.y + Vec.y * 10;
-     pos.z = position.z + Vec.z * 10;
+     pos.x = position.x + Vec.x * len;
+     pos.y = position.y + Vec.y * len;
+     pos.z = position.z + Vec.z * len;
     
     float speed = 15.0;
     InstancingSprite* particle = new InstancingSprite;

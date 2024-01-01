@@ -115,6 +115,8 @@ private:
 	int												progressTimer = 0;								// 経過時間
 	int												titleMode = 0;									// タイトルモード
 	int												gameMode = 0;									// ゲームモード
+	int                                             stagNo = 0;   //現在のステージ
+	int                                             stagMaxNo = 0;//最大ステージ数
 	float skyboxColor = 0.0f;
 	// ジッタードリフト定数バッファ
 	struct JitterDriftConstantBuffer
