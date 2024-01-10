@@ -218,11 +218,14 @@ void Turret::TransitionIdleState()
 // 待機ステート更新処理
 void Turret::UpdateIdleState(float elapsedTime)
 {
-	// プレイヤー索敵
-	if (SearchEnemy(territoryRange, notAttackRange))
+	if (GetHologramTimer() >= 1)
 	{
-		// 見つかったら追跡ステートへ遷移
-		TransitionAttackState();
+		// プレイヤー索敵
+		if (SearchEnemy(territoryRange, notAttackRange))
+		{
+			// 見つかったら追跡ステートへ遷移
+			TransitionAttackState();
+		}
 	}
 
 	if (health <= 0)

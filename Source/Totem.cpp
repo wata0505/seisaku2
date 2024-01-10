@@ -39,7 +39,10 @@ void Totem::Update(float elapsedTime)
     if (activateFlag)
     {
         hologramColor = { 0.0f, 1.0f, 0.0f };
-        CollisionVsEnemies();
+        if (GetHologramTimer() >= 1)
+        {
+            CollisionVsEnemies();
+        }
     }
     else
     {

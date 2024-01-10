@@ -3,6 +3,7 @@
 #include"TrapManager.h"
 #include "EnemyManager.h"
 #include "Camera.h"
+#include"StageManager.h"
 #include <math.h>
 
 //デバック用
@@ -53,7 +54,7 @@ bool Trap::SearchEnemy(float territoryRange, float radius)
 	EnemyManager& enemyManager = EnemyManager::Instance();
 	//dist = FLT_MAX;//縄張り範囲
 	dist = territoryRange;//縄張り範囲
-
+	HitResult hit;
 	for (int i = 0; i < enemyManager.GetEnemyCount(); i++) {
 		//敵との距離判定
 		Enemy* e = enemyManager.GetEnemy(i);
@@ -61,7 +62,7 @@ bool Trap::SearchEnemy(float territoryRange, float radius)
 		float vz = e->GetPosition().z - position.z;
 		float d = sqrtf(vx * vx + vz * vz);
 
-		if (d < dist && radius < d && e->GetHealth() > 0)//近すぎると反応しない
+		if (d < dist && radius < d && e->GetHealth() > 0 && !StageManager::Instance().RayCast(position, e->GetPosition(), hit))//近すぎると反応しない
 		{
 			dist = d;
 			targetPosition = e->GetPosition();

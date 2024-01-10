@@ -83,6 +83,7 @@ public:
 	int		GetType() { return type; }
 	bool GetActiveFlag() { return this->activateFlag; }
 	void SetActiveFlag(bool activateflag) { this->activateFlag = activateflag; }
+	float GetHologramTimer() { return hologramTimer; }
 protected:
 
 	int type = 0;//“G‚ÌŽí—Þ

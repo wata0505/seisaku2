@@ -422,7 +422,7 @@ bool EnemyDrone::SearchTrap()
 	for (int i = 0; i < count; i++)
 	{
 		Trap* trap = TrapManager::Instance().GetTrap(i);
-		if (trap->GetActiveFlag() == false)
+		if (trap->GetHologramTimer() >= 1)
 		{
 			continue;
 		}
