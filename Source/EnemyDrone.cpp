@@ -29,7 +29,7 @@ EnemyDrone::EnemyDrone(bool tutorial)
 	model->ModelSerialize(".\\resources\\Drone\\Drone.fbx");
 	model->ModelRegister(".\\resources\\Drone\\Drone.fbx", "Texture\\Albedo.png");
 	// モデルが大きいのでスケーリング
-	maxHealth = 1;
+	maxHealth = 2;
 	health = maxHealth;
 	radius = 0.7f;
 	height = 2.0f;

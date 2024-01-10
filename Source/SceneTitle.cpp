@@ -128,6 +128,9 @@ void SceneTitle::Initialize()
 		spriteBatchs[SpriteKind::Back] = EffectTexAll::Instance().GetSprite(int(EffectTexAll::EfTexAll::Bock));
 		spriteBatchs[SpriteKind::GameStartText] = std::make_unique<Sprite>(L".\\resources\\UI\\start the story.png");
 		spriteBatchs[SpriteKind::TutorialText] = std::make_unique<Sprite>(L".\\resources\\UI\\tutorial.png");
+		spriteBatchs[SpriteKind::Stage1] = std::make_unique<Sprite>(L".\\resources\\UI\\stage1.png");
+		spriteBatchs[SpriteKind::Stage2] = std::make_unique<Sprite>(L".\\resources\\UI\\stage2.png");
+		spriteBatchs[SpriteKind::Stage3] = std::make_unique<Sprite>(L".\\resources\\UI\\stage3.png");
 		// 全てを合成するテクスチャ
 		renderSprite = std::make_unique<Sprite>();
 	}
@@ -156,10 +159,11 @@ void SceneTitle::Update(float elapsedTime)
 	cameraController->TitleUpdate(elapsedTime);
 	// ステージ更新処理
 	StageManager::Instance().Update(elapsedTime);
+	// ゲームパッド入力情報
+	GamePad& pad = Input::Instance().GetGamePad();
 	
 	{
-		// ゲームパッド入力情報
-		GamePad& pad = Input::Instance().GetGamePad();
+		
 		const GamePadButton anyButton = GamePad::BTN_A | GamePad::BTN_B | GamePad::BTN_X | GamePad::BTN_Y;
 		// キー入力があれば
 		if (pad.GetButtonDown() & anyButton)
@@ -171,15 +175,16 @@ void SceneTitle::Update(float elapsedTime)
 			{
 				player->SetTitleState(Player::TitleState::TitleSelect);
 			}
-			else if (player->GetTitleState() == Player::TitleState::TitleSelect && titleMode > 0)
+			else if (player->GetTitleState() == Player::TitleState::TitleSelect && titleMode >= TitleMode::Select)
 			{
 				player->SetTitleState(Player::TitleState::TitlePunchStart);
 			}
 			titleMode++;
 		}
+		if (titleMode > TitleMode::TitleStart)titleDissolveTimer += elapsedTime;
 
 		// タイトルでキー未入力状態じゃなければ
-		if (titleMode > TitleMode::TitleStart)
+		if (titleMode > TitleMode::TitleStart && titleMode < TitleMode::Select)
 		{
 			// タイトルログ&決定テクスチャのディゾルブ時間加算
 			titleDissolveTimer += elapsedTime;
@@ -197,6 +202,19 @@ void SceneTitle::Update(float elapsedTime)
 					if (gameMode < (int)GamaMode::Game) gameMode = (int)GamaMode::Tutorial;
 				}
 			}
+		}
+		if (titleMode == TitleMode::Select) {
+			if (pad.GetButtonDown() & GamePad::BTN_DOWN)
+			{
+				stageMode++;
+				if (stageMode > (int)StageMode::Stage3) stageMode = (int)StageMode::Stage1;
+			}
+			else if (pad.GetButtonDown() & GamePad::BTN_UP)
+			{
+				stageMode--;
+				if (stageMode < (int)StageMode::Stage1) stageMode = (int)StageMode::Stage3;
+			}
+
 		}
 	}
 
@@ -239,10 +257,11 @@ void SceneTitle::Update(float elapsedTime)
 	}
 
 	// タイトルモードがゲームモードを選択した後なら
-	if (titleMode >= TitleMode::Select)
+	if (titleMode >= TitleMode::StageSelect)
 	{
 		textDissolveTimer += elapsedTime * 0.5f;
 	}
+	if(gameMode == (int)GamaMode::Tutorial && titleMode >= TitleMode::Select)textDissolveTimer += elapsedTime * 0.5f;
 	// ゲーム&チュートリアルテクスチャのディゾルブ時間が一定値(1.0f)を超えたら
 	if (textDissolveTimer > 1.0f) 
 	{
@@ -252,8 +271,10 @@ void SceneTitle::Update(float elapsedTime)
 		switch (gameMode) 
 		{
 		case (int)GamaMode::Game:		// ゲーム
+
+			
 			SceneManager::Instance().ChangeScene(new SceneLoading(new SceneGame));
-			stagNo = 1;
+			stagNo = stageMode;
 			break;
 		case (int)GamaMode::Tutorial:	// チュートリアル
 			SceneManager::Instance().ChangeScene(new SceneLoading(new SceneTutorial));
@@ -541,10 +562,51 @@ void SceneTitle::Render()
 			}
 
 			// タイトルモードが非選択状態以降なら
-			if (titleMode >= TitleMode::NotSelect) 
+			if (titleMode >= TitleMode::NotSelect && titleMode < TitleMode::Select)
 			{
 				defaultSpriteShader->Draw(rc, spriteBatchs[SpriteKind::GameStartText].get());
 				defaultSpriteShader->Draw(rc, spriteBatchs[SpriteKind::TutorialText].get());
+			}
+			if (titleMode >= TitleMode::Select && gameMode == (int)GamaMode::Game)
+			{
+				float stageScale[3] = { 0.5,0.5,0.5 };
+				switch (stageMode)
+				{
+				case (int)StageMode::Stage1:
+					stageScale[0] = 0.7f;
+					break;
+				case (int)StageMode::Stage2:
+					stageScale[1] = 0.7f;
+					break;
+				case (int)StageMode::Stage3:
+					stageScale[2] = 0.7f;
+					break;
+				}
+				spriteBatchs[SpriteKind::Stage1]->Render(immediate_context,
+					800.0f, 300.0f, static_cast<float>(spriteBatchs[SpriteKind::Stage1]->GetTextureWidth()) * stageScale[0], static_cast<float>(spriteBatchs[SpriteKind::Stage1]->GetTextureHeight() * stageScale[0]),
+					0.0f, 0.0f, static_cast<float>(spriteBatchs[SpriteKind::Stage1]->GetTextureWidth()), static_cast<float>(spriteBatchs[SpriteKind::Stage1]->GetTextureHeight()),
+					0.0f,
+					1.0f, 1.0f, 1.0f, 1.0f,
+					textDissolveTimer * 5
+				);
+				spriteBatchs[SpriteKind::Stage2]->Render(immediate_context,
+					800.0f, 400.0f, static_cast<float>(spriteBatchs[SpriteKind::Stage2]->GetTextureWidth()) * stageScale[1], static_cast<float>(spriteBatchs[SpriteKind::Stage1]->GetTextureHeight()) * stageScale[1],
+					0.0f, 0.0f, static_cast<float>(spriteBatchs[SpriteKind::Stage2]->GetTextureWidth()), static_cast<float>(spriteBatchs[SpriteKind::Stage1]->GetTextureHeight()),
+					0.0f,
+					1.0f, 1.0f, 1.0f, 1.0f,
+					textDissolveTimer * 5
+				);
+				spriteBatchs[SpriteKind::Stage3]->Render(immediate_context,
+					800.0f, 500.0f, static_cast<float>(spriteBatchs[SpriteKind::Stage3]->GetTextureWidth()) * stageScale[2], static_cast<float>(spriteBatchs[SpriteKind::Stage1]->GetTextureHeight()) * stageScale[2],
+					0.0f, 0.0f, static_cast<float>(spriteBatchs[SpriteKind::Stage3]->GetTextureWidth()), static_cast<float>(spriteBatchs[SpriteKind::Stage1]->GetTextureHeight()),
+					0.0f,
+					1.0f, 1.0f, 1.0f, 1.0f,
+					textDissolveTimer * 5
+				);
+				defaultSpriteShader->Draw(rc, spriteBatchs[SpriteKind::Stage1].get());
+				defaultSpriteShader->Draw(rc, spriteBatchs[SpriteKind::Stage2].get());
+				defaultSpriteShader->Draw(rc, spriteBatchs[SpriteKind::Stage3].get());
+				defaultSpriteShader->Draw(rc, spriteBatchs[SpriteKind::GameStartText].get());
 			}
 		}
 		defaultSpriteShader->End(rc);

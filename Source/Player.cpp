@@ -1329,7 +1329,7 @@ void Player::CollisionNodeVsEnemies(float nodeRadius,DirectX::XMFLOAT2 pow, floa
             enemyPosition = { enemy->GetPosition().x,enemy->GetPosition().y,enemy->GetPosition().z };
             if (Collision::IntersectSphereVsSphere(
                 node,
-                 2.0,
+                nodeRadius,
                 enemyPosition,
                 enemy->GetRadius(),impulse))
             {

@@ -1,13 +1,14 @@
 #include"StageObj.h"
 #include "Camera.h"
-StageObj::StageObj(DirectX::XMFLOAT3 pos,float angle2)
+StageObj::StageObj(DirectX::XMFLOAT3 pos,float angleY, float angleZ)
 {
 	obj = std::make_unique<Model>(".\\resources\\Box.fbx", true, false);
 	obj->ModelSerialize(".\\resources\\Box.fbx");
 	//model->ModelCreate(".\\resources\\ExampleStage\\ExampleStage.fbx");
 	obj->ModelRegister(".\\resources\\Box.fbx","Stag\\Stage.fbm\\Tile.png");
 	// çsóÒçXêV
-	angle.y = DirectX::XMConvertToRadians(angle2);
+	angle.y = DirectX::XMConvertToRadians(angleY);
+	angle.z = DirectX::XMConvertToRadians(angleZ);
 	position = pos;
 	scale.x = scale.y = scale.z = 10.0;
 	UpdateTransform();

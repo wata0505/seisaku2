@@ -44,6 +44,7 @@ private:
 		TitleStart,	// タイトル開始
 		NotSelect,	// 非選択
 		Select,		// 選択
+		StageSelect,//ステージ選択
 	};
 
 	// ゲームモード
@@ -51,6 +52,13 @@ private:
 	{
 		Game,		// ゲーム
 		Tutorial	// チュートリアル
+	};
+	//ステージモード
+	enum class StageMode
+	{
+		Stage1,		// 地上敵
+		Stage2,	    // 空中敵
+		Stage3      // 地上敵 + 空中敵
 	};
 
 	// ピクセルシェーダー種類
@@ -84,6 +92,9 @@ private:
 		Back,			// 背景
 		GameStartText,	// ゲーム
 		TutorialText,	// チュートリアル
+		Stage1,
+		Stage2,
+        Stage3,
 
 		SMax
 	};
@@ -115,6 +126,7 @@ private:
 	int												progressTimer = 0;								// 経過時間
 	int												titleMode = 0;									// タイトルモード
 	int												gameMode = 0;									// ゲームモード
+	int												stageMode = 0;									// ステージモード
 	int                                             stagNo = 0;   //現在のステージ
 	int                                             stagMaxNo = 0;//最大ステージ数
 	float skyboxColor = 0.0f;

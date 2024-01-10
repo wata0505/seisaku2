@@ -46,7 +46,7 @@ void SceneGame::Initialize()
 	//float objAngle[3] = { 0,90,-45 };
 	int s = SceneManager::Instance().GetStage();
 	for (int i = 0; i < 3; i++) {
-		StageObj* stageObj = new StageObj(objPos[s][i], objAngle[s][i]);
+		StageObj* stageObj = new StageObj(objPos[s][i], objAngleY[s][i], objAngleZ[s][i]);
 		stageManager.Register(stageObj);
 	}
 	

@@ -294,17 +294,17 @@ void Character::UpdateVerticalMove(float elapsedTime)
 
 		// レイキャストによる地面判定
 		HitResult hit;
-		if (health > 0) {
-			if (StageManager::Instance().RayCast(start, end, hit))
-			{
-				// 地面からの距離が離れすぎていれば上昇停止
-				if (hit.position.y + altitude < position.y) {
-					//position.y = hit.position.y + altitude;
-					my = 0.0f;
-				}			
-			}
-			
-		}
+		//if (health > 0) {
+		//	if (StageManager::Instance().RayCast(start, end, hit))
+		//	{
+		//		// 地面からの距離が離れすぎていれば上昇停止
+		//		if (hit.position.y + altitude < position.y) {
+		//			//position.y = hit.position.y + altitude;
+		//			my = 0.0f;
+		//		}			
+		//	}
+		//	
+		//}
 		position.y += my;
 		isGround = false;
 	}
