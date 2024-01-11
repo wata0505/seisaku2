@@ -83,9 +83,9 @@ Player::Player() {
     mp = mpMax;
     UIManager& uiManager = UIManager::Instance();
     const float gaugeWidth = 500.0f;
-    const float gaugeHeight = 50.0f;
-    uiHp = new GaugeUI(L".\\resources\\HP.png", 32, 608, gaugeWidth, gaugeHeight*0.7, health, maxHealth);
-    uiMp = new GaugeUI(L".\\resources\\MP.png", 32, 657, gaugeWidth + 11.0f, gaugeHeight * 0.2, mp, mpMax);
+    const float gaugeHeight = 300.0f;
+    uiHp = new GaugeUI(L".\\resources\\HP2.png", 10.0f, 495.0f, gaugeWidth * 1.1f, gaugeHeight * 1.1f, health, maxHealth);
+    //uiMp = new GaugeUI(L".\\resources\\MP.png", 32, 657, gaugeWidth + 11.0f, gaugeHeight * 0.2, mp, mpMax);
     //UI[UINo::Die] = std::make_unique<Sprite>(L".\\resources\\UI\\Die.png");
     swordTrail = std::make_unique<SwordTrail>(10, L".\\resources\\SwordTrail.jpg");
     cameraController = std::make_unique<CameraController>();
@@ -1470,5 +1470,5 @@ void Player::Sprite2DRender(ID3D11DeviceContext* dc, RenderContext& rc, SpriteSh
 void Player::UpdateUI(float elapsedTime) {
     hpTimer += 2;
     uiHp->SetGauge(health);
-    uiMp->SetGauge(mp);
+    //uiMp->SetGauge(mp);
 }

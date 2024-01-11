@@ -4,6 +4,7 @@
 #include "Graphics.h"
 #include "Camera.h"
 #include "TrapManager.h"
+#include "ParticleSystem.h"
 
 Mine::Mine()
 {
@@ -16,7 +17,7 @@ Mine::Mine()
     UpdateTransform(0, 0);
     model->UpdateBufferDara(transform);
     renderdata = model->GetBufferData();
-
+    territoryRange = 5;
     attack = 1;
     height = 5.0f;
     type = Trap::TrapType::TrapMine;
@@ -44,6 +45,7 @@ void Mine::Update(float elapsedTime)
         {
             if (CollisionVsEnemies())
             {
+                ParticleSystem::Instance().BoomEffect(position, 3, int(EffectTexAll::EfTexAll::Flame), 20, 0.5, { NULL,NULL,2,1 });
                 Destroy();
             }
         }

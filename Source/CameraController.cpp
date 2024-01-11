@@ -106,10 +106,10 @@ void CameraController::Update(float elapsedTime)
 	// レイキャストによる地面判定
 	HitResult hit;
 	//if (health > 0) {
-	if (StageManager::Instance().RayCast(start, end, hit))
-	{
-		eye = hit.position;
-	}
+	//if (StageManager::Instance().RayCast(start, end, hit))
+	//{
+	//	eye = hit.position;
+	//}
 	//最小値で線形補完
 	cameraEye.x = Mathf::Lerp(cameraEye.x, eye.x, correction * correctionSpeed);
 	//最小値で線形補完

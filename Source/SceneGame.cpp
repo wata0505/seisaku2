@@ -64,7 +64,9 @@ void SceneGame::Initialize()
 	);
 	//カメラコントローラー初期化
 	//cameraController = std::make_unique <CameraController>();
-	
+	float gaugeWidth = 500.0f;
+	float gaugeHeight = 300.0f;
+	BaseUI* hpWaku = new BaseUI(L".\\resources\\kaba2.png", 10.0f, 495.0f, gaugeWidth * 1.1f, gaugeHeight * 1.1f);
 	DirectX::XMFLOAT3 pos = { 100.0f, -2.5f, -139.975f };
 	player = std::make_unique<Player>();
 	base = std::make_unique<Base>(pos);
@@ -115,9 +117,7 @@ void SceneGame::Initialize()
 	
 	meta = std::make_unique<Meta>(player.get(), &enemyManager);
 	UIManager& uiManager = UIManager::Instance();
-	float gaugeWidth = 500.0f;
-	float gaugeHeight = 50.0f;
-	BaseUI* hpWaku    = new BaseUI(L".\\resources\\kaba.png", 10.0f, 595.0f, gaugeWidth * 1.1f, gaugeHeight * 1.1f);
+	
 	//BaseUI* mpWaku    = new BaseUI(L".\\resources\\Mpwaku3.png", 10, 650, gaugeWidth * 1.1, gaugeHeight * 0.5);
 	gaugeWidth = 65.0f;
 	gaugeHeight = 100.0f;
