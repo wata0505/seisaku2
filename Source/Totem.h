@@ -28,5 +28,5 @@ private:
 	//•`‰æî•ñŠi”[
 	std::vector<SkinnedMeshResouurce::constants> renderdata;
 
-
+	int survivalTime = 0;
 };

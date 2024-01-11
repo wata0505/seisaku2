@@ -19,7 +19,7 @@ Totem::Totem()
     model->UpdateBufferDara(transform);
     renderdata = model->GetBufferData();
     type = Trap::TrapType::TrapTotem;
-
+    survivalTime = 60 * 3;
     // ホログラムシェーダー情報初期化
     HologramShaderDataInitialize(0.0f, 15.0f);
 }
@@ -30,6 +30,7 @@ Totem::~Totem()
 
 void Totem::Update(float elapsedTime)
 {
+    
     timer += elapsedTime;
     model->ShaderAdjustment(adjustMetalness, adjustSmoothness, glitchScale, timer, maxHeight);
     
@@ -41,6 +42,11 @@ void Totem::Update(float elapsedTime)
         hologramColor = { 0.0f, 1.0f, 0.0f };
         if (GetHologramTimer() >= 1)
         {
+            survivalTime -= elapsedTime;
+            if (survivalTime <= 0)
+            {
+                Destroy();
+            }
             CollisionVsEnemies();
         }
     }
@@ -137,11 +143,7 @@ void Totem::CollisionVsEnemies()
             {
                 //ポイント追加加算
                 TrapManager::Instance().SetTrapPoint(TrapManager::Instance().GetTrapPoint() + 1);
-
-                //仮のデバック用で消してみる
-                Destroy();
             }
-
         }
     }
 }
