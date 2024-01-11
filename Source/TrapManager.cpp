@@ -437,15 +437,10 @@ void TrapManager::Sprite2DRender(ID3D11DeviceContext* dc, RenderContext& rc, Spr
 	TrapManager::Instance().Text(shader, dc, std::to_string(cost[type]), positon.x + 115, positon.y + 137, 22, 22, 1.0f, 0.0f, 0.0f, 1.0f);
 
 	//使用不可マーク表示
-#if 0
-	if (Player::Instance().IsGround() == false ||
-		(Player::Instance().GetPosition().y > 5 && type != Trap::TrapType::TrapTurret) ||
-		(Player::Instance().GetPosition().y < 5 && type == Trap::TrapType::TrapTurret))
-#else
-	if(!canSetFlag)
-#endif
+	if (!buildFlag && type == Trap::TrapType::TrapTurret && Player::Instance().GetPosition().y < 5 ||
+		!buildFlag && !type == Trap::TrapType::TrapTurret && Player::Instance().GetPosition().y > 5 ||
+		!canSetFlag && buildFlag)
 	{
-		//台上で、タレットじゃない
 		spriteNo->Render(dc,
 			positon.x, positon.y, 2.0f * size, 3.0f * size,
 			0.0f, 0.0f,
