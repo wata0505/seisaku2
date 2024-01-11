@@ -51,7 +51,7 @@ void Enemy::UpdateVerticalMove(float elapsedTime) {
 		// レイキャストによる地面判定
 		HitResult hit;
 		//if (health > 0) {
-		if (position.y < -2.5f + height * 0.5f)
+		if (position.y < -2.5f + height * 0.55f)
 		{
 			
 			//バグだけ地上に配置
