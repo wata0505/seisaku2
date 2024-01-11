@@ -5,12 +5,10 @@
 //コンストラクタ
 StageMain::StageMain()
 {
+	model = std::make_unique<Model>(".\\resources\\CyberStage\\CyberStage.fbx", true, false);
+	model->ModelSerialize(".\\resources\\CyberStage\\CyberStage.fbx");
+	model->ModelRegister(".\\resources\\CyberStage\\CyberStage.fbx", "Texture\\HoneycombStructure.png");
 
-	model = std::make_unique<Model>(".\\resources\\Stag\\CyberStage5.fbx", true, false);
-	model->ModelSerialize(".\\resources\\Stag\\CyberStage5.fbx");
-	//model->ModelCreate(".\\resources\\ExampleStage\\ExampleStage.fbx");
-	model->ModelRegister(".\\resources\\Stag\\CyberStage5.fbx");
-	//model->ModelRegister(".\\resources\\Stag\\CyberStage.fbx", "Texture\\HoneycombStructure.DDS");
 	// 行列更新
 	//angle.y = 3;
 	position.y = -2.5f;

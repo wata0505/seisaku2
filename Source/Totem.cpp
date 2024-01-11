@@ -21,7 +21,7 @@ Totem::Totem()
     type = Trap::TrapType::TrapTotem;
 
     // ホログラムシェーダー情報初期化
-    HologramShaderDataInitialize(-15.0f, 15.0f);
+    HologramShaderDataInitialize(0.0f, 15.0f);
 }
 Totem::~Totem()
 {

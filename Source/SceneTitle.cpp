@@ -170,7 +170,7 @@ void SceneTitle::Update(float elapsedTime)
 		{
 			// Œˆ’è‰¹Ä¶
 			AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Ketei)->Play(false);
-
+#if 0
 			if (titleMode == TitleMode::TitleStart)
 			{
 				player->SetTitleState(Player::TitleState::TitleSelect);
@@ -179,6 +179,12 @@ void SceneTitle::Update(float elapsedTime)
 			{
 				player->SetTitleState(Player::TitleState::TitlePunchStart);
 			}
+#else
+			if (player->GetTitleState() == Player::TitleState::TitleSelect && titleMode >= TitleMode::Select)
+			{
+				player->SetTitleState(Player::TitleState::TitlePunchStart);
+			}
+#endif
 			titleMode++;
 		}
 		if (titleMode > TitleMode::TitleStart)titleDissolveTimer += elapsedTime;
@@ -357,7 +363,7 @@ void SceneTitle::Render()
 		StageManager::Instance().Render(immediate_context, shadowShader);
 		EnemyManager::Instance().Render(immediate_context, shadowShader);
 		player->render(immediate_context, shadowShader);
-		tower->Render(immediate_context, shadowShader);
+		//tower->Render(immediate_context, shadowShader);
 		StageManager::Instance().InstaningRender(immediate_context, shadowShader);
 		shadowShader->End(immediate_context);
 		shadowbuffer->deactivate(immediate_context);
@@ -398,7 +404,7 @@ void SceneTitle::Render()
 			ModelShader* defaulModelShader = graphics.GetShader(Graphics::ModelShaderId::ModelShaderDefault);
 			defaulModelShader->Begin(immediate_context, rc);
 			StageManager::Instance().InstaningRender(immediate_context, defaulModelShader);
-			tower->Render(immediate_context, defaulModelShader);
+			//tower->Render(immediate_context, defaulModelShader);
 			EnemyManager::Instance().Render(immediate_context, defaulModelShader);
 			player->render(immediate_context, defaulModelShader);
 			defaulModelShader->End(immediate_context);

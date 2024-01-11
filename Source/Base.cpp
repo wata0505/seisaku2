@@ -23,6 +23,10 @@ Base::Base(DirectX::XMFLOAT3 pos)
 	UpdateTransform();
 	obj->UpdateBufferDara(transform);
 	transform = obj->GetBufferTransform();
+
+	// ホログラムシェーダー情報初期化
+	minHeight = -4.0f;	// 最低点
+	maxHeight = 4.0f;	// 最高点
 }
 
 Base::~Base()
@@ -34,6 +38,8 @@ Base::~Base()
 //更新処理
 void Base::Update(float elapseTime)
 {
+	timer += elapseTime;
+	obj->ShaderAdjustment(0.0f, 0.0f, 50.0f, timer, maxHeight);
 	renderflag = Collision::IntersectFanVsSphere(
 		Camera::Instance().GetEye(),
 		Camera::Instance().GetFront(),
@@ -50,7 +56,7 @@ void Base::Render(ID3D11DeviceContext* dc, ModelShader* shader)
 	obj->UpdateTransform();
 	obj->UpdateBufferDara(transform);
 	//シェーダーにモデルを描画してもらう
-	shader->Draw(dc,obj.get());
+	shader->Draw(dc, obj.get(), { 0.0f, minHeight, minHeight, maxHeight });
 	jitterStrength = 0.0f;
 	skyboxColor = 0.0f;
 }

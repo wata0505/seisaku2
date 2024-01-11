@@ -159,8 +159,7 @@ void Player::update(float elapsedTime) {
     animeTimer = ElapsedTime;
     //ロックオンカメラ
     ComeTerget(elapsedTime);
-    //ステートマシン更新
-    stateMachine->Update(elapsedTime);
+   
     // ホログラムシェーダー実行中フラグが付いていれば
     if (!isActiveStart)
     {
@@ -168,6 +167,11 @@ void Player::update(float elapsedTime) {
         isActiveStart = UpdateHologramShader(elapsedTime);
 
         animeTimer = 0.0f;
+    }
+    else
+    {
+        //ステートマシン更新
+        stateMachine->Update(elapsedTime);
     }
     //player->PlayAnimation(-1,false);
     //アニメーション更新

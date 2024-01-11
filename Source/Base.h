@@ -61,5 +61,8 @@ private:
 	int hp = 1000;
 	int hpMax = 1000;
 	float jitterStrength = 0;
-	float skyboxColor = 0.0f;
+	float skyboxColor = 0.0f;	
+	float minHeight = 0.0f;			// 最低点
+	float maxHeight = 0.0f;			// 最高点
+	float timer = 0.0f;				// 更新時間		
 };

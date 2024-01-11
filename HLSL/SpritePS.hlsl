@@ -7,6 +7,17 @@ SamplerState point_sampler_state : register(s0);
 SamplerState linear_sampler_state : register(s1);
 SamplerState anisotropic_sampler_state : register(s2);
 
+#define NOISE 0
+#if !NOISE
+float random(float2 seeds)
+{
+	return frac(sin(dot(seeds, float2(12.9898f, 78.233f))) * 43758.5453f);
+}
+float blockNoise(float2 seeds)
+{
+	return random(floor(seeds));
+}
+#endif
 float4 main(VS_OUT pin) : SV_TARGET
 {
 	float4 color = color_map.Sample(anisotropic_sampler_state, pin.texcoord);
@@ -19,27 +30,48 @@ float4 main(VS_OUT pin) : SV_TARGET
 	float d = (dissolve.x + dissolve.y + dissolve.z);
 	float dc = (dissolveCircle.x + dissolveCircle.y + dissolveCircle.z) / 3;
 	float dd = (dissolveDiagonal.x + dissolveDiagonal.y + dissolveDiagonal.z);
-	if (d < pin.dissolve.x * 1.05) {
-		color.rgb = float3(1, 0, 0);
-		//alpha *= 0.5;
-	}
-	if (dd < pin.dissolve.z * 1.01) {
-		color.rgb = float3(1, 0, 0);
-		//alpha *= 0.5;
-	}
-	if (d < pin.dissolve.x) {
-		alpha = 0;
-	}
-	if (dc < pin.dissolve.y) {
-		alpha = 0;
-	}
-	if (dd < pin.dissolve.z) {
-		alpha = 0;
-	}
-#if 1
-	//Inverse gamma process
-	//const float GAMMA = 2.2;
-	//color.rgb = pow(color.rgb, GAMMA);
+#if NOISE
+	if (d < pin.dissolve.x * 1.05) 
+#else
+	float2 tex = pin.texcoord * 100.0f;
+	float rate = 0.0000005f;
+	float valueX = random(blockNoise(tex) + pin.dissolve.x * rate);
+	float valueZ = random(blockNoise(tex) + pin.dissolve.z * rate);
+	if (valueX < pin.dissolve.x * 1.025)
 #endif
-	return float4(color.rgb,alpha ) * pin.color;
+	{
+		color.rgb = float3(1, 0, 0);
+		//alpha *= 0.5;
+	}
+#if NOISE
+	if (dd < pin.dissolve.z * 1.01)
+#else
+	if (valueZ < pin.dissolve.z * 1.01)
+#endif
+	{
+		color.rgb = float3(1, 0, 0);
+		//alpha *= 0.5;
+	}
+#if NOISE
+	if (d < pin.dissolve.x)
+#else
+	if (valueX < pin.dissolve.x)
+#endif
+	{
+		alpha = 0;
+	}
+	if (dc < pin.dissolve.y)
+	{
+		alpha = 0;
+	}
+#if NOISE
+	if (dd < pin.dissolve.z)
+#else
+	if (valueZ < pin.dissolve.z)
+#endif
+	{
+		alpha = 0;
+	}
+
+	return float4(color.rgb, alpha) * pin.color;
 }

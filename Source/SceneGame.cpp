@@ -50,7 +50,6 @@ void SceneGame::Initialize()
 		stageManager.Register(stageObj);
 	}
 	
-	DirectX::XMFLOAT3 pos = { 100,-2.5,-140 };
 	Camera& camera = Camera::Instance();
 	camera.SetLookAt(
 		DirectX::XMFLOAT3(0, 0, -10),
@@ -66,7 +65,7 @@ void SceneGame::Initialize()
 	//カメラコントローラー初期化
 	//cameraController = std::make_unique <CameraController>();
 	
-
+	DirectX::XMFLOAT3 pos = { 100.0f, -2.5f, -139.975f };
 	player = std::make_unique<Player>();
 	base = std::make_unique<Base>(pos);
 	//ピクセルシェーダーオブジェクト
@@ -332,9 +331,9 @@ void SceneGame::Render()
 	shader = graphics.GetShader(Graphics::ModelShaderId::ModelShaderDefault);
 	
 	shader->Begin(immediate_context, rc);
+	base->Render(immediate_context, shader);
 	StageManager::Instance().Render(immediate_context, shader);
 	player->render(immediate_context, shader);
-	base->Render(immediate_context, shader);
 	EnemyManager::Instance().Render(immediate_context, shader);
 	StageManager::Instance().InstaningRender(immediate_context, shader);
 	TrapManager::Instance().Render(immediate_context, shader);

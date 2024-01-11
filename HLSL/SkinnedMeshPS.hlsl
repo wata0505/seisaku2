@@ -148,7 +148,6 @@ PS_OUT main(VS_OUT pin)
     //float emissiveMax = max(emissive.r, max(emissive.g, max(emissive.b, emissive.a)));
     float emissiveMax = max(emissive.r, max(emissive.g, emissive.b));
     // 最大値が0なら透明ピクセルやからマテリアルカラーを代入(後にエミッシブも追加で判定)
-#if 0
     if (albedo.a < 0.9f)
     {
         if (emissiveMax <= 0.0f && emissive.a <= 0.0f)
@@ -166,7 +165,6 @@ PS_OUT main(VS_OUT pin)
             }
         }
     }
-#endif
     
     // Inverse gamma process
     const float GAMMA = 1.5f;
@@ -280,7 +278,18 @@ PS_OUT main(VS_OUT pin)
 #endif            
             //scan *= (1.0f - hologram);
             //glow *= (1.0f - hologram);
-            directColor.rgb = (scan * hologramColor + glow * (hologramColor * 1.2f));
+            // ホログラムカラーの合計値
+            float hologramColorMax = hologramColor.r + hologramColor.g + hologramColor.b;
+            // タワー以外
+            if (hologramColorMax <= 1.0f)
+            {
+                directColor.rgb = (scan * hologramColor + glow * (hologramColor * 1.2f));
+            }
+            // タワー
+            else
+            {
+                directColor.rgb = (scan * directColor.rgb + glow * (directColor.rgb * 1.2f));
+            }
 
             // glitchIntensity : 被弾 or 死亡時に強まる
             // アルファ値 = (ベースカラーの透過値 * (スキャンライン + グロウライン)) * (1.0f - グリッチ強度の半分)

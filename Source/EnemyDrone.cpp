@@ -184,7 +184,7 @@ void EnemyDrone::Update(float elapsedTime)
 	CollisionBeemVSTrap();
 	CollisionBeemVSBase();
 
-	model->UpdateAnimation(ElapsedTime, "pelvis", renderflag);
+	model->UpdateAnimation(ElapsedTime * 4.0f, "pelvis", renderflag);
 	
 	// モデル行列更新
 	if (renderflag) {

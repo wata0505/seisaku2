@@ -153,23 +153,18 @@ void TrapManager::Update(float elapsedTime)
 			else
 			{
 				// 上げ位置
-				float offset1 = 10.0f;
-				float offset2 = 1.0f;
-				// レイの開始位置は足元より少し上
-				DirectX::XMFLOAT3 start = { trap->GetPosition().x, trap->GetPosition().y + offset1, trap->GetPosition().z };
+				float offset = 1.0f;				
+				DirectX::XMFLOAT3 start = { Player::Instance().GetPosition().x, Player::Instance().GetPosition().y + offset, Player::Instance().GetPosition().z };
 				float frontX = sinf(Player::Instance().GetAngle().y) * trap->GetRadius();
 				float frontZ = cosf(Player::Instance().GetAngle().y) * trap->GetRadius();				
-				DirectX::XMFLOAT3 frontEnd = { trap->GetPosition().x + frontX, trap->GetPosition().y + offset2, trap->GetPosition().z + frontZ };
-				DirectX::XMFLOAT3 backEnd = { trap->GetPosition().x - frontX, trap->GetPosition().y + offset2, trap->GetPosition().z - frontZ };
+				DirectX::XMFLOAT3 frontEnd = { trap->GetPosition().x + frontX, trap->GetPosition().y + offset, trap->GetPosition().z + frontZ };
 				frontX = sinf(Player::Instance().GetAngle().y + DirectX::XM_PIDIV2) * trap->GetRadius();
 				frontZ = cosf(Player::Instance().GetAngle().y + DirectX::XM_PIDIV2) * trap->GetRadius();				
-				DirectX::XMFLOAT3 rightEnd = { trap->GetPosition().x + frontX, trap->GetPosition().y + offset2, trap->GetPosition().z + frontZ };
-				DirectX::XMFLOAT3 leftEnd = { trap->GetPosition().x - frontX, trap->GetPosition().y + offset2, trap->GetPosition().z - frontZ };
+				DirectX::XMFLOAT3 rightEnd = { trap->GetPosition().x + frontX, trap->GetPosition().y + offset, trap->GetPosition().z + frontZ };
+				DirectX::XMFLOAT3 leftEnd = { trap->GetPosition().x - frontX, trap->GetPosition().y + offset, trap->GetPosition().z - frontZ };
 				HitResult hit;
 				// 台に重なるように置けない
-				// HACK : 壁裏の地面には置ける
-				if (StageManager::Instance().RayCast(start, frontEnd, hit) || StageManager::Instance().RayCast(start, backEnd, hit) ||
-					StageManager::Instance().RayCast(start, leftEnd, hit) || StageManager::Instance().RayCast(start, rightEnd, hit))
+				if (StageManager::Instance().RayCast(start, frontEnd, hit) || StageManager::Instance().RayCast(start, leftEnd, hit) || StageManager::Instance().RayCast(start, rightEnd, hit))
 				{
 					canSetFlag = false;
 				}
