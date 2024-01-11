@@ -139,10 +139,11 @@ void Totem::CollisionVsEnemies()
             position, territoryRange, height,
             outPosition))
         {
-            if (enemy->GetHealth() <= 0)
+            if (enemy->GetHealth() <= 0 && !enemy->GetAddPointFlag())
             {
                 //ƒ|ƒCƒ“ƒg’Ç‰Á‰ÁŽZ
                 TrapManager::Instance().SetTrapPoint(TrapManager::Instance().GetTrapPoint() + 1);
+                enemy->SetAddPointFlag(true);
             }
         }
     }

@@ -95,6 +95,9 @@ public:
 
 	void HitInpnt(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT2 pow, float damage, float invincibleTime);
 
+	bool GetAddPointFlag() { return addPointFlag; }
+	void SetAddPointFlag(bool flag) {this->addPointFlag = flag; }
+
 	enum EnemyType
 	{
 		Bag,
@@ -134,4 +137,6 @@ protected:
 	int enemyTimer = 0;
 	
 	int enemyType = -1;
+
+	bool addPointFlag = false;
 };
