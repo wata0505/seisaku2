@@ -42,7 +42,10 @@ void Mine::Update(float elapsedTime)
         hologramColor = { 0.0f, 1.0f, 0.0f };
         if (GetHologramTimer() >= 1)
         {
-            CollisionVsEnemies();
+            if (CollisionVsEnemies())
+            {
+                Destroy();
+            }
         }
     }
     else
@@ -117,10 +120,10 @@ void Mine::DrawDebugGUI()
 }
 
 //“G‚Æ‚ÌÕ“Ëˆ—
-void Mine::CollisionVsEnemies()
+bool Mine::CollisionVsEnemies()
 {
+    bool hitFlag = false;
     EnemyManager& enemyManager = EnemyManager::Instance();
-
     //‘S‚Ä‚Ì“G‚Æ‘“–‚½‚è‚ÅÕ“Ëˆ—
     int enemyCount = enemyManager.GetEnemyCount();
     for (int i = 0; i < enemyCount; i++)
@@ -134,8 +137,16 @@ void Mine::CollisionVsEnemies()
             position, territoryRange, height,
             outPosition))
         {
-            Destroy();
             enemy->ApplyDamage(attack, 0.0f, false);
+            hitFlag = true;
         }
+    }
+    if (hitFlag)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
     }
 }

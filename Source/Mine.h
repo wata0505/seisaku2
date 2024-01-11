@@ -22,7 +22,7 @@ public:
 	// デバッグ情報表示
 	void DrawDebugGUI() override;
 
-	void CollisionVsEnemies();
+	bool CollisionVsEnemies();
 
 private:
 	std::unique_ptr<Model> model = nullptr;
