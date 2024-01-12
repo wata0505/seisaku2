@@ -189,7 +189,7 @@ void Enemy::UpdateRnderflag() {
 	renderflag = Collision::IntersectFanVsSphere(
 		Camera::Instance().GetEye(),
 		Camera::Instance().GetFront(),
-		Camera::Instance().GetFovY(),
+		Camera::Instance().GetFovY()*1.5,
 		Camera::Instance().GetFarZ(),
 		position,
 		radius);

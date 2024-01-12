@@ -38,7 +38,7 @@ public:
 		TrapTarget,
 	};
 public:
-	EnemyBag(bool tutorial = false);
+	EnemyBag(bool tutorial = false,int stag = 0);
 	~EnemyBag()override;
 
 	// 更新処理
@@ -207,7 +207,9 @@ private:
 	static const int MAX_ROOT_POINT{ 5 };
 
 	int rootNo = 0;
-	DirectX::XMFLOAT3 rootPoint[MAX_ROOT_POINT] = { {140,-1.5,41}, {140,-1.5,-14} ,{78,-1.5,-5} ,{80,-1.5,-45}, {83,-1.5,-103} };
+	DirectX::XMFLOAT3 rootPoint[3][MAX_ROOT_POINT] = { { {140,-1.5,41}, {140,-1.5,-14} ,{78,-1.5,-5} ,{80,-1.5,-45}, {83,-1.5,-103} },
+		                                             { {140,-1.5,40}, {143,-1.5,0} ,{147,-1.5,-30} ,{144,-1.5,-60}, {151,-1.5,-115} },
+		                                             { {60,-1.5,40}, {58,-1.5,0} ,{55,-1.5,-30} ,{53,-1.5,-60}, {51,-1.5,-115} } };
 
 	//遠距離攻撃権
 	bool attackFireBallFlg = false;
@@ -236,6 +238,7 @@ private:
 	float               hitStop = 0.0;
 	//バリアHP
 	int                 barrierHP = 5;
+
 	DirectX::XMFLOAT4X4 world = {};
 	//ターゲットNo
 	int targetNo = 0;
@@ -269,4 +272,6 @@ private:
 	float lerpGlitchIntensity = 0.0f;	// 強度
 	float glitchScale = 50.0f;		// 振れ幅	
 	float deathTimer = 0.0f;		// 死亡時間
+
+	int stagNo = 0;
 };

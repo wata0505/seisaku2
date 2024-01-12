@@ -23,13 +23,13 @@ void EnemySystem::Start(int Stag) {
 			bag->SetPosition(DirectX::XMFLOAT3(pos.x, 0.0f, pos.y));
 			bag->SetTerritory(bag->GetPosition(), 10.0f);
 			bag->SetActiveflag(true);
-			if (i >= waveMaxEnemyCount[stag][wave])	bag->SetActiveflag(false);
+			if (enemyManager.GetEnemyCount() >= waveMaxEnemyCount[stag][wave])	bag->SetActiveflag(false);
 			//bag->SetId(0);
 			enemyManager.Register(bag);
 
 		}
 		for (int i = 0; i < maxEnemyBagCount[Stag][j]; i++) {
-			EnemyBag* bag = new EnemyBag();
+			EnemyBag* bag = new EnemyBag(false,stag);
 			//float yaw = DirectX::XMConvertToRadians(rand() % 360);
 			//DirectX::XMFLOAT2 dir;
 			//dir.x = sinf(yaw);
@@ -38,7 +38,7 @@ void EnemySystem::Start(int Stag) {
 			bag->SetPosition(DirectX::XMFLOAT3(pos.x, 0.0f, pos.y));
 			bag->SetTerritory(bag->GetPosition(), 10.0f);
 			bag->SetActiveflag(true);
-			if (i >= waveMaxEnemyCount[stag][wave])	bag->SetActiveflag(false);
+			if (enemyManager.GetEnemyCount() >= waveMaxEnemyCount[stag][wave])	bag->SetActiveflag(false);
 			//bag->SetId(0);
 			enemyManager.Register(bag);
 

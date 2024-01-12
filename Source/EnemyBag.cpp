@@ -17,7 +17,7 @@
 #include"TrapManager.h"
 
 // コンストラクタ
-EnemyBag::EnemyBag(bool tutorial)
+EnemyBag::EnemyBag(bool tutorial, int stag)
 {
 	model = std::make_unique<Model>(".\\resources\\enemy\\enemy.fbx", true);
 	model->AppendAnimations(".\\resources\\enemy\\Enemy_taikiandmigration.fbx",0);
@@ -77,10 +77,18 @@ EnemyBag::EnemyBag(bool tutorial)
 	tutorialflag = tutorial;
 	eria = 100;
 	targetNo = 0;
+	stagNo = stag;
+	float len = 20;
+	if (stagNo == 2 ){
+		if (rand() % 2 == 0) {
+			stagNo = 1;
+		}
+	    len = 10;
+	}
 	for (int i = 0; i < MAX_ROOT_POINT; i++) {
-		SetTerritory(rootPoint[i], 20);
+		SetTerritory(rootPoint[stagNo][i], len);
 		SetRandomTargetPosition();
-		rootPoint[i] = targetPosition;
+		rootPoint[stagNo][i] = targetPosition;
 	}
 	enemyType = EnemyType::Bag;
 
@@ -248,7 +256,7 @@ void EnemyBag::TargetUpdate() {
 	}
 	else
 	{
-		targetPosition = rootPoint[rootNo];
+		targetPosition = rootPoint[stagNo][rootNo];
 	}
 	
 }
