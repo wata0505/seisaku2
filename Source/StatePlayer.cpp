@@ -611,7 +611,7 @@ void AttackState::Execute(float elapsedTime)
     {
         
         // 武器とエネミーの衝突処理
-        owner->CollisionNodeVsEnemies(owner->weponRadius, owner->knockBackpow, owner->attackDamage, owner->attackInvincibleTime);
+        owner->CollisionNodeVsEnemies(2.0f, owner->knockBackpow, owner->attackDamage, owner->attackInvincibleTime);
     }
     if (animationTime <= owner->attackEnd + 0.2 && animationTime >= owner->attackEnd  && !owner->effectflag) {
         if (owner->attackDamage > 1) {

@@ -20,7 +20,7 @@ InstancingSpriteManager::InstancingSpriteManager()
 
 	//texSprite[InstancingSprite::TexNull] = std::make_unique<Sprite>(L".\\resources\\Effect\\Texture\\dummy.png");
 	texSprite[InstancingSprite::FlameBreath] = EffectTexAll::Instance().GetSprite((int)EffectTexAll::EfTexAll::Flame);
-	texSprite[InstancingSprite::SeirlConvergence] = EffectTexAll::Instance().GetSprite((int)EffectTexAll::EfTexAll::Sumi);
+	texSprite[InstancingSprite::SeirlConvergence] = EffectTexAll::Instance().GetSprite((int)EffectTexAll::EfTexAll::Impact);
 	texSprite[InstancingSprite::VortexDiffusion] = texSprite[InstancingSprite::SeirlConvergence];
 
 }

@@ -185,7 +185,7 @@ void Enemy::UpdateHorizontalMove(float elapsedTime) {
 }
 void Enemy::UpdateRnderflag() {
 	//ƒJƒƒ‰‚Åì‚Á‚½ŒÊ‚Ì’†‚É‚¢‚éƒ‚ƒfƒ‹‚¾‚¯•`‰æ‚·‚é
-	if(Player::Instance().GetPosition().y <= position.y) {
+	//if(Player::Instance().GetPosition().y <= position.y) {
 	renderflag = Collision::IntersectFanVsSphere(
 		Camera::Instance().GetEye(),
 		Camera::Instance().GetFront(),
@@ -193,7 +193,7 @@ void Enemy::UpdateRnderflag() {
 		Camera::Instance().GetFarZ(),
 		position,
 		radius);
-     }
+    // }
 }
 
 

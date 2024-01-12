@@ -459,7 +459,18 @@ void Character::UpdateHorizontalMove(float elapsedTime)
 			position.x += mx;
 			position.z += mz;
 		}
-
+		if (position.z < -139) {
+			position.z = -139;
+		}
+		if (position.z > 59) {
+			position.z = 59;
+		}
+		if (position.x > 159) {
+			position.x = 159;
+		}
+		if (position.x < 41) {
+			position.x = 41;
+		}
 	}
 }
 

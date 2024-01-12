@@ -45,6 +45,7 @@ void SceneGame::Initialize()
 	//DirectX::XMFLOAT3 objPos[3] = { { 50,-4,-50 },{60,-4,17},{130,-4,-80} };
 	//float objAngle[3] = { 0,90,-45 };
 	int s = SceneManager::Instance().GetStage();
+	//DirectX::XMFLOAT3 objPos[3][3] = { {{ 50,-4,-50 },{60,-4,17},{140,-4,-80}},{{ 115,-4,-50 },{115,-4,-20},{115,-45,-80}},{{0,-4,-70 },{0,-4,-70},{115,-45,-80}} }; //オブジェクト位置//
 	for (int i = 0; i < 3; i++) {
 		StageObj* stageObj = new StageObj(objPos[s][i], objAngleY[s][i], objAngleZ[s][i]);
 		stageManager.Register(stageObj);
@@ -65,8 +66,8 @@ void SceneGame::Initialize()
 	//カメラコントローラー初期化
 	//cameraController = std::make_unique <CameraController>();
 	float gaugeWidth = 500.0f;
-	float gaugeHeight = 300.0f;
-	BaseUI* hpWaku = new BaseUI(L".\\resources\\kaba2.png", 10.0f, 495.0f, gaugeWidth * 1.1f, gaugeHeight * 1.1f);
+	float gaugeHeight = 500.0f;
+	BaseUI* hpWaku = new BaseUI(L".\\resources\\kaba2.png", 10.0f, 395.0f, gaugeWidth * 0.9f, gaugeHeight * 0.9f);
 	DirectX::XMFLOAT3 pos = { 100.0f, -2.5f, -139.975f };
 	player = std::make_unique<Player>();
 	base = std::make_unique<Base>(pos);
