@@ -417,7 +417,7 @@ bool EnemyBag::SearchTrap()
 	for (int i = 0; i < count; i++)
 	{
 		Trap* trap = TrapManager::Instance().GetTrap(i);
-		if (trap->GetHologramTimer() >= 1)
+		if (trap->GetHologramTimer() < 1)
 		{
 			continue;
 		}
@@ -450,12 +450,19 @@ bool EnemyBag::SearchTrap()
 				dist = d;
 				targetPosition = trap->GetPosition();
 
-				return true;
+				
 			}
 		}
 	}
-	targetNo = 0;
-	return false;
+	if (dist != searchRange)//“G‚ªŒ©‚Â‚©‚Á‚Ä‚¢‚½‚ç
+	{
+		return true;
+	}
+	else
+	{
+		targetNo = 0;
+		return false;
+	}
 }
 //ƒvƒŒƒCƒ„[‚Ö‚Ì•ûŒü‚ğæ“¾‚·‚é
 DirectX::XMFLOAT2 EnemyBag::ForwardToPlayer() {
