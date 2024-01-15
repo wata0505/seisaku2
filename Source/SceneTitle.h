@@ -6,10 +6,7 @@
 #include "SubFramebuffer.h"
 #include "Shadowbuffer.h"
 #include "FullscreenQuad.h"
-#include "AudioAll.h"
-#include "EffectAll.h"
 #include "Player.h"
-#include "MetaAI.h"
 #include "Base.h"
 #include "CameraController.h"
 
@@ -22,18 +19,21 @@ public:
 	~SceneTitle() override {}
 
 	// 初期化
-	void Initialize()override;
+	void Initialize() override;
 
 	// 終了化
-	void Finalize()override;
+	void Finalize() override;
 
 	// 更新処理
-	void Update(float elapsedTime)override;
+	void Update(float elapsedTime) override;
 
 	// 描画処理
-	void Render()override;
+	void Render() override;
 
 private:
+	// テクスチャ関連の更新処理
+	void UpdateTextureData(float elapsedTime);
+
 	// ImGui描画処理
 	void ImGuiRender();
 
@@ -44,7 +44,7 @@ private:
 		TitleStart,	// タイトル開始
 		NotSelect,	// 非選択
 		Select,		// 選択
-		StageSelect,//ステージ選択
+		StageSelect,// ステージ選択
 	};
 
 	// ゲームモード
@@ -94,7 +94,10 @@ private:
 		TutorialText,	// チュートリアル
 		Stage1,
 		Stage2,
-        Stage3,
+		Stage3,
+        StageTextFrame,
+		StageBack,
+		CyberCircle,
 
 		SMax
 	};
@@ -110,26 +113,32 @@ private:
 	std::shared_ptr<Sprite>							renderSprite;									// 画面に出力するテクスチャ
 	std::shared_ptr<Sprite>							spriteBatchs[SpriteKind::SMax];					// タイトルでのテクスチャ
 	std::unique_ptr<Player>							player = nullptr;								// プレイヤー
-	std::unique_ptr<Meta>							meta = nullptr;									// MetaAI
 	std::unique_ptr<Base>							tower = nullptr;								// タワー
 	std::unique_ptr<CameraController>				cameraController = nullptr;						// カメラコントローラー
 	float											shadowDrawRect = 10.0f;							// シャドウマップに描画する範囲
 	float											titleDissolveTimer = 0;							// タイトルログ&決定テクスチャのディゾルブ時間
 	float											textDissolveTimer = 0;							// ゲーム&チュートリアルテクスチャのディゾルブ時間
 	float											skyboxTimer = 0.0f;								// スカイボックス経過時間
-	float											dropPositionY = 0.0f;							// 非選択のゲームモードを蹴落とす位置
 	float											punchPosition = 0.0f;							// 殴りによる位置調整
 	float											punchScale = 1.0f;								// 殴りによるサイズ調整
 	float											lerpScale = 0.0f;								// ゲーム&チュートリアルテクスチャのサイズ調整
 	float											punchRotate = 0.0f;								// 殴りによる回転値
+	float											waitPunchTimer = 0.0f;							// ディゾルブ入るまでの遅延時間
 	float											cosRadian = 0.0f;								// ゲーム&チュートリアルテクスチャを回転させる角度
+	float											skyboxColor = 0.0f;								// スカイボックスの色判定
+	float											deltaTime = 0.0f;								// Renderで使う処理速度
+	float											selectTextureScale[3] = { 0.5f, 0.5f, 0.5f };	// ステージ毎の線形補完サイズ
+	float											stageTexturePositionY[3] = { 0.0f, 0.0f, 0.0f };// ステージ毎のテクスチャのY位置
+	float											selectFrameTextureScale[3] = { 0.5f, 0.5f, 0.5f };// ステージテクスチャの枠の線形補完サイズ(未使用)
+	float											rotateTimer = 0.0f;								// サイバーサークルテクスチャの回転時間
+	float											cyberRotate = 0.0f;								// ゲームモード選択中のサイバーサークルテクスチャの線形補完回転
+	float											cyberAlpha = 0.0f;								// サイバーサークルテクスチャのアルファ値
 	int												progressTimer = 0;								// 経過時間
 	int												titleMode = 0;									// タイトルモード
 	int												gameMode = 0;									// ゲームモード
 	int												stageMode = 0;									// ステージモード
 	int                                             stagNo = 0;   //現在のステージ
 	int                                             stagMaxNo = 0;//最大ステージ数
-	float skyboxColor = 0.0f;
 	// ジッタードリフト定数バッファ
 	struct JitterDriftConstantBuffer
 	{

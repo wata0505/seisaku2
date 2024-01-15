@@ -173,6 +173,52 @@ void CameraController::TitleUpdate(float elapsedTime)
 	//カメラに視点を注視点を設定
 	Camera::Instance().SetLookAt(eye, target, DirectX::XMFLOAT3(0, 1, 0));
 }
+void CameraController::EntryUpdate(float elapsedTime)
+{
+	//カメラの回転速度
+	float speed = rollSpeed * elapsedTime;
+
+	entryTimer += elapsedTime * 0.5f;
+	if (entryTimer >= 1.0f)
+	{
+		entryTimer = 1.0f;
+	}
+	if (Player::Instance().GetScanTimer() <= 0.0f)
+	{
+		entryTimer = 0.0f;
+	}
+	angle.x = Mathf::Lerp(-XM_1DIVPI, XM_1DIV2PI, Player::Instance().GetHologramTimer());
+	angle.y = Mathf::Lerp(0.0f, -DirectX::XM_2PI, entryTimer);
+	//カメラ回転値を回転行列に変換
+	DirectX::XMMATRIX Transform = DirectX::XMMatrixRotationRollPitchYaw(angle.x, angle.y, angle.z);
+
+	//回転行列から前方向ベクトルを取り出す
+	DirectX::XMVECTOR Front = Transform.r[2];
+	DirectX::XMFLOAT3 front;
+	DirectX::XMStoreFloat3(&front, Front);
+	range = Mathf::Lerp(range, rangeMax, correction);
+	//注視点から後ろベクトル方向に一定距離離れたカメラ視点を求める
+	DirectX::XMFLOAT3 eye;
+	eye.x = target.x - (front.x * range);
+	eye.y = target.y - (front.y * range);
+	eye.z = target.z - (front.z * range);
+
+	//0に線形補完
+	heightRange = Mathf::Lerp(heightRange, 0, correction);
+	target.y += heightRange;
+	//0に線形補完
+	eyeheight = Mathf::Lerp(eyeheight, 0, correction);
+	eye.y += eyeheight;
+	//最小値で線形補完
+	cameraEye.x = Mathf::Lerp(cameraEye.x, eye.x, correction * correctionSpeed);
+	//最小値で線形補完
+	cameraEye.y = Mathf::Lerp(cameraEye.y, eye.y, correction * correctionSpeed);
+	//最小値で線形補完
+	cameraEye.z = Mathf::Lerp(cameraEye.z, eye.z, correction * correctionSpeed);
+	//ShakeUpdate(cameraEye, elapsedTime);
+	//カメラに視点を注視点を設定
+	Camera::Instance().SetLookAt(eye, target, DirectX::XMFLOAT3(0, 1, 0));
+}
 void CameraController::Update2(float elapsedTime, DirectX::XMFLOAT3 front, float Length)
 {
 	//距離限界値判定
@@ -278,7 +324,7 @@ void CameraController::Update2(float elapsedTime, DirectX::XMFLOAT3 front, float
 	DirectX::XMFLOAT3 dir = Vector3::Subset(target2,eye);
 	dir = Vector3::Normalize(dir);
 	//敵とカメラの半分の位置を高さ取得
-	dir.y = (dir.y * range)*0.5;
+	dir.y = (dir.y * range)*0.5f;
 	//半分の高さを線形補完
 	heightRange= Mathf::Lerp(heightRange, dir.y, correction);
 	//注視点の高さに代入

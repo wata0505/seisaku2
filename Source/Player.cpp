@@ -134,7 +134,8 @@ Player::Player() {
 Player::~Player()
 {
 }
-void Player::update(float elapsedTime) {
+void Player::update(float elapsedTime) 
+{
     timer += elapsedTime;
     if (stateMachine->GetStateNum() == static_cast<int>(State::Damage) || stateMachine->GetStateNum() == static_cast<int>(State::Down) || stateMachine->GetStateNum() == static_cast<int>(State::Dead))
     {
@@ -154,7 +155,7 @@ void Player::update(float elapsedTime) {
     //DrawDebugPrimitive();
     //SetWepon();
     float ElapsedTime = elapsedTime * modelSpeed;
-    if (quickFlag) ElapsedTime *= 0.6;
+    if (quickFlag) ElapsedTime *= 0.6f;
     if (attackHitflag) ElapsedTime *= attackHitPow;
     animeTimer = ElapsedTime;
     //ロックオンカメラ
@@ -231,18 +232,14 @@ void Player::TitleUpdate(float elapsedTime)
     {
     case TitleState::TitleDefault:
         break;
-    case TitleState::TitleSelect:
-        break;
     case TitleState::TitlePunchStart:
+    {
         stateMachine->ChangeSubState(static_cast<int>(Player::State::Attack));//着地
         player->PlayAnimation(WeponCombo[3], false);
         titleState = TitleState::TitlePunchNow;
+    }
     case TitleState::TitlePunchNow:
     {
-        if (!player->IsPlayAnimation())
-        {
-            titleState = TitleState::TitleKickStart;
-        }
         animationTimer = player->GetCurrentAnimationSeconds();
         float nextStateTimer = 0.8f;
         if (animationTimer >= nextStateTimer)
@@ -252,69 +249,19 @@ void Player::TitleUpdate(float elapsedTime)
     }
     break;
     case TitleState::TitlePunchReverberation:
-        if (!player->IsPlayAnimation())
-        {
-            titleState = TitleState::TitleKickStart;
-        }
-        break;
-    case TitleState::TitleKickStart:
-        stateMachine->ChangeSubState(static_cast<int>(Player::State::Attack));//着地
-        player->PlayAnimation(WeponCombo[2], false);
-        titleState = TitleState::TitleKickNow;
-        break;
-    case TitleState::TitleKickNow:
-    {
-        if (!player->IsPlayAnimation())
-        {
-            titleState = TitleState::TitleSelect;
-        }
-        animationTimer = player->GetCurrentAnimationSeconds();
-        float nextStateTimer = 0.68f;
-        if (animationTimer >= nextStateTimer)
-        {
-            titleState = TitleState::TitleKickReverberation;
-        }
-    }
-    break;
-    case TitleState::TitleKickReverberation:
-        if (!player->IsPlayAnimation())
-        {
-            titleState = TitleState::TitleSelect;
-        }
-        break;
+        break;    
     }
 
     timer += elapsedTime;
-    if (stateMachine->GetStateNum() == static_cast<int>(State::Damage) || stateMachine->GetStateNum() == static_cast<int>(State::Down) || stateMachine->GetStateNum() == static_cast<int>(State::Dead))
-    {
-        lerpGlitchIntensity = 1.0f;
-    }
-    else
-    {
-        lerpGlitchIntensity = 0.0f;
-    }
-    glitchIntensity = Mathf::Lerp(glitchIntensity, lerpGlitchIntensity, elapsedTime * 20.0f);
     player->ShaderAdjustment(adjustMetalness, adjustSmoothness, glitchScale, timer, maxHeight, hologramColor);
-
-    if (health <= 0)
-    {
-        hologramBorder = 20.0f;
-    }
-
     float ElapsedTime = elapsedTime * modelSpeed;
-    if (quickFlag) ElapsedTime *= 0.6;
-    if (attackHitflag) ElapsedTime *= attackHitPow;
     animeTimer = ElapsedTime;
-
-    //ステートマシン更新
-    if (titleState == TitleState::TitleSelect)
-        stateMachine->Update(elapsedTime);
 
     // ホログラムシェーダー実行中フラグが付いていれば
     if (!isActiveStart)
     {
         // ホログラムシェーダー更新処理
-        isActiveStart = UpdateHologramShader(elapsedTime);
+        isActiveStart = UpdateHologramShader(elapsedTime * 2.0f);
 
         animeTimer = 0.0f;
     }
@@ -328,17 +275,6 @@ void Player::TitleUpdate(float elapsedTime)
     UpdateTransform((int)Character::AxisType::RHSYUP, (int)Character::LengthType::Cm);
     //描画情報更新
     player->UpdateBufferDara(transform);
-
-    if (!isActiveStart)
-    {
-        return;
-    }
-
-    //描画してたら当たり判定
-    if (renderflag)
-    {
-        CollisionPlayerVsEnemies();
-    }
 }
 void Player::AudioUpdate() {
     //移動以外ならダッシュSEストップ
@@ -407,154 +343,165 @@ void Player::DirToLength(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 target, Direct
     length = DirectX::XMVectorGetX(D);
     DirectX::XMStoreFloat3(&dir, N);
 }
-void Player::ComeTerget(float elapsedTime) {
-    //エネミーへの方向ベクトル  
-    DirectX::XMFLOAT3 enemydir = {};
-    //ターゲット位置
-    DirectX::XMFLOAT3 target = {};
-    //一番近くの敵をターゲットにする
-    EnemyManager& enemyManager = EnemyManager::Instance();
-    float dist = FLT_MAX;
-    float d = 0;
-    //エネミー数
-    int enemyCount = enemyManager.GetEnemyCount();
-    if (fallDeath)return;
-    if (enemyCount == 0 ) { // ロックオンする敵がいない
+void Player::ComeTerget(float elapsedTime) 
+{
+    if (!isActiveStart)
+    {
         DirectX::XMFLOAT3 camePos = position;
         camePos.y += height;
         cameraController->SetTarget(camePos);
-        cameraController->Update(elapsedTime);
-        return;
+        cameraController->EntryUpdate(elapsedTime);
     }
-    GamePad& gamePad = Input::Instance().GetGamePad();
-    float ax = gamePad.GetAxisRX();
-    int x = 0;
-    if (ax > 0.5) x = 1;  //右ステック入力設定
-    if (ax < -0.5) x = -1;//右ステック入力設定
-    if (gamePad.GetButtonDown() & GamePad::BTN_RIGHT_THUMB) {//右ステック押し込み
-        locklength = !locklength;//ロックオン状態変化
-        fistlock = true;//始めてロックオン
-    }
-    Enemy* enemy = nullptr;
-    switch (x)
+    else
     {
-        //ロックオン入力リセット
-    case 0:
-        lockflag = false;
-        break;
-        //次のロックオンターゲットへ
-    case 1:
-        if (lockflag)break;//右ステック入力され続づけてたら
-        if (!locklength)break;//ロックオン状態じゃないなら
-        enemyLock++;
-        if (enemyLock >= enemyCount) enemyLock = 0;//ロックオン対象がエネミー数を超えたら0に
-        lockflag = true; //右ステック入力されたか
-        enemy = enemyManager.GetEnemy(enemyLock);//エネミー取得
-        while (enemy->GetHealth() <= 0 || !enemy->GetActiveflag()) {//エネミーのHPがあるか、アクティブになっているか
+        //エネミーへの方向ベクトル  
+        DirectX::XMFLOAT3 enemydir = {};
+        //ターゲット位置
+        DirectX::XMFLOAT3 target = {};
+        //一番近くの敵をターゲットにする
+        EnemyManager& enemyManager = EnemyManager::Instance();
+        float dist = FLT_MAX;
+        float d = 0;
+        //エネミー数
+        int enemyCount = enemyManager.GetEnemyCount();
+        if (fallDeath)return;
+        if (enemyCount == 0) { // ロックオンする敵がいない
+            DirectX::XMFLOAT3 camePos = position;
+            camePos.y += height;
+            cameraController->SetTarget(camePos);
+            cameraController->Update(elapsedTime);
+            return;
+        }
+        GamePad& gamePad = Input::Instance().GetGamePad();
+        float ax = gamePad.GetAxisRX();
+        int x = 0;
+        if (ax > 0.5) x = 1;  //右ステック入力設定
+        if (ax < -0.5) x = -1;//右ステック入力設定
+        if (gamePad.GetButtonDown() & GamePad::BTN_RIGHT_THUMB) {//右ステック押し込み
+            locklength = !locklength;//ロックオン状態変化
+            fistlock = true;//始めてロックオン
+        }
+        Enemy* enemy = nullptr;
+        switch (x)
+        {
+            //ロックオン入力リセット
+        case 0:
+            lockflag = false;
+            break;
+            //次のロックオンターゲットへ
+        case 1:
+            if (lockflag)break;//右ステック入力され続づけてたら
+            if (!locklength)break;//ロックオン状態じゃないなら
             enemyLock++;
             if (enemyLock >= enemyCount) enemyLock = 0;//ロックオン対象がエネミー数を超えたら0に
-            enemy = enemyManager.GetEnemy(enemyLock);
-        }
-        enemyId = enemy->GetId();//ID取得
-        break;
-        //前のロックオンターゲットへ
-    case -1:
-        if (lockflag)break;//右ステック入力され続づけてたら
-        if (!locklength)break;//ロックオン状態じゃないなら
-        enemyLock--;
-        lockflag = true;//右ステック入力されたか
-        if (enemyLock < 0) enemyLock = enemyCount - 1;//ロックオン対象が0より下なら最大数
-        enemy = enemyManager.GetEnemy(enemyLock);
-        while (enemy->GetHealth() <= 0 || !enemy->GetActiveflag()) {//エネミーのHPがあるか、アクティブになっているか
+            lockflag = true; //右ステック入力されたか
+            enemy = enemyManager.GetEnemy(enemyLock);//エネミー取得
+            while (enemy->GetHealth() <= 0 || !enemy->GetActiveflag()) {//エネミーのHPがあるか、アクティブになっているか
+                enemyLock++;
+                if (enemyLock >= enemyCount) enemyLock = 0;//ロックオン対象がエネミー数を超えたら0に
+                enemy = enemyManager.GetEnemy(enemyLock);
+            }
+            enemyId = enemy->GetId();//ID取得
+            break;
+            //前のロックオンターゲットへ
+        case -1:
+            if (lockflag)break;//右ステック入力され続づけてたら
+            if (!locklength)break;//ロックオン状態じゃないなら
             enemyLock--;
+            lockflag = true;//右ステック入力されたか
             if (enemyLock < 0) enemyLock = enemyCount - 1;//ロックオン対象が0より下なら最大数
             enemy = enemyManager.GetEnemy(enemyLock);
+            while (enemy->GetHealth() <= 0 || !enemy->GetActiveflag()) {//エネミーのHPがあるか、アクティブになっているか
+                enemyLock--;
+                if (enemyLock < 0) enemyLock = enemyCount - 1;//ロックオン対象が0より下なら最大数
+                enemy = enemyManager.GetEnemy(enemyLock);
+            }
+            enemyId = enemy->GetId();//ID取得
         }
-        enemyId = enemy->GetId();//ID取得
-    }
-    //ロックオン入力がされたら
-    if (locklength) {
-        //始めてロックオン入力されたら最も近い敵をロックオン
-        if(!fistlock)
-        {
-            enemy = enemyManager.GetEnemyFromId(enemyId);
-            if(enemy->GetHealth() <= 0 || !enemy->GetActiveflag()) {//エネミーのHPがあるか、アクティブになっているか
-                fistlock = true;  
-            }
-            DirToLength(position, { enemy->GetPosition().x,position.y,enemy->GetPosition().z }, enemydir, enemyLength);
-            //距離で判定
-            if (enemyLength < 6000) {
-                target = enemy->GetPosition();
-                //target.y += enemy->GetHeight() * 0.5;
-                dir = enemydir;
-                lockOn = true;
-                epos = enemy->GetEfPos();
-                dist = enemyLength;
-            }
-            else
+        //ロックオン入力がされたら
+        if (locklength) {
+            //始めてロックオン入力されたら最も近い敵をロックオン
+            if (!fistlock)
             {
-                fistlock = true;
-            }
-        }
-        if(fistlock){//始めてのロックオン
-            dist = FLT_MAX;
-            for (int i = 0; i < enemyCount; i++) {
-                enemy = enemyManager.GetEnemy(i);
-                if (enemy->GetHealth() <= 0 || !enemy->GetActiveflag()) continue;
+                enemy = enemyManager.GetEnemyFromId(enemyId);
+                if (enemy->GetHealth() <= 0 || !enemy->GetActiveflag()) {//エネミーのHPがあるか、アクティブになっているか
+                    fistlock = true;
+                }
                 DirToLength(position, { enemy->GetPosition().x,position.y,enemy->GetPosition().z }, enemydir, enemyLength);
-                float a = enemyLength;
-                if (d == 0) d = a;//距離代入
                 //距離で判定
-                if (a < 4000) {
-                    if (a < dist)
-                    {
-                        dist = a;
-                        target = enemy->GetPosition();
-                        //target.y += enemy->GetHeight() * 0.5f;
-                        enemyId = enemy->GetId();
-                        epos = enemy->GetEfPos();
-                        dir = enemydir;
-                        lockOn = true;
-                    }
+                if (enemyLength < 6000) {
+                    target = enemy->GetPosition();
+                    //target.y += enemy->GetHeight() * 0.5;
+                    dir = enemydir;
+                    lockOn = true;
+                    epos = enemy->GetEfPos();
+                    dist = enemyLength;
+                }
+                else
+                {
+                    fistlock = true;
                 }
             }
-            fistlock = false;
-            if (dist == FLT_MAX) {
-                lockOn = false;
-                locklength = false;
-                fistlock = true;
+            if (fistlock) {//始めてのロックオン
+                dist = FLT_MAX;
+                for (int i = 0; i < enemyCount; i++) {
+                    enemy = enemyManager.GetEnemy(i);
+                    if (enemy->GetHealth() <= 0 || !enemy->GetActiveflag()) continue;
+                    DirToLength(position, { enemy->GetPosition().x,position.y,enemy->GetPosition().z }, enemydir, enemyLength);
+                    float a = enemyLength;
+                    if (d == 0) d = a;//距離代入
+                    //距離で判定
+                    if (a < 4000) {
+                        if (a < dist)
+                        {
+                            dist = a;
+                            target = enemy->GetPosition();
+                            //target.y += enemy->GetHeight() * 0.5f;
+                            enemyId = enemy->GetId();
+                            epos = enemy->GetEfPos();
+                            dir = enemydir;
+                            lockOn = true;
+                        }
+                    }
+                }
+                fistlock = false;
+                if (dist == FLT_MAX) {
+                    lockOn = false;
+                    locklength = false;
+                    fistlock = true;
+                }
             }
         }
-    }
-    else
-    {
-        lockOn = false;
-        dir.x = sinf(angle.y);
-        dir.z = cosf(angle.y);
-    }
-    //ロックオンしてるならカメラ設定
-    DirectX::XMFLOAT3 camePos = position;
-    if(state == Attack){
-      //camePos.y = SearchNodePos("root_x").y;
-      camePos.y += height;
-    }
-    else
-    {
-        camePos.y = position.y;
-        camePos.y += height;
-    }
-    cameraController->SetRangeMax(cameraRange);
-    cameraController->SetCorrectionSpeed(correctionSpeed);
-    cameraController->SetTarget(camePos);
-    if (lockOn) {
-        cameraController->SetTarget2(target);
-        enemyLength = dist;
-        dist *= 0.1;//距離補正
-        cameraController->Update2(elapsedTime, { dir.x,NULL,dir.z }, dist);
-    }
-    else {
-        cameraController->Update(elapsedTime);
-    }
+        else
+        {
+            lockOn = false;
+            dir.x = sinf(angle.y);
+            dir.z = cosf(angle.y);
+        }
+        //ロックオンしてるならカメラ設定
+        DirectX::XMFLOAT3 camePos = position;
+        if (state == Attack) {
+            //camePos.y = SearchNodePos("root_x").y;
+            camePos.y += height;
+        }
+        else
+        {
+            camePos.y = position.y;
+            camePos.y += height;
+        }
+        cameraController->SetRangeMax(cameraRange);
+        cameraController->SetCorrectionSpeed(correctionSpeed);
+        cameraController->SetTarget(camePos);
+        if (lockOn) {
+            cameraController->SetTarget2(target);
+            enemyLength = dist;
+            dist *= 0.1f;//距離補正
+            cameraController->Update2(elapsedTime, { dir.x,NULL,dir.z }, dist);
+        }
+        else {
+            cameraController->Update(elapsedTime);
+        }
+    }   
 }
 
 
@@ -774,7 +721,7 @@ void Player::SlashInput() {
         //dot = acosf(dot);
         //if (hitdir.x < 0)dot *= -1;//方法が左なら角度反転
         ProjectileStraite* projectile = new ProjectileStraite(&objectManager);
-        projectile->Launch(slash, height / 2, 4.0, 0.2, Type::Straight, (int)EffectTexAll::EfTexAll::Metal, 2, 5, 0.5);
+        projectile->Launch(slash, height * 0.5f, 4.0f, 0.2f, Type::Straight, (int)EffectTexAll::EfTexAll::Metal, 2, 5, 0.5f);
         projectile->SetScale(slashScale);
         //projectile->SetDirectionUp({-attackDir.z,dot,attackDir.x});
         //if (combo == WeponComboMax[weponType]) {//コンボ最後追加斬撃＋１
@@ -836,8 +783,8 @@ void Player::ButtonWeponChange(int type) {
 void Player::SetShakeInput(DirectX::XMFLOAT3 dir,float damage) {
     //カメラシェイク情報入力
     cameraController->SetHitPow(damage);
-    if(lockOn)cameraController->SetHitPow(damage*1.5);
-    cameraController->SetHitTimer(damage*0.5);
+    if(lockOn)cameraController->SetHitPow(damage*1.5f);
+    cameraController->SetHitTimer(damage*0.5f);
     cameraController->SetHitDir(dir);
 }
 void Player::HitInput(float damage, float invincibleTime) {
@@ -852,7 +799,7 @@ void Player::HitInput(float damage, float invincibleTime) {
     //}
     attackHitflag = true;
     //wepon->Exhaustion(damage);//消耗
-    hitInvincibleTime = damage*0.05;
+    hitInvincibleTime = damage*0.05f;
     //攻撃方向にカメラシェイク
     //DirectX::XMFLOAT3 hitdir = Vector3::Subset(swordTrail->GetTrail(swordFlame), wepon->GetWeaponEFPoint());
     //hitdir = Vector3::Normalize(hitdir);
@@ -924,14 +871,14 @@ void Player::InputProjectile()
         float h = 0;
     		// 発射
             for (int i = 1; i < 5; i++) {
-                h = 0.4*i;
+                h = 0.4f*i;
                 ProjectileStraite* projectile = new ProjectileStraite(&objectManager);
-                projectile->Launch(beem,h,2.5 - 0.5 * i, angle.y, Type::Beem, (int)EffectTexAll::EfTexAll::BlueThader, 2 + 0.1 * i,1,0.0f);
+                projectile->Launch(beem,h,2.5f - 0.5f * i, angle.y, Type::Beem, (int)EffectTexAll::EfTexAll::BlueThader, 2 + 0.1f * i,1,0.0f);
             }
             for (int i = 1; i < 5; i++) {
-                h = 0.4 * i;
+                h = 0.4f * i;
                 ProjectileStraite* projectile = new ProjectileStraite(&objectManager);
-                projectile->Launch(beem, h,2.5 -0.5 * i, angle.y, Type::Beem, (int)EffectTexAll::EfTexAll::BlueThader,2 + 0.1* i, 1, 0.0f,true);
+                projectile->Launch(beem, h,2.5f -0.5f * i, angle.y, Type::Beem, (int)EffectTexAll::EfTexAll::BlueThader,2 + 0.1f* i, 1, 0.0f,true);
             }
     }
     //if (gamePad.GetButtonDown() & GamePad::BTN_B && mp > swordMp && skillCoolTime[ProjectileRotate] <= 0.0f)
@@ -951,11 +898,8 @@ void Player::InputProjectile()
     {
         skillCoolTime[ProjectileRotate] = skillCoolTimeDefault[ProjectileRotate];
         mp -= swordMp;
-        DirectX::XMFLOAT3 pos;
         int rnd = 0;
         for (int i = 0; i < 30; i++) {
-            // 前方向
-            DirectX::XMFLOAT3 dir;
             rnd = rand() % 4;
             // 発射
             ProjectileStraite* projectile = new ProjectileStraite(&objectManager);
@@ -966,18 +910,14 @@ void Player::InputProjectile()
 // 移動入力処理
 bool Player::InputMove(float elapsedTime)
 {
-    if (titleState != TitleState::TitleSelect)
-    {
-        //進行ベクトル取得
-        DirectX::XMFLOAT3 moveVec = GetMoveVec();
-        //移動処理
-        MoveInput(moveVec.x, moveVec.z, moveSpeed);
-        //旋回処理
-        Turn(elapsedTime, moveVec.x, moveVec.z, turnSpeed);
+    //進行ベクトル取得
+    DirectX::XMFLOAT3 moveVec = GetMoveVec();
+    //移動処理
+    MoveInput(moveVec.x, moveVec.z, moveSpeed);
+    //旋回処理
+    Turn(elapsedTime, moveVec.x, moveVec.z, turnSpeed);
 
-        return moveVec.x != 0.0f || moveVec.y != 0.0f || moveVec.z != 0.0f;
-    }
-    return 0;
+    return moveVec.x != 0.0f || moveVec.y != 0.0f || moveVec.z != 0.0f;
 }
 //ステック入力処理
 bool Player::InputStick(float elapsedTime)
@@ -1126,7 +1066,7 @@ void Player::DrawDebugGUI()
 {
     ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_FirstUseEver);
-
+    cameraController->DrawDebugGUI();
     if (ImGui::Begin("Player", nullptr, ImGuiWindowFlags_None))
     {
         ImGui::SliderFloat("nextStateTimer", &nextStateTimer, 0.0f, 5.0f);
@@ -1337,15 +1277,15 @@ void Player::CollisionNodeVsEnemies(float nodeRadius,DirectX::XMFLOAT2 pow, floa
                 enemyPosition,
                 enemy->GetRadius(),impulse))
             {
-                if (enemy->ApplyDamage(Damage, InvincibleTime)) {
+                if (enemy->ApplyDamage(static_cast<int>(Damage), InvincibleTime)) {
                     //ノックバック
                     KnockBack(*enemy, this->position, enemy->GetPosition(), pow.x, pow.y);
                     //ヒット情報入力処理
                     HitInput(Damage, InvincibleTime);
                     //DirectX::XMFLOAT3 trailDir = GetSlashDir();
                     //ヒットエフェクト
-                    ParticleSprite* particleSprite = new ParticleSprite(node, {0,0,0}, ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Sumi),500, 0.4, 0, true, 0.002,0.03, { 1,1,1,1 });
-                    particleSprite = new ParticleSprite(node, {0,0,0}, ParticleSprite::ParticleImpact, ParticleSprite::Expansion, int(EffectTexAll::EfTexAll::Impact), 1, 0.3, 0.1);
+                    ParticleSprite* particleSprite = new ParticleSprite(node, {0,0,0}, ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Sumi),500, 0.4f, 0, true, 0.002f,0.03f, { 1,1,1,1 });
+                    particleSprite = new ParticleSprite(node, {0,0,0}, ParticleSprite::ParticleImpact, ParticleSprite::Expansion, int(EffectTexAll::EfTexAll::Impact), 1, 0.3f, 0.1f);
                     if (enemy->GetBarrierFlag()) {
                         //particleSprite = new ParticleSprite(enemyPosition, wepon->GetWeaponEFPoint(), ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Distortion), 1000, 0.5);
                         particleSprite = new ParticleSprite(enemyPosition, {NULL,NULL,NULL}, ParticleSprite::ParticleTriangle, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Distortion), 1000, 0.5,1);
@@ -1387,7 +1327,7 @@ void Player::CollisionProjectilesVsEnemies()
                       
                       KnockBack(*enemy, this->position, enemy->GetPosition(), 1, 0);
                     
-                      SetShakeInput({ NULL,1,NULL }, object->GetDamage());//カメラシェイク
+                      SetShakeInput({ NULL,1,NULL }, static_cast<float>(object->GetDamage()));//カメラシェイク
                       if (object->GetType() == Type::Straight) {
                           //ParticleSystem::Instance().BoomEffect(object->GetPosition(), 1, int(EffectTexAll::EfTexAll::Sumi), 2, { 1,1,1,1 });
                           AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::boom1)->Stop();
@@ -1395,7 +1335,7 @@ void Player::CollisionProjectilesVsEnemies()
                           //object->Destroy();
                           XMFLOAT3 start = Vector3::PosDir(object->GetPosition(), object->GetDirectionUp(), object->GetScale().x*2);
                           XMFLOAT3 end = Vector3::PosDir(object->GetPosition(), object->GetDirectionUp(), -object->GetScale().x*2);
-                          ParticleSprite* particleSprite = new ParticleSprite(start, end, ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Sumi), 2000, 1.5, 0, true, 0.005,0.06, { 1,1,1,1 });
+                          ParticleSprite* particleSprite = new ParticleSprite(start, end, ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Sumi), 2000, 1.5f, 0, true, 0.005f,0.06f, { 1,1,1,1 });
                           SetShakeInput({ 0,1,0 }, 4);
                           continue;
                       }
@@ -1404,26 +1344,22 @@ void Player::CollisionProjectilesVsEnemies()
                          // ParticleSprite* particleSprite = new ParticleSprite(object->GetPosition(), object->GetPosition(), ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::BlueThader), 1000, 1.5);
                           AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::boom1)->Stop();
                           AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::boom1)->Play(false, SE);
-                          ParticleSprite* particleSprite = new ParticleSprite(object->GetPosition(), { NULL,NULL,NULL }, ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::BlueThader), 200, 1.5, 0, true, 0.015,0.05, {0,0,1,1});
+                          ParticleSprite* particleSprite = new ParticleSprite(object->GetPosition(), { NULL,NULL,NULL }, ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::BlueThader), 200, 1.5f, 0, true, 0.015f,0.05f, {0,0,1,1});
                           SetShakeInput({0,1,0}, 2);
                           //object->Destroy();
                           continue;
                       }
                       //ランダム斬撃エフェクト
                       DirectX::XMFLOAT3 trailDir;
-                      float angle = DirectX::XMConvertToRadians(rand() % 360);
+                      float angle = DirectX::XMConvertToRadians(static_cast<float>(rand() % 360));
                       trailDir.x = sinf(angle);
                       trailDir.y = cosf(angle);
                       trailDir.z = 0;
                       //EffectAll::Instance().hitEffect->Play(object->GetPosition(), 0.1);
                       ParticleSprite* particleSprite = new ParticleSprite(object->GetPosition(), trailDir, ParticleSprite::ParticleLine, ParticleSprite::Slash, int(EffectTexAll::EfTexAll::Distortion), 1, 0.5);
                       AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Slash1)->Stop();
-                      AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Slash1)->Play(false, SE);
-                      //弾丸破棄
-                     
-                  }
-               
-                
+                      AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Slash1)->Play(false, SE);                                           
+                  }                            
             }
         }
     }
@@ -1457,7 +1393,7 @@ void Player::CollisionBoomVsEnemies()
                     outPosition))
                 {
                     // ダメージを与える
-                    if (enemy->ApplyDamage(1, 0.5));
+                    enemy->ApplyDamage(1, 0.5f);
                 }
             }
         }

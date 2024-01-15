@@ -1,22 +1,19 @@
 #include "shader.h"
 #include "SceneTitle.h"
+#include "SceneLoading.h"
+#include "SceneGame.h"
+#include "SceneTutorial.h"
+#include "SceneManager.h"
 #include "Camera.h"
 #include "StageObj.h"
 #include "StageManager.h"
-#include "EnemyManager.h"
-#include "Input.h"
 #include "SwordTrailShader.h"
-#include "EffectManager.h"
-#include "SceneGame.h"
-#include "SceneManager.h"
-#include "SceneLoading.h"
-#include "StageObj.h"
 #include "LightManager.h"
-#include "SceneTutorial.h"
+#include "Input.h"
 #include "Audio.h"
 #include "AudioAll.h"
-#include "EnemySystem.h"
-#include "EnemyBag.h"
+#include "EffectAll.h"
+#include "EffectManager.h"
 #include "Mathf.h"
 #include "RenderContext.h"
 
@@ -33,20 +30,6 @@ void SceneTitle::Initialize()
 	// オーディオ生成
 	AudioAll* audioAll = new AudioAll();
 
-	// エネミー初期化
-#if 0
-	EnemyManager& enemyManager = EnemyManager::Instance();
-	for(int i = 0; i < 1; i++) 
-	{
-		EnemyBag* bag = new EnemyBag();
-		//bag->SetPosition({ -i * 3.0f, 0.0f, -50.0f });
-		bag->SetPosition({ -i * 3.0f, 2.0f, -5.0f });
-		bag->SetTerritory(bag->GetPosition(), 10.0f);
-		//bag->SetId(0);
-		enemyManager.Register(bag);
-	}
-	meta = std::make_unique<Meta>(player.get(), &enemyManager);
-#endif
 	// ステージ生成
 	{
 		StageManager& stageManager = StageManager::Instance();
@@ -124,13 +107,16 @@ void SceneTitle::Initialize()
 		// テクスチャ
 		spriteBatchs[SpriteKind::Skybox] = std::make_unique<Sprite>(L".\\resources\\haikei\\6.png");
 		spriteBatchs[SpriteKind::Title] = std::make_unique<Sprite>(L".\\resources\\UI\\Title\\title.png");
-		spriteBatchs[SpriteKind::DecisionText] = std::make_unique<Sprite>(L".\\resources\\UI\\gamestart.png");
+		spriteBatchs[SpriteKind::DecisionText] = std::make_unique<Sprite>(L".\\resources\\UI\\Title\\GameStart.png");
 		spriteBatchs[SpriteKind::Back] = EffectTexAll::Instance().GetSprite(int(EffectTexAll::EfTexAll::Bock));
-		spriteBatchs[SpriteKind::GameStartText] = std::make_unique<Sprite>(L".\\resources\\UI\\start the story.png");
-		spriteBatchs[SpriteKind::TutorialText] = std::make_unique<Sprite>(L".\\resources\\UI\\tutorial.png");
-		spriteBatchs[SpriteKind::Stage1] = std::make_unique<Sprite>(L".\\resources\\UI\\stage1.png");
-		spriteBatchs[SpriteKind::Stage2] = std::make_unique<Sprite>(L".\\resources\\UI\\stage2.png");
-		spriteBatchs[SpriteKind::Stage3] = std::make_unique<Sprite>(L".\\resources\\UI\\stage3.png");
+		spriteBatchs[SpriteKind::GameStartText] = std::make_unique<Sprite>(L".\\resources\\UI\\Title\\StartTheStory.png");
+		spriteBatchs[SpriteKind::TutorialText] = std::make_unique<Sprite>(L".\\resources\\UI\\Title\\Tutorial.png");
+		spriteBatchs[SpriteKind::Stage1] = std::make_unique<Sprite>(L".\\resources\\UI\\Title\\Stage1.png");
+		spriteBatchs[SpriteKind::Stage2] = std::make_unique<Sprite>(L".\\resources\\UI\\Title\\Stage2.png");
+		spriteBatchs[SpriteKind::Stage3] = std::make_unique<Sprite>(L".\\resources\\UI\\Title\\Stage3.png");
+		//spriteBatchs[SpriteKind::StageTextFrame] = std::make_unique<Sprite>(L".\\resources\\UI\\stageTextFrame.png");
+		spriteBatchs[SpriteKind::StageBack] = std::make_unique<Sprite>(L".\\resources\\UI\\Title\\StageBack.png");
+		spriteBatchs[SpriteKind::CyberCircle] = std::make_unique<Sprite>(L".\\resources\\UI\\Title\\CyberCircle.png");
 		// 全てを合成するテクスチャ
 		renderSprite = std::make_unique<Sprite>();
 	}
@@ -139,7 +125,6 @@ void SceneTitle::Initialize()
 void SceneTitle::Finalize()
 {
 	StageManager::Instance().clear();
-	EnemyManager::Instance().Clear();
 	LightManager::Instance().Clear();
 }
 
@@ -153,63 +138,51 @@ void SceneTitle::Update(float elapsedTime)
 	player->TitleUpdate(elapsedTime);
 	// タワー更新処理
 	tower->Update(elapsedTime);
-	// エネミー更新処理
-	EnemyManager::Instance().Update(elapsedTime);
 	// カメラコントローラー更新処理
 	cameraController->TitleUpdate(elapsedTime);
 	// ステージ更新処理
 	StageManager::Instance().Update(elapsedTime);
-	// ゲームパッド入力情報
-	GamePad& pad = Input::Instance().GetGamePad();
-	
-	{
 		
+	{
+		// ゲームパッド入力情報
+		GamePad& pad = Input::Instance().GetGamePad();
 		const GamePadButton anyButton = GamePad::BTN_A | GamePad::BTN_B | GamePad::BTN_X | GamePad::BTN_Y;
 		// キー入力があれば
 		if (pad.GetButtonDown() & anyButton)
 		{
 			// 決定音再生
 			AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Ketei)->Play(false);
-#if 0
-			if (titleMode == TitleMode::TitleStart)
-			{
-				player->SetTitleState(Player::TitleState::TitleSelect);
-			}
-			else if (player->GetTitleState() == Player::TitleState::TitleSelect && titleMode >= TitleMode::Select)
+
+			if ((titleMode == TitleMode::Select) || (titleMode == TitleMode::NotSelect && gameMode == (int)GamaMode::Tutorial))
 			{
 				player->SetTitleState(Player::TitleState::TitlePunchStart);
 			}
-#else
-			if (player->GetTitleState() == Player::TitleState::TitleSelect && titleMode >= TitleMode::Select)
-			{
-				player->SetTitleState(Player::TitleState::TitlePunchStart);
-			}
-#endif
+
 			titleMode++;
 		}
-		if (titleMode > TitleMode::TitleStart)titleDissolveTimer += elapsedTime;
+		if (titleMode > TitleMode::TitleStart)
+		{
+			titleDissolveTimer += elapsedTime;
+		}
 
 		// タイトルでキー未入力状態じゃなければ
 		if (titleMode > TitleMode::TitleStart && titleMode < TitleMode::Select)
 		{
 			// タイトルログ&決定テクスチャのディゾルブ時間加算
 			titleDissolveTimer += elapsedTime;
-			// プレイヤーのタイトルでの状態が選択中なら
-			if (player->GetTitleState() == Player::TitleState::TitleSelect)
+			if (pad.GetButtonDown() & GamePad::BTN_DOWN)
 			{
-				if (pad.GetButtonDown() & GamePad::BTN_DOWN)
-				{
-					gameMode++;
-					if (gameMode > (int)GamaMode::Tutorial) gameMode = (int)GamaMode::Game;
-				}
-				else if (pad.GetButtonDown() & GamePad::BTN_UP)
-				{
-					gameMode--;
-					if (gameMode < (int)GamaMode::Game) gameMode = (int)GamaMode::Tutorial;
-				}
+				gameMode++;
+				if (gameMode > (int)GamaMode::Tutorial) gameMode = (int)GamaMode::Game;
+			}
+			else if (pad.GetButtonDown() & GamePad::BTN_UP)
+			{
+				gameMode--;
+				if (gameMode < (int)GamaMode::Game) gameMode = (int)GamaMode::Tutorial;
 			}
 		}
-		if (titleMode == TitleMode::Select) {
+		if (titleMode == TitleMode::Select) 
+		{
 			if (pad.GetButtonDown() & GamePad::BTN_DOWN)
 			{
 				stageMode++;
@@ -220,10 +193,15 @@ void SceneTitle::Update(float elapsedTime)
 				stageMode--;
 				if (stageMode < (int)StageMode::Stage1) stageMode = (int)StageMode::Stage3;
 			}
-
 		}
 	}
-
+	// テクスチャ関連の更新処理
+	UpdateTextureData(elapsedTime);
+	SceneManager::Instance().SetStage(stagNo);
+}
+// テクスチャ関連の更新処理
+void SceneTitle::UpdateTextureData(float elapsedTime)
+{
 	// プレイヤーのタイトルでの状態が殴り余韻状態以降なら
 	if (player->GetTitleState() >= Player::TitleState::TitlePunchReverberation)
 	{
@@ -232,6 +210,7 @@ void SceneTitle::Update(float elapsedTime)
 		if (punchScale >= value)
 		{
 			punchScale = value;
+			skyboxColor = 1.0f;
 		}
 		// 殴りによるサイズ拡大が一定値(3.0f)を超えていなければ
 		else
@@ -246,39 +225,48 @@ void SceneTitle::Update(float elapsedTime)
 			}
 		}
 	}
-#if 0
-	else
+
+	bool isPunch = false;
+	// タイトルモードがゲームモードを選択した後なら
+	if ((titleMode >= TitleMode::StageSelect) || (gameMode == (int)GamaMode::Tutorial && titleMode >= TitleMode::Select))
 	{
-		punchScale = 1.0f;
-		punchRotate = 0.0f;
-		punchPosition = 0.0f;
+		isPunch = true;
 	}
-#endif
-	// 線形補完位置
-	float lerpPosition = 0.0f;
-	// プレイヤーのタイトルでの状態が蹴落としてる余韻状態なら、線形補完位置を画面外に設定
-	if (player->GetTitleState() == Player::TitleState::TitleKickReverberation)
+	
+	if (titleMode >= TitleMode::Select)
 	{
-		lerpPosition = SCREEN_HEIGHT * 1.25f;
+		cyberAlpha -= elapsedTime * 2.0f;
+		if (cyberAlpha <= 0.0f)
+		{
+			cyberAlpha = 0.f;
+		}
+	}
+	else if (titleMode >= TitleMode::NotSelect)
+	{
+		cyberAlpha += elapsedTime * 2.0f;
+		if (cyberAlpha >= 0.75f)
+		{
+			cyberAlpha = 0.75f;
+		}
 	}
 
-	// タイトルモードがゲームモードを選択した後なら
-	if (titleMode >= TitleMode::StageSelect)
+	if (isPunch)
+	{
+		waitPunchTimer += elapsedTime;		
+	}
+	if (waitPunchTimer >= 1.0f)
 	{
 		textDissolveTimer += elapsedTime * 0.5f;
 	}
-	if(gameMode == (int)GamaMode::Tutorial && titleMode >= TitleMode::Select)textDissolveTimer += elapsedTime * 0.5f;
 	// ゲーム&チュートリアルテクスチャのディゾルブ時間が一定値(1.0f)を超えたら
-	if (textDissolveTimer > 1.0f) 
+	if (textDissolveTimer > 1.0f)
 	{
 		// タイトルBGM停止
 		AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Title)->Stop();
 		// ゲームモード別処理
-		switch (gameMode) 
+		switch (gameMode)
 		{
-		case (int)GamaMode::Game:		// ゲーム
-
-			
+		case (int)GamaMode::Game:		// ゲーム			
 			SceneManager::Instance().ChangeScene(new SceneLoading(new SceneGame));
 			stagNo = stageMode;
 			break;
@@ -286,10 +274,12 @@ void SceneTitle::Update(float elapsedTime)
 			SceneManager::Instance().ChangeScene(new SceneLoading(new SceneTutorial));
 			break;
 		}
-	}	
-	SceneManager::Instance().SetStage(stagNo);
+	}
+	
 	// 経過時間加算
 	progressTimer++;
+	// サイバーサークルテクスチャ回転時間加算
+	rotateTimer += elapsedTime * 6.0f;	
 	// スカイボックス経過時間加算
 	skyboxTimer += elapsedTime;
 	skyboxColor -= elapsedTime;
@@ -304,10 +294,11 @@ void SceneTitle::Update(float elapsedTime)
 		// ゲームモードに応じてサイズ調整
 		lerpScale = Mathf::Lerp(lerpScale, static_cast<float>(gameMode) * 0.5f, elapsedTime * speed);
 		// ゲームモードに応じて回転調整
-		cosRadian = Mathf::Lerp(cosRadian, DirectX::XM_PI * gameMode, elapsedTime * speed);
-		// 非選択のゲームモードを蹴落とす処理
-		dropPositionY = Mathf::Lerp(dropPositionY, lerpPosition, elapsedTime * speed);
+		cosRadian = Mathf::Lerp(cosRadian, DirectX::XM_PI * static_cast<float>(gameMode), elapsedTime * speed);
+		// ゲームモードに変更時回転調整
+		cyberRotate = Mathf::Lerp(cyberRotate, (static_cast<float>(gameMode) * 2.0f - 1.0f) * 45.0f, elapsedTime * 2.0f);
 	}
+	deltaTime = elapsedTime;
 }
 
 // 描画処理
@@ -334,7 +325,6 @@ void SceneTitle::Render()
 
 	RenderContext rc;
 	rc.deviceContext = immediate_context;
-#if 1
 	// シャドウバッファ	
 	{
 		// ライトの方向
@@ -361,14 +351,12 @@ void SceneTitle::Render()
 		ModelShader* shadowShader = graphics.GetShader(Graphics::ModelShaderId::ShadowmapCaster);
 		shadowShader->Begin(immediate_context, rc);
 		StageManager::Instance().Render(immediate_context, shadowShader);
-		EnemyManager::Instance().Render(immediate_context, shadowShader);
 		player->render(immediate_context, shadowShader);
-		//tower->Render(immediate_context, shadowShader);
 		StageManager::Instance().InstaningRender(immediate_context, shadowShader);
 		shadowShader->End(immediate_context);
 		shadowbuffer->deactivate(immediate_context);
 	}
-#endif
+
 	// カメラ情報
 	{
 		Camera& camera = Camera::Instance();
@@ -403,9 +391,7 @@ void SceneTitle::Render()
 		{
 			ModelShader* defaulModelShader = graphics.GetShader(Graphics::ModelShaderId::ModelShaderDefault);
 			defaulModelShader->Begin(immediate_context, rc);
-			StageManager::Instance().InstaningRender(immediate_context, defaulModelShader);
-			//tower->Render(immediate_context, defaulModelShader);
-			EnemyManager::Instance().Render(immediate_context, defaulModelShader);
+			StageManager::Instance().InstaningRender(immediate_context, defaulModelShader);			
 			player->render(immediate_context, defaulModelShader);
 			defaulModelShader->End(immediate_context);
 		}
@@ -509,7 +495,6 @@ void SceneTitle::Render()
 			float decisionRotate = 0.0f;		// 選択したゲームモードで回転値調整
 			float selectPosition = punchPosition;	// 殴りによる位置調整
 			DirectX::XMFLOAT2 decisionPosition = {};	// 選択したゲームモードで位置調整
-			float dropPosition = 0.0f;	// 非選択のゲームモードを蹴落とす位置
 			// ゲームテクスチャ
 			{
 				// ゲームモード別処理分け
@@ -520,13 +505,11 @@ void SceneTitle::Render()
 					decisionRotate = selectRotate;
 					decisionPosition.x = -screenWidth * (texturePositionRateX - 0.5f) * selectPosition;
 					decisionPosition.y = screenHeight * (0.5f - texturePositionRateY) * selectPosition;
-					dropPosition = 0.0f;
 					break;
 				case (int)GamaMode::Tutorial:	// チュートリアル
 					decisionScale = 1.0f;
 					decisionRotate = 0.0f;
 					decisionPosition = {};
-					dropPosition = dropPositionY;
 					break;
 				}
 				// ゲーム(0) : 500,100、チュートリアル(1) : 250,50
@@ -535,7 +518,7 @@ void SceneTitle::Render()
 				float divideWidth = width * 0.5f;
 				float divideHeight = height * 0.5f;
 				spriteBatchs[SpriteKind::GameStartText]->RotateRender(immediate_context,
-					dx - divideWidth + decisionPosition.x + cosf(cosRadian - DirectX::XM_PIDIV2) * radius, divideScreenHeight - divideHeight + dropPosition + decisionPosition.y + cosf(cosRadian + DirectX::XM_PI) * radius, width, height,
+					dx - divideWidth + decisionPosition.x + cosf(cosRadian - DirectX::XM_PIDIV2) * radius, divideScreenHeight - divideHeight + decisionPosition.y + cosf(cosRadian + DirectX::XM_PI) * radius, width, height,
 					decisionRotate, textDissolveTimer * 3.0f);
 			}
 			// チュートリアルテクスチャ
@@ -547,14 +530,12 @@ void SceneTitle::Render()
 					decisionScale = 1.0f;
 					decisionRotate = 0.0f;
 					decisionPosition = {};
-					dropPosition = dropPositionY;
 					break;
 				case (int)GamaMode::Tutorial:	// チュートリアル
 					decisionScale = selectScale;
 					decisionRotate = selectRotate;
 					decisionPosition.x = -screenWidth * (texturePositionRateX - 0.5f) * selectPosition;
 					decisionPosition.y = -screenHeight * (texturePositionRateY - 0.5f) * selectPosition;
-					dropPosition = 0.0f;
 					break;
 				}
 				// ゲーム(0) : 250,50、チュートリアル(1) : 500,100
@@ -563,55 +544,119 @@ void SceneTitle::Render()
 				float divideWidth = width * 0.5f;
 				float divideHeight = height * 0.5f;
 				spriteBatchs[SpriteKind::TutorialText]->RotateRender(immediate_context,
-					dx - divideWidth + decisionPosition.x + cosf(cosRadian + DirectX::XM_PIDIV2) * radius, divideScreenHeight - divideHeight + dropPosition + decisionPosition.y + cosf(cosRadian) * radius, width, height,
+					dx - divideWidth + decisionPosition.x + cosf(cosRadian + DirectX::XM_PIDIV2) * radius, divideScreenHeight - divideHeight + decisionPosition.y + cosf(cosRadian) * radius, width, height,
 					decisionRotate, textDissolveTimer * 3.0f);
+			}
+			// サイバーサークルテクスチャ
+			{
+				float width = static_cast<float>(spriteBatchs[SpriteKind::CyberCircle]->GetTextureWidth());
+				float height = static_cast<float>(spriteBatchs[SpriteKind::CyberCircle]->GetTextureHeight());
+				float divideWidth = width * 0.5f;
+				float divideHeight = height * 0.5f;
+				spriteBatchs[SpriteKind::CyberCircle]->Render(immediate_context,
+					dx - divideWidth, divideScreenHeight - divideHeight, width, height,
+					0.0f, 0.0f, width, height,
+					rotateTimer + cyberRotate, 1.0f, 1.0f, 1.0f, cyberAlpha,
+					textDissolveTimer * 3.0f);
 			}
 
 			// タイトルモードが非選択状態以降なら
-			if (titleMode >= TitleMode::NotSelect && titleMode < TitleMode::Select)
+			if ((titleMode >= TitleMode::NotSelect && titleMode < TitleMode::Select) || (titleMode == TitleMode::Select && gameMode == (int)GamaMode::Tutorial))
 			{
+				defaultSpriteShader->Draw(rc, spriteBatchs[SpriteKind::CyberCircle].get());
 				defaultSpriteShader->Draw(rc, spriteBatchs[SpriteKind::GameStartText].get());
 				defaultSpriteShader->Draw(rc, spriteBatchs[SpriteKind::TutorialText].get());
 			}
 			if (titleMode >= TitleMode::Select && gameMode == (int)GamaMode::Game)
 			{
-				float stageScale[3] = { 0.5,0.5,0.5 };
+				float stageScale[3] = { 0.5f, 0.5f, 0.5f };
+				float selectScale[3] = { 0.5f, 0.5f, 0.5f };
+				float heightErroe[3] = { 30.0f, 200.0f, 280.0f };
 				switch (stageMode)
 				{
 				case (int)StageMode::Stage1:
 					stageScale[0] = 0.7f;
+					selectScale[0] = 1.0f;
 					break;
 				case (int)StageMode::Stage2:
 					stageScale[1] = 0.7f;
+					selectScale[1] = 1.0f;
+					heightErroe[0] = 0.0f;
+					heightErroe[1] = 110.0f;
 					break;
 				case (int)StageMode::Stage3:
 					stageScale[2] = 0.7f;
+					selectScale[2] = 1.0f;
+					heightErroe[0] = 0.0f;
+					heightErroe[1] = 80.0f;
+					heightErroe[2] = 190.0f;
 					break;
 				}
-				spriteBatchs[SpriteKind::Stage1]->Render(immediate_context,
-					800.0f, 300.0f, static_cast<float>(spriteBatchs[SpriteKind::Stage1]->GetTextureWidth()) * stageScale[0], static_cast<float>(spriteBatchs[SpriteKind::Stage1]->GetTextureHeight() * stageScale[0]),
-					0.0f, 0.0f, static_cast<float>(spriteBatchs[SpriteKind::Stage1]->GetTextureWidth()), static_cast<float>(spriteBatchs[SpriteKind::Stage1]->GetTextureHeight()),
-					0.0f,
-					1.0f, 1.0f, 1.0f, 1.0f,
-					textDissolveTimer * 5
-				);
-				spriteBatchs[SpriteKind::Stage2]->Render(immediate_context,
-					800.0f, 400.0f, static_cast<float>(spriteBatchs[SpriteKind::Stage2]->GetTextureWidth()) * stageScale[1], static_cast<float>(spriteBatchs[SpriteKind::Stage1]->GetTextureHeight()) * stageScale[1],
-					0.0f, 0.0f, static_cast<float>(spriteBatchs[SpriteKind::Stage2]->GetTextureWidth()), static_cast<float>(spriteBatchs[SpriteKind::Stage1]->GetTextureHeight()),
-					0.0f,
-					1.0f, 1.0f, 1.0f, 1.0f,
-					textDissolveTimer * 5
-				);
-				spriteBatchs[SpriteKind::Stage3]->Render(immediate_context,
-					800.0f, 500.0f, static_cast<float>(spriteBatchs[SpriteKind::Stage3]->GetTextureWidth()) * stageScale[2], static_cast<float>(spriteBatchs[SpriteKind::Stage1]->GetTextureHeight()) * stageScale[2],
-					0.0f, 0.0f, static_cast<float>(spriteBatchs[SpriteKind::Stage3]->GetTextureWidth()), static_cast<float>(spriteBatchs[SpriteKind::Stage1]->GetTextureHeight()),
-					0.0f,
-					1.0f, 1.0f, 1.0f, 1.0f,
-					textDissolveTimer * 5
-				);
-				defaultSpriteShader->Draw(rc, spriteBatchs[SpriteKind::Stage1].get());
-				defaultSpriteShader->Draw(rc, spriteBatchs[SpriteKind::Stage2].get());
-				defaultSpriteShader->Draw(rc, spriteBatchs[SpriteKind::Stage3].get());
+						
+				// ステージテクスチャ
+				{
+					// ディゾルブ値
+					float dissolve = textDissolveTimer * 5.0f;
+					// テクスチャ幅・高さ
+					float textureWidth = static_cast<float>(spriteBatchs[SpriteKind::Stage1]->GetTextureWidth());
+					float textureHeight = static_cast<float>(spriteBatchs[SpriteKind::Stage1]->GetTextureHeight());
+					// 半分のテクスチャ高さ
+					float textureDivideHeight = textureHeight * 0.5f;
+					// 描画基準X位置
+					float positionX = screenWidth * 0.6f;
+
+					for (int index = SpriteKind::Stage1; index <= SpriteKind::Stage3; index++)
+					{
+						int changeValue = index - SpriteKind::Stage1;
+						selectTextureScale[changeValue] = Mathf::Lerp(selectTextureScale[changeValue], selectScale[changeValue], deltaTime * 10.0f);						
+						stageTexturePositionY[changeValue] = Mathf::Lerp(stageTexturePositionY[changeValue], screenHeight * 0.4f + heightErroe[changeValue], deltaTime * 10.0f);
+						float positionY = stageTexturePositionY[changeValue];
+						float positionW = textureWidth * stageScale[changeValue] * selectTextureScale[changeValue];
+						float positionH = textureHeight * stageScale[changeValue] * selectTextureScale[changeValue];						
+						float shiftPositionX = positionW * (selectTextureScale[changeValue] - 1.0f);
+						float shiftPositionY = positionH * (selectTextureScale[changeValue] - 1.0f);
+						float shiftPositionW = positionW * (selectTextureScale[changeValue] - selectScale[changeValue]);
+						float shiftPositionH = positionH * (selectTextureScale[changeValue] - selectScale[changeValue]);
+						spriteBatchs[SpriteKind::StageBack]->Render(immediate_context,
+							positionX - shiftPositionX, positionY - shiftPositionY,
+							positionW + shiftPositionW, positionH + shiftPositionH,
+							0.0f, 0.0f, textureWidth, textureHeight,
+							0.0f, 1.0f, 1.0f, 1.0f, 1.0f, dissolve);
+						defaultSpriteShader->Draw(rc, spriteBatchs[SpriteKind::StageBack].get());
+						spriteBatchs[index]->Render(immediate_context,
+							//positionX - shiftPositionX, positionY - shiftPositionY - shiftPositionY * 0.5f,
+							//positionW + shiftPositionW, positionH + shiftPositionH + shiftPositionY * 0.5f,
+							positionX - shiftPositionX, positionY - shiftPositionY,
+							positionW + shiftPositionW, positionH + shiftPositionH,
+							0.0f, 0.0f, textureWidth, textureHeight,
+							0.0f, 1.0f, 1.0f, 1.0f, 1.0f, dissolve);
+						defaultSpriteShader->Draw(rc, spriteBatchs[index].get());
+#if 0
+						selectFrameTextureScale[changeValue] = Mathf::Lerp(selectFrameTextureScale[changeValue], selectScale[changeValue], deltaTime * 8.0f);
+						float framePositionW2 = textureWidth * stageScale[changeValue] * selectFrameTextureScale[changeValue];
+						float framePositionH2 = textureHeight * stageScale[changeValue] * selectFrameTextureScale[changeValue];
+						float frameShiftPositionX = framePositionW2 * (selectFrameTextureScale[changeValue] - 1.0f);
+						float frameShiftPositionY = framePositionH2 * (selectFrameTextureScale[changeValue] - 1.0f);
+						float framePositionW = textureWidth * stageScale[changeValue];
+						float framePositionH = textureHeight * stageScale[changeValue] - textureDivideHeight * stageScale[changeValue];
+						spriteBatchs[SpriteKind::StageTextFrame]->Render(immediate_context,
+							//positionX + shiftPositionX, positionY - shiftPositionY - shiftPositionY * 0.5f,
+							positionX + frameShiftPositionX, positionY - frameShiftPositionY,
+							framePositionW, framePositionH,
+							0.0f, 0.0f, textureWidth, textureDivideHeight,
+							0.0f, 1.0f, 1.0f, 1.0f, 1.0f, dissolve);
+						defaultSpriteShader->Draw(rc, spriteBatchs[SpriteKind::StageTextFrame].get());
+						spriteBatchs[SpriteKind::StageTextFrame]->Render(immediate_context,
+							//positionX - shiftPositionX, positionY + textureDivideHeight * stageScale[changeValue] + shiftPositionY + shiftPositionY * 0.5f,
+							positionX - frameShiftPositionX, positionY + textureDivideHeight * stageScale[changeValue] + frameShiftPositionY,
+							framePositionW, framePositionH,
+							0.0f, textureDivideHeight, textureWidth, textureDivideHeight,
+							0.0f, 1.0f, 1.0f, 1.0f, 1.0f, dissolve);
+						defaultSpriteShader->Draw(rc, spriteBatchs[SpriteKind::StageTextFrame].get());
+#endif
+					}
+				}
+				defaultSpriteShader->Draw(rc, spriteBatchs[SpriteKind::CyberCircle].get());
 				defaultSpriteShader->Draw(rc, spriteBatchs[SpriteKind::GameStartText].get());
 			}
 		}

@@ -213,7 +213,7 @@ void SceneGame::Update(float elapsedTime)
 	}
 	else
 	{
-		jitterDriftData.jitterStrength = 0.3f;
+		jitterDriftData.jitterStrength = 0.1f;
 		dissolveTimer -= elapsedTime;
 	}
 
@@ -486,7 +486,7 @@ void SceneGame::Render()
 	}
 	loodSprite->Render(immediate_context,
 		0.0f, 0.0f, 1280.0f, 720.0f,
-		0.0f, gameTimer * 10.0f, static_cast<float>(loodSprite->GetTextureWidth()), static_cast<float>(loodSprite->GetTextureHeight()),
+		0.0f, 0.0f, static_cast<float>(loodSprite->GetTextureWidth()), static_cast<float>(loodSprite->GetTextureHeight()),
 		0.0f,
 		1.0f, 1.0f, 1.0f, 1.0f,
 		dissolveTimer, 0.0f, 0.0f

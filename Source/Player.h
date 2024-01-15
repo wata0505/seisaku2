@@ -103,13 +103,9 @@ public:
     enum TitleState
     {
         TitleDefault,            // ������
-        TitleSelect,             // �^�C�g���ŃQ�[�����[�h�I��
         TitlePunchStart,         // ����A�j���[�V�����J�n
         TitlePunchNow,           // ����A�j���[�V������
         TitlePunchReverberation, // ����A�j���[�V�����]�C
-        TitleKickStart,          // �R���Ƃ��A�j���[�V�����J�n
-        TitleKickNow,            // �R���Ƃ��A�j���[�V������
-        TitleKickReverberation,  // �R���Ƃ��A�j���[�V�����]�C
     };
 public:
     Player();
@@ -215,6 +211,8 @@ public:
     StateMachine<Player>* GetStateMachine() { return stateMachine.get(); }
     int GetTitleState() { return titleState; }
     void SetTitleState(int index) { titleState = index; }
+    float GetScanTimer() { return scanTimer; }
+    float GetHologramTimer() { return hologramTimer; }
 
     // ノードとエネミーの衝突処理
     void CollisionNodeVsEnemies(float nodeRadius, DirectX::XMFLOAT2 pow, float Damage, float InvincibleTime);
@@ -340,7 +338,7 @@ public://変更又取得が多い変数
     //回避距離
     float rollPow = 25;
     //回避無敵時間
-    float rollInvincibleTimer = 0.3;
+    float rollInvincibleTimer = 0.3f;
 
     Effekseer::Handle stingerEffect;
 
@@ -365,7 +363,7 @@ public://変更又取得が多い変数
     //攻撃タイマー
     float attackTime = 0;
     //シフトタイマー
-    float shiftTime = 0.8;
+    float shiftTime = 0.8f;
     //攻撃ダメージ
     float attackDamage = 0;
     //攻撃無敵時間
@@ -375,7 +373,7 @@ public://変更又取得が多い変数
     //ハルバート特殊当たり判定
     float lanceRudius = 10.0;
     //チャージアタックタイマー
-    float chargeAttackTimer = 0.55;
+    float chargeAttackTimer = 0.55f;
     //チャージアタック当たり判定
     float chargeAttackRudius = 5.0;
     //ヒットストップ時間
@@ -388,7 +386,7 @@ public://変更又取得が多い変数
     bool                enemyhitflag = false;
 
     //飛ぶ斬撃大きさ
-    DirectX::XMFLOAT3 slashScale = { 0.6,0.6,0.6 };
+    DirectX::XMFLOAT3 slashScale = { 0.6f,0.6f,0.6f };
     //振るSEするか
     bool swingSe = false;
     //振るSEタイム
@@ -460,29 +458,29 @@ public://変更又取得が多い変数
     int WeponCombo[4] = { Anim1Combo1,Anim1Combo2,Anim1Combo3,Anim1Combo4 };
     //武器のアクションステータス
     DirectX::XMFLOAT4 WeponComboStatus[WeponType::WeponMax][4] = {
-        {{0.5, 0, 0.1f, 0.4f},{0.5, 0, 0.1f, 0.4f},{1, 0, 0.2f, 0.8f},{0.1, 0, 0.2f, 0.8f},},
-        {{0.6, 0, 0.5f,0.8f},{0.8, 0, 0.9f, 1.32f},{0.8, 0, 1.1f, 1.5f},{ 0,  0,0.0f, 0.0f},},
-        {{1, 0, 0.1f, 1.3f},{1, 0, 0.2f, 1.2f},{0.5, 0, 0.5f, 2.5f},{ 0,  0,0.0f, 0.0f},},
+        {{0.5, 0, 0.1f, 0.4f},{0.5f, 0, 0.1f, 0.4f},{1, 0, 0.2f, 0.8f},{0.1f, 0, 0.2f, 0.8f},},
+        {{0.6f, 0, 0.5f,0.8f},{0.8f, 0, 0.9f, 1.32f},{0.8f, 0, 1.1f, 1.5f},{ 0,  0,0.0f, 0.0f},},
+        {{1, 0, 0.1f, 1.3f},{1, 0, 0.2f, 1.2f},{0.5f, 0, 0.5f, 2.5f},{ 0,  0,0.0f, 0.0f},},
         {{1, 0, 0.4f, 0.75f},{1, 0, 0.75f, 1.05f},{1, 0, 1.08f, 1.38f},{ 0,  0,0.0f, 0.0f},},
         {{ 0, 0, 0.0f, 0.0f},{ 0, 0, 0.0f, 0.0f},{10, 0, 0.0f, 0.0f},{ 0,  0,0.0f, 0.0f},},
     };
     //武器ごとアクションパワー
     DirectX::XMFLOAT4 WeponComboPow[WeponType::WeponMax][4] = {
-        {{10, 0,2,0.3},{10, 0,2,0.5},{10, 0,1,0.2},{20, 0,5,0.5},},
-        {{40, 0,4,0.5},{50, 0,5,0.5},{70, 0,6,0.5},{20, 0,1,0.5},},
-        {{10, 0,2,0.3},{ 0, 0,1,0.2},{10, 0,2,0.3},{20, 0,1,0.5},},
-        {{20,30,2,0.5},{10,30,2,0.5},{30, 0,2,0.5},{20, 0,1,0.5},},
-        {{10, 0,0,0.5},{10, 0,1,0.5},{10, 0,1,0.5},{20, 0,1,0.5},},
+        {{10, 0,2,0.3f},{10, 0,2,0.5f},{10, 0,1,0.2f},{20, 0,5,0.5f},},
+        {{40, 0,4,0.5f},{50, 0,5,0.5f},{70, 0,6,0.5f},{20, 0,1,0.5f},},
+        {{10, 0,2,0.3f},{ 0, 0,1,0.2f},{10, 0,2,0.3f},{20, 0,1,0.5f},},
+        {{20,30,2,0.5f},{10,30,2,0.5f},{30, 0,2,0.5f},{20, 0,1,0.5f},},
+        {{10, 0,0,0.5f},{10, 0,1,0.5f},{10, 0,1,0.5f},{20, 0,1,0.5f},},
 
     };
    
     //武器ごとのコンボ最大数
     int WeponComboMax[5] = { 3,2,2,2,0 };
 
-    DirectX::XMFLOAT4 ShifPow = { 0, 0,1,0.3 };
+    DirectX::XMFLOAT4 ShifPow = { 0, 0,1,0.3f };
 
-    DirectX::XMFLOAT4 FallAttackStatus = { -30, 0,0.3,0.9 };
-    DirectX::XMFLOAT4 FallAttackPow = { 10, 0.1,1,0.9 };
+    DirectX::XMFLOAT4 FallAttackStatus = { -30, 0,0.3f,0.9f };
+    DirectX::XMFLOAT4 FallAttackPow = { 10, 0.1f,1,0.9f };
 
     //攻撃アニメーションノード格納
     const char* attackNode[4] = { "te_R_1" ,"te_L_1","ashikubi_R","te_R_1" };

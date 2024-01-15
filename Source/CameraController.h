@@ -12,6 +12,7 @@ public:
 	void Update(float elapsedTime);
 
 	void TitleUpdate(float elapsedTime);
+	void EntryUpdate(float elapsedTime);
 
 	void Update2(float elapsedTime, DirectX::XMFLOAT3 front,float Length);
 
@@ -54,8 +55,9 @@ private:
 	float               hitPow = 0;
 	float               hitTimer = 0;
 	bool                shakeflag = true;
-	float               correction = 0.03;
+	float               correction = 0.03f;
 	float               lengthMax = 15;
 	float               lengthMin = 1;
-	float               lengthCorrection = 0.1;
+	float               lengthCorrection = 0.1f;
+	float				entryTimer = 0.0f;
 };

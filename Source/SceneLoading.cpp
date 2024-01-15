@@ -13,7 +13,7 @@ void SceneLoading::Initialize()
     sprite[1] = EffectTexAll::Instance().GetSprite(int(EffectTexAll::EfTexAll::Bock));
 
     //sousasetumei[0] = std::make_unique<Sprite>(L".\\resources\\UI\\setumei2.png");
-    sousasetumei[1] = std::make_unique<Sprite>(L".\\resources\\UI\\button.png");
+    sousasetumei[1] = std::make_unique<Sprite>(L".\\resources\\UI\\Button.png");
     //tips[0] = std::make_unique<Sprite>(L".\\resources\\UI\\tips1.png");
     //tips[1] = std::make_unique<Sprite>(L".\\resources\\UI\\tips2.png");
    
@@ -104,10 +104,13 @@ void SceneLoading::Render()
             //    1.0f, 1.0f, 1.0f, 1.0f
             //);
             //shader->Draw(rc, sousasetumei[0].get());
-            if (nextScene->IsReady()) {
+            if (nextScene->IsReady()) 
+            {
+                float width = static_cast<float>(sousasetumei[1]->GetTextureWidth());
+                float height = static_cast<float>(sousasetumei[1]->GetTextureHeight());
                 sousasetumei[1]->Render(dc,
-                    500, 650, 700, 100,
-                    0, 0, sousasetumei[1]->GetTextureWidth(), sousasetumei[1]->GetTextureHeight(),
+                    screenWidth - width, screenHeight - height, width, height,
+                    0, 0, width, height,
                     0.0f,
                     1.0f, 1.0f, 1.0f, 1.0f
                 );

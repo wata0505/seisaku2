@@ -22,7 +22,7 @@ public:
 	void Activate(ID3D11DeviceContext* immediate_context);
 	void CompositActivate(ID3D11DeviceContext* immediate_context);
 	
-	const int GetNumDirLight() { return lightParam.size(); };
+	const int GetNumDirLight() { return static_cast<int>(lightParam.size()); };
 
 	void Update(float elapsedTime);
 
