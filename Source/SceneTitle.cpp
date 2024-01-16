@@ -105,7 +105,6 @@ void SceneTitle::Initialize()
 		static const int ShadowMapSize = 2096;
 		shadowbuffer = std::make_unique<Shadowbuffer>(device, ShadowMapSize, ShadowMapSize);
 		// テクスチャ
-		spriteBatchs[SpriteKind::Skybox] = std::make_unique<Sprite>(L".\\resources\\haikei\\6.png");
 		spriteBatchs[SpriteKind::Title] = std::make_unique<Sprite>(L".\\resources\\UI\\Title\\title.png");
 		spriteBatchs[SpriteKind::DecisionText] = std::make_unique<Sprite>(L".\\resources\\UI\\Title\\GameStart.png");
 		spriteBatchs[SpriteKind::Back] = EffectTexAll::Instance().GetSprite(int(EffectTexAll::EfTexAll::Bock));
@@ -382,8 +381,8 @@ void SceneTitle::Render()
 		{
 			SpriteShader* skyboxShader = graphics.GetShader(Graphics::SpriteShaderId::Skybox);
 			skyboxShader->Begin(rc);
-			spriteBatchs[SpriteKind::Skybox]->Render(immediate_context, skyboxColor, skyboxTimer);
-			skyboxShader->Draw(rc, spriteBatchs[SpriteKind::Skybox].get());
+			spriteBatchs[SpriteKind::Back]->Render(immediate_context, skyboxColor, skyboxTimer);
+			skyboxShader->Draw(rc, spriteBatchs[SpriteKind::Back].get());
 			skyboxShader->End(rc);
 		}
 

@@ -86,7 +86,6 @@ private:
 	// スプライト種類
 	enum SpriteKind
 	{
-		Skybox,			// スカイボックス
 		Title,			// タイトル
 		DecisionText,	// 決定
 		Back,			// 背景

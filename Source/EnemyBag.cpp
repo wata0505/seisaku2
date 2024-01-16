@@ -527,6 +527,8 @@ void EnemyBag::ReMove()
 	SetTerritory(position, 10.0f);
 	reMoveflag = false;
 	rootNo = 0;
+	model->PlayAnimation(EnemyBagAnimation::WalkFWD, false, 1.0f);
+	model->UpdateAnimation(1.0f, "pelvis");
 	stateMachine->SetState(static_cast<int>(BagState::Search));
 }
 

@@ -95,12 +95,12 @@ void SceneGame::Initialize()
 	bit_block_transfer = std::make_unique<FullscreenQuad>(device.Get());
 
 
-	sprite_batchs = std::make_unique<Sprite>(L".\\resources\\haikei\\6.png");
 	sprite_batchs2 = std::make_unique<Sprite>();
 	claerSprite = std::make_unique<Sprite>(L".\\resources\\UI\\clear.png");
 	waveSprite[0] = std::make_unique<Sprite>(L".\\resources\\UI\\1Wave.png");
 	waveSprite[1] = std::make_unique<Sprite>(L".\\resources\\UI\\2Wave.png");
 	waveSprite[2] = std::make_unique<Sprite>(L".\\resources\\UI\\FinalWave.png");
+	waveBackSprite = std::make_unique<Sprite>(L".\\resources\\UI\\Title\\StageBack.png");
 	loodSprite = EffectTexAll::Instance().GetSprite(int(EffectTexAll::EfTexAll::Bock));
 	renderSprite = std::make_unique<Sprite>();
 	//スクリーンバファ生成
@@ -317,15 +317,9 @@ void SceneGame::Render()
 	SpriteShader* shader2 = graphics.GetShader(Graphics::SpriteShaderId::Skybox);
 
 	shader2->Begin(rc);
-	sprite_batchs->Render(immediate_context,
-		0.0f, 0.0f, 1280, 720.0f,
-		0.0f, 0.0f, static_cast<float>(sprite_batchs->GetTextureWidth()), static_cast<float>(sprite_batchs->GetTextureHeight()),
-		0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		skyboxColor, haikeiTimer, 0.0f
-	);
+	loodSprite->Render(immediate_context, skyboxColor, haikeiTimer);
 	//sprite_batchs[0]->SetShaderResourceView(framebuffers[0]->shaderResourceViews[2], 1280, 720);
-	shader2->Draw(rc, sprite_batchs.get());
+	shader2->Draw(rc, loodSprite.get());
 	shader2->End(rc);
 
 	//デフォルトシェーダー
@@ -474,15 +468,30 @@ void SceneGame::Render()
 		dissolveTimer
 	);
 	int wave = EnemySystem::Instance().GetWave();
-	if (wave < 3) {
+	if (wave < 3) 
+	{
+		float screenWidth = static_cast<float>(graphics.GetScreenWidth());
+		float screenHeight = static_cast<float>(graphics.GetScreenHeight()) * 0.1f;
+		float waveCountWidth = static_cast<float>(waveSprite[wave]->GetTextureWidth());
+		float waveCountHeight = static_cast<float>(waveSprite[wave]->GetTextureHeight());
 		waveSprite[wave]->Render(immediate_context,
-			600.0f, 120.0f, static_cast<float>(waveSprite[wave]->GetTextureWidth()), static_cast<float>(waveSprite[wave]->GetTextureHeight()),
-			0.0f, 0.0f, static_cast<float>(waveSprite[wave]->GetTextureWidth()), static_cast<float>(waveSprite[wave]->GetTextureHeight()),
+			screenWidth * 0.5f - waveCountWidth * 0.5f, screenHeight, waveCountWidth, waveCountHeight,
+			0.0f, 0.0f, waveCountWidth, waveCountHeight,
 			0.0f,
 			1.0f, 1.0f, 1.0f, 1.0f,
 			waveTimer
 		);
 		shader2->Draw(rc, waveSprite[wave].get());
+		float waveBackWidth = static_cast<float>(waveBackSprite->GetTextureWidth());
+		float waveBackHeight = static_cast<float>(waveBackSprite->GetTextureHeight());
+		waveBackSprite->Render(immediate_context,
+			screenWidth * 0.5f - waveCountWidth * 0.5f, screenHeight, waveCountWidth, waveCountHeight,
+			0.0f, 0.0f, waveBackWidth, waveBackHeight,
+			0.0f,
+			1.0f, 1.0f, 1.0f, 1.0f,
+			waveTimer
+		);
+		shader2->Draw(rc, waveBackSprite.get());
 	}
 	loodSprite->Render(immediate_context,
 		0.0f, 0.0f, 1280.0f, 720.0f,

@@ -8,7 +8,7 @@
 void SceneLoading::Initialize()
 {
     //スプライト初期化
-    sprite[0] = std::make_unique<Sprite>(L".\\resources\\LoadingIcon.png");
+    //sprite[0] = std::make_unique<Sprite>(L".\\resources\\LoadingIcon.png");
 
     sprite[1] = EffectTexAll::Instance().GetSprite(int(EffectTexAll::EfTexAll::Bock));
 
@@ -78,8 +78,8 @@ void SceneLoading::Render()
             SpriteShader* shader = graphics.GetShader(Graphics::SpriteShaderId::SpriteShaderDefault);
             float screenWidth = static_cast<float>(graphics.GetScreenWidth());
             float screenHeight = static_cast<float>(graphics.GetScreenHeight());
-            float textureWidth = static_cast<float>(sprite[0]->GetTextureWidth());
-            float textureHeight = static_cast<float>(sprite[0]->GetTextureHeight());
+            //float textureWidth = static_cast<float>(sprite[0]->GetTextureWidth());
+            //float textureHeight = static_cast<float>(sprite[0]->GetTextureHeight());
             float positionX = screenWidth - 50;
             float positionY = screenHeight - 50;
             shader->Begin(rc);
@@ -90,11 +90,11 @@ void SceneLoading::Render()
                 1.0f, 1.0f, 1.0f, 1.0f
             );
             shader->Draw(rc, sprite[1].get());
-            sprite[0]->Render(dc,
-                positionX, positionY, 50, 50,
-                0, 0, textureWidth, textureHeight,
-                angle,
-                1, 1, 1, 1);
+            //sprite[0]->Render(dc,
+            //    positionX, positionY, 50, 50,
+            //    0, 0, textureWidth, textureHeight,
+            //    angle,
+            //    1, 1, 1, 1);
             //shader->Draw(rc, sprite[0].get());
             
             //sousasetumei[0]->Render(dc,
