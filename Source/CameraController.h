@@ -13,6 +13,7 @@ public:
 
 	void TitleUpdate(float elapsedTime);
 	void EntryUpdate(float elapsedTime);
+	void GameAfterUpdate(float elapsedTime);
 
 	void Update2(float elapsedTime, DirectX::XMFLOAT3 front,float Length);
 

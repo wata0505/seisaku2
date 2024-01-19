@@ -71,10 +71,11 @@ private:
 
 	std::unique_ptr<Sprite> sprite_batchs2;
 
-	std::unique_ptr<Sprite> claerSprite;
-
 	std::unique_ptr<Sprite> waveSprite[3];
 	std::unique_ptr<Sprite> waveBackSprite;
+	std::unique_ptr<Sprite> pixelSprite;
+	std::unique_ptr<Sprite> gameOverSprite;
+	std::unique_ptr<Sprite> gameClearSprite;
 
 	std::shared_ptr<Sprite> loodSprite;
 
@@ -122,5 +123,7 @@ private:
 	DirectX::XMFLOAT3 objPos[3][3] = { {{ 50,-4,-50 },{60,-4,17},{140,-4,-80}},{{ 115,-4,-50 },{115,-4,-20},{115,-48,-80}},{{80,-4,-30 },{120,-4,-30},{100,-48,-80}} }; //オブジェクト位置
 	float objAngleY[3][3] = { { 0,90,-45 },{ 90,90,90 },{ 10,-10,90 }};//オブジェクト回転
 	float objAngleZ[3][3] = { { 0,0,0 },{ 0,0,90 },{ 0,0,90 }};//オブジェクト回転
+	float gameAfterTimer = 0.0f;
+	float gameAfterDissolveTimer = 3.0f;
 
 };

@@ -11,8 +11,8 @@ AudioAll& AudioAll::Instance()
 }
 AudioAll::AudioAll() {
 	instance = this;
-	audio[static_cast<int>(AudioMusic::Title)] = Audio::Instance().LoadAudioSource("resources\\Audio\\titlie.wav");
-	audio[static_cast<int>(AudioMusic::Bgm)] = Audio::Instance().LoadAudioSource("resources\\Audio\\BGM1.wav");
+	audio[static_cast<int>(AudioMusic::Title)] = Audio::Instance().LoadAudioSource("resources\\Audio\\Title.wav");
+	audio[static_cast<int>(AudioMusic::Bgm)] = Audio::Instance().LoadAudioSource("resources\\Audio\\Game.wav");
 	audio[static_cast<int>(AudioMusic::BgmBoss)] = Audio::Instance().LoadAudioSource("resources\\Audio\\BGM2.wav");
 	audio[static_cast<int>(AudioMusic::Ketei)] = Audio::Instance().LoadAudioSource("resources\\Audio\\ketteionn.wav");
 	audio[static_cast<int>(AudioMusic::Wolk)] = Audio::Instance().LoadAudioSource("resources\\Audio\\wolk2.wav");

@@ -131,7 +131,7 @@ void SceneTitle::Finalize()
 void SceneTitle::Update(float elapsedTime)
 {
 	// タイトルBGM再生
-	AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Title)->Play(true);
+	AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Title)->Play(true, 0.3f);
 	
 	// プレイヤー更新処理
 	player->TitleUpdate(elapsedTime);
@@ -149,12 +149,15 @@ void SceneTitle::Update(float elapsedTime)
 		// キー入力があれば
 		if (pad.GetButtonDown() & anyButton)
 		{
-			// 決定音再生
-			AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Ketei)->Play(false);
-
-			if ((titleMode == TitleMode::Select) || (titleMode == TitleMode::NotSelect && gameMode == (int)GamaMode::Tutorial))
+			if ((titleMode == TitleMode::Select && gameMode == (int)GamaMode::Game) || (titleMode == TitleMode::NotSelect && gameMode == (int)GamaMode::Tutorial))
 			{
 				player->SetTitleState(Player::TitleState::TitlePunchStart);
+			}
+			else if (player->GetTitleState() < Player::TitleState::TitlePunchStart)
+			{
+				// 決定音停止と再生
+				AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Ketei)->Stop();
+				AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Ketei)->Play(false, 0.3f);
 			}
 
 			titleMode++;
@@ -164,6 +167,7 @@ void SceneTitle::Update(float elapsedTime)
 			titleDissolveTimer += elapsedTime;
 		}
 
+		bool isSelectSE = false;
 		// タイトルでキー未入力状態じゃなければ
 		if (titleMode > TitleMode::TitleStart && titleMode < TitleMode::Select)
 		{
@@ -171,27 +175,37 @@ void SceneTitle::Update(float elapsedTime)
 			titleDissolveTimer += elapsedTime;
 			if (pad.GetButtonDown() & GamePad::BTN_DOWN)
 			{
+				isSelectSE = true;
 				gameMode++;
 				if (gameMode > (int)GamaMode::Tutorial) gameMode = (int)GamaMode::Game;
 			}
 			else if (pad.GetButtonDown() & GamePad::BTN_UP)
 			{
+				isSelectSE = true;
 				gameMode--;
 				if (gameMode < (int)GamaMode::Game) gameMode = (int)GamaMode::Tutorial;
 			}
 		}
-		if (titleMode == TitleMode::Select) 
+		if (titleMode == TitleMode::Select && gameMode == (int)GamaMode::Game)
 		{
 			if (pad.GetButtonDown() & GamePad::BTN_DOWN)
 			{
+				isSelectSE = true;
 				stageMode++;
 				if (stageMode > (int)StageMode::Stage3) stageMode = (int)StageMode::Stage1;
 			}
 			else if (pad.GetButtonDown() & GamePad::BTN_UP)
 			{
+				isSelectSE = true;
 				stageMode--;
 				if (stageMode < (int)StageMode::Stage1) stageMode = (int)StageMode::Stage3;
 			}
+		}
+
+		if (isSelectSE)
+		{
+			AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Slash2)->Stop();
+			AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Slash2)->Play(false, 0.3f);
 		}
 	}
 	// テクスチャ関連の更新処理
@@ -560,7 +574,7 @@ void SceneTitle::Render()
 			}
 
 			// タイトルモードが非選択状態以降なら
-			if ((titleMode >= TitleMode::NotSelect && titleMode < TitleMode::Select) || (titleMode == TitleMode::Select && gameMode == (int)GamaMode::Tutorial))
+			if ((titleMode >= TitleMode::NotSelect && titleMode < TitleMode::Select) || (titleMode >= TitleMode::Select && gameMode == (int)GamaMode::Tutorial))
 			{
 				defaultSpriteShader->Draw(rc, spriteBatchs[SpriteKind::CyberCircle].get());
 				defaultSpriteShader->Draw(rc, spriteBatchs[SpriteKind::GameStartText].get());
@@ -570,7 +584,7 @@ void SceneTitle::Render()
 			{
 				float stageScale[3] = { 0.5f, 0.5f, 0.5f };
 				float selectScale[3] = { 0.5f, 0.5f, 0.5f };
-				float heightErroe[3] = { 30.0f, 200.0f, 280.0f };
+				float shiftHeight[3] = { 30.0f, 200.0f, 280.0f };
 				switch (stageMode)
 				{
 				case (int)StageMode::Stage1:
@@ -580,15 +594,15 @@ void SceneTitle::Render()
 				case (int)StageMode::Stage2:
 					stageScale[1] = 0.7f;
 					selectScale[1] = 1.0f;
-					heightErroe[0] = 0.0f;
-					heightErroe[1] = 110.0f;
+					shiftHeight[0] = 0.0f;
+					shiftHeight[1] = 110.0f;
 					break;
 				case (int)StageMode::Stage3:
 					stageScale[2] = 0.7f;
 					selectScale[2] = 1.0f;
-					heightErroe[0] = 0.0f;
-					heightErroe[1] = 80.0f;
-					heightErroe[2] = 190.0f;
+					shiftHeight[0] = 0.0f;
+					shiftHeight[1] = 80.0f;
+					shiftHeight[2] = 190.0f;
 					break;
 				}
 						
@@ -608,7 +622,7 @@ void SceneTitle::Render()
 					{
 						int changeValue = index - SpriteKind::Stage1;
 						selectTextureScale[changeValue] = Mathf::Lerp(selectTextureScale[changeValue], selectScale[changeValue], deltaTime * 10.0f);						
-						stageTexturePositionY[changeValue] = Mathf::Lerp(stageTexturePositionY[changeValue], screenHeight * 0.4f + heightErroe[changeValue], deltaTime * 10.0f);
+						stageTexturePositionY[changeValue] = Mathf::Lerp(stageTexturePositionY[changeValue], screenHeight * 0.4f + shiftHeight[changeValue], deltaTime * 10.0f);
 						float positionY = stageTexturePositionY[changeValue];
 						float positionW = textureWidth * stageScale[changeValue] * selectTextureScale[changeValue];
 						float positionH = textureHeight * stageScale[changeValue] * selectTextureScale[changeValue];						

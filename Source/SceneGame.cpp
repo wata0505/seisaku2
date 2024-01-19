@@ -96,11 +96,13 @@ void SceneGame::Initialize()
 
 
 	sprite_batchs2 = std::make_unique<Sprite>();
-	claerSprite = std::make_unique<Sprite>(L".\\resources\\UI\\clear.png");
 	waveSprite[0] = std::make_unique<Sprite>(L".\\resources\\UI\\1Wave.png");
 	waveSprite[1] = std::make_unique<Sprite>(L".\\resources\\UI\\2Wave.png");
 	waveSprite[2] = std::make_unique<Sprite>(L".\\resources\\UI\\FinalWave.png");
 	waveBackSprite = std::make_unique<Sprite>(L".\\resources\\UI\\Title\\StageBack.png");
+	pixelSprite = std::make_unique<Sprite>(L".\\resources\\UI\\Pixel.png");
+	gameOverSprite = std::make_unique<Sprite>(L".\\resources\\UI\\GameOver.png");
+	gameClearSprite = std::make_unique<Sprite>(L".\\resources\\UI\\GameClear.png");
 	loodSprite = EffectTexAll::Instance().GetSprite(int(EffectTexAll::EfTexAll::Bock));
 	renderSprite = std::make_unique<Sprite>();
 	//スクリーンバファ生成
@@ -164,26 +166,40 @@ void SceneGame::Finalize()
 }
 void SceneGame::Update(float elapsedTime)
 {
-	player->update(elapsedTime);
-	base->Update(elapsedTime);
-	StageManager::Instance().Update(elapsedTime);
-	EnemySystem::Instance().Update(elapsedTime);
-	EnemyManager::Instance().Update(elapsedTime);
+	// ゲームBGM再生
+	AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Bgm)->Play(true, 0.3f);
+	float deltaTimer = elapsedTime;
+	if (gameAfterTimer >= 1.0f)
+	{
+		deltaTimer = 0.0f;
+	}
+	if (EnemySystem::Instance().GetWave() < 3)
+	{
+		player->update(elapsedTime);
+	}
+	else
+	{
+		player->ClearUpdate(elapsedTime);
+	}
+	base->Update(deltaTimer);
+	StageManager::Instance().Update(deltaTimer);
+	EnemySystem::Instance().Update(deltaTimer);
+	EnemyManager::Instance().Update(deltaTimer);
 	EnemyManager::Instance().DrawDebugPrimitive();
 		
-	EffectManager::instance().Update(elapsedTime);
+	EffectManager::instance().Update(deltaTimer);
 
-	ParticleManager::Instance().Update(elapsedTime);
+	ParticleManager::Instance().Update(deltaTimer);
 
-	InstancingSpriteManager::Instance().Update(elapsedTime);
+	InstancingSpriteManager::Instance().Update(deltaTimer);
 
-	ParticleSpriteManager::Instance().Update(elapsedTime);
+	ParticleSpriteManager::Instance().Update(deltaTimer);
 
-	LightManager::Instance().Update(elapsedTime);
+	LightManager::Instance().Update(deltaTimer);
 
-	UIManager::Instance().Update(elapsedTime);
+	UIManager::Instance().Update(deltaTimer);
 
-	TrapManager::Instance().Update(elapsedTime);
+	TrapManager::Instance().Update(deltaTimer);
 	TrapManager::Instance().DrawDebugPrimitive();
 #if 0
 	if (Base::Instance().GetJitterStrength() > 0) {
@@ -201,7 +217,7 @@ void SceneGame::Update(float elapsedTime)
 	{
 		skyboxColor = 0.0f;
 	}
-	jitterDriftData.jitterStrength = skyboxColor / 200.0f;
+	
 #endif
 	if (base->GetHP() != 0 && player->GetHealth() > 0 && EnemySystem::Instance().GetWave() < 3) 
 	{
@@ -213,11 +229,50 @@ void SceneGame::Update(float elapsedTime)
 	}
 	else
 	{
-		jitterDriftData.jitterStrength = 0.1f;
-		dissolveTimer -= elapsedTime;
+		float waitTimer = 2.0f;
+		if (EnemySystem::Instance().GetWave() == 3)
+		{
+			waitTimer = 3.5f;
+		}
+		if (player->GetLoseDirectingTimer() >= waitTimer)
+		{
+			gameAfterTimer += elapsedTime;
+			if (gameAfterTimer >= 1.0f)
+			{
+				gameAfterTimer = 1.0f;
+				gameAfterDissolveTimer -= elapsedTime * 3.0f;
+				if (gameAfterDissolveTimer < 0.0f)
+				{
+					gameAfterDissolveTimer = 0.0f;
+				}
+			}
+			if (player->GetLoseDirectingTimer() >= waitTimer + 1.5f)
+			{
+				if (EnemySystem::Instance().GetWave() < 3)
+				{
+					jitterDriftData.jitterStrength += elapsedTime * 0.1f;
+					if (jitterDriftData.jitterStrength >= 0.05f)
+					{
+						if (jitterDriftData.jitterStrength >= 0.1f)
+						{
+							jitterDriftData.jitterStrength = 0.1f;
+						}
+						dissolveTimer -= elapsedTime;
+					}
+				}
+				else
+				{
+					dissolveTimer -= elapsedTime;
+				}
+			}
+		}
+		else
+		{
+			jitterDriftData.jitterStrength = skyboxColor / 200.0f;
+		}
 	}
 
-	haikeiTimer += elapsedTime;
+	haikeiTimer += deltaTimer;
 	if (EnemySystem::Instance().GetWaveTimer() > 3 && EnemySystem::Instance().GetWaveTimer() < 8) {
 		waveTimer -= elapsedTime;
 		if (waveTimer < 0) waveTimer = 0;
@@ -230,8 +285,7 @@ void SceneGame::Update(float elapsedTime)
 	gameTimer++;
 }
 void SceneGame::Render()
-{
-	
+{	
 	Graphics& graphics = Graphics::Instance();
 	ID3D11DeviceContext* immediate_context = graphics.GetDeviceContext();
 	render_target_view = graphics.GetRenderTargetView();
@@ -281,11 +335,11 @@ void SceneGame::Render()
 	ModelShader* shader = graphics.GetShader(Graphics::ModelShaderId::ShadowmapCaster);
 	shader->Begin(immediate_context, rc);
 	StageManager::Instance().Render(immediate_context, shader);
-	player->render(immediate_context, shader);
-	//base->Render(immediate_context,shader);
-
-	//EnemyManager::Instance().Render(immediate_context, shader);
 	StageManager::Instance().InstaningRender(immediate_context,shader);
+	if (player->GetLoseDirectingTimer() <= 0.0f || player->GetClearDirectingTimer() > 0.0f)
+	{
+		player->render(immediate_context, shader);
+	}
 	shader->End(immediate_context);
 	shadowbuffer->deactivate(immediate_context);
 
@@ -328,10 +382,16 @@ void SceneGame::Render()
 	shader->Begin(immediate_context, rc);
 	base->Render(immediate_context, shader);
 	StageManager::Instance().Render(immediate_context, shader);
-	player->render(immediate_context, shader);
-	EnemyManager::Instance().Render(immediate_context, shader);
 	StageManager::Instance().InstaningRender(immediate_context, shader);
-	TrapManager::Instance().Render(immediate_context, shader);
+	if (player->GetLoseDirectingTimer() <= 0.0f || player->GetClearDirectingTimer() > 0.0f)
+	{
+		player->render(immediate_context, shader);
+	}
+	if (player->GetLoseDirectingTimer() <= 0.0f)
+	{
+		EnemyManager::Instance().Render(immediate_context, shader);
+		TrapManager::Instance().Render(immediate_context, shader);
+	}
 	
 	shader->End(immediate_context);
 	//レンダーターゲット切り替え
@@ -444,6 +504,8 @@ void SceneGame::Render()
 	bit_block_transfer->JitterDrift(immediate_context, subframebuffers[4]->shaderResourceViews.GetAddressOf(), 13, 1, jitterDriftData, jitterDriftPixelShader.Get());
 	jitterDriftSubFramebuffer->Deactivate(immediate_context);
 
+	float screenWidth = static_cast<float>(graphics.GetScreenWidth());
+	float screenHeight = static_cast<float>(graphics.GetScreenHeight());
 	shader2 = graphics.GetShader(Graphics::SpriteShaderId::SpriteShaderDefault);
 	shader2->Begin(rc);
 	//sprite_batchs2->SetShaderResourceView(subframebuffers[4]->shaderResourceViews.Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -456,43 +518,76 @@ void SceneGame::Render()
 		0.0f, 0.0f, 0.0f
 	);
 	shader2->Draw(rc, sprite_batchs2.get());
-	//player->Sprite2DRender(immediate_context, rc, shader2);
-	TrapManager::Instance().Sprite2DRender(immediate_context, rc, shader2);
-	UIManager::Instance().Render(rc,shader2);
-	base->HpDisplay(rc, shader2);
-	claerSprite->Render(immediate_context,
-		200.0f, 120.0f, 1000.0f, 200.0f,
-		0.0f, 0.0f, static_cast<float>(claerSprite->GetTextureWidth()), static_cast<float>(claerSprite->GetTextureHeight()),
-		0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		dissolveTimer
-	);
-	int wave = EnemySystem::Instance().GetWave();
-	if (wave < 3) 
+	if (player->GetLoseDirectingTimer() <= 0.0f)
 	{
-		float screenWidth = static_cast<float>(graphics.GetScreenWidth());
-		float screenHeight = static_cast<float>(graphics.GetScreenHeight()) * 0.1f;
-		float waveCountWidth = static_cast<float>(waveSprite[wave]->GetTextureWidth());
-		float waveCountHeight = static_cast<float>(waveSprite[wave]->GetTextureHeight());
-		waveSprite[wave]->Render(immediate_context,
-			screenWidth * 0.5f - waveCountWidth * 0.5f, screenHeight, waveCountWidth, waveCountHeight,
-			0.0f, 0.0f, waveCountWidth, waveCountHeight,
-			0.0f,
-			1.0f, 1.0f, 1.0f, 1.0f,
-			waveTimer
-		);
-		shader2->Draw(rc, waveSprite[wave].get());
-		float waveBackWidth = static_cast<float>(waveBackSprite->GetTextureWidth());
-		float waveBackHeight = static_cast<float>(waveBackSprite->GetTextureHeight());
-		waveBackSprite->Render(immediate_context,
-			screenWidth * 0.5f - waveCountWidth * 0.5f, screenHeight, waveCountWidth, waveCountHeight,
-			0.0f, 0.0f, waveBackWidth, waveBackHeight,
-			0.0f,
-			1.0f, 1.0f, 1.0f, 1.0f,
-			waveTimer
-		);
-		shader2->Draw(rc, waveBackSprite.get());
+		//player->Sprite2DRender(immediate_context, rc, shader2);
+		TrapManager::Instance().Sprite2DRender(immediate_context, rc, shader2);
+		UIManager::Instance().Render(rc, shader2);
+		base->HpDisplay(rc, shader2);
+		int wave = EnemySystem::Instance().GetWave();
+		if (wave < 3)
+		{
+			float waveCountWidth = static_cast<float>(waveSprite[wave]->GetTextureWidth());
+			float waveCountHeight = static_cast<float>(waveSprite[wave]->GetTextureHeight());
+			waveSprite[wave]->Render(immediate_context,
+				screenWidth * 0.5f - waveCountWidth * 0.5f, screenHeight * 0.1f, waveCountWidth, waveCountHeight,
+				0.0f, 0.0f, waveCountWidth, waveCountHeight,
+				0.0f,
+				1.0f, 1.0f, 1.0f, 1.0f,
+				waveTimer
+			);
+			shader2->Draw(rc, waveSprite[wave].get());
+			float waveBackWidth = static_cast<float>(waveBackSprite->GetTextureWidth());
+			float waveBackHeight = static_cast<float>(waveBackSprite->GetTextureHeight());
+			waveBackSprite->Render(immediate_context,
+				screenWidth * 0.5f - waveCountWidth * 0.5f, screenHeight * 0.1f, waveCountWidth, waveCountHeight,
+				0.0f, 0.0f, waveBackWidth, waveBackHeight,
+				0.0f,
+				1.0f, 1.0f, 1.0f, 1.0f,
+				waveTimer
+			);
+			shader2->Draw(rc, waveBackSprite.get());
+		}
 	}
+	// ゲーム終了後テクスチャ
+	{
+		pixelSprite->Render(immediate_context,
+			0.0f, 0.0f, screenWidth, screenHeight,
+			0.0f, 0.0f, 1.0f, 1.0f,
+			0.0f,
+			0.0f, 0.0f, 0.0f, gameAfterTimer * 0.5f,
+			0.0f, 0.0f, 0.0f
+		);
+		shader2->Draw(rc, pixelSprite.get());
+		float width = static_cast<float>(gameOverSprite->GetTextureWidth());
+		float height = static_cast<float>(gameOverSprite->GetTextureHeight());
+		if (gameAfterDissolveTimer < 3.0f)
+		{
+			if (base->GetHP() == 0 || player->GetHealth() <= 0 || EnemySystem::Instance().GetWave() < 3)
+			{
+				gameOverSprite->Render(immediate_context,
+					screenWidth * 0.5f - width, screenHeight * 0.5f - height, width * 2.0f, height * 2.0f,
+					0.0f, 0.0f, width, height,
+					0.0f,
+					1.0f, 1.0f, 1.0f, 1.0f,
+					gameAfterDissolveTimer, 0.0f, 0.0f
+				);
+				shader2->Draw(rc, gameOverSprite.get());
+			}
+			else
+			{
+				gameClearSprite->Render(immediate_context,
+					screenWidth * 0.5f - width, screenHeight * 0.5f - height, width * 2.0f, height * 2.0f,
+					0.0f, 0.0f, width, height,
+					0.0f,
+					1.0f, 1.0f, 1.0f, 1.0f,
+					gameAfterDissolveTimer, 0.0f, 0.0f
+				);
+				shader2->Draw(rc, gameClearSprite.get());
+			}
+		}
+	}
+
 	loodSprite->Render(immediate_context,
 		0.0f, 0.0f, 1280.0f, 720.0f,
 		0.0f, 0.0f, static_cast<float>(loodSprite->GetTextureWidth()), static_cast<float>(loodSprite->GetTextureHeight()),
@@ -501,15 +596,20 @@ void SceneGame::Render()
 		dissolveTimer, 0.0f, 0.0f
 	);
 	shader2->Draw(rc, loodSprite.get());
-	if (base->GetHP() == 0 || EnemySystem::Instance().GetWave() < 4) {
-		
+	shader2->End(rc);
+	//if (base->GetHP() == 0 || EnemySystem::Instance().GetWave() < 4) 
+	if (base->GetHP() == 0 || player->GetHealth() <= 0 || EnemySystem::Instance().GetWave() == 3)
+	{		
 		//shader2->Draw(rc, claerSprite.get());
-		if (dissolveTimer < 0) {
+		if (dissolveTimer < 0) 
+		{
+			// ゲームBGM停止
+			AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Bgm)->Stop();
 			SceneManager::Instance().ChangeScene(new SceneLoading(new SceneTitle));
 		}
 	}
-	shader2->End(rc);
-	if (player->GetDidTimer() < NULL) {
+	if (player->GetDidTimer() < NULL) 
+	{
 		SceneManager::Instance().ChangeScene(new SceneLoading(new SceneTitle));
 	}
 }
@@ -519,6 +619,7 @@ void SceneGame::projectImgui()
 	ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_FirstUseEver);
 	if (ImGui::Begin("Debug", nullptr, ImGuiWindowFlags_None))
 	{
+		ImGui::SliderFloat("GameAfterDissolveTimer", &gameAfterDissolveTimer, 0.0f, 3.0f);
 	}
 	TrapManager::Instance().DrawDebugGUI();
 	if (ImGui::TreeNode("light"))

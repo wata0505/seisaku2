@@ -60,25 +60,31 @@ void TrapManager::Update(float elapsedTime)
 	GamePad& gamePad = Input::Instance().GetGamePad();
 	//トラップ設置（仮）
 	{
-
-		if (buildFlag == false)
+		if (Player::Instance().GetHologramTimer() < 1.0f)
 		{
-			if (gamePad.GetButtonDown() & GamePad::BTN_LEFT)type--;
-			if (gamePad.GetButtonDown() & GamePad::BTN_RIGHT)type++;
-			if (type >= Trap::TrapType::TrapMax) type = Trap::TrapType::TrapTurret;//上限
-			if (type < Trap::TrapType::TrapTurret)type = Trap::TrapType::TrapDecoy;//下限
+			buildFlag = false;
 		}
-
-		if (Input::Instance().GetGamePad().GetButtonDown() & GamePad::BTN_DOWN)
+		else
 		{
-			if (buildFlag)
+			if (buildFlag == false)
 			{
-				buildFlag = false;
+				if (gamePad.GetButtonDown() & GamePad::BTN_LEFT)type--;
+				if (gamePad.GetButtonDown() & GamePad::BTN_RIGHT)type++;
+				if (type >= Trap::TrapType::TrapMax) type = Trap::TrapType::TrapTurret;//上限
+				if (type < Trap::TrapType::TrapTurret)type = Trap::TrapType::TrapDecoy;//下限
 			}
-			else
+
+			if (Input::Instance().GetGamePad().GetButtonDown() & GamePad::BTN_DOWN)
 			{
-				buildFlag = true;
-				SetTrap();
+				if (buildFlag)
+				{
+					buildFlag = false;
+				}
+				else
+				{
+					buildFlag = true;
+					SetTrap();
+				}
 			}
 		}
 	}

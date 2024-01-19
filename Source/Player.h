@@ -107,6 +107,13 @@ public:
         TitlePunchNow,           // ����A�j���[�V������
         TitlePunchReverberation, // ����A�j���[�V�����]�C
     };
+    enum ClearState
+    {
+        ClearDefault,            // ������
+        ClearPunchStart,         // ����A�j���[�V�����J�n
+        ClearPunchNow,           // ����A�j���[�V������
+        ClearPunchReverberation, // ����A�j���[�V�����]�C
+    };
 public:
     Player();
     ~Player() override;
@@ -120,6 +127,7 @@ public:
 
     void update(float elapsed_time);
     void TitleUpdate(float elapsedTime);
+    void ClearUpdate(float elapsedTime);
     void render(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader);
     //残像エフェクト描画
     void Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader);
@@ -213,6 +221,8 @@ public:
     void SetTitleState(int index) { titleState = index; }
     float GetScanTimer() { return scanTimer; }
     float GetHologramTimer() { return hologramTimer; }
+    float GetLoseDirectingTimer() { return loseDirectingTimer; }
+    float GetClearDirectingTimer() { return clearDirectingTimer; }
 
     // ノードとエネミーの衝突処理
     void CollisionNodeVsEnemies(float nodeRadius, DirectX::XMFLOAT2 pow, float Damage, float InvincibleTime);
@@ -678,6 +688,12 @@ private:
     int titleState = TitleState::TitleDefault;
     float nextStateTimer = 0.0f;
     float animationTimer = 0.0f;
+    float loseDirectingTimer = 0.0f;
+    float clearDirectingTimer = 0.0f;
+    float explosionTimer = 0.0f;
+    int randomValue = 0;
+    int clearState = ClearState::ClearDefault;
+    float farPosition = 5.0f;
 };
 
 

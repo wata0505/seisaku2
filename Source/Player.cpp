@@ -21,6 +21,7 @@
 #include "StatePlayer.h"
 #include "ParticleManager.h"
 #include "Mathf.h"
+#include "EnemySystem.h"
 #define GRAVITY -1.0;
 using namespace DirectX;
 inline XMFLOAT4 to_xmfloat4(const FbxDouble4& fbxdouble4)
@@ -152,15 +153,14 @@ void Player::update(float elapsedTime)
     {
         hologramTimer = 0.0f;
     }
-    //DrawDebugPrimitive();
-    //SetWepon();
+
     float ElapsedTime = elapsedTime * modelSpeed;
     if (quickFlag) ElapsedTime *= 0.6f;
     if (attackHitflag) ElapsedTime *= attackHitPow;
     animeTimer = ElapsedTime;
     //ロックオンカメラ
     ComeTerget(elapsedTime);
-   
+    
     // ホログラムシェーダー実行中フラグが付いていれば
     if (!isActiveStart)
     {
@@ -244,6 +244,7 @@ void Player::TitleUpdate(float elapsedTime)
         float nextStateTimer = 0.8f;
         if (animationTimer >= nextStateTimer)
         {
+            AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::SlashFly)->Play(false, 0.3f);
             titleState = TitleState::TitlePunchReverberation;
         }
     }
@@ -265,6 +266,69 @@ void Player::TitleUpdate(float elapsedTime)
 
         animeTimer = 0.0f;
     }
+
+    //アニメーション更新
+    player->UpdateAnimation(animeTimer, "koshi");
+    player->UpdateSubAnimation(animeTimer, "koshi");
+
+    //速力処理更新
+    UpdateVelocity(ElapsedTime);
+    UpdateTransform((int)Character::AxisType::RHSYUP, (int)Character::LengthType::Cm);
+    //描画情報更新
+    player->UpdateBufferDara(transform);
+}
+void Player::ClearUpdate(float elapsedTime)
+{
+    timer += elapsedTime;
+    player->ShaderAdjustment(adjustMetalness, adjustSmoothness, glitchScale, timer, maxHeight, hologramColor);
+    float ElapsedTime = elapsedTime * modelSpeed;
+    animeTimer = ElapsedTime;
+    dir = { 0.0f, 0.0f, 1.0f };
+    switch (clearState)
+    {
+    case ClearState::ClearDefault:
+        position = { 100.0f, -2.5f, -130.0f };
+        comboflag = true;//コンボ先行入力
+        farPosition = position.z + 5.0f;
+        combo = 3;
+        stateMachine->ChangeSubState(static_cast<int>(Player::State::Attack));//着地
+        clearState = ClearState::ClearPunchStart;
+        break;
+    case ClearState::ClearPunchStart:
+    {
+        attackStart = 0.6f;
+        float animationTime = player->GetCurrentAnimationSeconds();
+        if (animationTime > attackStart) 
+        {            
+            clearState = ClearState::ClearPunchNow;
+            farPosition = Base::Instance().GetPosition().z + 5.0f;
+        }
+    }
+        break;
+    case ClearState::ClearPunchNow:
+    {
+        attackEnd = 0.8f;
+        float animationTime = player->GetCurrentAnimationSeconds();        
+        if (animationTime >= attackStart && animationTime <= attackEnd)
+        {
+            position.z = Mathf::Lerp(position.z, Base::Instance().GetPosition().z + 30.0f, elapsedTime * 15.0f);
+        }
+        else
+        {
+            clearState = ClearState::ClearPunchReverberation;
+        }              
+    }
+        break;
+    case ClearState::ClearPunchReverberation:
+        break;
+    }
+
+    
+    ComeTerget(elapsedTime);
+
+    //ステートマシン更新
+    if(clearState < ClearState::ClearPunchNow)
+    stateMachine->Update(elapsedTime);
 
     //アニメーション更新
     player->UpdateAnimation(animeTimer, "koshi");
@@ -351,6 +415,46 @@ void Player::ComeTerget(float elapsedTime)
         camePos.y += height;
         cameraController->SetTarget(camePos);
         cameraController->EntryUpdate(elapsedTime);
+    }
+    else if (health <= 0 || Base::Instance().GetHP() <= 0)
+    {
+        explosionTimer += elapsedTime;        
+        if (explosionTimer < 3.0f)
+        {
+            if (static_cast<int>(explosionTimer * 10) % 5 == 2)
+            {
+                DirectX::XMFLOAT3 spawnPosition = Base::Instance().GetPosition();
+                spawnPosition.x += static_cast<float>(rand() % 40) - 20.0f;
+                spawnPosition.y += static_cast<float>(rand() % 20);
+                spawnPosition.z += static_cast<float>(rand() % 4) - 2.0f;
+                ParticleSystem::Instance().BoomEffect(spawnPosition, 3, int(EffectTexAll::EfTexAll::Flame), 10, 0.5f, { NULL, NULL, 2, 1 });
+            }
+            if (static_cast<int>(explosionTimer * 10) % 5 == randomValue)
+            {
+                SetShakeInput({ 0.0f, 1.0f, 0.0f }, 5.0f);
+                randomValue = rand() % 5;
+            }
+        }
+        DirectX::XMFLOAT3 cameraPosision = Base::Instance().GetPosition();
+        cameraPosision.y += 6.5f;
+        cameraPosision.z += 30.0f;
+        cameraController->SetTarget(cameraPosision);
+        cameraController->GameAfterUpdate(elapsedTime);
+        
+        loseDirectingTimer += elapsedTime;
+    }
+    else if (EnemySystem::Instance().GetWave() == 3)
+    {
+        DirectX::XMFLOAT3 cameraPosision = position;
+        cameraPosision.y += height;
+        cameraPosision.z = Mathf::Lerp(cameraPosision.z, farPosition, elapsedTime * 8.0f);        
+        clearDirectingTimer += elapsedTime;
+        loseDirectingTimer += elapsedTime;
+        if (clearState < ClearState::ClearPunchReverberation) 
+        {
+            cameraController->SetTarget(cameraPosision);
+            cameraController->GameAfterUpdate(elapsedTime);
+        }
     }
     else
     {
@@ -1069,6 +1173,12 @@ void Player::DrawDebugGUI()
     cameraController->DrawDebugGUI();
     if (ImGui::Begin("Player", nullptr, ImGuiWindowFlags_None))
     {
+        ImGui::InputInt("combo", &combo);
+        ImGui::InputFloat("farPosition", &farPosition);
+        ImGui::InputFloat("animeTimer", &animeTimer);
+        ImGui::InputFloat("attackStart", &attackStart);
+        ImGui::InputFloat("attackEnd", &attackEnd);
+        ImGui::InputInt("clearState", &clearState);
         ImGui::SliderFloat("nextStateTimer", &nextStateTimer, 0.0f, 5.0f);
         if (ImGui::Button(u8"Start"))
         {

@@ -50,27 +50,29 @@ void EnemySystem::Start(int Stag) {
 
 void EnemySystem::Update(float elapsedTime) {
 	EnemyManager& enemyManager = EnemyManager::Instance();
-	for (int i = 0; i < waveMaxEnemyCount[stag][wave]; i++) {
-
-		if (!EnemyManager::Instance().GetEnemy(i)->GetActiveflag() || waveTimer > waveTimerMax[wave]) {
-			EnemyManager::Instance().GetEnemy(i)->SetReMoveflag(true);
-			//EnemyManager::Instance().GetEnemy(i)->SetReMoveTimer(10);
-			//EnemyManager::Instance().GetEnemy(i)->SetHealth(EnemyManager::Instance().GetEnemy(i)->GetMaxHealth());
-			//float yaw = DirectX::XMConvertToRadians(rand() % 360);
-			//DirectX::XMFLOAT2 dir;
-			//dir.x = sinf(yaw);
-			//dir.y = cosf(yaw);
-			//int len = rand() % 100 + 5;
-			//EnemyManager::Instance().GetEnemy(i)->SetPosition(DirectX::XMFLOAT3(dir.x * len, 0.0f, dir.y * len));
-			//EnemyManager::Instance().GetEnemy(i)->SetTerritory(EnemyManager::Instance().GetEnemy(i)->GetPosition(), 10.0f);
-
+	if (wave < 3)
+	{
+		for (int i = 0; i < waveMaxEnemyCount[stag][wave]; i++) 
+		{
+			if (!EnemyManager::Instance().GetEnemy(i)->GetActiveflag() || waveTimer > waveTimerMax[wave])
+			{
+				EnemyManager::Instance().GetEnemy(i)->SetReMoveflag(true);
+				//EnemyManager::Instance().GetEnemy(i)->SetReMoveTimer(10);
+				//EnemyManager::Instance().GetEnemy(i)->SetHealth(EnemyManager::Instance().GetEnemy(i)->GetMaxHealth());
+				//float yaw = DirectX::XMConvertToRadians(rand() % 360);
+				//DirectX::XMFLOAT2 dir;
+				//dir.x = sinf(yaw);
+				//dir.y = cosf(yaw);
+				//int len = rand() % 100 + 5;
+				//EnemyManager::Instance().GetEnemy(i)->SetPosition(DirectX::XMFLOAT3(dir.x * len, 0.0f, dir.y * len));
+				//EnemyManager::Instance().GetEnemy(i)->SetTerritory(EnemyManager::Instance().GetEnemy(i)->GetPosition(), 10.0f);
+			}
 		}
 	}
-	if (waveTimer > waveTimerMax[wave]) {
+	if (waveTimer > waveTimerMax[wave]) 
+	{
 		wave++;
-		waveTimer = 0;
-		
+		waveTimer = 0;		
 	}
 	waveTimer += elapsedTime;
-
 }
