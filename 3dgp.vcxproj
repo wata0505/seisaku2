@@ -295,7 +295,6 @@
     <ClCompile Include="Source\StateDrone.cpp" />
     <ClCompile Include="Source\StateMachine.cpp" />
     <ClCompile Include="Source\StatePlayer.cpp" />
-    <ClCompile Include="Source\StaticMesh.cpp" />
     <ClCompile Include="Source\SubFramebuffer.cpp" />
     <ClCompile Include="Source\SwordTrail.cpp" />
     <ClCompile Include="Source\SwordTrailShader.cpp" />
@@ -664,18 +663,6 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
-    <FxCompile Include="HLSL\StaticMeshPS.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-    </FxCompile>
-    <FxCompile Include="HLSL\StaticMeshVS.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-    </FxCompile>
     <FxCompile Include="HLSL\SwordTrailPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
@@ -718,7 +705,6 @@
     <None Include="HLSL\SkinnedMesh.hlsli" />
     <None Include="HLSL\Skybox.hlsli" />
     <None Include="HLSL\Sprite.hlsli" />
-    <None Include="HLSL\StaticMech.hlsli" />
     <None Include="HLSL\SwordTrail.hlsli" />
     <None Include="HLSL\Toon.hlsli" />
   </ItemGroup>

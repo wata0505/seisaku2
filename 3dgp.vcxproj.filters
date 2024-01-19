@@ -148,9 +148,6 @@
     <ClCompile Include="Source\Model.cpp">
       <Filter>Sources\model</Filter>
     </ClCompile>
-    <ClCompile Include="Source\StaticMesh.cpp">
-      <Filter>Sources\model</Filter>
-    </ClCompile>
     <ClCompile Include="Source\SkinnedMesh.cpp">
       <Filter>Sources\model</Filter>
     </ClCompile>
@@ -755,12 +752,6 @@
     <FxCompile Include="HLSL\SpriteVS.hlsl">
       <Filter>HLSL</Filter>
     </FxCompile>
-    <FxCompile Include="HLSL\StaticMeshPS.hlsl">
-      <Filter>HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="HLSL\StaticMeshVS.hlsl">
-      <Filter>HLSL</Filter>
-    </FxCompile>
     <FxCompile Include="HLSL\DebugVS.hlsl">
       <Filter>HLSL</Filter>
     </FxCompile>
@@ -872,9 +863,6 @@
       <Filter>HLSL</Filter>
     </None>
     <None Include="HLSL\Sprite.hlsli">
-      <Filter>HLSL</Filter>
-    </None>
-    <None Include="HLSL\StaticMech.hlsli">
       <Filter>HLSL</Filter>
     </None>
     <None Include="HLSL\Debug.hlsli">
