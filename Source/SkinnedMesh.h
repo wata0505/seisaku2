@@ -7,7 +7,6 @@
 #include <string>
 #include <fbxsdk.h>
 #include <unordered_map>
-#include "StaticMesh.h"
 #include <set>
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/memory.hpp>
