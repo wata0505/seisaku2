@@ -621,6 +621,7 @@ void Player::OnLanding()
 
 void Player::OnDamaged()
 {
+    jumpCount = 0;//ジャンプカウント初期化
     // ダメージステートへ遷移
     if (state != State::Attack) {
         stateMachine->ChangeSubState(static_cast<int>(Player::State::Damage));

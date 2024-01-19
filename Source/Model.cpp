@@ -167,8 +167,8 @@ void Model::ModelCreate(const char* filename, const char* texfilename) {
 	ID3D11Device* device = Graphics::Instance().GetDevice();
 	resource->CreateComObjects(device, filename,texfilename);
 }
-void Model::ModelRegister(const char* filename, const char* texfilename) {
-	ResourceManager::Instance().SkinnedMeshRegister(filename, resource, texfilename);
+void Model::ModelRegister(const char* filename, const char* texfilename,bool checkModel) {
+	ResourceManager::Instance().SkinnedMeshRegister(filename, resource, texfilename,checkModel);
 	const std::vector<Animation>& animations = resource->GetAnimations();
 	if (animations.size() > 0) {
 		const Animation& animation = animations.at(0);

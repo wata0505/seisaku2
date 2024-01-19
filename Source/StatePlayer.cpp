@@ -185,7 +185,7 @@ void LandState::Execute(float elapsedTime)
             owner->GetStateMachine()->ChangeSubState(static_cast<int>(Player::State::Idle));
         }
         AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::boom1)->Play(false, SE);
-        owner->CollisionNodeVsEnemies(10, owner->knockBackpow, owner->attackDamage, owner->attackInvincibleTime);
+        owner->CollisionNodeVsEnemies(15, owner->knockBackpow, owner->attackDamage, owner->attackInvincibleTime);
     }
     else
     {

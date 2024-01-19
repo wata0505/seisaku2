@@ -26,7 +26,7 @@ StageMain::~StageMain()
 //XVˆ—
 void StageMain::Update(float elapseTime)
 {
-	timer += elapseTime * 3.0f;
+	timer += elapseTime * 4.0f;
 	model->ShaderAdjustment(0.0f, 0.0f, 0.0f, timer, 0.0f);
 }
 

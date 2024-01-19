@@ -25,7 +25,13 @@ std::shared_ptr<SkinnedMeshResouurce> ResourceManager::LoadModelResource(const c
 
 	return model;
 }
-void ResourceManager::SkinnedMeshRegister(const char* filename, std::shared_ptr<SkinnedMeshResouurce> model, const char* texfilename) {
+void ResourceManager::SkinnedMeshRegister(const char* filename, std::shared_ptr<SkinnedMeshResouurce> model, const char* texfilename, bool checkModel) {
+	
+	if (!checkModel) {
+		ID3D11Device* device = Graphics::Instance().GetDevice();
+		model->CreateComObjects(device, filename, texfilename);
+		return;
+	}
 	ModelMap::iterator it = models.find(filename);
 	if (it != models.end())
 	{
@@ -37,5 +43,5 @@ void ResourceManager::SkinnedMeshRegister(const char* filename, std::shared_ptr<
 	}
 	models[filename] = model;
 	ID3D11Device* device = Graphics::Instance().GetDevice();
-	model->CreateComObjects(device, filename,texfilename);
+	model->CreateComObjects(device, filename, texfilename);
 }

@@ -25,7 +25,7 @@ public:
 	// モデルリソースの読み込み
 	std::shared_ptr<SkinnedMeshResouurce>LoadModelResource(const char* filename, bool leftflag,bool triangulate);
 	//モデル登録
-	void SkinnedMeshRegister(const char* filename, std::shared_ptr<SkinnedMeshResouurce> model, const char* texfilename);
+	void SkinnedMeshRegister(const char* filename, std::shared_ptr<SkinnedMeshResouurce> model, const char* texfilename, bool checkModel = true);
 private:
 	using ModelMap = std::map<std::string, std::weak_ptr<SkinnedMeshResouurce>>;
 

@@ -22,7 +22,7 @@ TrapManager::TrapManager()
 	uiTrap[3] = std::make_unique<Sprite>(L".\\resources\\Trap\\Decoy.png");
 
 
-	uiHp = std::make_unique<Sprite>(L".\\resources\\HP.png");
+	//uiHp = std::make_unique<Sprite>(L".\\resources\\HP.png");
 	sprite = std::make_unique<Sprite>(L".\\resources\\Trap\\TrapSlot.png");
 	spriteNo = std::make_unique<Sprite>(L".\\resources\\Trap\\No.png");
 	font = std::make_unique<Sprite>(L".\\resources\\Font\\Number.png");
@@ -60,12 +60,10 @@ void TrapManager::Update(float elapsedTime)
 	GamePad& gamePad = Input::Instance().GetGamePad();
 	//トラップ設置（仮）
 	{
-		if (Player::Instance().GetHologramTimer() < 1.0f)
-		{
+		if (Player::Instance().GetHologramTimer() < 1.0f) {
 			buildFlag = false;
 		}
-		else
-		{
+		else {
 			if (buildFlag == false)
 			{
 				if (gamePad.GetButtonDown() & GamePad::BTN_LEFT)type--;
@@ -462,48 +460,48 @@ void TrapManager::Sprite2DRender(ID3D11DeviceContext* dc, RenderContext& rc, Spr
 
 
 	//HPゲージ描画
-	int TrapCount = static_cast<int>(traps.size());
-	for (int i = 0; i < TrapCount; i++)
-	{
-		Trap* trap = traps.at(i);
-		float gaugeThrate = trap->GetHealth() / static_cast<float>(trap->GetMaxHealth());
-		if (trap->GetHpRenderFlag() && trap->GetHealth() > 0)
-		{
-			//設置場所に表示
-			DirectX::XMFLOAT3 objPosition = trap->GetPosition();
-			//objPosition.y += trap->GetHeight();
-			DirectX::XMVECTOR WorldPosition = DirectX::XMLoadFloat3(&objPosition);
-
-			// ワールド座標からスクリーン座標へ変換
-			DirectX::XMVECTOR ScreenPosition = DirectX::XMVector3Project(
-				WorldPosition,
-				viewport.TopLeftX,
-				viewport.TopLeftY,
-				viewport.Width,
-				viewport.Height,
-				viewport.MinDepth,
-				viewport.MaxDepth,
-				Projection,
-				View,
-				World
-			);
-			// スクリーン座標
-			DirectX::XMFLOAT2 screenPosition;
-			DirectX::XMStoreFloat2(&screenPosition, ScreenPosition);
-			uiHp->Render(rc.deviceContext,
-				screenPosition.x - 200.0f * 0.5f,
-				screenPosition.y - 20.0f * 0.5f,
-				200.0f * gaugeThrate,
-				20.0f,
-				0.0f, 0.0f,
-				static_cast<float>(uiHp->GetTextureWidth() * gaugeThrate),
-				static_cast<float>(uiHp->GetTextureHeight()),
-				0.0f,
-				3.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f
-			);
-			shader->Draw(rc, uiHp.get());
-		}
-	}
+	//int TrapCount = static_cast<int>(traps.size());
+	//for (int i = 0; i < TrapCount; i++)
+	//{
+	//	Trap* trap = traps.at(i);
+	//	float gaugeThrate = trap->GetHealth() / static_cast<float>(trap->GetMaxHealth());
+	//	if (trap->GetHpRenderFlag() && trap->GetHealth() > 0)
+	//	{
+	//		//設置場所に表示
+	//		DirectX::XMFLOAT3 objPosition = trap->GetPosition();
+	//		//objPosition.y += trap->GetHeight();
+	//		DirectX::XMVECTOR WorldPosition = DirectX::XMLoadFloat3(&objPosition);
+	//
+	//		// ワールド座標からスクリーン座標へ変換
+	//		DirectX::XMVECTOR ScreenPosition = DirectX::XMVector3Project(
+	//			WorldPosition,
+	//			viewport.TopLeftX,
+	//			viewport.TopLeftY,
+	//			viewport.Width,
+	//			viewport.Height,
+	//			viewport.MinDepth,
+	//			viewport.MaxDepth,
+	//			Projection,
+	//			View,
+	//			World
+	//		);
+	//		// スクリーン座標
+	//		DirectX::XMFLOAT2 screenPosition;
+	//		DirectX::XMStoreFloat2(&screenPosition, ScreenPosition);
+	//		uiHp->Render(rc.deviceContext,
+	//			screenPosition.x - 200.0f * 0.5f,
+	//			screenPosition.y - 20.0f * 0.5f,
+	//			200.0f * gaugeThrate,
+	//			20.0f,
+	//			0.0f, 0.0f,
+	//			static_cast<float>(uiHp->GetTextureWidth() * gaugeThrate),
+	//			static_cast<float>(uiHp->GetTextureHeight()),
+	//			0.0f,
+	//			3.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f
+	//		);
+	//		shader->Draw(rc, uiHp.get());
+	//	}
+	//}
 }
 
 void TrapManager::Text(SpriteShader* shader, ID3D11DeviceContext* dc, std::string s, float x, float y, float w, float h, float r, float g, float b, float a)

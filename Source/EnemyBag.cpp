@@ -17,7 +17,7 @@
 #include"TrapManager.h"
 
 // コンストラクタ
-EnemyBag::EnemyBag(bool tutorial, int stag)
+EnemyBag::EnemyBag(bool tutorial, int stag,int enemyType)
 {
 	model = std::make_unique<Model>(".\\resources\\enemy\\enemy.fbx", true);
 	model->AppendAnimations(".\\resources\\enemy\\Enemy_taikiandmigration.fbx",0);
@@ -28,7 +28,19 @@ EnemyBag::EnemyBag(bool tutorial, int stag)
 	model->AppendAnimations(".\\resources\\enemy\\Enemy_Die.fbx", 0);
 	model->ModelSerialize(".\\resources\\enemy\\enemy.fbx");
 	//model->ModelCreate(".\\resources\\Slime\\Slime.fbx");
-	model->ModelRegister(".\\resources\\enemy\\enemy.fbx", "Texture\\all_low_lambert1.tif");
+	switch (enemyType)
+	{
+	   case 0:
+	   	   model->ModelRegister(".\\resources\\enemy\\enemy.fbx", "Texture\\all_low_lambert1.tif", false);
+	   	   break;
+	   case 1:
+		   model->ModelRegister(".\\resources\\enemy\\enemy.fbx", "TextureRed\\all_low_lambert1.tif",false);
+		   break;
+	   case 2:
+		   model->ModelRegister(".\\resources\\enemy\\enemy.fbx", "TextureGreen\\all_low_lambert1.tif",false);
+		   break;	
+	}
+	colorType = enemyType;
 	// モデルが大きいのでスケーリング
 	maxHealth = 5;
 	health = maxHealth;
@@ -114,6 +126,13 @@ float EnemyBag::MovePow() {
 }
 void EnemyBag::Update(float elapsedTime)
 {
+	if (colorType == 1) {
+		elapsedTime *= 2;
+	}
+	if (colorType == 2) {
+
+		health += 1;
+	}
 	timer += elapsedTime;
 	if (stateMachine->GetStateNum() == static_cast<int>(EnemyBag::BagState::ReDamage))
 	{
@@ -422,7 +441,7 @@ bool EnemyBag::SearchTrap()
 {
 
 	int count = TrapManager::Instance().GetTrapCount();
-	float dist = searchRange+10;
+	float dist = searchRange + 10;
 	for (int i = 0; i < count; i++)
 	{
 		Trap* trap = TrapManager::Instance().GetTrap(i);
@@ -463,7 +482,7 @@ bool EnemyBag::SearchTrap()
 			}
 		}
 	}
-	if (dist != searchRange+10)//敵が見つかっていたら
+	if (dist != searchRange + 10)//敵が見つかっていたら
 	{
 		return true;
 	}

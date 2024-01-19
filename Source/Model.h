@@ -67,7 +67,7 @@ public:
 	//オブジェクト生成
 	void ModelCreate(const char* filename, const char* texfilename = 0);
 	//モデル登録
-	void ModelRegister(const char* filename, const char* texfilename = 0);
+	void ModelRegister(const char* filename, const char* texfilename = 0, bool checkModel = true);
 
 	//ノード操作
 	void NodeOperation(const char* nodename,DirectX::XMFLOAT4 rotate);

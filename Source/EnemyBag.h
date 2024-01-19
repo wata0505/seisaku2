@@ -38,7 +38,7 @@ public:
 		TrapTarget,
 	};
 public:
-	EnemyBag(bool tutorial = false,int stag = 0);
+	EnemyBag(bool tutorial = false,int stag = 0,int enemyType= 0);
 	~EnemyBag()override;
 
 	// XVˆ—
@@ -272,6 +272,8 @@ private:
 	float lerpGlitchIntensity = 0.0f;	// ‹­“x
 	float glitchScale = 50.0f;		// U‚ê•	
 	float deathTimer = 0.0f;		// €–SŠÔ
+
+	int colorType = 0;
 
 	int stagNo = 0;
 };
