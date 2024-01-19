@@ -13,13 +13,13 @@ Totem::Totem()
 
     scale.x = scale.y = scale.z = 3.0f;
     territoryRange = 10.0f;
-
+    radius = 2.0f;
 
     UpdateTransform(0, 0);
     model->UpdateBufferDara(transform);
     renderdata = model->GetBufferData();
     type = Trap::TrapType::TrapTotem;
-    survivalTime = 60 * 3;
+    survivalTime = 60 * 10;
     // ホログラムシェーダー情報初期化
     HologramShaderDataInitialize(0.0f, 15.0f);
 }

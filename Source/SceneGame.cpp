@@ -137,17 +137,7 @@ void SceneGame::Initialize()
 	//ParticleSprite* particleSprite = new ParticleSprite({NULL,NULL,NULL}, { NULL,NULL,NULL }, ParticleSprite::ParticleSoft, ParticleSprite::Chile, (int)EffectTexAll::EfTexAll::Thunder, 20000,NULL, NULL, false);
 	AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Bgm)->Play(true);
 
-	TrapManager& trapManager = TrapManager::Instance();
-	{//scale=150
-		DirectX::XMFLOAT3 position[3] = { { 84.0f, 12.5f, -35.0f }, { 94.4f, 12.5f, -24.5f }, { 57.5f, 12.5f, -50.0f} };
-		for (int i = 0; i < 3; i++)
-		{
-			Turret* turret = new Turret();
-			turret->SetPosition(position[i]);
-			turret->SetTerritory(turret->GetPosition(), 30.0f);
-			trapManager.Register(turret);
-		}
-	}
+
 }
 void SceneGame::Finalize()
 {
@@ -521,8 +511,8 @@ void SceneGame::Render()
 	if (player->GetLoseDirectingTimer() <= 0.0f)
 	{
 		//player->Sprite2DRender(immediate_context, rc, shader2);
-		TrapManager::Instance().Sprite2DRender(immediate_context, rc, shader2);
 		UIManager::Instance().Render(rc, shader2);
+		TrapManager::Instance().Sprite2DRender(immediate_context, rc, shader2);
 		base->HpDisplay(rc, shader2);
 		int wave = EnemySystem::Instance().GetWave();
 		if (wave < 3)

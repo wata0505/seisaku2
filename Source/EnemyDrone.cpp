@@ -136,6 +136,7 @@ void EnemyDrone::Update(float elapsedTime)
 			activeflag = false;
 			renderflag = false;
 			//position.y = -2000;
+			TrapManager::Instance().SetTrapPoint(TrapManager::Instance().GetTrapPoint() + 1);
 		}
 		// ‘¬—Íˆ—XV
 		//velocity.y = -1.5;

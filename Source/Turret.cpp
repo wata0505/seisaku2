@@ -39,7 +39,7 @@ Turret::Turret()
 	renderdata2 = model2->GetBufferData();
 
 
-	radius = 1.0f;
+	radius = 2.3f;
 	height = 10;
 	notAttackRange = 15.0f;
 	territoryRange = 40.0f;
@@ -252,9 +252,9 @@ void Turret::UpdateAttackState(float elapsedTime)
 		float h = 0;
 		// 発射
 		
-			h = 0.4;
+			h = 0.4f;
 			ProjectileStraite* projectile = new ProjectileStraite(&objectManager);
-			projectile->TurretLaunch(beem, h, 1.5, position, targetPosition, angle.y, Type::Beem, (int)EffectTexAll::EfTexAll::BlueThader, 1, 1, 0.0f);
+			projectile->TurretLaunch(beem, h, 1.5f, position, targetPosition, angle.y, Type::Beem, (int)EffectTexAll::EfTexAll::BlueThader, 1, 1, 0.0f);
 		
 		coolTime = 20;
 	}
@@ -318,14 +318,12 @@ void Turret::CollisionProjectilesVsEnemies()
 				enemy->GetHeight(),
 				outPosition))
 			{
-				// ダメージを与える
+				// ダメージを与える				
 				if (enemy->ApplyDamage(attack, 0.0f))
 				{
 					if (object->GetType() == Type::Beem) {
-						ParticleSystem::Instance().BoomEffect(object->GetPosition(), 1, int(EffectTexAll::EfTexAll::BlueThader), 3, 0.5, { NULL,NULL,2,1 });
-						ParticleSprite* particleSprite = new ParticleSprite(object->GetPosition(), { NULL,NULL,NULL }, ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::BlueThader), 200, 1.5, 0, true, 0.015, 0.06, { 0,0,1,1 });
-
-
+						ParticleSystem::Instance().BoomEffect(object->GetPosition(), 1, int(EffectTexAll::EfTexAll::BlueThader), 3, 0.5f, { NULL,NULL,2,1 });
+						ParticleSprite* particleSprite = new ParticleSprite(object->GetPosition(), { NULL,NULL,NULL }, ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::BlueThader), 200, 1.5f, 0, true, 0.015f, 0.06f, { 0,0,1,1 });
 						continue;
 					}
 				}

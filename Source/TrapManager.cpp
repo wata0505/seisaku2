@@ -345,6 +345,9 @@ void TrapManager::Clear()
 		delete Trap;
 	}
 	traps.clear();
+	buildFlag = false;
+	canSetFlag = false;
+	type = Trap::TrapType::TrapTurret;
 }
 
 //ÉgÉâÉbÉvçÌèú
@@ -417,7 +420,7 @@ void TrapManager::Sprite2DRender(ID3D11DeviceContext* dc, RenderContext& rc, Spr
 	DirectX::XMMATRIX Projection = DirectX::XMLoadFloat4x4(&rc.projection);
 	DirectX::XMMATRIX World = DirectX::XMMatrixIdentity();
 
-	TrapManager::Instance().Text(shader, dc, std::to_string(trapPoint), 50, 50, 100, 100, 0.0f, 1.0f, 0.0f, 1.0f);
+	TrapManager::Instance().Text(shader, dc, std::to_string(trapPoint), 165, 630, 50, 50, 0.0f, 1.0f, 0.0f, 1.0f);
 
 	DirectX::XMFLOAT2 positon = { 1100.0f, 480.0f };
 	float size = 80.0f;

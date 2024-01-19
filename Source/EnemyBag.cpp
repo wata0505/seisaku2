@@ -146,6 +146,7 @@ void EnemyBag::Update(float elapsedTime)
 			activeflag = false;
 			renderflag = false;
 			//position.y = -2000;
+			TrapManager::Instance().SetTrapPoint(TrapManager::Instance().GetTrapPoint() + 1);
 		}
 		ElapsedTime *= 0.3f;
 		UpdateTransform((int)Character::AxisType::RHSYUP, (int)Character::LengthType::Cm);
@@ -421,7 +422,7 @@ bool EnemyBag::SearchTrap()
 {
 
 	int count = TrapManager::Instance().GetTrapCount();
-	float dist = searchRange;
+	float dist = searchRange+10;
 	for (int i = 0; i < count; i++)
 	{
 		Trap* trap = TrapManager::Instance().GetTrap(i);
@@ -462,7 +463,7 @@ bool EnemyBag::SearchTrap()
 			}
 		}
 	}
-	if (dist != searchRange)//“G‚ªŒ©‚Â‚©‚Á‚Ä‚¢‚½‚ç
+	if (dist != searchRange+10)//“G‚ªŒ©‚Â‚©‚Á‚Ä‚¢‚½‚ç
 	{
 		return true;
 	}

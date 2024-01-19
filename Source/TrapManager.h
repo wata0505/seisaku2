@@ -54,6 +54,7 @@ public:
 	void  SetTrapPoint(int point) { this->trapPoint = point; }
 
 	bool GetBuidFlag() { return buildFlag; }
+	bool GetCanSetFlag() { return canSetFlag; }
 
 	DirectX::XMFLOAT3 GetHologramColor() { return hologramColor; }
 

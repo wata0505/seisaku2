@@ -18,12 +18,12 @@ Decoy::Decoy()
     UpdateTransform(0, 0);
     model->UpdateBufferDara(transform);
     renderdata = model->GetBufferData();
-
+    
     height = 5;
-    health = 10;
     maxHealth = 100;
+    health = maxHealth;
     territoryRange = 10.0f;
-    radius = 1;
+    radius = 1.5f;
     type = Trap::TrapType::TrapDecoy;
 
     // ホログラムシェーダー情報初期化

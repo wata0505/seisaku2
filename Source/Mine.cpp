@@ -19,6 +19,7 @@ Mine::Mine()
     renderdata = model->GetBufferData();
     territoryRange = 5;
     attack = 1;
+    radius = 0.7f;
     height = 5.0f;
     type = Trap::TrapType::TrapMine;
 
@@ -136,7 +137,7 @@ bool Mine::CollisionVsEnemies()
 
         if (Collision::IntersectCylinderVsCylinder(
             enemy->GetPosition(), enemy->GetRadius(), enemy->GetHeight(),
-            position, territoryRange, height,
+            position, radius, height,
             outPosition))
         {
             enemy->ApplyDamage(attack, 0.0f, false);
