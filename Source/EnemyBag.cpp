@@ -28,16 +28,21 @@ EnemyBag::EnemyBag(bool tutorial, int stag,int enemyType)
 	model->AppendAnimations(".\\resources\\enemy\\Enemy_Die.fbx", 0);
 	model->ModelSerialize(".\\resources\\enemy\\enemy.fbx");
 	//model->ModelCreate(".\\resources\\Slime\\Slime.fbx");
+	model->ModelRegister(".\\resources\\enemy\\enemy.fbx", "Texture\\all_low_lambert1.tif", false);
+	adjustSmoothness = 1.0f;
 	switch (enemyType)
 	{
 	   case 0:
-	   	   model->ModelRegister(".\\resources\\enemy\\enemy.fbx", "Texture\\all_low_lambert1.tif", false);
+		   adjustMetalness = 0.0f;
+	   	   //model->ModelRegister(".\\resources\\enemy\\enemy.fbx", "Texture\\all_low_lambert1.tif", false);
 	   	   break;
 	   case 1:
-		   model->ModelRegister(".\\resources\\enemy\\enemy.fbx", "TextureRed\\all_low_lambert1.tif",false);
+		   adjustMetalness = 1.0f;
+		   //model->ModelRegister(".\\resources\\enemy\\enemy.fbx", "TextureRed\\all_low_lambert1.tif",false);
 		   break;
 	   case 2:
-		   model->ModelRegister(".\\resources\\enemy\\enemy.fbx", "TextureGreen\\all_low_lambert1.tif",false);
+		   adjustMetalness = -0.5f;
+		   //model->ModelRegister(".\\resources\\enemy\\enemy.fbx", "TextureGreen\\all_low_lambert1.tif",false);
 		   break;	
 	}
 	colorType = enemyType;
@@ -263,7 +268,7 @@ void EnemyBag::TargetUpdate() {
 		switch (targetNo)
 		{
 		case BaseTarget:
-			targetPosition = Base::Instance().GetPos();
+			targetPosition = Base::Instance().GetPosition();
 			break;
 		case PlayerTarget:
 			targetPosition = Player::Instance().GetPosition();
@@ -539,10 +544,7 @@ void EnemyBag::ReMove()
 	glitchIntensity = 0;
 	// ホログラムシェーダー情報初期化
 	HologramShaderDataInitialize(minHeight, maxHeight);
-	deathTimer = 0;
-	//model->PBRAdjustment(adjustMetalness, adjustSmoothness, emissiveStrength);
-	//model->HologramAdjustment(timer, scanTiling, scanSpeed, scanBorder, glowTiling, glowSpeed, glowBorder, hologramBorder, rimStrength);
-	//model->GlitchAdjustment(timer, glitchSpeed, glitchIntensity, glitchScale);
+	deathTimer = 0;	
 	position = DirectX::XMFLOAT3(pos.x, 0.0f, pos.y);
 	SetTerritory(position, 10.0f);
 	reMoveflag = false;

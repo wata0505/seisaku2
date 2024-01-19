@@ -131,6 +131,112 @@ float3 EnvBRDFApprox(float3 F0, float roughness, float NdotV)
     return	F0 * AB.x + AB.y;
 }
 
+//--------------------------------------------
+// RGB色空間の数値からHSV色空間の数値への変換関数
+//--------------------------------------------
+// rgb:RGB色空間の数値
+float3	RGB2HSV(float3 rgb)
+{
+    float3 hsv = 0;
+    // V(明度)の最大値と最小値を求める
+    float Vmax = max(rgb.r, max(rgb.g, rgb.b));	// RGBの三つの値で最大のもの
+    float Vmin = min(rgb.r, min(rgb.g, rgb.b));	// RGBの三つの値で最小のもの
+
+    // 最大値と最小値の差
+    float delta = Vmax - Vmin;
+
+    // V(明度)一番強い色をV値に
+    hsv.z = Vmax;
+
+    // S(彩度)最大値と最小値の差を正規化して求める
+    hsv.y = (delta / Vmax) * step(0, Vmax);
+
+    // H(色相)RGBのうち最大値と最小値の差から求める
+    if (hsv.y > 0.0f)
+    {
+        if (rgb.r == Vmax)
+        {
+            hsv.x = 60 * ((rgb.g - rgb.b) / delta);
+        }
+        else if (rgb.g == Vmax)
+        {
+            hsv.x = 60 * ((rgb.b - rgb.r) / delta) + 120;
+        }
+        else
+        {
+            hsv.x = 60 * ((rgb.r - rgb.g) / delta) + 240;
+        }
+        if (hsv.x < 0)
+        {
+            hsv.x += 360;
+        }
+    }
+    return hsv;
+}
+//--------------------------------------------
+// HSV色空間の数値からRGB色空間の数値への変換関数
+//--------------------------------------------
+// hsv:HSV色空間の数値
+float3	HSV2RGB(float3 hsv)
+{
+    float3 rgb = 0;
+    if (hsv.y == 0)
+    {
+        // S(彩度)が0と等しいならば無色もしくは灰色
+        rgb.r = rgb.g = rgb.b = hsv.z;
+    }
+    else
+    {
+        // 色環のH(色相)の位置とS(彩度)、V(明度)からRGB値を算出
+        float Vmax = hsv.z;
+        float Vmin = Vmax - (hsv.y * Vmax);
+        hsv.x %= 360;	// 0～360に変換
+        float Huei = (int)(hsv.x / 60);
+        float Huef = hsv.x / 60 - Huei;
+        float p = Vmax * (1.0f - hsv.y);
+        float q = Vmax * (1.0f - hsv.y * Huef);
+        float t = Vmax * (1.0f - hsv.y * (1 - Huef));
+        if (Huei == 0)
+        {
+            rgb.r = Vmax;
+            rgb.g = t;
+            rgb.b = p;
+        }
+        else if (Huei == 1)
+        {
+            rgb.r = q;
+            rgb.g = Vmax;
+            rgb.b = p;
+        }
+        else if (Huei == 2)
+        {
+            rgb.r = p;
+            rgb.g = Vmax;
+            rgb.b = t;
+        }
+        else if (Huei == 3)
+        {
+            rgb.r = p;
+            rgb.g = q;
+            rgb.b = Vmax;
+        }
+        else if (Huei == 4)
+        {
+            rgb.r = t;
+            rgb.g = p;
+            rgb.b = Vmax;
+        }
+        else if (Huei == 5)
+        {
+            rgb.r = Vmax;
+            rgb.g = p;
+            rgb.b = q;
+        }
+    }
+    return rgb;
+}
+
+
 // 1 : ワールド空間、 0 : モデルのローカル空間
 #define WORLD 0
 
@@ -177,8 +283,8 @@ PS_OUT main(VS_OUT pin)
     // 環境光遮蔽度
     float ambientOcculusion = AmbientOcclusionTexture.Sample(sampler_states[ANISOTROPIC], pin.texcoord).r;
     // 調整
-    metallic = saturate(metallic + adjustMetalness);
-    smoothness = saturate(smoothness + adjustSmoothness);
+    //metallic = saturate(metallic + adjustMetalness);
+    //smoothness = saturate(smoothness + adjustSmoothness);
 
     // 粗さ
     float roughness = 1.0f - smoothness;
@@ -215,6 +321,15 @@ PS_OUT main(VS_OUT pin)
 
     float4 directColor = float4(directDiffuse + directSpecular, albedo.a);
     
+    // RGB > HSVに変換
+    emissive.rgb = RGB2HSV(emissive.rgb);
+    // 色相調整
+    emissive.r += adjustMetalness * 180.0f;
+    // 彩度調整
+    emissive.g *= adjustSmoothness;
+    // HSV > RGBに変換
+    emissive.rgb = HSV2RGB(emissive.rgb);
+
     // エミッシブ適応可能値なら加算
     if (emissiveMax > 0.0f)
     {
