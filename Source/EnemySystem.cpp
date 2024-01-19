@@ -50,7 +50,7 @@ void EnemySystem::Start(int Stag) {
 
 void EnemySystem::Update(float elapsedTime) {
 	EnemyManager& enemyManager = EnemyManager::Instance();
-	if (weve < 3) {
+	if (wave < 3) {
 		for (int i = 0; i < waveMaxEnemyCount[stag][wave]; i++) {
 
 			if (!EnemyManager::Instance().GetEnemy(i)->GetActiveflag() || waveTimer > waveTimerMax[wave]) {
