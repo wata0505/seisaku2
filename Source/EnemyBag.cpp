@@ -15,6 +15,7 @@
 #include"Base.h"
 #include "Mathf.h"
 #include"TrapManager.h"
+#include "Camera.h"
 
 // コンストラクタ
 EnemyBag::EnemyBag(bool tutorial, int stag,int enemyType)
@@ -78,12 +79,11 @@ EnemyBag::EnemyBag(bool tutorial, int stag,int enemyType)
 	mass = 2.0;
 	UpdateTransform(0, 0);
 
-	model->UpdateBufferDara(transform);
+	model->UpdateBufferData(transform);
 	//renderdata = model->GetBufferData();
 
 	se[(int)EnemyBagSE::Walk] = Audio::Instance().LoadAudioSource("resources\\Audio\\wolk2.wav");
 	se[(int)EnemyBagSE::Run] = Audio::Instance().LoadAudioSource("resources\\Audio\\run3.wav");
-	se[(int)EnemyBagSE::Roar] = Audio::Instance().LoadAudioSource("resources\\Audio\\bag1.wav");
 	//se[(int)EnemyBagSE::hit] = Audio::Instance().LoadAudioSource("resources\\Audio\\pannti.wav");
 	searchRange = 6.0f;
 
@@ -148,7 +148,7 @@ void EnemyBag::Update(float elapsedTime)
 		lerpGlitchIntensity = 0.0f;
 	}
 	glitchIntensity = Mathf::Lerp(glitchIntensity, lerpGlitchIntensity, elapsedTime * 20.0f);
-	model->ShaderAdjustment(adjustMetalness, adjustSmoothness, glitchScale, timer, maxHeight);
+	model->ShaderAdjustment(glitchScale, timer, maxHeight);
 
 	//描画判定
 	reMoveTimer -= elapsedTime;
@@ -176,7 +176,7 @@ void EnemyBag::Update(float elapsedTime)
 		UpdateTransform((int)Character::AxisType::RHSYUP, (int)Character::LengthType::Cm);
 		model->UpdateAnimation(ElapsedTime,"pelvis");
 		// モデル行列更新
-		model->UpdateBufferDara(transform);
+		model->UpdateBufferData(transform);
 		//renderdata = model->GetBufferData();
 
 		hologramTimer = 0.0f;
@@ -213,7 +213,7 @@ void EnemyBag::Update(float elapsedTime)
 	objectManager.Update(elapsedTime);
 	// モデル行列更新
 	if (renderflag) {
-		model->UpdateBufferDara(transform);
+		model->UpdateBufferData(transform);
 	}
 	//モデル描画情報受け渡し
 	//renderdata = model->GetBufferData();
@@ -230,9 +230,19 @@ void EnemyBag::SeUpdate(float elapsedTime) {
 // 死亡した時に呼ばれる
 void EnemyBag::OnDead()
 {
+	float length = DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMVectorSubtract(DirectX::XMLoadFloat3(&Camera::Instance().GetEye()), DirectX::XMLoadFloat3(&position))));
+	float volume = 0.5f;
+	if (length > 20.0f)
+	{
+		volume = (20.0f / length) * 0.5f;
+	}
+	else
+	{
+		volume = 0.5f;
+	}
 	// 死亡
 	stateMachine->ChangeState(static_cast<int>(EnemyBag::BagState::ReDamage));
-	AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Down)->Play(false, DOWNSE);
+	AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Down)->Play(false, volume);
 	
 }
 
@@ -338,7 +348,7 @@ void EnemyBag::Render(ID3D11DeviceContext* dc, ModelShader* shader)
 	//if (health <= 0) {
 	//	return;
 	//}
-	if (renderflag)shader->Draw(dc, model.get(), { glitchIntensity, scanBorder, glowBorder, hologramBorder }, { 1.0f, 0.0f, 0.0f, 1.0f });
+	if (renderflag)shader->Draw(dc, model.get(), { glitchIntensity, scanBorder, glowBorder, hologramBorder }, { 1.0f, adjustMetalness, adjustSmoothness, 1.0f });
 }
 void EnemyBag::Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader)
 {
@@ -450,7 +460,7 @@ bool EnemyBag::SearchTrap()
 	for (int i = 0; i < count; i++)
 	{
 		Trap* trap = TrapManager::Instance().GetTrap(i);
-		if (trap->GetHologramTimer() < 1)
+		if (trap->GetHologramTimer() < 1.0f)
 		{
 			continue;
 		}

@@ -95,7 +95,7 @@ public:
 	//最大速度設定
 	void SetMaxMoveSpeed(float max) { this->maxMoveSpeed = max; }
 
-	float GetSaveDamage() { return saveDamage; }
+	int GetSaveDamage() { return saveDamage; }
 
 	void  SetFriction(float fn) { this->friction = fn; }
 
@@ -164,6 +164,9 @@ private:
 	// 水平移動更新処理
 	virtual void UpdateHorizontalMove(float elapsedTime);
 
+	// レイキャスト関数の中身省略(使いまわし)
+	bool OmissionRaycastContents(DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end, DirectX::XMVECTOR Velocity);
+
 protected:
 	DirectX::XMFLOAT3		position = { 0,0,0 };
 	DirectX::XMFLOAT3		angle = { 0,0,0 };
@@ -203,10 +206,11 @@ protected:
 	//上昇の限界値
 	float   altitude = 15;
 	//ダメージ保存
-	float   saveDamage = 0;
+	int     saveDamage = 0;
     //無敵時間フラグ
 	bool damageFlag = false;
 
+	DirectX::XMFLOAT2 lastPoint = {};
 	float scanTimer = 0.0f;			// スキャンラインの時間
 	float scanBorder = 0.0f;		// スキャンラインの描画範囲
 	float glowTimer = 0.0f;			// グロウラインの時間

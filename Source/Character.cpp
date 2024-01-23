@@ -1,7 +1,10 @@
-#include"Character.h"
-#include"StageManager.h"
-#include"Mathf.h"
-#include"Base.h"
+#include "Character.h"
+#include "StageManager.h"
+#include "Mathf.h"
+#include "Base.h"
+#include "Graphics.h"
+#include "AudioAll.h"
+#include "Camera.h"
 
 //行列更新処理
 void Character::UpdateTransform(int axisType,int lengthType)
@@ -327,6 +330,7 @@ void Character::UpdateVerticalMove(float elapsedTime)
 // 水平速力更新処理
 void Character::UpdateHorizontalVelocity(float elapsedFrame)
 {
+#if 0
 	DirectX::XMFLOAT3 outPos;
 	if (StageManager::Instance().PillarVS(position, radius, height, outPos)) {
 		position = outPos;
@@ -334,6 +338,7 @@ void Character::UpdateHorizontalVelocity(float elapsedFrame)
 	if (Base::Instance().PillarVS(position, radius, height, outPos)) {
 		position = outPos;
 	}
+#endif
 	// XZ平面の速力を減速する
 	float length = sqrtf(velocity.x * velocity.x + velocity.z * velocity.z);
 	if (length > 0.0f)
@@ -399,21 +404,82 @@ void Character::UpdateHorizontalVelocity(float elapsedFrame)
 // 水平移動更新処理
 void Character::UpdateHorizontalMove(float elapsedTime)
 {
-	//// 移動処理
-	//position.x += velocity.x * elapsedTime;
-	//position.z += velocity.z * elapsedTime;
-
 	// 水平速力量計算
 	float velocityLengthXZ = sqrtf(velocity.x * velocity.x + velocity.z * velocity.z);
+
 	if (velocityLengthXZ > 0.0f)
 	{
 		// 水平移動値
 		float mx = velocity.x * elapsedTime;
 		float mz = velocity.z * elapsedTime;
+		//float length = sqrtf(mx * mx + mz * mz);
 		// レイの開始位置と終点位置
-		DirectX::XMFLOAT3 start = { position.x,position.y + height *0.5f,position.z };
+		DirectX::XMFLOAT3 start = { position.x,position.y + height * 0.5f,position.z };
 		DirectX::XMFLOAT3 end = { position.x + mx, position.y + height * 0.5f, position.z + mz };
-		
+#if 0
+		// 水平移動値
+		DirectX::XMFLOAT3 velo = { velocity.x, 0.0f, velocity.z };
+		//float length = DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMLoadFloat3(&velo)));
+		//float length = abs(mx) + abs(mz);
+		float length = 0.0f;
+		//DirectX::XMVECTOR Velocity = DirectX::XMVectorScale(DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&velocity)), radius);
+		DirectX::XMVECTOR Velocity = DirectX::XMVectorScale(DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&velo)), radius);
+		//Velocity = DirectX::XMVectorSetY(Velocity, 0.0f);
+		//DirectX::XMVECTOR Velocity = DirectX::XMVectorScale(DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&velocity)), radius);
+		//Velocity = DirectX::XMVectorSetY(Velocity, 0.0f);
+		end = { position.x + mx + DirectX::XMVectorGetX(Velocity), position.y + height * 0.5f, position.z + mz + DirectX::XMVectorGetZ(Velocity) };
+		DebugRenderer* debugRenderer = Graphics::Instance().GetDebugRenderer();
+		//衝突判定用のデバック球を描画
+		debugRenderer->DrawSphere(end, radius * 0.5f, DirectX::XMFLOAT4(1, 0, 0, 1));
+#if 1
+		if (!OmissionRaycastContents(start, end, Velocity))
+		{
+			// 左
+			DirectX::XMFLOAT3 up = { 0.0f, 1.0f, 0.0f };
+			DirectX::XMVECTOR Up = DirectX::XMLoadFloat3(&up);
+			DirectX::XMVECTOR Cross = DirectX::XMVector3Cross(Up, Velocity);
+			end = { position.x + mx + DirectX::XMVectorGetX(Cross), position.y + height * 0.5f, position.z + mz + DirectX::XMVectorGetZ(Cross) };
+			debugRenderer->DrawSphere(end, radius * 0.5f, DirectX::XMFLOAT4(0, 1, 0, 1));
+			if (!OmissionRaycastContents(start, end, Cross))
+			{
+				// 右
+				Cross = DirectX::XMVectorNegate(Cross);
+				end = { position.x + mx + DirectX::XMVectorGetX(Cross), position.y + height * 0.5f, position.z + mz + DirectX::XMVectorGetZ(Cross) };
+				debugRenderer->DrawSphere(end, radius * 0.5f, DirectX::XMFLOAT4(0, 0, 1, 1));
+				if (!OmissionRaycastContents(start, end, Cross))
+				{
+					//end = { position.x + lastPoint.x, position.y + height * 0.5f, position.z + lastPoint.y };
+					//debugRenderer->DrawSphere(end, radius * 0.5f, DirectX::XMFLOAT4(1, 1, 0, 1));
+					//if (!OmissionRaycastContents(start, end, Velocity))
+					{
+						// 移動
+						position.x += mx;
+						position.z += mz;
+					}
+					if (position.z < -139) {
+						position.z = -139;
+					}
+					if (position.z > 59) {
+						position.z = 59;
+					}
+					if (position.x > 159) {
+						position.x = 159;
+					}
+					if (position.x < 41) {
+						position.x = 41;
+				}
+				}
+			}
+		}
+#else
+		if (!OmissionRaycastContents(start, end, Velocity))
+		{
+			// 移動
+			position.x += mx;
+			position.z += mz;
+		}
+#endif
+#else
 		// レイキャストによる壁判定
 		HitResult hit;
 		if (StageManager::Instance().RayCast(start, end, hit))
@@ -422,22 +488,18 @@ void Character::UpdateHorizontalMove(float elapsedTime)
 			DirectX::XMVECTOR Start = DirectX::XMLoadFloat3(&start);
 			DirectX::XMVECTOR End = DirectX::XMLoadFloat3(&end);
 			DirectX::XMVECTOR Vec = DirectX::XMVectorSubtract(End, Start);
-		
+
 			// 壁の法線
 			DirectX::XMVECTOR Normal = DirectX::XMLoadFloat3(&hit.normal);
-		
+
 			// 入射ベクトルを法線に射影
 			DirectX::XMVECTOR Dot = DirectX::XMVector3Dot(DirectX::XMVectorNegate(Vec), Normal);
-		
+
 			// 補正位置の計算
 			DirectX::XMVECTOR apos = DirectX::XMVectorMultiplyAdd(Normal, Dot, End);
 			DirectX::XMFLOAT3 aPos;
 			DirectX::XMStoreFloat3(&aPos, apos);
-		
-			DirectX::XMVECTOR Vec2 = DirectX::XMVectorScale(DirectX::XMVector3Normalize(Vec), -1);
-			DirectX::XMFLOAT3 vec2;
-			DirectX::XMStoreFloat3(&vec2, Vec2);
-		
+
 			// 壁擦り方向にレイキャスト
 			HitResult hit2;
 			if (!StageManager::Instance().RayCast(hit.position, aPos, hit2))
@@ -448,10 +510,9 @@ void Character::UpdateHorizontalMove(float elapsedTime)
 			}
 			else
 			{
-				position.x = hit2.position.x;//+vec2.x * radius;
-				position.z = hit2.position.z;//+vec2.z * radius;
+				position.x = hit2.position.x;
+				position.z = hit2.position.z;
 			}
-		
 		}
 		else
 		{
@@ -459,21 +520,106 @@ void Character::UpdateHorizontalMove(float elapsedTime)
 			position.x += mx;
 			position.z += mz;
 		}
-		if (position.z < -139) {
-			position.z = -139;
+		if (position.z < -139.0f)
+		{
+			position.z = -139.0f;
 		}
-		if (position.z > 59) {
-			position.z = 59;
+		if (position.z > 59.0f)
+		{
+			position.z = 59.0f;
 		}
-		if (position.x > 159) {
-			position.x = 159;
+		if (position.x > 159.0f)
+		{
+			position.x = 159.0f;
 		}
-		if (position.x < 41) {
-			position.x = 41;
+		if (position.x < 41.0f)
+		{
+			position.x = 41.0f;
 		}
+#endif
 	}
 }
+// レイキャスト関数省略(使いまわし)
+bool Character::OmissionRaycastContents(DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end, DirectX::XMVECTOR Velocity)
+{
+	// レイキャストによる壁判定
+	HitResult hit;
+	if (StageManager::Instance().RayCast(start, end, hit))
+	{
+		lastPoint.x = end.x - start.x;
+		lastPoint.y = end.z - start.z;
 
+		// 壁までのベクトル
+		DirectX::XMVECTOR Start = DirectX::XMLoadFloat3(&start);
+		DirectX::XMVECTOR End = DirectX::XMLoadFloat3(&end);
+
+		End = DirectX::XMVectorSubtract(End, Velocity);
+		DirectX::XMVECTOR Vec = DirectX::XMVectorSubtract(End, Start);
+
+		// 壁の法線
+		DirectX::XMVECTOR Normal = DirectX::XMLoadFloat3(&hit.normal);
+
+		// 入射ベクトルを法線に射影
+		DirectX::XMVECTOR Dot = DirectX::XMVector3Dot(DirectX::XMVectorNegate(Vec), Normal);
+
+		// 補正位置の計算
+		DirectX::XMVECTOR apos = DirectX::XMVectorMultiplyAdd(Normal, Dot, End);
+		DirectX::XMFLOAT3 aPos;
+		DirectX::XMStoreFloat3(&aPos, apos);
+
+		DirectX::XMFLOAT3 collectPosition;
+		collectPosition = aPos;
+		aPos.y = position.y;
+		hit.position.y = position.y;
+
+		// 壁擦り方向にレイキャスト
+		HitResult hit2;
+		DebugRenderer* debugRenderer = Graphics::Instance().GetDebugRenderer();
+		if (!StageManager::Instance().RayCast(hit.position, aPos, hit2))
+		{
+			//hit.position.y = position.y;
+			hit.normal.y = 0;
+			Normal = DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&hit.normal));
+			Vec = DirectX::XMVectorSubtract(Start, DirectX::XMLoadFloat3(&hit.position));
+			Dot = DirectX::XMVector3Dot(Vec, Normal);
+			DirectX::XMVECTOR Collect = DirectX::XMVectorAdd(DirectX::XMLoadFloat3(&aPos), DirectX::XMVectorScale(Normal, radius - DirectX::XMVectorGetX(Dot)));
+			float dot = DirectX::XMVectorGetX(DirectX::XMVector3Dot(DirectX::XMVectorSubtract(DirectX::XMLoadFloat3(&hit.position), Collect), Normal));
+			//DirectX::XMStoreFloat3(&position, DirectX::XMVectorAdd(DirectX::XMLoadFloat3(&collectPosition), DirectX::XMVectorScale(Normal, radius - DirectX::XMVectorGetX(Dot))));
+			//float dot = DirectX::XMVectorGetX(DirectX::XMVector3Dot(DirectX::XMVectorSubtract(DirectX::XMLoadFloat3(&hit.position), DirectX::XMLoadFloat3(&position)), Normal));
+			DirectX::XMFLOAT3 collect;
+			DirectX::XMStoreFloat3(&position, DirectX::XMVectorAdd(Collect, DirectX::XMVectorScale(Normal, radius + dot)));
+			//DirectX::XMStoreFloat3(&collect, Collect);
+			debugRenderer->DrawSphere(position, radius * 0.5f, DirectX::XMFLOAT4(0, 1, 1, 1));
+		}
+		else
+		{
+#if 1
+			hit2.position.y = position.y;
+			hit2.normal.y = 0;
+			Normal = DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&hit2.normal));
+			Vec = DirectX::XMVectorSubtract(Start, DirectX::XMLoadFloat3(&hit2.position));
+			Dot = DirectX::XMVector3Dot(Vec, Normal);
+			//debugRenderer->DrawSphere(collect, radius * 0.5f, DirectX::XMFLOAT4(1, 0, 1, 1));
+			DirectX::XMStoreFloat3(&position, DirectX::XMVectorAdd(DirectX::XMLoadFloat3(&hit2.position), DirectX::XMVectorScale(Normal, radius - DirectX::XMVectorGetX(Dot))));
+#else
+			hit.position.y = position.y;
+			hit.normal.y = 0;
+			hit2.position.y = position.y;
+			hit2.normal.y = 0;
+			DirectX::XMVECTOR Normal1 = DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&hit.normal));
+			DirectX::XMVECTOR Normal2 = DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&hit2.normal));
+			DirectX::XMVECTOR Pos1 = DirectX::XMVectorAdd(DirectX::XMLoadFloat3(&hit.position), DirectX::XMVectorScale(Normal1, radius));
+			DirectX::XMVECTOR Pos2 = DirectX::XMVectorAdd(DirectX::XMLoadFloat3(&hit2.position), DirectX::XMVectorScale(Normal2, radius));
+			Dot = DirectX::XMVector3Dot(Normal1, Normal2);
+			DirectX::XMVECTOR add = DirectX::XMVectorAdd(DirectX::XMLoadFloat3(&hit2.position), DirectX::XMLoadFloat3(&hit.position));
+			DirectX::XMVECTOR nor = DirectX::XMVectorAdd(Normal1, Normal2);
+			DirectX::XMStoreFloat3(&position, DirectX::XMVectorAdd(DirectX::XMVectorScale(add, 0.5f), DirectX::XMVectorScale(DirectX::XMVectorScale(nor, 0.5f), radius)));
+#endif
+		}
+		return true;
+	}
+	return false;
+}
 // ホログラムシェーダー情報初期化
 void Character::HologramShaderDataInitialize(float minHeight, float maxHeight)
 {
@@ -526,6 +672,23 @@ bool Character::UpdateHologramShader(float elapsedTime)
 	// グロウラインの時間が一定値(0.4f)以上なら
 	if (glowTimer >= permissionTimer)
 	{
+		if (hologramTimer <= 0.0f)
+		{
+			float length = DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMVectorSubtract(DirectX::XMLoadFloat3(&Camera::Instance().GetEye()), DirectX::XMLoadFloat3(&position))));
+			float volume = 0.3f;
+			if (length > 20.0f)
+			{
+				volume = (20.0f / length) * 0.3f;
+			}
+			else
+			{
+				volume = 0.3f;
+			}
+
+			// ホログラム音停止と再生
+			AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Hologram)->Stop();
+			AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Hologram)->Play(false, volume);
+		}
 		// ホログラムラインの時間加算
 		hologramTimer += elapsedTime;
 		// ホログラムラインの時間が許容時間以上なら固定

@@ -253,9 +253,7 @@ void StingerState::Enter()
         ProjectileStraite* projectile = new ProjectileStraite(&owner->objectManager);
         projectile->Launch(owner->GetSword(),owner->GetHeight(), 1, 1.0 * i, Type::Stinger, (int)EffectTexAll::EfTexAll::Distortion, 0.7, NULL, NULL);
     }
-    owner->stingerEffect = EffectAll::Instance().stingerEffect->Play({ 0, -20, 0 }, 0.5);
-    AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Strike)->Play(false, SE);
-   
+    owner->stingerEffect = EffectAll::Instance().stingerEffect->Play({ 0, -20, 0 }, 0.5);   
 }
 // スティンガーステートで実行するメソッド
 void StingerState::Execute(float elapsedTime)

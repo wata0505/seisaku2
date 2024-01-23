@@ -88,7 +88,6 @@ void BagRoarState::Enter()
 {
 	owner->SetStateTimer(Mathf::RandomRange(3.0f, 5.0f));
 	owner->GetModel()->PlayAnimation(static_cast<int>(EnemyBag::WalkFWD), false);
-	owner->PlaySe((int)EnemyBag::EnemyBagSE::Roar, false);
 }
 
 // 咆哮ステートで実行するメソッド

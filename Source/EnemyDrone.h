@@ -15,7 +15,6 @@ public:
 	{
 		Walk,
 		Run,
-		Roar,
 		Max
 	};
 	// エネミーアニメーション
@@ -205,7 +204,7 @@ private:
 	//バトルステート範囲
 	float				battleRange = 6.0f;
 	//バトルステート範囲MAX
-	int				battleRangeMax = 6.0f;
+	int				battleRangeMax = 6;
 	//バックステップ範囲
 	float				backStepRange = 2.0f;
 	//当たり判定半径

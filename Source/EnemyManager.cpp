@@ -51,7 +51,7 @@ void EnemyManager::Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> 
 void EnemyManager::Register(Enemy* enemy)
 {
 	// TODO 05_06 各エネミーにIDを付与する
-	enemy->SetId(5 + enemies.size());
+	enemy->SetId(5 + static_cast<int>(enemies.size()));
 
 	enemies.emplace_back(enemy);
 }

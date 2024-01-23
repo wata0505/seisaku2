@@ -17,13 +17,14 @@
 #include "Mathf.h"
 
 #include"TrapManager.h"
+#include "Camera.h"
 // コンストラクタ
 EnemyDrone::EnemyDrone(bool tutorial)
 {
 	beem = std::make_unique<Model>(".\\resources\\Cube.fbx", true);
 	beem->ModelSerialize(".\\resources\\Cube.fbx");
 	beem->ModelRegister(".\\resources\\Cube.fbx");
-	beem->UpdateBufferDara(transform);
+	beem->UpdateBufferData(transform);
 
 	model = std::make_unique<Model>(".\\resources\\Drone\\Drone.fbx", true);
 	model->ModelSerialize(".\\resources\\Drone\\Drone.fbx");
@@ -57,12 +58,11 @@ EnemyDrone::EnemyDrone(bool tutorial)
 	mass = 2.0;
 	UpdateTransform(0, 0);
 
-	model->UpdateBufferDara(transform);
+	model->UpdateBufferData(transform);
 	//renderdata = model->GetBufferData();
 
 	se[(int)EnemyDroneSE::Walk] = Audio::Instance().LoadAudioSource("resources\\Audio\\wolk2.wav");
 	se[(int)EnemyDroneSE::Run] = Audio::Instance().LoadAudioSource("resources\\Audio\\run3.wav");
-	se[(int)EnemyDroneSE::Roar] = Audio::Instance().LoadAudioSource("resources\\Audio\\Bag1.wav");
 	//se[(int)EnemyDroneSE::hit] = Audio::Instance().LoadAudioSource("resources\\Audio\\pannti.wav");
 	searchRange = 25.0f;
 	attackRange = 25.0f;
@@ -82,6 +82,8 @@ EnemyDrone::EnemyDrone(bool tutorial)
 	maxEria = 10 + (rand() % 10);
 	// ホログラムシェーダー情報初期化
 	HologramShaderDataInitialize(0.0f, 16.0f);
+	adjustMetalness = 0.0f;
+	adjustSmoothness = 1.0f;
 }
 
 // デストラクタ
@@ -116,7 +118,7 @@ void EnemyDrone::Update(float elapsedTime)
 		lerpGlitchIntensity = 0.0f;
 	}
 	glitchIntensity = Mathf::Lerp(glitchIntensity, lerpGlitchIntensity, elapsedTime * 20.0f);
-	model->ShaderAdjustment(adjustMetalness, adjustSmoothness, glitchScale, timer, maxHeight);
+	model->ShaderAdjustment(glitchScale, timer, maxHeight);
 	objectManager.Update(elapsedTime);
 	//描画判定
 	if (reMoveflag)ReMove();
@@ -140,14 +142,14 @@ void EnemyDrone::Update(float elapsedTime)
 		}
 		// 速力処理更新
 		//velocity.y = -1.5;
-		position.y += gravity * 0.5;
+		position.y += gravity * 0.5f;
 		//UpdateVelocity(elapsedTime);
 		UpdateTransform((int)Character::AxisType::RHSYUP, (int)Character::LengthType::Cm);
 		model->UpdateAnimation(elapsedTime, "pelvis");
 		
 		
 		// モデル行列更新
-		model->UpdateBufferDara(transform);
+		model->UpdateBufferData(transform);
 		//renderdata = model->GetBufferData();
 
 		hologramTimer = 0.0f;
@@ -189,7 +191,7 @@ void EnemyDrone::Update(float elapsedTime)
 	
 	// モデル行列更新
 	if (renderflag) {
-		model->UpdateBufferDara(transform);
+		model->UpdateBufferData(transform);
 	}
 	//モデル描画情報受け渡し
 	//renderdata = model->GetBufferData();
@@ -206,9 +208,19 @@ void EnemyDrone::SeUpdate(float elapsedTime) {
 // 死亡した時に呼ばれる
 void EnemyDrone::OnDead()
 {
+	float length = DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMVectorSubtract(DirectX::XMLoadFloat3(&Camera::Instance().GetEye()), DirectX::XMLoadFloat3(&position))));
+	float volume = 0.5f;
+	if (length > 20.0f)
+	{
+		volume = (20.0f / length) * 0.5f;
+	}
+	else
+	{
+		volume = 0.5f;
+	}
 	// 死亡
 	stateMachine->ChangeState(static_cast<int>(EnemyDrone::DroneState::ReDamage));
-	AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Down)->Play(false, DOWNSE);
+	AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Down)->Play(false, volume);
 
 }
 
@@ -232,7 +244,7 @@ void EnemyDrone::BeemShoat()
 		float h = 0;
 		// 発射
 		
-		h = 0.4;
+		h = 0.4f;
 		ProjectileStraite* projectile = new ProjectileStraite(&objectManager);
 		projectile->TurretLaunch(beem, h, 2.5 - 0.5, position, targetPosition, angle.y, Type::Beem, (int)EffectTexAll::EfTexAll::Distortion, 1, 1, 0.5f);
 		
@@ -245,7 +257,7 @@ void EnemyDrone::TargetUpdate() {
 		switch (targetNo)
 		{
 		case BaseTarget:
-			targetPosition = Base::Instance().GetPos();
+			targetPosition = Base::Instance().GetPosition();
 			break;
 		case TrapTarget:
 			break;
@@ -276,7 +288,7 @@ void EnemyDrone::CollisionBeemVSTrap()
 		for (int l = 0; l < count; l++)
 		{
 			Trap* trap = TrapManager::Instance().GetTrap(l);
-			if (trap->GetActiveFlag() == false)
+			if (!trap->GetIsActive())
 			{
 				continue;
 			}
@@ -342,7 +354,7 @@ void EnemyDrone::Render(ID3D11DeviceContext* dc, ModelShader* shader)
 	//if (health <= 0) {
 	//	return;
 	//}
-	if (renderflag)shader->Draw(dc, model.get(), { glitchIntensity, scanBorder, glowBorder, hologramBorder }, { 1.0f, 0.0f, 0.0f, 1.0f });
+	if (renderflag)shader->Draw(dc, model.get(), { glitchIntensity, scanBorder, glowBorder, hologramBorder }, { 1.0f, adjustMetalness, adjustSmoothness, 1.0f });
 }
 void EnemyDrone::Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader)
 {
@@ -423,7 +435,7 @@ bool EnemyDrone::SearchTrap()
 	for (int i = 0; i < count; i++)
 	{
 		Trap* trap = TrapManager::Instance().GetTrap(i);
-		if (trap->GetHologramTimer() >= 1)
+		if (trap->GetHologramTimer() >= 1.0f)
 		{
 			continue;
 		}
@@ -511,9 +523,6 @@ void EnemyDrone::ReMove()
 	// ホログラムシェーダー情報初期化
 	HologramShaderDataInitialize(minHeight, maxHeight);
 	deathTimer = 0;
-	//model->PBRAdjustment(adjustMetalness, adjustSmoothness, emissiveStrength);
-	//model->HologramAdjustment(timer, scanTiling, scanSpeed, scanBorder, glowTiling, glowSpeed, glowBorder, hologramBorder, rimStrength);
-	//model->GlitchAdjustment(timer, glitchSpeed, glitchIntensity, glitchScale);
 	position = DirectX::XMFLOAT3(pos.x, 0.0f, pos.y);
 	SetTerritory(position, 10.0f);
 	reMoveflag = false;

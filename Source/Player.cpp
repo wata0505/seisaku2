@@ -69,15 +69,15 @@ Player::Player() {
     sword = std::make_unique<Model>(".\\resources\\Sword.fbx", true);
     sword->ModelSerialize(".\\resources\\Sword.fbx");
     sword->ModelRegister(".\\resources\\Sword.fbx");
-    sword->UpdateBufferDara(transform);
+    sword->UpdateBufferData(transform);
     slash = std::make_unique<Model>(".\\resources\\Textures\\zanngeki4.fbx", true);
     slash->ModelSerialize(".\\resources\\Textures\\zanngeki4.fbx");
     slash->ModelRegister(".\\resources\\Textures\\zanngeki4.fbx");
-    slash->UpdateBufferDara(transform);
+    slash->UpdateBufferData(transform);
     beem = std::make_unique<Model>(".\\resources\\Cube.fbx", true);
     beem->ModelSerialize(".\\resources\\Cube.fbx");
     beem->ModelRegister(".\\resources\\Cube.fbx");
-    beem->UpdateBufferDara(transform);
+    beem->UpdateBufferData(transform);
     //wepon = std::make_unique<MainWepon>();
     maxHealth = 20;
     health = maxHealth;
@@ -92,8 +92,8 @@ Player::Player() {
     cameraController = std::make_unique<CameraController>();
     moveSpeed = 20;
     maxMoveSpeed = 20;
-    friction = 1.0;
-    player->UpdateBufferDara(transform);
+    friction = 0.5f;
+    player->UpdateBufferData(transform);
     //renderdata = player->GetBufferData();
     for (int i = 0; i < 13; i++) {
         lowerBody.push_back(lower[i]);
@@ -147,7 +147,7 @@ void Player::update(float elapsedTime)
         lerpGlitchIntensity = 0.0f;
     }
     glitchIntensity = Mathf::Lerp(glitchIntensity, lerpGlitchIntensity, elapsedTime * 20.0f);
-    player->ShaderAdjustment(adjustMetalness, adjustSmoothness, glitchScale, timer, maxHeight, hologramColor);
+    player->ShaderAdjustment(glitchScale, timer, maxHeight, hologramColor);
 
     if (health <= 0)
     {
@@ -184,7 +184,7 @@ void Player::update(float elapsedTime)
     UpdateVelocity(ElapsedTime);
     UpdateTransform((int)Character::AxisType::RHSYUP, (int)Character::LengthType::Cm);
     //描画情報更新
-    player->UpdateBufferDara(transform);
+    player->UpdateBufferData(transform);
 
     if (!isActiveStart)
     {
@@ -254,7 +254,7 @@ void Player::TitleUpdate(float elapsedTime)
     }
 
     timer += elapsedTime;
-    player->ShaderAdjustment(adjustMetalness, adjustSmoothness, glitchScale, timer, maxHeight, hologramColor);
+    player->ShaderAdjustment(glitchScale, timer, maxHeight, hologramColor);
     float ElapsedTime = elapsedTime * modelSpeed;
     animeTimer = ElapsedTime;
 
@@ -275,12 +275,12 @@ void Player::TitleUpdate(float elapsedTime)
     UpdateVelocity(ElapsedTime);
     UpdateTransform((int)Character::AxisType::RHSYUP, (int)Character::LengthType::Cm);
     //描画情報更新
-    player->UpdateBufferDara(transform);
+    player->UpdateBufferData(transform);
 }
 void Player::ClearUpdate(float elapsedTime)
 {
     timer += elapsedTime;
-    player->ShaderAdjustment(adjustMetalness, adjustSmoothness, glitchScale, timer, maxHeight, hologramColor);
+    player->ShaderAdjustment(glitchScale, timer, maxHeight, hologramColor);
     float ElapsedTime = elapsedTime * modelSpeed;
     animeTimer = ElapsedTime;
     dir = { 0.0f, 0.0f, 1.0f };
@@ -302,6 +302,10 @@ void Player::ClearUpdate(float elapsedTime)
         {            
             clearState = ClearState::ClearPunchNow;
             farPosition = Base::Instance().GetPosition().z + 5.0f;
+        }
+        else if (animationTime > 0.25f && animationTime < 0.253f)
+        {
+            AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Clear)->Play(false, 0.3f);
         }
     }
         break;
@@ -338,7 +342,7 @@ void Player::ClearUpdate(float elapsedTime)
     UpdateVelocity(ElapsedTime);
     UpdateTransform((int)Character::AxisType::RHSYUP, (int)Character::LengthType::Cm);
     //描画情報更新
-    player->UpdateBufferDara(transform);
+    player->UpdateBufferData(transform);
 }
 void Player::AudioUpdate() {
     //移動以外ならダッシュSEストップ
@@ -418,7 +422,12 @@ void Player::ComeTerget(float elapsedTime)
     }
     else if (health <= 0 || Base::Instance().GetHP() <= 0)
     {
-        explosionTimer += elapsedTime;        
+        if (explosionTimer <= 0.0f)
+        {
+            AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Bgm)->Stop();
+            AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Lose)->Play(false, 0.6f);
+        }
+        explosionTimer += elapsedTime;
         if (explosionTimer < 3.0f)
         {
             if (static_cast<int>(explosionTimer * 10) % 5 == 2)
@@ -427,12 +436,14 @@ void Player::ComeTerget(float elapsedTime)
                 spawnPosition.x += static_cast<float>(rand() % 40) - 20.0f;
                 spawnPosition.y += static_cast<float>(rand() % 20);
                 spawnPosition.z += static_cast<float>(rand() % 4) - 2.0f;
-                ParticleSystem::Instance().BoomEffect(spawnPosition, 3, int(EffectTexAll::EfTexAll::Flame), 10, 0.5f, { NULL, NULL, 2, 1 });
+                ParticleSystem::Instance().BoomEffect(spawnPosition, 3, int(EffectTexAll::EfTexAll::Flame), 10, 0.5f, { NULL, NULL, 2, 1 });                
             }
             if (static_cast<int>(explosionTimer * 10) % 5 == randomValue)
             {
                 SetShakeInput({ 0.0f, 1.0f, 0.0f }, 5.0f);
                 randomValue = rand() % 5;
+                AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::boom1)->Stop();
+                AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::boom1)->Play(false, 0.5f);
             }
         }
         DirectX::XMFLOAT3 cameraPosision = Base::Instance().GetPosition();
@@ -1150,7 +1161,7 @@ void Player::render(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_contex
 {
     if (renderflag)
     {
-        shader->Draw(immediate_context.Get(), player.get(), { glitchIntensity, scanBorder, glowBorder, hologramBorder }, { 0.0f, 0.0f, 1.0f, 1.0f });
+        shader->Draw(immediate_context.Get(), player.get(), { glitchIntensity, scanBorder, glowBorder, hologramBorder }, { 3.0f, 0.0f, 0.0f, 1.0f });
     }
     //wepon->Render(immediate_context.Get(), shader);
 }
