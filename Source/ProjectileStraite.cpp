@@ -260,7 +260,7 @@ void ProjectileStraite::ChangeWpUpdate(float elapsedTime) {
 	rotationangle += rotatespeed * elapsedTime;
 	//light->SetPos(position, 1, 1, 0.5, 0);
 	if (this->positionY == 1) {
-		light->SetPos(position, 50, 2, 1, 0);
+		light->SetParameter(position, 50, 2, 1, 0);
 	}
 }
 
@@ -386,7 +386,7 @@ void ProjectileStraite::Launch(std::shared_ptr <Model> buffer, float height, flo
 		scale.x = scale.y = 0.1;
 		scale.z = 0;
 		UpdateTransform();
-		model->UpdateBufferDara(transform);
+		model->UpdateBufferData(transform);
 	}
 	uvStatus.w = texType;
 	uvStatus.z = 0.3;
@@ -420,7 +420,7 @@ void ProjectileStraite::TurretLaunch(std::shared_ptr <Model> buffer, float heigh
 		scale.x = scale.y = 0.2;
 		scale.z = 0;
 		UpdateTransform();
-		model->UpdateBufferDara(transform);
+		model->UpdateBufferData(transform);
 	}
 	uvStatus.w = texType;
 	uvStatus.z = 0.3;

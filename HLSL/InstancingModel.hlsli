@@ -19,13 +19,18 @@ struct VS_OUT
     float2 texcoord : TEXCOORD;
 
     float3 ShadowParam : TEXCOORD3;
+    float4 localPosition : POSITION2;
 };
 
-struct PS_OUT {
+struct PS_OUT
+{
     float4 Color : SV_TARGET0; // カラー
     float4 Depth : SV_TARGET1; // 距離
     float4 Normal : SV_TARGET2; // 法線
     float4 Position : SV_TARGET3; // 座標
+    float4 MetalSmoothness : SV_TARGET4;    // メタリック
+    float4 AmbientOcclusion : SV_TARGET5;   // 粗さ
+    float4 Emission : SV_TARGET6;           // エミッシブ
 };
 static const int MAX_BONES = 256;
 cbuffer OBJECT_CONSTANT_BUFFER : register(b0)
@@ -47,4 +52,21 @@ cbuffer UV_BUFFER : register(b2)
 cbuffer SHADOW_CONSTANT_BUFFER : register(b5)
 {
     row_major float4x4 ShadowVP;
+};
+
+// サブセット用定数バッファ
+cbuffer SubsetConstantBuffer : register(b6)
+{
+    float adjustMetalness;	// 金属度
+    float adjustSmoothness;	// 粗さ
+    float glitchIntensity;	// 強度
+    float glitchScale;		// 振れ幅
+    float timer;			// 更新時間
+    float scanBorder;		// 描画範囲
+    float glowBorder;		// 描画範囲
+    float hologramBorder;	// 描画範囲
+    float3 hologramColor;   // ホログラム色
+    float maxHeight;        // 最高点
+    int yUp;
+    float3 dummy;
 };

@@ -95,7 +95,7 @@ void Particle::BarrierUpdate(float elapsedTime) {
 	}
 	//this->speed[type] -= elapsedTime;
 	//materialColor.w -= elapsedTime*2;
-	light->SetPos(moves.at(0).position, 10, materialColor.x, materialColor.y, materialColor.z);
+	light->SetParameter(moves.at(0).position, 10, materialColor.x, materialColor.y, materialColor.z);
 
 }
 void Particle::BarrierEnemyUpdate(float elapsedTime) {
@@ -212,7 +212,7 @@ void Particle::Launch(std::vector<MoveConstants> constants, int type, int modelT
 		//ƒ‰ƒCƒgÝ’è
 		light = new Light(moves.at(0).position, 0, 1, 1, 1);
 		LightManager::Instance().Register(light);
-		light->SetPos(Player::Instance().GetPosition(), 10, materialColor.x, materialColor.y, materialColor.z);
+		light->SetParameter(Player::Instance().GetPosition(), 10, materialColor.x, materialColor.y, materialColor.z);
 	}
 }
 

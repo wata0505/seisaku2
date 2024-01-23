@@ -34,32 +34,32 @@ public:
     void Render(ID3D11DeviceContext* dc, ModelShader* shader);
 
 	// 位置取得
-	const DirectX::XMFLOAT3& GetPosition()const { return position; }
+	const DirectX::XMFLOAT3& GetPosition() const { return position; }
 
 	// 方向取得
-	const DirectX::XMFLOAT3& GetDirection()const { return direction; }
+	const DirectX::XMFLOAT3& GetDirection() const { return direction; }
 
 	// スケール取得
-	const DirectX::XMFLOAT3& GetScale()const { return scale; }
+	const DirectX::XMFLOAT3& GetScale() const { return scale; }
 
 	// 半径所得
-	const float GetRadius()const { return radius; }
+	const float GetRadius() const { return radius; }
 
 	void SetRadius(float radius) { this->radius  = radius; }
 
 	void SetSwordState(int type) { this->swordState = type; }
 	//タイプ取得
-	const int GetSwordState()const { return swordState; }
+	const int GetSwordState() const { return swordState; }
 
 	// 無敵時間
-	const float GetInvincibleTime()const { return InvincibleTime; }
+	const float GetInvincibleTime() const { return InvincibleTime; }
 
 	//ダメージ
-	const int GetDamage()const { return damage; }
+	const int GetDamage() const { return damage; }
 
 	void SetDamage(int damage) { this->damage = damage; }
 
-	const int GetMpChargeRate()const { return mpChargeRate; }
+	const int GetMpChargeRate() const { return mpChargeRate; }
 
 	void SetMpChargeRate(int mpChargeRate) { this->mpChargeRate = mpChargeRate; }
 
@@ -71,20 +71,20 @@ public:
 
 	void SetWeponType(int type) { this->weponType = type; }
 	//タイプ取得
-	const int GetWeponType()const { return weponType; }
+	const int GetWeponType() const { return weponType; }
 
 	std::shared_ptr<Model> GetWeponModel(int t) { return weapon[t]; }
 
 	// 位置取得
-	DirectX::XMFLOAT3 GetWeaponPoint()const { return weaponPoint; }
+	DirectX::XMFLOAT3 GetWeaponPoint() const { return weaponPoint; }
 
 	// 方向取得
-	DirectX::XMFLOAT3 GetWeaponEPoint()const { return weaponEPoint; }
-	DirectX::XMFLOAT3 GetWeaponEFPoint()const { return weaponEFPoint; }
+	DirectX::XMFLOAT3 GetWeaponEPoint() const { return weaponEPoint; }
+	DirectX::XMFLOAT3 GetWeaponEFPoint() const { return weaponEFPoint; }
 
-	DirectX::XMFLOAT3 GetWeaponPPoint()const { return weaponPPoint; }
+	DirectX::XMFLOAT3 GetWeaponPPoint() const { return weaponPPoint; }
 
-	DirectX::XMFLOAT3 GetWeaponHPoint()const { return weaponHPoint; }
+	DirectX::XMFLOAT3 GetWeaponHPoint() const { return weaponHPoint; }
 
 	void SetRnderflag(bool flag) { renderflag = flag; }
 
@@ -96,11 +96,11 @@ public:
 	//この武器が壊れているか
 	bool GetBreakFlag(int type) { return breakflag[type]; }
 
-	float GetWeponLife(int type) { return weponLife[type]; }
+	int GetWeponLife(int type) { return weponLife[type]; }
 
 	float GetMaxWeponLife(int type) { return maxLife[type]; }
 
-	void SetWeponLife(int type,int life) { weponLife[type] = life; }
+	void SetWeponLife(int type, int life) { weponLife[type] = life; }
 	//壊れかけか
 	bool GetBroken();
 	//UI用横計算
@@ -165,23 +165,23 @@ private:
 	DirectX::XMFLOAT3 up = {0,0,0};
 	DirectX::XMFLOAT3 front = {0,0,0};
 	float radius = 1.0f;
-	float mpChargeRate = 1.0f;
-	float weponHead[WeponMax] = {0,0.4,0.5,0,0};//武器ごとの手元
-	float weponLen[WeponMax] = { 1.5,1.6,2,2,0.5 };//武器ごとの先
-	float weponEFLen[WeponMax] = { 2.5,2.6,3,4,0.5 };//武器ごとエフェクトの上側
-	float weponELen[WeponMax] = { 0,1,1,0.5,0 };//武器ごとエフェクトの下側
-	float weponPLen[WeponMax] = { -0.2,-0.8,-1,-0.5,-1 };//武器ごとの柄
+	int mpChargeRate = 1;
+	float weponHead[WeponMax] = { 0, 0.4f, 0.5f, 0, 0 };//武器ごとの手元
+	float weponLen[WeponMax] = { 1.5f, 1.6f, 2, 2, 0.5f };//武器ごとの先
+	float weponEFLen[WeponMax] = { 2.5f, 2.6f, 3, 4, 0.5f };//武器ごとエフェクトの上側
+	float weponELen[WeponMax] = { 0, 1, 1, 0.5f, 0 };//武器ごとエフェクトの下側
+	float weponPLen[WeponMax] = { -0.2f, -0.8f, -1, -0.5f, -1 };//武器ごとの柄
 
 
 
-	float weponLife[WeponMax] = {0,0,0,0,0};//武器ごとのHP
-	float weponRepsir[WeponMax] = { 1.8,1.7,1.6,1.5,1.4 };//武器ごとの修復速度
+	int weponLife[WeponMax] = {0,0,0,0,0};//武器ごとのHP
+	float weponRepsir[WeponMax] = { 1.8f, 1.7f, 1.6f, 1.5f, 1.4f };//武器ごとの修復速度
 	float maxLife[WeponMax] = {30,40,38,25,5};//武器ごとの最大HP
 	float breakTimer = 1;//壊れた修復速度
-	float lifeAverage[WeponMax] = {1,1,1,1,1}; // 武器ごとのHPゲージ
+	int lifeAverage[WeponMax] = {1,1,1,1,1}; // 武器ごとのHPゲージ
 	float lifeSpeed = 0.5; // HPゲージの更新速度
 	bool breakflag[WeponMax] = {false,false,false,false,false};//武器ごとの壊れたフラグ
-	float brokenLife = 0.3;//壊れてかける割合
+	float brokenLife = 0.3f;//壊れてかける割合
 	int swordState = 0;//武器の状態
 	int weponType = 0;
 	int uiWeponWidth[WeponMax] = {0,1,-1,0,0};
@@ -189,7 +189,7 @@ private:
 	GaugeUI* uiWeponHp[Shield];
 	BaseUI* uiUseWepon;
 	float speed = 40;
-	float damage = 1;
+	int damage = 1;
 	float InvincibleTime = 1.0;
 	int timer = 0;
 	float angle = 0;

@@ -89,7 +89,7 @@ public:
 	//現在何のサブアニメーションか取得
 	int GetCurrentSubAnimationIndex()const { return currentSubAnimationIndex; }
 	//描画情報取得
-	void UpdateBufferDara(const DirectX::XMFLOAT4X4& world);
+	void UpdateBufferData(const DirectX::XMFLOAT4X4& world);
 	//サブノードの描画情報取得
 	void UpdateSubBufferDara(const DirectX::XMFLOAT4X4& world, std::vector <const char*> Node);
 	
@@ -110,7 +110,7 @@ public:
 	Animation::Keyframe GetKeyframe() { return keyframe; }
 
 	// シェーダー情報調整
-	void ShaderAdjustment(float adjustMetalness, float adjustSmoothness, float glitchScale, float timer, float maxHeight, DirectX::XMFLOAT3 hologramColor = { 1.0f, 0.0f, 0.0f });
+	void ShaderAdjustment(float glitchScale, float timer, float maxHeight, DirectX::XMFLOAT3 hologramColor = { 1.0f, 0.0f, 0.0f });
 
 private:
 	std::shared_ptr<SkinnedMeshResouurce>	resource;

@@ -216,17 +216,14 @@ void DefaultShader::Draw(ID3D11DeviceContext* dc, Model* model, const DirectX::X
 }
 
 void DefaultShader::Draw(ID3D11DeviceContext* dc, const Model* model,InstancingConstants buffer, int max, const DirectX::XMFLOAT4 color)
-{
-
-	
-	dc->VSSetShader(vertexShader[ModelShader::Instancing].Get(), nullptr, 0);
-	dc->PSSetShader(pixelShader[ModelShader::Instancing].Get(), nullptr, 0);
+{	
 	Graphics& graphics = Graphics::Instance();
 	const SkinnedMeshResouurce* resource = model->GetResource();
+	dc->VSSetShader(vertexShader[ModelShader::Instancing].Get(), nullptr, 0);
+	dc->PSSetShader(pixelShader[ModelShader::Instancing].Get(), nullptr, 0);
 	dc->OMSetDepthStencilState(graphics.GetDepthStencilState(ONON), 1);
 	for (const SkinnedMeshResouurce::Mesh& mesh : resource->GetMeshes())
 	{
-
 		InstancingConstants buffers = buffer;
 		uint32_t stride{ sizeof(SkinnedMeshResouurce::Vertex) };
 		uint32_t offset{ 0 };
@@ -240,14 +237,46 @@ void DefaultShader::Draw(ID3D11DeviceContext* dc, const Model* model,InstancingC
 			// マテリアルの識別ID からマテリアルを取得し参照として設定
 			const SkinnedMeshResouurce::Material& material{ resource->materials.find({subset.materialUniqueId}).operator*() };			
 
+			SubsetConstantBuffer cbSubset;
+			// PBR情報
+			cbSubset.adjustMetalness = material.pbr.adjustMetalness;
+			cbSubset.adjustSmoothness = material.pbr.adjustSmoothness;
+			// グリッチ情報
+			cbSubset.glitchIntensity = material.pbr.glitchIntensity;
+			cbSubset.glitchScale = material.pbr.glitchScale;
+			// ホログラム情報
+			cbSubset.timer = material.pbr.timer;
+			//cbSubset.scanBorder = color.x;
+			//cbSubset.glowBorder = color.x;
+			//cbSubset.hologramBorder = color.y;
+			//cbSubset.hologramColor.x = color.z;
+			//cbSubset.hologramColor.y = 0.0f;
+			//cbSubset.hologramColor.z = 1.0f;
+			cbSubset.scanBorder = material.pbr.scanBorder;
+			cbSubset.glowBorder = material.pbr.glowBorder;
+			cbSubset.hologramBorder = material.pbr.hologramBorder;
+			cbSubset.hologramColor.x = material.pbr.hologramColor.x;
+			cbSubset.hologramColor.y = material.pbr.hologramColor.y;
+			cbSubset.hologramColor.z = material.pbr.hologramColor.z;
+			cbSubset.maxHeight = material.pbr.maxHeight;
+			cbSubset.yUp = static_cast<int>(color.w);
+			dc->UpdateSubresource(subsetConstantBuffer.Get(), 0, 0, &cbSubset, 0, 0);
+
 			//XMStoreFloat4(&buffer.materialColor, XMLoadFloat4(&color));
 			//constantbuffer = modle-Getconstant_buffer();
 			dc->UpdateSubresource(instanBuffer.Get(), 0, 0, &buffer, 0, 0);
 			dc->VSSetConstantBuffers(0, 1, instanBuffer.GetAddressOf());
 			dc->PSSetConstantBuffers(0, 1, instanBuffer.GetAddressOf());
+			//テクスチャ
 			dc->PSSetShaderResources(0, 1, resource->shaderResourceViews.at(material.textureFilenames[0]).GetAddressOf());
 			//法線マップ
 			dc->PSSetShaderResources(1, 1, resource->shaderResourceViews.at(material.textureFilenames[1]).GetAddressOf());
+			// メタリックマップ
+			dc->PSSetShaderResources(3, 1, resource->shaderResourceViews.at(material.textureFilenames[2]).GetAddressOf());
+			// 粗さマップ
+			dc->PSSetShaderResources(4, 1, resource->shaderResourceViews.at(material.textureFilenames[3]).GetAddressOf());
+			// エミッシブマップ
+			dc->PSSetShaderResources(7, 1, resource->shaderResourceViews.at(material.textureFilenames[4]).GetAddressOf());
 			dc->DrawIndexedInstanced(subset.indexCount, max, subset.startIndexLocation, 0, 0);
 		}
 	}

@@ -18,9 +18,21 @@ VS_OUT main(VS_IN vin, uint instanceId : SV_INSTANCEID)
     vin.normal = float4(vin.normal.xyz, 0.0f);
     vin.tangent = float4(vin.tangent.xyz, 0.0f);
 
-    VS_OUT vout;
-    vout.position = mul(vin.position, mul(world[instanceId], view_projection));
+    float4 position = mul(vin.position, mul(world[instanceId], view_projection));
+    float scan = step(scanBorder, -vin.position.y);
+    // スキャンの境界判定
+    if (scan < 1.0f && maxHeight > 0.0f)
+    {
+        // キャラのローカル座標
+        float4 localPosition = vin.position;
+        localPosition.xyz = float3(0.0f, maxHeight, 0.0f);
+        //localPosition.xyz = float3(localPosition.x, maxHeight, localPosition.z);
+        position = mul(localPosition, mul(world[instanceId], view_projection));
+    }
 
+    VS_OUT vout;
+    vout.position = position;
+    vout.localPosition = vin.position;
     vout.world_position = mul(vin.position, world[instanceId]);
     //vin.normal.w = 0;
     vout.world_normal = normalize(mul(vin.normal, world[instanceId]));

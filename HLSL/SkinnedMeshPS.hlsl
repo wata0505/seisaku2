@@ -324,9 +324,9 @@ PS_OUT main(VS_OUT pin)
     // RGB > HSVに変換
     emissive.rgb = RGB2HSV(emissive.rgb);
     // 色相調整
-    emissive.r += adjustMetalness * 180.0f;
+    emissive.r += hologramColor.g * 180.0f;
     // 彩度調整
-    emissive.g *= adjustSmoothness;
+    emissive.g *= hologramColor.b;
     // HSV > RGBに変換
     emissive.rgb = HSV2RGB(emissive.rgb);
 
@@ -358,6 +358,22 @@ PS_OUT main(VS_OUT pin)
             hologram = step(hologramBorder, -pin.localPosition.z);
         }
 #endif
+        float3 holoColor = 0;
+        switch ((int)hologramColor.r)
+        {
+        case 0:
+            holoColor = directColor.rgb;
+            break;
+        case 1:
+            holoColor = float3(1.0f, 0.0f, 0.0f);
+            break;
+        case 2:
+            holoColor = float3(0.0f, 1.0f, 0.0f);
+            break;
+        case 3:
+            holoColor = float3(0.0f, 0.0f, 1.0f);
+            break;
+        }
         // ホログラムなら
         if (hologram <= 0.0f)
         {
@@ -394,16 +410,17 @@ PS_OUT main(VS_OUT pin)
             //scan *= (1.0f - hologram);
             //glow *= (1.0f - hologram);
             // ホログラムカラーの合計値
-            float hologramColorMax = hologramColor.r + hologramColor.g + hologramColor.b;
+            //float hologramColorMax = hologramColor.r + hologramColor.g + hologramColor.b;
             // タワー以外
-            if (hologramColorMax <= 1.0f)
+            //if (hologramColorMax <= 1.0f)
             {
-                directColor.rgb = (scan * hologramColor + glow * (hologramColor * 1.2f));
+                //directColor.rgb = (scan * hologramColor + glow * (hologramColor * 1.2f));
+                directColor.rgb = (scan * holoColor + glow * (holoColor * 1.2f));
             }
             // タワー
-            else
+            //else
             {
-                directColor.rgb = (scan * directColor.rgb + glow * (directColor.rgb * 1.2f));
+                //directColor.rgb = (scan * directColor.rgb + glow * (directColor.rgb * 1.2f));
             }
 
             // glitchIntensity : 被弾 or 死亡時に強まる
@@ -437,7 +454,8 @@ PS_OUT main(VS_OUT pin)
 #endif        
         
         // モデル色 += オブジェクト別色を実体とホログラムの境界線の淵の幅 + グリッチの強さ分赤色
-        directColor.rgb += hologramColor * edgeValue * 2.0f + red * glitchIntensity;
+        //directColor.rgb += hologramColor * edgeValue * 2.0f + red * glitchIntensity;
+        directColor.rgb += holoColor * edgeValue * 2.0f + red * glitchIntensity;
     }
     
     // ステージ

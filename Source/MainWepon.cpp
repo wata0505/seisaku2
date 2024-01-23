@@ -33,7 +33,7 @@ MainWepon::MainWepon() {
     radius = 0.5f;
 	UpdateTransform();
 	for (int i = 0; i < 5; i++) {
-		weapon[i]->UpdateBufferDara(transform);
+		weapon[i]->UpdateBufferData(transform);
 	}
 
 	//weponUI[MainSwordUI] = std::make_unique<Sprite>(L".\\resources\\UI\\SW.PNG");
@@ -59,8 +59,8 @@ MainWepon::MainWepon() {
 	for (int i = 0; i < WeponMax; i++) {
 		weponLife[i] = maxLife[i];
 	}
-	weapon[weponType]->UpdateBufferDara(transform);
-	weapon[WeponType::Shield]->UpdateBufferDara(transform);
+	weapon[weponType]->UpdateBufferData(transform);
+	weapon[WeponType::Shield]->UpdateBufferData(transform);
 }
 MainWepon& MainWepon::Instance()
 {
@@ -73,7 +73,7 @@ void MainWepon::Update(float elapsedTime)
 	if (weponType == WeponType::MainSword && swordState == SwordState::Nomal) {
 		WeponShieldUpdate();
 		UpdateTransform();
-		weapon[WeponType::Shield]->UpdateBufferDara(transform);
+		weapon[WeponType::Shield]->UpdateBufferData(transform);
 	}
 	switch (swordState)
 	{
@@ -104,12 +104,9 @@ void MainWepon::Update(float elapsedTime)
 
 	//UpdateUI(elapsedTime);
 
-	weapon[weponType]->UpdateBufferDara(transform);
+	weapon[weponType]->UpdateBufferData(transform);
 	//モデル行列更新
 	//sword->UpdateWorldBufferData(transform);
-	if (swordState != SwordState::Shift) {
-		AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Sift)->Stop();
-	}
 	timer++;
 }
 void MainWepon::NomalUpdate(float elapsedTime) {
@@ -136,7 +133,6 @@ void MainWepon::NomalUpdate(float elapsedTime) {
 }
 void MainWepon::ShiftUpdate(float elapsedTime) {
 	Player& player = Player::Instance();
-	AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Sift)->Play(true,SE);
 	float speed = this->speed * elapsedTime;
 	
 	direction = shiftDirection;

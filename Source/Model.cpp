@@ -23,7 +23,7 @@ Model::Model(const char* filename,bool triangulate, bool leftflag)
 	UpdateTransform();
 }
 //描画情報更新
-void Model::UpdateBufferDara(const DirectX::XMFLOAT4X4& world) {
+void Model::UpdateBufferData(const DirectX::XMFLOAT4X4& world) {
 	data.resize(resource->GetMeshes().size());
 	for (int size = 0; size < data.size();size++)
 	{
@@ -621,7 +621,7 @@ Animation::Keyframe::node* Model::FindNode(const char* name)
 }
 
 // シェーダー情報調整
-void Model::ShaderAdjustment(float adjustMetalness, float adjustSmoothness, float glitchScale, float timer, float maxHeight, DirectX::XMFLOAT3 hologramColor)
+void Model::ShaderAdjustment(float glitchScale, float timer, float maxHeight, DirectX::XMFLOAT3 hologramColor)
 {
 	for (const SkinnedMeshResouurce::Mesh& mesh : resource->GetMeshes())
 	{
@@ -630,8 +630,6 @@ void Model::ShaderAdjustment(float adjustMetalness, float adjustSmoothness, floa
 			// マテリアルの識別ID からマテリアルを取得し参照として設定
 			const SkinnedMeshResouurce::Material& material{ resource->materials.find({subset.materialUniqueId}).operator*() };			
 			SkinnedMeshResouurce::Material& mat = const_cast<SkinnedMeshResouurce::Material&>(material);
-			mat.pbr.adjustMetalness = adjustMetalness;		// 金属度
-			mat.pbr.adjustSmoothness = adjustSmoothness;	// 粗さ
 			mat.pbr.glitchScale = glitchScale;				// 振れ幅
 			mat.pbr.timer = timer;							// 更新時間
 			mat.pbr.hologramColor = hologramColor;			// ホログラム色

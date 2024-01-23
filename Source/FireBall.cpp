@@ -43,7 +43,7 @@ void FireBall::Update(float elapsedTime)
 		StraightUpdate(elapsedTime);
 		break;
 	}
-	light->SetPos(position,100, 2, 1, 0);//ライト更新
+	light->SetParameter(position,100, 2, 1, 0);//ライト更新
 	//オブジェクト行列を更新
 	UpdateTransform();
 
