@@ -246,7 +246,7 @@ void Enemy::CollisionNodeVsBase(const char* nodeName, float nodeRadius, DirectX:
 	DirectX::XMFLOAT3 outPosition;
 	if (Collision::IntersectSphereVsCylinder(
 		nodePosition, nodeRadius,
-		base.GetPos(), base.GetRadius(), base.GetHeight(),
+		base.GetPosition(), base.GetRadius(), base.GetHeight(),
 		outPosition))
 	{
 		base.InputDamage(static_cast<int>(damage));
@@ -261,7 +261,7 @@ void Enemy::CollisionNodeVsTrap(const char* nodeName, float nodeRadius, DirectX:
 	for (int i = 0; i < count; i++)
 	{
 		Trap* trap = TrapManager::Instance().GetTrap(i);
-		if (trap->GetActiveFlag() == false)
+		if (!trap->GetIsActive())
 		{
 			continue;
 		}

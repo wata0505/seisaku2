@@ -616,7 +616,7 @@ void SceneTutorial::projectImgui()
 
 #include "TrapManager.h"
 #include "Turret.h"
-
+#include "Misc.h"
 void SceneTutorial::Initialize()
 {
 	Graphics& graphics = Graphics::Instance();
@@ -627,7 +627,7 @@ void SceneTutorial::Initialize()
 	EnemySystem& enemySystem = EnemySystem::Instance();
 	enemySystem.Start(SceneManager::Instance().GetStage());
 	StageManager& stageManager = StageManager::Instance();
-	stageManager.clear();
+	stageManager.Clear();
 	stageMain = new StageMain;
 	stageManager.Register(stageMain);
 
@@ -684,8 +684,6 @@ void SceneTutorial::Initialize()
 
 	bit_block_transfer = std::make_unique<FullscreenQuad>(device.Get());
 
-
-	sprite_batchs = std::make_unique<Sprite>(L".\\resources\\haikei\\6.png");
 	sprite_batchs2 = std::make_unique<Sprite>();
 	claerSprite = std::make_unique<Sprite>(L".\\resources\\UI\\clear.png");
 	waveSprite[0] = std::make_unique<Sprite>(L".\\resources\\UI\\1Wave.png");
@@ -740,7 +738,7 @@ void SceneTutorial::Initialize()
 void SceneTutorial::Finalize()
 {
 
-	StageManager::Instance().clear();
+	StageManager::Instance().Clear();
 	EnemyManager::Instance().Clear();
 	ParticleManager::Instance().Clear();
 	InstancingSpriteManager::Instance().Clear();
@@ -748,7 +746,6 @@ void SceneTutorial::Finalize()
 	LightManager::Instance().Clear();
 	UIManager::Instance().Clear();
 	AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Bgm)->Stop();
-	AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::BgmBoss)->Stop();
 	TrapManager::Instance().Clear();
 
 }
@@ -911,15 +908,15 @@ void SceneTutorial::Render()
 	SpriteShader* shader2 = graphics.GetShader(Graphics::SpriteShaderId::Skybox);
 
 	shader2->Begin(rc);
-	sprite_batchs->Render(immediate_context,
+	loodSprite->Render(immediate_context,
 		0.0f, 0.0f, 1280, 720.0f,
-		0.0f, 0.0f, static_cast<float>(sprite_batchs->GetTextureWidth()), static_cast<float>(sprite_batchs->GetTextureHeight()),
+		0.0f, 0.0f, static_cast<float>(loodSprite->GetTextureWidth()), static_cast<float>(loodSprite->GetTextureHeight()),
 		0.0f,
 		1.0f, 1.0f, 1.0f, 1.0f,
 		skyboxColor, haikeiTimer, 0.0f
 	);
 	//sprite_batchs[0]->SetShaderResourceView(framebuffers[0]->shaderResourceViews[2], 1280, 720);
-	shader2->Draw(rc, sprite_batchs.get());
+	shader2->Draw(rc, loodSprite.get());
 	shader2->End(rc);
 
 	//デフォルトシェーダー

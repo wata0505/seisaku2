@@ -26,6 +26,7 @@
 
 #include "TrapManager.h"
 #include "Turret.h"
+#include "Misc.h"
 
 void SceneGame::Initialize()
 {
@@ -37,7 +38,7 @@ void SceneGame::Initialize()
 	EnemySystem& enemySystem = EnemySystem::Instance();
 	enemySystem.Start(SceneManager::Instance().GetStage());
 	StageManager& stageManager = StageManager::Instance();
-	stageManager.clear();
+	stageManager.Clear();
 	stageMain = new StageMain;
 	stageManager.Register(stageMain);
 
@@ -142,7 +143,7 @@ void SceneGame::Initialize()
 void SceneGame::Finalize()
 {
 
-	StageManager::Instance().clear();
+	StageManager::Instance().Clear();
 	EnemyManager::Instance().Clear();
 	ParticleManager::Instance().Clear();
 	InstancingSpriteManager::Instance().Clear();
@@ -150,7 +151,6 @@ void SceneGame::Finalize()
 	LightManager::Instance().Clear();
 	UIManager::Instance().Clear();
 	AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Bgm)->Stop();
-	AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::BgmBoss)->Stop();
 	TrapManager::Instance().Clear();
 	
 }
@@ -216,6 +216,8 @@ void SceneGame::Update(float elapsedTime)
 		{
 			dissolveTimer = 3.0f;
 		}
+
+		jitterDriftData.jitterStrength = skyboxColor / 200.0f;		
 	}
 	else
 	{
@@ -258,19 +260,34 @@ void SceneGame::Update(float elapsedTime)
 		}
 		else
 		{
-			jitterDriftData.jitterStrength = skyboxColor / 200.0f;
+			jitterDriftData.jitterStrength = 0.0f;
 		}
 	}
 
 	haikeiTimer += deltaTimer;
-	if (EnemySystem::Instance().GetWaveTimer() > 3 && EnemySystem::Instance().GetWaveTimer() < 8) {
+	if (EnemySystem::Instance().GetWaveTimer() > 3 && EnemySystem::Instance().GetWaveTimer() < 8) 
+	{		
 		waveTimer -= elapsedTime;
-		if (waveTimer < 0) waveTimer = 0;
+		if (waveTimer < 0.0f)
+		{
+			waveTimer = 0.0f;
+		}
+		else if (waveTimer > 0.0f && waveTimer <= 1.0f)
+		{
+			AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Text)->Play(false, 0.3f);
+		}
 	}
 	else
 	{
 		waveTimer += elapsedTime;
-		if (waveTimer > 3) waveTimer = 3;
+		if (waveTimer > 3.0f) 
+		{
+			waveTimer = 3.0f;
+		}
+		else if (waveTimer > 0.0f && waveTimer <= 1.0f)
+		{
+			AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Text)->Play(false, 0.3f);
+		}
 	}
 	gameTimer++;
 }
@@ -381,6 +398,7 @@ void SceneGame::Render()
 	{
 		EnemyManager::Instance().Render(immediate_context, shader);
 		TrapManager::Instance().Render(immediate_context, shader);
+		TrapManager::Instance().InstancingRender(immediate_context, shader);
 	}
 	
 	shader->End(immediate_context);
@@ -469,14 +487,14 @@ void SceneGame::Render()
 	subframebuffers[3]->Activate(immediate_context);
 	ID3D11ShaderResourceView* shaderResourceViews[2] = { framebuffers[0]->shaderResourceViews[8].Get(),subframebuffers[2]->shaderResourceViews.Get()};
 	{
-		bit_block_transfer->blit(immediate_context, shaderResourceViews, 0, 2, pixel_shaders[0].Get());
-	
+		bit_block_transfer->blit(immediate_context, shaderResourceViews, 0, 2, pixel_shaders[0].Get());	
 	}
 	subframebuffers[3]->Deactivate(immediate_context);
 	subframebuffers[4]->Clear(immediate_context);
 	subframebuffers[4]->Activate(immediate_context);
 	bit_block_transfer->blit(immediate_context, subframebuffers[3]->shaderResourceViews.GetAddressOf(), 0, 1);
-	if (player->GetQuickflag()) {
+	if (player->GetQuickflag()) 
+	{
 		//•úŽËƒuƒ‰[
 		bit_block_transfer->blit(immediate_context, subframebuffers[3]->shaderResourceViews.GetAddressOf(), 0, 1, pixel_shaders[2].Get());
 	}
@@ -598,10 +616,12 @@ void SceneGame::Render()
 			SceneManager::Instance().ChangeScene(new SceneLoading(new SceneTitle));
 		}
 	}
+#if 0
 	if (player->GetDidTimer() < NULL) 
 	{
 		SceneManager::Instance().ChangeScene(new SceneLoading(new SceneTitle));
 	}
+#endif
 }
 void SceneGame::projectImgui()
 {
@@ -609,8 +629,10 @@ void SceneGame::projectImgui()
 	ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_FirstUseEver);
 	if (ImGui::Begin("Debug", nullptr, ImGuiWindowFlags_None))
 	{
+		ImGui::SliderFloat("Sky", &skyboxColor, 0.0f, 1.0f);
 		ImGui::SliderFloat("GameAfterDissolveTimer", &gameAfterDissolveTimer, 0.0f, 3.0f);
 	}
+	EnemyManager::Instance().DrawDebugGUI();
 	TrapManager::Instance().DrawDebugGUI();
 	if (ImGui::TreeNode("light"))
 	{

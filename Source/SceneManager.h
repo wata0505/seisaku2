@@ -34,5 +34,5 @@ public:
 
 private:
 	Scene* currentScene = nullptr;
-	int stag;
+	int stag = 0;
 };

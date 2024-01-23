@@ -16,7 +16,7 @@
 #include "EffectManager.h"
 #include "Mathf.h"
 #include "RenderContext.h"
-
+#include "Misc.h"
 // 初期化
 void SceneTitle::Initialize()
 {
@@ -123,7 +123,7 @@ void SceneTitle::Initialize()
 // 終了化
 void SceneTitle::Finalize()
 {
-	StageManager::Instance().clear();
+	StageManager::Instance().Clear();
 	LightManager::Instance().Clear();
 }
 
@@ -209,8 +209,7 @@ void SceneTitle::Update(float elapsedTime)
 		}
 	}
 	// テクスチャ関連の更新処理
-	UpdateTextureData(elapsedTime);
-	SceneManager::Instance().SetStage(stagNo);
+	UpdateTextureData(elapsedTime);	
 }
 // テクスチャ関連の更新処理
 void SceneTitle::UpdateTextureData(float elapsedTime)
@@ -265,7 +264,7 @@ void SceneTitle::UpdateTextureData(float elapsedTime)
 
 	if (isPunch)
 	{
-		waitPunchTimer += elapsedTime;		
+		waitPunchTimer += elapsedTime;
 	}
 	if (waitPunchTimer >= 1.0f)
 	{
@@ -280,8 +279,9 @@ void SceneTitle::UpdateTextureData(float elapsedTime)
 		switch (gameMode)
 		{
 		case (int)GamaMode::Game:		// ゲーム			
-			SceneManager::Instance().ChangeScene(new SceneLoading(new SceneGame));
 			stagNo = stageMode;
+			SceneManager::Instance().SetStage(stagNo);
+			SceneManager::Instance().ChangeScene(new SceneLoading(new SceneGame));
 			break;
 		case (int)GamaMode::Tutorial:	// チュートリアル
 			SceneManager::Instance().ChangeScene(new SceneLoading(new SceneTutorial));
@@ -715,7 +715,7 @@ void SceneTitle::ImGuiRender()
 			ImGui::Image(framebuffer->shaderResourceViews[static_cast<int>(Framebuffer::Buffer::Color)].Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
 			ImGui::Image(framebuffer->shaderResourceViews[static_cast<int>(Framebuffer::Buffer::Depth)].Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
 			ImGui::Image(framebuffer->shaderResourceViews[static_cast<int>(Framebuffer::Buffer::Nomal)].Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
-			ImGui::Image(framebuffer->shaderResourceViews[static_cast<int>(Framebuffer::Buffer::Pos)].Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
+			ImGui::Image(framebuffer->shaderResourceViews[static_cast<int>(Framebuffer::Buffer::Position)].Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
 			ImGui::Image(framebuffer->shaderResourceViews[static_cast<int>(Framebuffer::Buffer::MetalSmoothness)].Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
 			ImGui::Image(framebuffer->shaderResourceViews[static_cast<int>(Framebuffer::Buffer::AmbientOcclusion)].Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
 			ImGui::Image(framebuffer->shaderResourceViews[static_cast<int>(Framebuffer::Buffer::Emission)].Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });

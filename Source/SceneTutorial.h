@@ -189,8 +189,6 @@ private:
 	std::unique_ptr<SubFramebuffer> subframebuffers[6];
 	std::unique_ptr<Shadowbuffer> shadowbuffer;
 
-	std::unique_ptr<Sprite> sprite_batchs;
-
 	std::unique_ptr<Sprite> sprite_batchs2;
 
 	std::unique_ptr<Sprite> claerSprite;
