@@ -1,32 +1,29 @@
 #pragma once
-#include<DirectXMath.h>
-#include "shader.h"
-#include "Model.h"
+
 #include "Trap.h"
-class Totem :public Trap
+
+class Totem : public Trap
 {
 public:
 	Totem();
-	~Totem();
+	~Totem() {}
+
 public:
-	//更新処理
-	void Update(float elapsed_time)override;
+	// 更新処理
+	void Update(float elapsedTime) override;
 	// 描画処理
-	void Render(ID3D11DeviceContext* dc, ModelShader* shader)override;
-	//残像エフェクト描画
-	void Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader)override;
-	// デバッグプリミティブ描画
-	void DrawDebugPrimitive()override;
+	void Render(ID3D11DeviceContext* deviceContext, ModelShader* shader) override;
+	// 残像エフェクト描画処理
+	void Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> deviceContext, ModelShader* shader) override {}
+	// デバッグプリミティブ描画処理
+	void DrawDebugPrimitive() override;
 	// デバッグ情報表示
 	void DrawDebugGUI() override;
 
+	// 敵との衝突処理
 	void CollisionVsEnemies();
 
 private:
-
-	std::unique_ptr<Model> model = nullptr;
-	//描画情報格納
-	std::vector<SkinnedMeshResouurce::constants> renderdata;
-
-	int survivalTime = 0;
+	std::unique_ptr<Model> model = nullptr;	// モデル
+	float survivalTime = 0.0f;				// 生存時間
 };

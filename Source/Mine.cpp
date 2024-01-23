@@ -1,83 +1,74 @@
-#include"Mine.h"
-#include "EnemyManager.h"
-#include "Collision.h"
-#include "Graphics.h"
-#include "Camera.h"
+#include "Mine.h"
 #include "TrapManager.h"
+#include "Graphics.h"
+#include "Collision.h"
+#include "EnemyManager.h"
 #include "ParticleSystem.h"
 
+// コンストラクタ
 Mine::Mine()
 {
-
     model = std::make_unique<Model>(".\\resources\\Trap\\Mine\\Mine.fbx", true);
     model->ModelSerialize(".\\resources\\Trap\\Mine\\Mine.fbx");
     model->ModelRegister(".\\resources\\Trap\\Mine\\Mine.fbx");
 
-
-    UpdateTransform(0, 0);
-    model->UpdateBufferDara(transform);
-    renderdata = model->GetBufferData();
-    territoryRange = 5;
-    attack = 1;
-    radius = 0.7f;
-    height = 5.0f;
-    type = Trap::TrapType::TrapMine;
+    radius = 0.7f;                          // 半径設定
+    height = 5.0f;                          // 高さ設定
+    territoryRange = 5.0f;                  // テリトリー範囲設定
+    attack = 1;                             // ダメージ量設定
+    type = Trap::TrapType::TrapMine;        // トラップ種類設定
 
     // ホログラムシェーダー情報初期化
     HologramShaderDataInitialize(0.0f, 0.6f);
-}
-Mine::~Mine()
-{
 
+    UpdateTransform(0, 0);                      // 行列更新処理
+    model->UpdateBufferData(transform);         // 描画情報更新処理
+    transform = model->GetBufferTransform();	// インスタンシング化の描画情報行列取得
+    instancing = true;						    // インスタンシング化
 }
 
+// 更新処理
 void Mine::Update(float elapsedTime)
 {
-    timer += elapsedTime;
-    model->ShaderAdjustment(adjustMetalness, adjustSmoothness, glitchScale, timer, maxHeight);
+    // 経過時間加算
+    progressTimer += elapsedTime;
+    // シェーダー情報調整
+    model->ShaderAdjustment(glitchScale, progressTimer, maxHeight);
     
     // ホログラムシェーダー更新処理
-    UpdateHologramShader(elapsedTime, activateFlag);
+    UpdateHologramShader(elapsedTime, isActivate);
 
-    if (activateFlag)
+    // 設置後
+    if (isActivate)
     {
-        hologramColor = { 0.0f, 1.0f, 0.0f };
-        if (GetHologramTimer() >= 1)
+        hologramColor = 2.0f;   // ホログラム色(緑)設定
+        // ホログラムが終了したら
+        if (GetHologramTimer() >= 1.0f)
         {
+            // 敵と衝突
             if (CollisionVsEnemies())
             {
-                ParticleSystem::Instance().BoomEffect(position, 3, int(EffectTexAll::EfTexAll::Flame), 20, 0.5, { NULL,NULL,2,1 });
-                Destroy();
+                ParticleSystem::Instance().BoomEffect(position, 3, int(EffectTexAll::EfTexAll::Flame), 20.0f, 0.5f, { NULL, NULL, 2, 1 });
+                Destroy();  // 破棄
             }
         }
     }
+    // 設置前
     else
     {
-        hologramColor = TrapManager::Instance().GetHologramColor();
+        hologramColor = TrapManager::Instance().GetHologramColor(); // 設置可不可色設定
     }
-    UpdateTransform(0, 0);
-    model->UpdateBufferDara(transform);
-    //モデル描画情報受け渡し
-    renderdata = model->GetBufferData();
-    objectManager.Update(elapsedTime * 1.5);
 
-    //hpRenderFlag = Collision::IntersectFanVsSphere(
-    //    Camera::Instance().GetEye(),
-    //    Camera::Instance().GetFront(),
-    //    Camera::Instance().GetFovY(),
-    //    Camera::Instance().GetFarZ(),
-    //    position,
-    //    radius);
+    UpdateTransform(0, 0);                  // 行列更新処理
+    model->UpdateBufferData(transform);     // 描画情報更新処理
 }
 
-void Mine::Render(ID3D11DeviceContext* dc, ModelShader* shader)
+// 描画処理
+void Mine::Render(ID3D11DeviceContext* deviceContext, ModelShader* shader)
 {
-    shader->Draw(dc, model.get(), { glitchIntensity, scanBorder, glowBorder, hologramBorder }, { hologramColor.x, hologramColor.y, hologramColor.z, 1.0f });
+    shader->Draw(deviceContext, model.get(), { glitchIntensity, scanBorder, glowBorder, hologramBorder }, { hologramColor, 0.0f, 0.0f, 1.0f });
 }
-void Mine::Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader)
-{
-    objectManager.Render(immediate_context.Get(), shader);
-}
+// デバッグプリミティブ描画処理
 void Mine::DrawDebugPrimitive()
 {
     // 基底クラスのデバッグプリミティブ描画
@@ -92,29 +83,18 @@ void Mine::DrawDebugPrimitive()
 // デバッグ情報表示
 void Mine::DrawDebugGUI()
 {
-    //トランスフォーム
+    // トランスフォーム
     if (ImGui::CollapsingHeader("Mine", ImGuiTreeNodeFlags_DefaultOpen))
     {
-        if (ImGui::TreeNode("PBR"))
-        {
-            ImGui::SliderFloat("adjustMetalness", &adjustMetalness, -1.0f, 1.0f);
-            ImGui::SliderFloat("adjustSmoothness", &adjustSmoothness, -1.0f, 1.0f);
-            ImGui::TreePop();
-        }
         if (ImGui::TreeNode("Hologram"))
-        {
-            ImGui::SliderFloat("scanBorder", &scanBorder, minHeight, maxHeight);
-            ImGui::SliderFloat("glowBorder", &glowBorder, minHeight, maxHeight);
-            ImGui::SliderFloat("hologramBorder", &hologramBorder, minHeight, maxHeight);
+        {            
             ImGui::SliderFloat("scanTimer", &scanTimer, -1.0f, 2.0f);
             ImGui::SliderFloat("glowTimer", &glowTimer, -1.0f, 2.0f);
             ImGui::SliderFloat("hologramTimer", &hologramTimer, -1.0f, 2.0f);
             ImGui::TreePop();
         }
         if (ImGui::TreeNode("Glitch"))
-        {
-            //ImGui::SliderFloat("glitchSpeed", &glitchSpeed, 0.0f, 10.0f);
-            ImGui::SliderFloat("glitchSpeed", &glitchSpeed, 1.0f, 50.0f);
+        {            
             ImGui::SliderFloat("glitchIntensity", &glitchIntensity, 0.0f, 1.0f);
             ImGui::SliderFloat("glitchScale", &glitchScale, 1.0f, 50.0f);
             ImGui::TreePop();
@@ -122,34 +102,26 @@ void Mine::DrawDebugGUI()
     }
 }
 
-//敵との衝突処理
+// 敵との衝突処理
 bool Mine::CollisionVsEnemies()
 {
-    bool hitFlag = false;
+    // 全ての敵と総当たりで衝突処理
     EnemyManager& enemyManager = EnemyManager::Instance();
-    //全ての敵と総当たりで衝突処理
     int enemyCount = enemyManager.GetEnemyCount();
     for (int i = 0; i < enemyCount; i++)
     {
+        // 衝突処理
         Enemy* enemy = enemyManager.GetEnemy(i);
-        //衝突処理
         DirectX::XMFLOAT3 outPosition;
-
         if (Collision::IntersectCylinderVsCylinder(
             enemy->GetPosition(), enemy->GetRadius(), enemy->GetHeight(),
             position, radius, height,
             outPosition))
         {
             enemy->ApplyDamage(attack, 0.0f, false);
-            hitFlag = true;
+            return true;
         }
     }
-    if (hitFlag)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+
+    return false;
 }

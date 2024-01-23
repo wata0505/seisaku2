@@ -1,51 +1,55 @@
 #pragma once
+
 #include "Shader.h"
 
-
-//トラップ
 class Trap
 {
 public:
 	Trap() {}
 	~Trap() {}
 
-	//更新処理
+	// 更新処理
 	virtual void Update(float elapsedTime) = 0;
 
-	//描画処理
-	virtual void Render(ID3D11DeviceContext* dc, ModelShader* shader) = 0;
-	//残像エフェクト描画
-	virtual void Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader) = 0;
-	//デバッグプリミティブ描画
+	// 描画処理
+	virtual void Render(ID3D11DeviceContext* deviceContext, ModelShader* shader) = 0;
+	// 残像エフェクト描画処理
+	virtual void Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> deviceContext, ModelShader* shader) = 0;
+	// デバッグプリミティブ描画処理
 	virtual void DrawDebugPrimitive();
 	// デバッグ情報表示
 	virtual void DrawDebugGUI() = 0;
 
-	//破棄
-	void Destroy();
-
-
-	//行列更新処理
+	// 行列更新処理
 	void UpdateTransform(int axisType, int lengthType);
 
-	//一番近い敵索敵
+	// 破棄
+	void Destroy();
+
+	// 一番近い敵索敵
 	bool SearchEnemy(float territoryRange, float radius);
-	// 目標地点へ移動
-	void MoveToTarget(float elapsedTime, float speedRate);
+
+	// 旋回処理
 	void TurnToTarget(float elspsedTime, float speedRate);
-	//旋回処理
-	void Turn(float elapsedTime, float vx, float vz, float speed);
+	// XZ平面旋回処理
+	void TurnHorizontal(float elapsedTime, float vx, float vz, float speed);
+	// Y軸旋回処理
 	void TurnVertical();
+
+	// ダメージ処理
+	void InputDamage(int damage);
 
 	// ホログラムシェーダー情報初期化
 	void HologramShaderDataInitialize(float minHeight, float maxHeight);
 	// ホログラムシェーダー更新処理
 	void UpdateHologramShader(float elapsedTime, bool isActivate);
 
-	//位置設定
-	void SetPosition(const DirectX::XMFLOAT3& position) { this->position = position; }
+public:
+	// 行列取得
+	const DirectX::XMFLOAT4X4& GetTransform() const { return transform; }
 
-	//位置取得
+	// 位置設定と取得
+	void SetPosition(const DirectX::XMFLOAT3& position) { this->position = position; }
 	const DirectX::XMFLOAT3& GetPosition() const { return position; }
 
 	// 角度設定
@@ -54,83 +58,82 @@ public:
 	// 縄張り設定
 	void SetTerritory(const DirectX::XMFLOAT3& origin, float range);
 
-	//半径取得
+	// 半径取得
 	float GetRadius()const { return radius; }
 
-	//高さ取得
+	// 高さ取得
 	float GetHeight() const { return height; }
 
-	//HP
-	int GetHealth() const { return health; }
-	int GetMaxHealth() const { return maxHealth; }
+	// HP描画フラグ取得
+	//bool GetHpRenderFlag() const { return hpRenderFlag; }
+
+	// 設置前後フラグ設定と取得
+	void SetIsActive(bool isActivate) { this->isActivate = isActivate; }
+	bool GetIsActive() { return isActivate; }
+
+	// インスタンシング取得
+	bool GetInstancing() { return instancing; }
+
+	// HP設定と取得
 	void SetHealth(const int health) { this->health = health; }
+	int GetHealth() const { return health; }
+	int GetMaxHealth() const { return maxHealth; }	
 
-	void InputDamage(int damage);
+	// トラップ種類設定と取得
+	void SetType(int type) { this->type = type; }
+	int GetType() { return type; }
 
-	bool GetHpRenderFlag() const { return hpRenderFlag; }
+	
+	float GetHologramTimer() { return hologramTimer; }
+	float GetScanGlowBorder() { return scanBorder; }
+	float GetHologramBorder() { return hologramBorder; }
+	float GetHologramColor() { return hologramColor; }
+	float GetYUp() { return yUp; }
 
+public:
+	// トラップ種類
 	enum TrapType
 	{
-		TrapTurret,
-		TrapMine,
-		TrapTotem,
-		TrapDecoy,
+		TrapTurret,	// タレット
+		TrapMine,	// 地雷
+		TrapTotem,	// トーテム
+		TrapDecoy,	// デコイ
 
 		TrapMax,
 	};
-	//敵種類
-	void	SetType(int type) { this->type = type; }
-	int		GetType() { return type; }
-	bool GetActiveFlag() { return this->activateFlag; }
-	void SetActiveFlag(bool activateflag) { this->activateFlag = activateflag; }
-	float GetHologramTimer() { return hologramTimer; }
+
 protected:
-
-	int type = 0;//敵の種類
-
-	DirectX::XMFLOAT3		position = { 0,0,0 };
-	DirectX::XMFLOAT3		targetPosition = { 0,0,0 };
-	DirectX::XMFLOAT3		angle = { 0,0,0 };
-	DirectX::XMFLOAT3		scale = { 50,50,50 };
-	DirectX::XMFLOAT4X4		transform = {
-		1,0,0,0,
-		0,1,0,0,
-		0,0,1,0,
-		0,0,0,1
-	};
-	int health = 10;
-	int maxHealth = 10;
-	int attack = 1;
-	float radius = 1.0f;
-	float height = 1.0f;
-	float turnSpeed = 5.0f;
-
-	float dist = 0.0f;
-
-	DirectX::XMFLOAT3	territoryOrigin = { 0.0f,0.0f,0.0f };
-	float				territoryRange = 10.0f;
-	float notAttackRange = 5.0f;
-
-	bool center = false;
-
-	bool hpRenderFlag = false;
-
-	bool activateFlag = false;
-	
-	DirectX::XMFLOAT3 hologramColor = { 0.0f, 1.0f, 0.0f };
-	float scanTimer = 0.0f;			// スキャンラインの時間
-	float scanBorder = 0.0f;		// スキャンラインの描画範囲
-	float glowTimer = 0.0f;			// グロウラインの時間
-	float glowBorder = 0.0f;		// グロウラインの描画範囲
-	float hologramTimer = 0.0f;		// ホログラムラインの時間
-	float hologramBorder = 0.0f;	// ホログラムラインの描画範囲
-	float minHeight = 0.0f;			// 最低点
-	float maxHeight = 0.0f;			// 最高点
-	float adjustMetalness = 0.0f;	// 金属度
-	float adjustSmoothness = 0.0f;	// 粗さ
-	float timer = 0.0f;				// 更新時間	
-	float glitchSpeed = 50.0f;		// スクロール速度
-	float glitchIntensity = 0.0f;	// 強度
-	float lerpGlitchIntensity = 0.0f;	// 強度
-	float glitchScale = 50.0f;		// 振れ幅	
+	DirectX::XMFLOAT4X4		transform = { 1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 };		// 行列
+	DirectX::XMFLOAT3		position = {};											// 位置
+	DirectX::XMFLOAT3		targetPosition = {};									// ターゲット位置
+	DirectX::XMFLOAT3		angle = {};												// 角度
+	DirectX::XMFLOAT3		scale = { 50.0f, 50.0f, 50.0f };						// サイズ
+	DirectX::XMFLOAT3		territoryOrigin = { 0.0f, 0.0f, 0.0f };					// テリトリー位置
+	float					radius = 1.0f;											// 半径
+	float					height = 1.0f;											// 高さ
+	float					turnSpeed = 5.0f;										// 旋回速度
+	float					territoryRange = 10.0f;									// テリトリー範囲
+	float					notAttackRange = 5.0f;									// 攻撃不可範囲
+	float					dist = 0.0f;											// 距離
+	float					hologramColor = 1.0f;									// ホログラム色
+	float					scanTimer = 0.0f;										// スキャンラインの時間
+	float					scanBorder = 0.0f;										// スキャンラインの描画範囲
+	float					glowTimer = 0.0f;										// グロウラインの時間
+	float					glowBorder = 0.0f;										// グロウラインの描画範囲
+	float					hologramTimer = 0.0f;									// ホログラムラインの時間
+	float					hologramBorder = 0.0f;									// ホログラムラインの描画範囲
+	float					minHeight = 0.0f;										// 最低点
+	float					maxHeight = 0.0f;										// 最高点
+	float					progressTimer = 0.0f;									// 経過時間	
+	float					glitchIntensity = 0.0f;									// 強度
+	float					glitchScale = 50.0f;									// 振れ幅
+	float					yUp = 1;
+	float					brokenTimer = 1.0f;										// 破壊時の破棄までの時間
+	//bool					hpRenderFlag = false;									// HP描画フラグ
+	bool					isActivate = false;										// 設置前後
+	int						health = 10;											// 体力
+	int						maxHealth = 10;											// 最大体力
+	int						attack = 1;												// ダメージ量
+	int						type = 0;												// 敵の種類
+	bool					instancing = false;										// インスタンシング
 };

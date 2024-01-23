@@ -1,58 +1,52 @@
 #pragma once
 
-#include <DirectXMath.h>
-#include "shader.h"
-#include "Model.h"
 #include "Trap.h"
 #include "ObjectManager.h"
 
-class Turret :public Trap
+class Turret : public Trap
 {
 public:
 	Turret();
-	~Turret();
+	~Turret() {}
+
 public:
-	//更新処理
-	void Update(float elapsed_time)override;
+	// 更新処理
+	void Update(float elapsedTime) override;
 	// 描画処理
-	void Render(ID3D11DeviceContext* dc, ModelShader* shader)override;
-	//残像エフェクト描画
-	void Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context, ModelShader* shader)override;
-	// デバッグプリミティブ描画
-	void DrawDebugPrimitive()override;
+	void Render(ID3D11DeviceContext* deviceContext, ModelShader* shader) override;
+	// 残像エフェクト描画処理
+	void Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> deviceContext, ModelShader* shader) override;
+	// デバッグプリミティブ描画処理
+	void DrawDebugPrimitive() override;
 	// デバッグ情報表示
 	void DrawDebugGUI() override;
 
 private:
-	//行列更新処理
-	void UpdateTransform2(int axisType, int lengthType);
+	// 土台行列更新処理
+	void UpdateTransformBody(int axisType, int lengthType);
 
-	// 待機ステートへ遷移
+	// 弾とエネミーの衝突処理
+	void CollisionProjectilesVsEnemies();
+
+	// 待機ステートへ遷移と更新処理
 	void TransitionIdleState();
-
-	// 待機ステート更新処理
 	void UpdateIdleState(float elapsedTime);
 
-	// 攻撃ステートへ遷移
+	// 攻撃ステートへ遷移と更新処理
 	void TransitionAttackState();
-
-	// 攻撃ステート更新処理
 	void UpdateAttackState(float elapsedTime);
 
-	//死亡ステート
+	// 死亡ステートと更新処理
 	void TransitionDeadState();
 	void UpdateDeadState(float elapsedTime);
 
-
-
-	//弾とエネミーの衝突処理
-	void CollisionProjectilesVsEnemies();
-
 private:
+	// タレットアニメーション
 	enum  TurretAnimation
 	{
 		Attack,
 	};
+
 	// ステート
 	enum class State
 	{
@@ -61,24 +55,12 @@ private:
 		Dead,
 	};
 
-	State state = State::Idle;
-
-	std::unique_ptr<Model> model = nullptr;
-	std::unique_ptr<Model> model2 = nullptr;
-	std::shared_ptr<Model> beem;
-	//弾関係
-	ObjectManager objectManager;
-
-	//描画情報格納
-	std::vector<SkinnedMeshResouurce::constants> renderdata;
-	std::vector<SkinnedMeshResouurce::constants> renderdata2;
-
-	DirectX::XMFLOAT4X4		transform2 = {
-		1,0,0,0,
-		0,1,0,0,
-		0,0,1,0,
-		0,0,0,1
-	};
-
-	int coolTime = 0;
+private:
+	std::unique_ptr<Model>	gunModel = nullptr;										// 銃身モデル
+	std::unique_ptr<Model>	bodyModel = nullptr;									// 土台モデル
+	std::shared_ptr<Model>	beem = nullptr;											// 弾モデル
+	ObjectManager			objectManager;											// 弾
+	State					state = State::Idle;									// 状態
+	DirectX::XMFLOAT4X4		bodyTransform = { 1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 };	// 土台行列
+	int						coolTime = 0;											// クールタイム
 };
