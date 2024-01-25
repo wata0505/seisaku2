@@ -1,7 +1,7 @@
 #include "Base.h"
-#include "Camera.h"
+//#include "Camera.h"
 #include "Graphics.h"
-#include "Collision.h"
+//#include "Collision.h"
 
 static Base* instance = nullptr;
 
@@ -26,7 +26,8 @@ Base::Base(DirectX::XMFLOAT3 position)
 	obj->UpdateBufferData(transform);			// 描画情報更新処理
 	//transform = obj->GetBufferTransform();	// インスタンシング化の描画情報行列取得
 
-	uiSprite = std::make_unique<Sprite>(L".\\resources\\HP.png");	// UIテクスチャ読み込み
+	hpUISprite = std::make_unique<Sprite>(L".\\resources\\UI\\TowerHP.png");	// HPUIテクスチャ読み込み
+	lossHPUISprite = std::make_unique<Sprite>(L".\\resources\\UI\\TowerLossHP.png");	// 減少HPUIテクスチャ読み込み
 
 	// ホログラムシェーダー情報初期化
 	minHeight = -4.0f;	// 最低高さ
@@ -40,7 +41,7 @@ void Base::Update(float elapseTime)
 	progressTimer += elapseTime;
 	// シェーダー情報調整
 	obj->ShaderAdjustment(50.0f, progressTimer, maxHeight);
-
+#if 0
 	isRender = Collision::IntersectFanVsSphere(
 		Camera::Instance().GetEye(),
 		Camera::Instance().GetFront(),
@@ -50,7 +51,8 @@ void Base::Update(float elapseTime)
 		radius);
 
 	// 行列更新処理
-	//UpdateTransform();
+	UpdateTransform();
+#endif
 }
 // 描画処理
 void Base::Render(ID3D11DeviceContext* deviceContext, ModelShader* shader)
@@ -95,6 +97,7 @@ void Base::UpdateTransform()
 // UI表示処理
 void Base::HpDisplay(RenderContext& renderContext, SpriteShader* shader)
 {
+#if 0
 	if (!isRender) return;
 
 	// 体力残量割合
@@ -141,6 +144,34 @@ void Base::HpDisplay(RenderContext& renderContext, SpriteShader* shader)
 			3.0f, 1.0f, 1.0f, 1.0f);
 		shader->Draw(renderContext, uiSprite.get());
 	}
+#else
+	Graphics& graphics = Graphics::Instance();
+	static constexpr float scale = 0.05f;
+	static constexpr float size = 0.5f;
+	// スクリーン幅・高さ
+	float screenWidth = graphics.GetScreenWidth() * scale;
+	float screenHeight = graphics.GetScreenHeight() * scale;
+	float textureWidth = static_cast<float>(hpUISprite->GetTextureWidth());
+	float textureHeight = static_cast<float>(hpUISprite->GetTextureHeight());
+	// 体力残量割合
+	float gaugeThrate = this->hp / static_cast<float>(this->hpMax);
+	lossHPUISprite->Render(renderContext.deviceContext,
+		screenWidth, screenHeight,
+		textureWidth * size, textureHeight * size,
+		0.0f, 0.0f,
+		textureWidth, textureHeight,
+		0.0f,
+		1.0f, 1.0f, 1.0f, 1.0f);
+	shader->Draw(renderContext, lossHPUISprite.get());
+	hpUISprite->Render(renderContext.deviceContext,
+		screenWidth, screenHeight + (textureHeight * (1.0f - gaugeThrate)) * 0.5f,
+		textureWidth * size, textureHeight * size - (textureHeight * (1.0f - gaugeThrate)) * 0.5f,
+		0.0f, (textureHeight * (1.0f - gaugeThrate)),
+		textureWidth, (textureHeight * gaugeThrate),
+		0.0f,
+		1.0f, 1.0f, 1.0f, 1.0f);
+	shader->Draw(renderContext, hpUISprite.get());
+#endif
 }
 
 // ダメージ処理

@@ -327,6 +327,7 @@ PS_OUT main(VS_OUT pin)
     emissive.r += hologramColor.g * 180.0f;
     // Ê“x’²®
     emissive.g *= hologramColor.b;
+    emissive.b *= hologramColor.b * 2.0f;
     // HSV > RGB‚É•ÏŠ·
     emissive.rgb = HSV2RGB(emissive.rgb);
 

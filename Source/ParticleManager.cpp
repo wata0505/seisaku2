@@ -13,17 +13,17 @@ ParticleManager::ParticleManager()
 	//model[Particle::Lance]->ModelSerialize(".\\resources\\Weapon\\Halberd\\PREF_halberd_3.fbx");
 	//model[Particle::Lance]->ModelRegister(".\\resources\\Weapon\\Halberd\\PREF_halberd_3.fbx");
 	//model[Particle::Lance]->UpdateBufferDara(data[Particle::Lance].world[0]);
-	model[Particle::Rock1] = std::make_unique<Model>(".\\resources\\ExampleStage\\rock_11.fbx", true);
-	model[Particle::Rock1]->ModelSerialize(".\\resources\\ExampleStage\\rock_11.fbx");
-	model[Particle::Rock1]->ModelRegister(".\\resources\\ExampleStage\\rock_11.fbx","tex.png");
+	model[Particle::Rock1] = std::make_unique<Model>(".\\resources\\Rock\\rock_11.fbx", true);
+	model[Particle::Rock1]->ModelSerialize(".\\resources\\Rock\\rock_11.fbx");
+	model[Particle::Rock1]->ModelRegister(".\\resources\\Rock\\rock_11.fbx","tex.png");
 	model[Particle::Rock1]->UpdateBufferData(data[Particle::Rock1].world[0]);
-	model[Particle::Rock2] = std::make_unique<Model>(".\\resources\\ExampleStage\\rock_10.fbx", true);
-	model[Particle::Rock2]->ModelSerialize(".\\resources\\ExampleStage\\rock_10.fbx");
-	model[Particle::Rock2]->ModelRegister(".\\resources\\ExampleStage\\rock_10.fbx","tex.png");
+	model[Particle::Rock2] = std::make_unique<Model>(".\\resources\\Rock\\rock_10.fbx", true);
+	model[Particle::Rock2]->ModelSerialize(".\\resources\\Rock\\rock_10.fbx");
+	model[Particle::Rock2]->ModelRegister(".\\resources\\Rock\\rock_10.fbx","tex.png");
 	model[Particle::Rock2]->UpdateBufferData(data[Particle::Rock2].world[0]);
-	model[Particle::Rock3] = std::make_unique<Model>(".\\resources\\ExampleStage\\rock_9.fbx", true);
-	model[Particle::Rock3]->ModelSerialize(".\\resources\\ExampleStage\\rock_9.fbx");
-	model[Particle::Rock3]->ModelRegister(".\\resources\\ExampleStage\\rock_9.fbx","tex.png");
+	model[Particle::Rock3] = std::make_unique<Model>(".\\resources\\Rock\\rock_9.fbx", true);
+	model[Particle::Rock3]->ModelSerialize(".\\resources\\Rock\\rock_9.fbx");
+	model[Particle::Rock3]->ModelRegister(".\\resources\\Rock\\rock_9.fbx","tex.png");
 	model[Particle::Rock3]->UpdateBufferData(data[Particle::Rock3].world[0]);
 }
 

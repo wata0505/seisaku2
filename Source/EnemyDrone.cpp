@@ -79,7 +79,7 @@ EnemyDrone::EnemyDrone(bool tutorial)
 		SetRandomTargetPosition();
 		rootPoint[i] = targetPosition;
 	}
-	maxEria = 10 + (rand() % 10);
+	maxEria = static_cast<float>(10 + (rand() % 10));
 	// ホログラムシェーダー情報初期化
 	HologramShaderDataInitialize(0.0f, 16.0f);
 	adjustMetalness = 0.0f;
@@ -158,7 +158,7 @@ void EnemyDrone::Update(float elapsedTime)
 	}
 	if (position.y <= maxEria && health > 0)
 	{
-		position.y = maxEria;
+		position.y = static_cast<float>(maxEria);
 	}
 	// ホログラムシェーダー実行中フラグが付いていれば
 	if (!isActiveStart)
@@ -435,7 +435,7 @@ bool EnemyDrone::SearchTrap()
 	for (int i = 0; i < count; i++)
 	{
 		Trap* trap = TrapManager::Instance().GetTrap(i);
-		if (trap->GetHologramTimer() >= 1.0f)
+		if (trap->GetHologramTimer() < 1.0f)
 		{
 			continue;
 		}

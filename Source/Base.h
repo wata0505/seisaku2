@@ -46,7 +46,8 @@ public:
 	int GetHP() { return hp; }	
 
 private:
-	std::unique_ptr<Sprite>	uiSprite;											// UIテクスチャ
+	std::unique_ptr<Sprite>	hpUISprite;											// HPUIテクスチャ
+	std::unique_ptr<Sprite>	lossHPUISprite;										// 減少HPUIテクスチャ
 	std::unique_ptr<Model>	obj = nullptr;										// モデル
 	DirectX::XMFLOAT4X4		transform = { 1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 };	// モデル行列
 	DirectX::XMFLOAT3		position = {};										// 位置
