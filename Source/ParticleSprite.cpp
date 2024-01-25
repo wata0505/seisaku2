@@ -296,23 +296,11 @@ HRESULT ParticleSprite::CreateCorruptionResource(DirectX::XMFLOAT3 pos, DirectX:
 	ID3D11Device* device = Graphics::Instance().GetDevice();
 	struct PVConstants* posVertex = new PVConstants[max];
 	//どこからどこまでの中、ランダムで位置を決定
-	DirectX::XMFLOAT3 Vec;
-	Vec.x = endPos.x - pos.x;
-	Vec.y = endPos.y - pos.y;
-	Vec.z = endPos.z - pos.z;
-	float dist = sqrtf(Vec.x * Vec.x + Vec.y * Vec.y + Vec.z * Vec.z);
-	Vec.x /= dist;
-	Vec.y /= dist;
-	Vec.z /= dist;
-	float len = dist / max;
-	len = len * (rand() % max);
 	for (int i = 0; i < max; ++i) {
-		posVertex[i].Position.x = 0;
+		posVertex[i].Position = pos;
 		//上方向にランダムで飛ぶ
 		float pitch = DirectX::XMConvertToRadians(90 + (rand() % 45 - 22));
 		float yaw = DirectX::XMConvertToRadians(rand() % 360);
-		posVertex[i].Position.y = 0;
-		posVertex[i].Position.z = 0;
 		DirectX::XMFLOAT3 dir;
 		dir.x = cosf(pitch) * sinf(yaw);
 		dir.y = sin(pitch);
@@ -322,9 +310,9 @@ HRESULT ParticleSprite::CreateCorruptionResource(DirectX::XMFLOAT3 pos, DirectX:
 		posVertex[i].Velocity = dir;//速度
 		posVertex[i].Speed = speed;//速度
 		posVertex[i].ParticleSize.x = posVertex[i].ParticleSize.y = posVertex[i].ParticleSize.w = 0.01;
-		posVertex[i].ParticleSize.z = len;//位置決定
+		posVertex[i].ParticleSize.z =0;//位置決定
 		posVertex[i].type = Corruption;
-		posVertex[i].Timer = 0;
+		posVertex[i].Timer = 2.0;
 	}
 	// リソースの設定
 	hr = CreateResource(posVertex);

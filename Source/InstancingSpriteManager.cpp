@@ -17,11 +17,15 @@ InstancingSpriteManager::InstancingSpriteManager()
 	moveSprite[InstancingSprite::FlameBreath] = std::make_unique<Sprite>(L".\\resources\\Effect\\Texture\\Fire.png");
 	moveSprite[InstancingSprite::SeirlConvergence] = std::make_unique<Sprite>(L".\\resources\\Effect\\Texture\\Particle_Soft.png");
 	moveSprite[InstancingSprite::VortexDiffusion] = moveSprite[InstancingSprite::SeirlConvergence];
+	moveSprite[InstancingSprite::Corruption] = std::make_unique<Sprite>(L".\\resources\\Textures\\hart.png");
+	moveSprite[InstancingSprite::Corruption2] = std::make_unique<Sprite>(L".\\resources\\Textures\\OIP.png");
 
 	//texSprite[InstancingSprite::TexNull] = std::make_unique<Sprite>(L".\\resources\\Effect\\Texture\\dummy.png");
 	texSprite[InstancingSprite::FlameBreath] = EffectTexAll::Instance().GetSprite((int)EffectTexAll::EfTexAll::Flame);
 	texSprite[InstancingSprite::SeirlConvergence] = EffectTexAll::Instance().GetSprite((int)EffectTexAll::EfTexAll::Impact);
 	texSprite[InstancingSprite::VortexDiffusion] = texSprite[InstancingSprite::SeirlConvergence];
+	texSprite[InstancingSprite::Corruption] = moveSprite[InstancingSprite::Corruption];
+	texSprite[InstancingSprite::Corruption2] = moveSprite[InstancingSprite::Corruption2];
 
 }
 

@@ -49,6 +49,8 @@ public:
 		ParticleSquare,//四角
 		ParticleBurst,//バースト
 		ParticleTriangle,//四角,
+		ParticleHart,//四角,
+
 
 		ParticleMax
 	};

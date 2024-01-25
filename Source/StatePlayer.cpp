@@ -6,6 +6,7 @@
 #include "EffectTexAll.h"
 #include "ParticleSprite.h"
 #include "Afterimage.h"
+#include "Camera.h"
 #define GRAVITY -1.0;
 
 //待機ステートに入った時のメソッド
@@ -552,6 +553,7 @@ void AttackState::Execute(float elapsedTime)
         owner->animeTimer *= owner->attackMove;
         velocity.x = owner->attackDir.x * (owner->GetModel()->GetRootPow() * owner->attackMove);
         velocity.z = owner->attackDir.z * (owner->GetModel()->GetRootPow() * owner->attackMove);
+        
     }
     else {
         velocity.x = owner->attackDir.x * (owner->GetModel()->GetRootPow() * owner->attackMove);
@@ -566,11 +568,12 @@ void AttackState::Execute(float elapsedTime)
         return;
     }
     
-    owner->Turn(elapsedTime, owner->attackDir.x, owner->attackDir.z, owner->turnSpeed * 10);
+   
     // 任意のアニメーション再生区間でのみ衝突判定処理をする
     if (animationTime >= owner->attackStart && animationTime <= owner->attackEnd)owner->SwingInput();//スウィングSE
     if (owner->InputAttack() && owner->combo < owner->WeponComboMax[0]) {
         owner->comboflag = true;//コンボ先行入力
+        owner->Turn(elapsedTime, owner->attackDir.x, owner->attackDir.z, owner->turnSpeed * 10);
     }
     if (animationTime >= owner->attackEnd && owner->combo == 3  && owner->attackStart >= 0.6) {
         owner->correctionSpeed += 10;
@@ -582,13 +585,17 @@ void AttackState::Execute(float elapsedTime)
         //if (owner->attackStart > 0.6)owner->attackStart = 0.6;
     }
     if (animationTime >= 0.2 && animationTime <= owner->attackStart*0.8 && owner->combo == 3 ) {
+
         ParticleSystem::Instance().SeirlConvergenceEffect(owner->SearchNodePos(owner->attackNode[owner->combo]), 90);
         ParticleSystem::Instance().SeirlConvergenceEffect(owner->SearchNodePos(owner->attackNode[owner->combo]), 180);
         ParticleSystem::Instance().SeirlConvergenceEffect(owner->SearchNodePos(owner->attackNode[owner->combo]), 270);
+       
+     
         
     }
     if (animationTime >= 0.2 && animationTime <= owner->attackStart&& owner->combo == 3) {
         owner->cameraRange -= animationTime * 10;
+        owner->Turn(elapsedTime, Camera::Instance().GetFront().x, Camera::Instance().GetFront().z, owner->turnSpeed * 10);
     }
     
     if (owner->comboflag && animationTime >= owner->attackEnd) {//攻撃判定が終わったら次のコンボへ

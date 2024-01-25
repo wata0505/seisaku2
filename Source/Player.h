@@ -203,7 +203,7 @@ public:
     //死亡タイマー
     float GetDidTimer() { return disslveTimer; }
     //プレイヤー用の当たり判定位置
-    DirectX::XMFLOAT3 GetHitPos() { return { position.x,(position.y - (height / 2)),position.z }; }
+    DirectX::XMFLOAT3 GetHitPos() { return { position.x,(position.y + (height / 2)),position.z }; }
     //盾描画フラグ
     bool GetShildFlag() { return shildFlag; };
     //ロックオンエネミーIｄ
@@ -476,7 +476,7 @@ public://変更又取得が多い変数
     };
     //武器ごとアクションパワー
     DirectX::XMFLOAT4 WeponComboPow[WeponType::WeponMax][4] = {
-        {{10, 0,2,0.3f},{10, 0,2,0.5f},{10, 0,1,0.2f},{20, 0,5,0.5f},},
+        {{10, 0,2,0.3f},{10, 0,2,0.5f},{10, 0,1,0.2f},{20, 0,6,0.5f},},
         {{40, 0,4,0.5f},{50, 0,5,0.5f},{70, 0,6,0.5f},{20, 0,1,0.5f},},
         {{10, 0,2,0.3f},{ 0, 0,1,0.2f},{10, 0,2,0.3f},{20, 0,1,0.5f},},
         {{20,30,2,0.5f},{10,30,2,0.5f},{30, 0,2,0.5f},{20, 0,1,0.5f},},

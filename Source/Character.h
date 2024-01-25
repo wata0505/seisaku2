@@ -26,6 +26,7 @@ public:
 	//位置取得
 	const DirectX::XMFLOAT3& GetPosition() const { return position; }
 
+
 	//位置設定
 	void SetPosition(const DirectX::XMFLOAT3& position) { this->position = position; }
 
@@ -42,6 +43,9 @@ public:
 
 	//スケール取得
 	void SetScale(const DirectX::XMFLOAT3& scale) { this->scale = scale; }
+
+	void RecoverHealth(float h) { if(maxHealth > this->health)this->health += h; }
+
 
 	//行列更新処理
 	//i = 0:RHS Y-UP　右手系

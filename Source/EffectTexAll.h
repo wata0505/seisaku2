@@ -17,7 +17,7 @@ public:
 		Impact,
 		Flame,
 		BlueFlame,
-		Vortex,
+		Hart,
 		BlueThader,
 		Metal,
 		Barrier,

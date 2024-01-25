@@ -34,7 +34,7 @@ public:
 	int maxEnemyDroneCount[3][3] = { { 0,0,0 },{ 100,50,50 },{ 50,50,50 } };
 	int maxEnemyBagCount[3][3] = { {20,5,5},{0,0,0} ,{10,5,5}};
 	float waveTimer = 0;
-	const int waveTimerMax[4] = { 60,70,80,90 };
+	const int waveTimerMax[4] = { 10,10,80,90 };
 	int waveEnemyCount = 0;
 	const int waveMaxEnemyCount[3][3] = { {20,25,30},{100,150,200} ,{60,115,170}};
 	int wave = 0;

@@ -20,7 +20,7 @@ EffectTexAll::EffectTexAll() {
 	efTex[static_cast<int>(EfTexAll::Impact)] = std::make_unique<Sprite>(L".\\resources\\Effect\\Texture\\Shock_wave1.png");
 	efTex[static_cast<int>(EfTexAll::Flame)] = std::make_unique<Sprite>(L".\\resources\\Textures\\Fire6.png");
 	efTex[static_cast<int>(EfTexAll::BlueFlame)] = std::make_unique<Sprite>(L".\\resources\\Textures\\burFl.jpg");
-	efTex[static_cast<int>(EfTexAll::Vortex)] = std::make_unique<Sprite>(L".\\resources\\Textures\\uzu.jpg");
+	efTex[static_cast<int>(EfTexAll::Hart)] = std::make_unique<Sprite>(L".\\resources\\Textures\\hart.png");
 	efTex[static_cast<int>(EfTexAll::BlueThader)] = std::make_unique<Sprite>(L".\\resources\\Textures\\burThader.jpg");
 	efTex[static_cast<int>(EfTexAll::Metal)] = std::make_unique<Sprite>(L".\\resources\\Textures\\17.png");
 	efTex[static_cast<int>(EfTexAll::Barrier)] = std::make_unique<Sprite>(L".\\resources\\Textures\\baria2.png");

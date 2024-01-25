@@ -313,7 +313,7 @@ void ProjectileStraite::Launch(std::shared_ptr <Model> buffer, float height, flo
 	this->dissolveSpeed = dissolveSpeed;
 	//this->rotationangle = Player::Instance().GetAngle().y;
 	position = Player::Instance().GetPosition();
-	direction = Player::Instance().GetAttackDir();
+	direction = { Camera::Instance().GetFront().x,0, Camera::Instance().GetFront().z};
 	position.y += height;
 	UpdateTransform();
 	Player& player = Player::Instance();

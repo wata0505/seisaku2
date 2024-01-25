@@ -16,6 +16,7 @@
 #include "Mathf.h"
 #include"TrapManager.h"
 #include "Camera.h"
+#include"EnemyManager.h"
 
 // コンストラクタ
 EnemyBag::EnemyBag(bool tutorial, int stag,int enemyType)
@@ -29,7 +30,7 @@ EnemyBag::EnemyBag(bool tutorial, int stag,int enemyType)
 	model->AppendAnimations(".\\resources\\enemy\\Enemy_Die.fbx", 0);
 	model->ModelSerialize(".\\resources\\enemy\\enemy.fbx");
 	//model->ModelCreate(".\\resources\\Slime\\Slime.fbx");
-	model->ModelRegister(".\\resources\\enemy\\enemy.fbx", "Texture\\all_low_lambert1.tif", false);
+	model->ModelRegister(".\\resources\\enemy\\enemy.fbx", "Texture\\all_low_lambert1.tif", true);
 	adjustSmoothness = 1.0f;
 	switch (enemyType)
 	{
@@ -131,13 +132,7 @@ float EnemyBag::MovePow() {
 }
 void EnemyBag::Update(float elapsedTime)
 {
-	if (colorType == 1) {
-		elapsedTime *= 2;
-	}
-	if (colorType == 2) {
-
-		health += 1;
-	}
+	
 	timer += elapsedTime;
 	if (stateMachine->GetStateNum() == static_cast<int>(EnemyBag::BagState::ReDamage))
 	{
@@ -157,6 +152,32 @@ void EnemyBag::Update(float elapsedTime)
 	}
 	if (!activeflag)return;
 	UpdateRnderflag();
+	if (colorType == 1) {
+		elapsedTime *= 2;
+	}
+	if (colorType == 2) {
+		if (health > 0 && health <= 5) {
+			//health += 1;
+			if (enemyTimer % 120 == 0) {
+				EnemyManager& enemyManager = EnemyManager::Instance();
+				//全ての敵と総当たりで衝突処理
+				int enemyCount = enemyManager.GetEnemyCount();
+				for (int i = 0; i < enemyCount; i++) {
+					Enemy* enemy = enemyManager.GetEnemy(i);
+					//衝突処理
+					DirectX::XMFLOAT3 outPosition;
+					if (Collision::IntersectCylinderVsCylinder(
+						enemy->GetPosition(), enemy->GetRadius(), enemy->GetHeight(),
+						position, 3, height,
+						outPosition
+					)) {
+						enemy->RecoverHealth(1);
+					}
+				}
+			}
+		}
+		ParticleSystem::Instance().CorruptionEffect(position,id);
+	}
 	float ElapsedTime = elapsedTime;
 	
 	if (Player::Instance().GetQuickflag()) 

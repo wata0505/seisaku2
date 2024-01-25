@@ -331,3 +331,49 @@ void ParticleSystem::VortexDiffusionEffect(DirectX::XMFLOAT3 position, float ang
 
 
 }
+
+void ParticleSystem::CorruptionEffect(DirectX::XMFLOAT3 position,int enemyNo){
+    InstancingSpriteManager& particleManager = InstancingSpriteManager::Instance();
+
+    DirectX::XMFLOAT3 pos;
+    DirectX::XMFLOAT3 Vec;
+    float angleX = DirectX::XMConvertToRadians(rand() % 360);
+    float angleY = DirectX::XMConvertToRadians(90 + (rand() % 90 - 22));
+   // Vec.y = sin(angleY);
+    Vec.x = sinf(angleX);
+    Vec.z = cosf(angleX);
+
+    pos.x = position.x + Vec.x * 3;
+    pos.y = position.y -0.5;
+    pos.z = position.z + Vec.z * 3;
+
+    float speed = 3.5;
+    InstancingSprite* particle = new InstancingSprite;
+    particle->Launch(Vec, pos, InstancingSprite::Corruption, InstancingSprite::Corruption, 0.3, speed, enemyNo, 0, { 1,1,0,1 });
+    particleManager.Register(particle);
+
+
+}
+
+void ParticleSystem::Corruption2Effect(DirectX::XMFLOAT3 position) {
+    InstancingSpriteManager& particleManager = InstancingSpriteManager::Instance();
+
+    DirectX::XMFLOAT3 pos;
+    DirectX::XMFLOAT3 Vec;
+    float angleX = DirectX::XMConvertToRadians(rand() % 360);
+    float angleY = DirectX::XMConvertToRadians(90 + (rand() % 90 - 22));
+    // Vec.y = sin(angleY);
+    Vec.x = sinf(angleX);
+    Vec.z = cosf(angleX);
+
+    pos.x = position.x + Vec.x * 10;
+    pos.y = position.y - 0.5;
+    pos.z = position.z + Vec.z * 10;
+
+    float speed = 3.5;
+    InstancingSprite* particle = new InstancingSprite;
+    particle->Launch({0,1,0}, pos, InstancingSprite::Corruption2, InstancingSprite::Corruption2, 0.00, speed, 0, 0, { 1,1,0,1 });
+    particleManager.Register(particle);
+
+
+}

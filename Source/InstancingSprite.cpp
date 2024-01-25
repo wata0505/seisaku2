@@ -1,6 +1,8 @@
 #include"InstancingSprite.h"
 #include"InstancingSpriteManager.h"
 #include"Player.h"
+#include"Enemy.h"
+#include"EnemyManager.h"
 
 // コンストラクタ
 InstancingSprite::InstancingSprite()//基底クラスのコンストラクタ呼び出し
@@ -43,6 +45,12 @@ void InstancingSprite::Update(float elapsedTime)
 		break;
 	case InstancingSpriteType::VortexDiffusion:
 		VortexDiffusionUpdate(elapsedTime);
+		break;
+	case InstancingSpriteType::Corruption:
+		CorruptionUpdate(elapsedTime);
+		break;
+	case InstancingSpriteType::Corruption2:
+		Corruption2Update(elapsedTime);
 		break;
 	}
 
@@ -116,6 +124,46 @@ void InstancingSprite::VortexDiffusionUpdate(float elapsedTime) {
 	uvStatus.z += elapsedTime;//UVアニメーション
 	uvStatus.y = 1.5;//ディゾルブ値
 	radius += speed * 0.4;//当たり判定はスピードの半分
+}
+
+void InstancingSprite::CorruptionUpdate(float elapsedTime) {
+	//scale.x = scale.y = scale.z = 0.1f;
+	Enemy* enemy = EnemyManager::Instance().GetEnemyFromId(angleX);
+	float speed = this->speed * elapsedTime;
+	//scale.x += speed * 0.01;
+	//scale.y += speed * 0.01;
+	//scale.z += speed * 0.01;
+
+
+	//position.x += direction.x * speed;
+	//position.y += direction.y * speed;
+	//position.z += direction.z * speed;
+	//leng += speed * 0.3;
+	position.x = enemy->GetPosition().x + direction.x * 3;
+	position.y += speed;
+	position.z = enemy->GetPosition().z + direction.z * 3;
+
+	//uvStatus.z += elapsedTime;//UVアニメーション
+	//uvStatus.y = 1.5;//ディゾルブ値
+	radius = 0;//当たり判定はスピードの半分
+}
+
+void InstancingSprite::Corruption2Update(float elapsedTime) {
+	//scale.x = scale.y = scale.z = 0.1f;
+	float speed = this->speed * elapsedTime;
+	//scale.x += speed * 0.01;
+	//scale.y += speed * 0.01;
+	//scale.z += speed * 0.01;
+
+
+	position.x += direction.x * speed;
+	position.y += direction.y * speed;
+	position.z += direction.z * speed;
+	//leng += speed * 0.3;
+
+	//uvStatus.z += elapsedTime;//UVアニメーション
+	//uvStatus.y = 1.5;//ディゾルブ値
+	radius = 0;//当たり判定はスピードの半分
 }
 
 

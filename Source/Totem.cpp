@@ -3,6 +3,7 @@
 #include "Graphics.h"
 #include "Collision.h"
 #include "EnemyManager.h"
+#include "ParticleSystem.h"
 
 // コンストラクタ
 Totem::Totem()
@@ -39,7 +40,7 @@ void Totem::Update(float elapsedTime)
     
     // ホログラムシェーダー更新処理
     UpdateHologramShader(elapsedTime, isActivate);
-
+    
     // 設置後
     if (isActivate)
     {
@@ -59,6 +60,7 @@ void Totem::Update(float elapsedTime)
                     Destroy();  // 破棄
                 }
             }
+            ParticleSystem::Instance().Corruption2Effect(position);
             // 敵と衝突
             CollisionVsEnemies();
         }

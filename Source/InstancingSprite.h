@@ -7,7 +7,9 @@ enum  InstancingSpriteType
 {
 	FlameBreath,//ÉuÉåÉX
 	SeirlConvergence,
-	VortexDiffusion
+	VortexDiffusion,
+	Corruption,
+	Corruption2
 };
 
 //íºêiíeä€
@@ -19,6 +21,8 @@ public:
 		FlameBreath,
 		SeirlConvergence,
 		VortexDiffusion,
+		Corruption,
+		Corruption2,
 		Max
 	};
 public:
@@ -57,7 +61,9 @@ private:
 
 	void VortexDiffusionUpdate(float elapsedTime);
 
-	
+	void CorruptionUpdate(float elapsedTime);
+
+	void Corruption2Update(float elapsedTime);
 	// îjä¸
 	void Destroy();
 

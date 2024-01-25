@@ -43,6 +43,13 @@ void SeirlConvergenceEffect(DirectX::XMFLOAT3 position,float angle, float len = 
 //‰QŠªŽû‘©
 void VortexDiffusionEffect(DirectX::XMFLOAT3 position, float angle);
 
+//‰Œ
+void CorruptionEffect(DirectX::XMFLOAT3 position,int enemyNo);
+
+void Corruption2Effect(DirectX::XMFLOAT3 position);
+
+
+
 private:
 	//Šâ‚Ìƒ^ƒCƒv
 	int rockType[Particle::Rock3] = { Particle::Rock1,Particle::Rock2,Particle::Rock3 };

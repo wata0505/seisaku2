@@ -72,6 +72,7 @@ ParticleSpriteShader::ParticleSpriteShader(ID3D11Device* device)
 	moveSprite[ParticleSprite::ParticleSquare] = std::make_unique<Sprite>(L".\\resources\\Effect\\Texture\\hisigata1.png");
 	moveSprite[ParticleSprite::ParticleBurst] = std::make_unique<Sprite>(L".\\resources\\Effect\\Texture\\Burst_2.png");
 	moveSprite[ParticleSprite::ParticleTriangle] = std::make_unique<Sprite>(L".\\resources\\Effect\\Texture\\sannkaku3.png");
+	moveSprite[ParticleSprite::ParticleHart] = std::make_unique<Sprite>(L".\\resources\\Textures\\hart.png");
 
 	
 
