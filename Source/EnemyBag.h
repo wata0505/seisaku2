@@ -230,7 +230,7 @@ private:
 	//バックステップ範囲
 	float				backStepRange = 2.0f;
 	//当たり判定半径
-	float               damegeRadius = 1.0f;
+	float               damegeRadius = 1.8f;
 	//回転スピード
 	float               rootSpeed = 0.8f;
 	//ヒットストップ

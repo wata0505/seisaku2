@@ -169,7 +169,9 @@ void LandState::Enter()
     if (owner->GetVelocity().y < -50.5 && owner->GetModel()->GetCurrentAnimationIndex() == Player::AnimJumpAttack) {//一定以上の落下速度でハルバートなら
         owner->GetModel()->PlayAnimation(Player::AnimLound, false);
         ParticleSystem::Instance().RubbleEffect({ owner->GetPosition().x,owner->GetPosition().y -5,owner->GetPosition().z }, 20, 100);
-        ParticleSystem::Instance().Rubble3Effect({ owner->GetPosition().x,owner->GetPosition().y - 5,owner->GetPosition().z }, 20, 100);
+        ParticleSystem::Instance().Rubble3Effect({ owner->GetPosition().x,owner->GetPosition().y - 5,owner->GetPosition().z }, 5, 200,0);
+        ParticleSystem::Instance().Rubble3Effect({ owner->GetPosition().x,owner->GetPosition().y - 5,owner->GetPosition().z }, 5, 200,1);
+        ParticleSystem::Instance().Rubble3Effect({ owner->GetPosition().x,owner->GetPosition().y - 5,owner->GetPosition().z }, 5, 200,2);
         ParticleSprite* particleSprite = new ParticleSprite(owner->GetPosition(), {0,0,0}, ParticleSprite::ParticleSoft, ParticleSprite::Diffusion, int(EffectTexAll::EfTexAll::Sumi), 2000, 1.5, 0, true, 0.005, 0.06, { 1,1,1,1 });
         owner->combo = 3;
     }
@@ -580,7 +582,7 @@ void AttackState::Execute(float elapsedTime)
         owner->cameraRange += animationTime * 20;
         owner->SlashInput();//飛ぶ斬撃
     }
-    if (animationTime >= 0.1 &&owner->combo == 3 && owner->InputAttack()) {
+    if (animationTime >= 0.1 &&owner->combo == 3 && owner->InputAttack() && animationTime <= 0.3) {
         owner->attackStart = 0.6;
         //if (owner->attackStart > 0.6)owner->attackStart = 0.6;
     }

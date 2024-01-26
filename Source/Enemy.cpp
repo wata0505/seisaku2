@@ -231,7 +231,7 @@ void Enemy::CollisionNodeVsPlayer(const char* nodeName, float nodeRadius, Direct
 	DirectX::XMFLOAT3 outPosition;
 	if (Collision::IntersectSphereVsCylinder(
 		nodePosition, nodeRadius,
-		player.GetHitPos(), player.GetRadius(), player.GetHeight(),
+		player.GetPosition(), player.GetRadius(), player.GetHeight(),
 		outPosition))
 	{
 		HitInpnt(player.GetEfPos(), pow, damage, invincibleTime);

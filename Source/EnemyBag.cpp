@@ -158,7 +158,7 @@ void EnemyBag::Update(float elapsedTime)
 	if (colorType == 2) {
 		if (health > 0 && health <= 5) {
 			//health += 1;
-			if (enemyTimer % 120 == 0) {
+			if (enemyTimer % 30 == 0) {
 				EnemyManager& enemyManager = EnemyManager::Instance();
 				//‘S‚Ä‚Ì“G‚Æ‘“–‚½‚è‚ÅÕ“Ëˆ—
 				int enemyCount = enemyManager.GetEnemyCount();
@@ -168,7 +168,7 @@ void EnemyBag::Update(float elapsedTime)
 					DirectX::XMFLOAT3 outPosition;
 					if (Collision::IntersectCylinderVsCylinder(
 						enemy->GetPosition(), enemy->GetRadius(), enemy->GetHeight(),
-						position, 3, height,
+						position, 5, height,
 						outPosition
 					)) {
 						enemy->RecoverHealth(1);

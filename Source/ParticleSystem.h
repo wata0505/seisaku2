@@ -28,7 +28,7 @@ void RubbleEffect(DirectX::XMFLOAT3 position,int Max,int SpeedMax);
 //岩が飛び出るエフェクト
 void Rubble2Effect(DirectX::XMFLOAT3 position, int Max, int SpeedMax);
 //岩が飛び出るエフェクト
-void Rubble3Effect(DirectX::XMFLOAT3 position, int Max, int SpeedMax);
+void Rubble3Effect(DirectX::XMFLOAT3 position, int Max, int SpeedMax,int RockType);
 
 //爆発エフェクト
 void BoomEffect(DirectX::XMFLOAT3 position,int max,int textype,float size,float liftimer,DirectX::XMFLOAT4 color);

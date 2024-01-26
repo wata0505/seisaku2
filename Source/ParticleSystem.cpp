@@ -168,11 +168,11 @@ void ParticleSystem::Rubble2Effect(DirectX::XMFLOAT3 position, int Max, int Spee
     }
     Particle* particle = new Particle;
     //ランダムの岩モデル
-    particle->Launch(moveConst, ParticleType::Rubble2, rockType[rand() % Particle::Rock3 + Particle::Lance], static_cast<int>(ParticleShader::ModelPSType::Default), NULL, 1.5, { 1,0,0,1 });
+    particle->Launch(moveConst, ParticleType::Rubble2, rockType[rand() % Particle::Rock3], static_cast<int>(ParticleShader::ModelPSType::Default), NULL, 1.5, { 1,0,0,1 });
     particleManager.Register(particle);
 }
 
-void ParticleSystem::Rubble3Effect(DirectX::XMFLOAT3 position, int Max, int SpeedMax) {
+void ParticleSystem::Rubble3Effect(DirectX::XMFLOAT3 position, int Max, int SpeedMax,int RockType) {
     ParticleManager& particleManager = ParticleManager::Instance();
     Particle::MoveConstants move;
     std::vector<Particle::MoveConstants> moveConst;
@@ -201,7 +201,7 @@ void ParticleSystem::Rubble3Effect(DirectX::XMFLOAT3 position, int Max, int Spee
     }
     Particle* particle = new Particle;
     //ランダムの岩モデル
-    particle->Launch(moveConst, ParticleType::Rubble2, rockType[rand() % Particle::Rock3 + Particle::Lance], static_cast<int>(ParticleShader::ModelPSType::Default), NULL, 1.5, { 1,0,0,1 });
+    particle->Launch(moveConst, ParticleType::Rubble2, rockType[RockType], static_cast<int>(ParticleShader::ModelPSType::Default), NULL, 1.5, { 1,0,0,1 });
     particleManager.Register(particle);
 }
 
@@ -343,9 +343,9 @@ void ParticleSystem::CorruptionEffect(DirectX::XMFLOAT3 position,int enemyNo){
     Vec.x = sinf(angleX);
     Vec.z = cosf(angleX);
 
-    pos.x = position.x + Vec.x * 3;
+    pos.x = position.x + Vec.x * 5;
     pos.y = position.y -0.5;
-    pos.z = position.z + Vec.z * 3;
+    pos.z = position.z + Vec.z * 5;
 
     float speed = 3.5;
     InstancingSprite* particle = new InstancingSprite;
