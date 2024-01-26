@@ -27,6 +27,7 @@ public:
 	int GetWave() { return wave; }
 
 	float GetWaveTimer() { return waveTimer; }
+	int GetWaveMaxTimer(int index) { return waveTimerMax[index]; }
 
 public:
 	int identity = 0;	// •t—^‚·‚éID‚Ì’l(‚±‚Ì’l‚ÉMetaAI::Identity::Enemy‚ð‰ÁŽZ‚µ‚Ä•t—^‚·‚é)

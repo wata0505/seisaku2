@@ -146,7 +146,7 @@ void Base::HpDisplay(RenderContext& renderContext, SpriteShader* shader)
 	}
 #else
 	Graphics& graphics = Graphics::Instance();
-	static constexpr float scale = 0.05f;
+	static constexpr float scale = 0.025f;
 	static constexpr float size = 0.5f;
 	// スクリーン幅・高さ
 	float screenWidth = graphics.GetScreenWidth() * scale;
@@ -156,7 +156,7 @@ void Base::HpDisplay(RenderContext& renderContext, SpriteShader* shader)
 	// 体力残量割合
 	float gaugeThrate = this->hp / static_cast<float>(this->hpMax);
 	lossHPUISprite->Render(renderContext.deviceContext,
-		screenWidth, screenHeight,
+		screenHeight, screenHeight,
 		textureWidth * size, textureHeight * size,
 		0.0f, 0.0f,
 		textureWidth, textureHeight,
@@ -164,7 +164,7 @@ void Base::HpDisplay(RenderContext& renderContext, SpriteShader* shader)
 		1.0f, 1.0f, 1.0f, 1.0f);
 	shader->Draw(renderContext, lossHPUISprite.get());
 	hpUISprite->Render(renderContext.deviceContext,
-		screenWidth, screenHeight + (textureHeight * (1.0f - gaugeThrate)) * 0.5f,
+		screenHeight, screenHeight + (textureHeight * (1.0f - gaugeThrate)) * 0.5f,
 		textureWidth * size, textureHeight * size - (textureHeight * (1.0f - gaugeThrate)) * 0.5f,
 		0.0f, (textureHeight * (1.0f - gaugeThrate)),
 		textureWidth, (textureHeight * gaugeThrate),

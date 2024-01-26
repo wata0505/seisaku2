@@ -53,7 +53,8 @@ private:
 		Game,		// ゲーム
 		Tutorial	// チュートリアル
 	};
-	//ステージモード
+
+	// ステージモード
 	enum class StageMode
 	{
 		Stage1,		// 地上敵
@@ -91,12 +92,12 @@ private:
 		Back,			// 背景
 		GameStartText,	// ゲーム
 		TutorialText,	// チュートリアル
-		Stage1,
-		Stage2,
-		Stage3,
-        StageTextFrame,
-		StageBack,
-		CyberCircle,
+		Stage1,			// ステージ1
+		Stage2,			// ステージ2
+		Stage3,			// ステージ3
+        StageTextFrame,	// ステージ枠組
+		StageBack,		// ステージ背景
+		CyberCircle,	// サイバー円
 
 		SMax
 	};
@@ -136,8 +137,7 @@ private:
 	int												titleMode = 0;									// タイトルモード
 	int												gameMode = 0;									// ゲームモード
 	int												stageMode = 0;									// ステージモード
-	int                                             stagNo = 0;   //現在のステージ
-	int                                             stagMaxNo = 0;//最大ステージ数
+	int                                             stagNo = 0;										// 現在のステージ
 	// ジッタードリフト定数バッファ
 	struct JitterDriftConstantBuffer
 	{

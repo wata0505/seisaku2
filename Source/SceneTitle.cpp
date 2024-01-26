@@ -1,22 +1,21 @@
-#include "shader.h"
 #include "SceneTitle.h"
 #include "SceneLoading.h"
 #include "SceneGame.h"
 #include "SceneTutorial.h"
 #include "SceneManager.h"
-#include "Camera.h"
-#include "StageObj.h"
-#include "StageManager.h"
-#include "SwordTrailShader.h"
-#include "LightManager.h"
-#include "Input.h"
-#include "Audio.h"
+#include "Shader.h"
 #include "AudioAll.h"
 #include "EffectAll.h"
 #include "EffectManager.h"
-#include "Mathf.h"
 #include "RenderContext.h"
+#include "Camera.h"
+#include "StageObj.h"
+#include "StageManager.h"
+#include "LightManager.h"
+#include "Input.h"
+#include "Mathf.h"
 #include "Misc.h"
+
 // ‰Šú‰»
 void SceneTitle::Initialize()
 {
@@ -677,7 +676,7 @@ void SceneTitle::Render()
 	}	
 
 	// ImGui•`‰æˆ—
-	ImGuiRender();
+	//ImGuiRender();
 }
 // ImGui•`‰æˆ—
 void SceneTitle::ImGuiRender()
@@ -690,14 +689,6 @@ void SceneTitle::ImGuiRender()
 		{
 			skyboxColor = 1.0f;
 		}
-#if 0
-		if (ImGui::TreeNode("JitterDrift"))
-		{
-			ImGui::SliderFloat("JitterStrength", &jitterDriftData.jitterStrength, 0.0f, 1.0f);
-			ImGui::TreePop();
-		}
-		ImGui::SliderFloat("skyboxColor", &skyboxColor, 0.0f, 1.0f);
-#endif
 		ImGui::SliderFloat("punchScale", &punchScale, 1.0f, 3.0f);
 		ImGui::SliderFloat("lerpScale", &lerpScale, 1.0f, 3.0f);
 		ImGui::SliderFloat("punchPosition", &punchPosition, 0.0f, 1.0f);
@@ -728,8 +719,5 @@ void SceneTitle::ImGuiRender()
 			ImGui::TreePop();
 		}
 		ImGui::End();
-	}	
-
-	player->DrawDebugGUI();
-	EnemyManager::Instance().DrawDebugGUI();
+	}
 }

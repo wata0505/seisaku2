@@ -1,37 +1,31 @@
-#include "shader.h"
-#include"SceneGame.h"
-#include "Camera.h"
-//#include "StageMain.h"
-#include "StageManager.h"
-#include "EnemyManager.h"
-#include "Input.h"
-#include "SwordTrailShader.h"
+#include "SceneGame.h"
+#include "SceneLoading.h"
+#include "SceneTitle.h"
+#include "SceneManager.h"
+#include "Shader.h"
+#include "AudioAll.h"
 #include "EffectManager.h"
-#include "EnemyBag.h"
+#include "ParticleSystem.h"
 #include "ParticleManager.h"
 #include "ParticleSpriteManager.h"
 #include "InstancingSpriteManager.h"
+#include "Camera.h"
+#include "StageMain.h"
 #include "StageObj.h"
-#include "LightManager.h"
-#include "AudioAll.h"
-#include "SceneLoading.h"
-#include "SceneManager.h"
-#include "SceneTitle.h"
-#include "UIManager.h"
-#include "LockOnUI.h"
-#include "BaseUI.h"
-#include "BreakUI.h"
-#include "ParticleSystem.h"
+#include "StageManager.h"
 #include "EnemySystem.h"
-
+#include "EnemyManager.h"
 #include "TrapManager.h"
-#include "Turret.h"
+#include "LightManager.h"
+#include "LockOnUI.h"
+#include "UIManager.h"
+#include "Input.h"
 #include "Misc.h"
 
 void SceneGame::Initialize()
 {
 	Graphics& graphics = Graphics::Instance();
-	device = graphics.GetDevice();
+	ID3D11Device* device = graphics.GetDevice();
 
 	EnemyManager& enemyManager = EnemyManager::Instance();
 
@@ -39,31 +33,24 @@ void SceneGame::Initialize()
 	enemySystem.Start(SceneManager::Instance().GetStage());
 	StageManager& stageManager = StageManager::Instance();
 	stageManager.Clear();
-	stageMain = new StageMain;
+	StageMain* stageMain = new StageMain();
 	stageManager.Register(stageMain);
 
-	DirectX::XMFLOAT2 dir = { 0,0 };
-	//DirectX::XMFLOAT3 objPos[3] = { { 50,-4,-50 },{60,-4,17},{130,-4,-80} };
-	//float objAngle[3] = { 0,90,-45 };
 	int s = SceneManager::Instance().GetStage();
-	//DirectX::XMFLOAT3 objPos[3][3] = { {{ 50,-4,-50 },{60,-4,17},{140,-4,-80}},{{ 115,-4,-50 },{115,-4,-20},{115,-45,-80}},{{0,-4,-70 },{0,-4,-70},{115,-45,-80}} }; //オブジェクト位置//
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < 3; i++) 
+	{
 		StageObj* stageObj = new StageObj(objPos[s][i], objAngleY[s][i], objAngleZ[s][i]);
 		stageManager.Register(stageObj);
 	}
 	
-	Camera& camera = Camera::Instance();
-	camera.SetLookAt(
-		DirectX::XMFLOAT3(0, 0, -10),
-		DirectX::XMFLOAT3(0, 0, 0),
-		DirectX::XMFLOAT3(0, 1, 0)
-	);
-	camera.SetPerspectiveFov(
-		DirectX::XMConvertToRadians(45),
-		graphics.GetScreenWidth() / graphics.GetScreenHeight(),
-		0.1f,
-		500.0f
-	);
+	// カメラ初期化
+	{
+		Camera& camera = Camera::Instance();
+		camera.SetLookAt(DirectX::XMFLOAT3(0, 0, -10), {}, DirectX::XMFLOAT3(0, 1, 0));
+		camera.SetPerspectiveFov(DirectX::XMConvertToRadians(45),
+			graphics.GetScreenWidth() / graphics.GetScreenHeight(),
+			0.1f, 500.0f);
+	}
 	//カメラコントローラー初期化
 	//cameraController = std::make_unique <CameraController>();
 	float gaugeWidth = 500.0f;
@@ -73,9 +60,9 @@ void SceneGame::Initialize()
 	player = std::make_unique<Player>();
 	base = std::make_unique<Base>(pos);
 	//ピクセルシェーダーオブジェクト
-	create_ps_from_cso(device.Get(), "Shader\\PostEffectPS.cso", pixel_shaders[0].GetAddressOf());
-	create_ps_from_cso(device.Get(), "Shader\\BlurPS.cso", pixel_shaders[1].GetAddressOf());
-	create_ps_from_cso(device.Get(), "Shader\\EffectPS.cso", pixel_shaders[2].GetAddressOf());
+	create_ps_from_cso(device, "Shader\\PostEffectPS.cso", pixel_shaders[0].GetAddressOf());
+	create_ps_from_cso(device, "Shader\\BlurPS.cso", pixel_shaders[1].GetAddressOf());
+	create_ps_from_cso(device, "Shader\\EffectPS.cso", pixel_shaders[2].GetAddressOf());
 
 
 	// ジッタードリフト定数バッファ
@@ -91,9 +78,9 @@ void SceneGame::Initialize()
 		HRESULT hr = device->CreateBuffer(&bufferDesc, nullptr, jitterDriftConstantBuffer.GetAddressOf());
 		_ASSERT_EXPR(SUCCEEDED(hr), HRTrace(hr));
 	}
-	create_ps_from_cso(device.Get(), "Shader\\JitterDriftPS.cso", jitterDriftPixelShader.GetAddressOf());
+	create_ps_from_cso(device, "Shader\\JitterDriftPS.cso", jitterDriftPixelShader.GetAddressOf());
 
-	bit_block_transfer = std::make_unique<FullscreenQuad>(device.Get());
+	bit_block_transfer = std::make_unique<FullscreenQuad>(device);
 
 
 	sprite_batchs2 = std::make_unique<Sprite>();
@@ -104,20 +91,19 @@ void SceneGame::Initialize()
 	pixelSprite = std::make_unique<Sprite>(L".\\resources\\UI\\Pixel.png");
 	gameOverSprite = std::make_unique<Sprite>(L".\\resources\\UI\\GameOver.png");
 	gameClearSprite = std::make_unique<Sprite>(L".\\resources\\UI\\GameClear.png");
+	font = std::make_unique<Sprite>(L".\\resources\\Font\\Number.png");
 	loodSprite = EffectTexAll::Instance().GetSprite(int(EffectTexAll::EfTexAll::Bock));
 	renderSprite = std::make_unique<Sprite>();
 	//スクリーンバファ生成
-	framebuffers[0] = std::make_unique<Framebuffer>(device.Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
-    subframebuffers[0] = std::make_unique<SubFramebuffer>(device.Get(), SCREEN_WIDTH , SCREEN_HEIGHT);
-	subframebuffers[1] = std::make_unique<SubFramebuffer>(device.Get(), SCREEN_WIDTH/2, SCREEN_HEIGHT /2);
-	subframebuffers[2] = std::make_unique<SubFramebuffer>(device.Get(), SCREEN_WIDTH /4, SCREEN_HEIGHT /4);
-	subframebuffers[3] = std::make_unique<SubFramebuffer>(device.Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
-	subframebuffers[4] = std::make_unique<SubFramebuffer>(device.Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
-	subframebuffers[5] = std::make_unique<SubFramebuffer>(device.Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
-	jitterDriftSubFramebuffer = std::make_unique<SubFramebuffer>(device.Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
-	shadowbuffer = std::make_unique<Shadowbuffer>(device.Get(), ShadowMapSize, ShadowMapSize);
-	luminanceExtractionData.threshold = 0.03f;
-	luminanceExtractionData.intensity = 3.0f;
+	framebuffers[0] = std::make_unique<Framebuffer>(device, SCREEN_WIDTH, SCREEN_HEIGHT);
+    subframebuffers[0] = std::make_unique<SubFramebuffer>(device, SCREEN_WIDTH , SCREEN_HEIGHT);
+	subframebuffers[1] = std::make_unique<SubFramebuffer>(device, SCREEN_WIDTH/2, SCREEN_HEIGHT /2);
+	subframebuffers[2] = std::make_unique<SubFramebuffer>(device, SCREEN_WIDTH /4, SCREEN_HEIGHT /4);
+	subframebuffers[3] = std::make_unique<SubFramebuffer>(device, SCREEN_WIDTH, SCREEN_HEIGHT);
+	subframebuffers[4] = std::make_unique<SubFramebuffer>(device, SCREEN_WIDTH, SCREEN_HEIGHT);
+	subframebuffers[5] = std::make_unique<SubFramebuffer>(device, SCREEN_WIDTH, SCREEN_HEIGHT);
+	jitterDriftSubFramebuffer = std::make_unique<SubFramebuffer>(device, SCREEN_WIDTH, SCREEN_HEIGHT);
+	shadowbuffer = std::make_unique<Shadowbuffer>(device, ShadowMapSize, ShadowMapSize);
 	
 	meta = std::make_unique<Meta>(player.get(), &enemyManager);
 	UIManager& uiManager = UIManager::Instance();
@@ -125,15 +111,8 @@ void SceneGame::Initialize()
 	//BaseUI* mpWaku    = new BaseUI(L".\\resources\\Mpwaku3.png", 10, 650, gaugeWidth * 1.1, gaugeHeight * 0.5);
 	gaugeWidth = 65.0f;
 	gaugeHeight = 100.0f;
-	//BaseUI* mainSword = new BaseUI(L".\\resources\\UI\\SW.PNG", 100, 300, gaugeWidth, gaugeHeight);
-	//BaseUI* axe       = new BaseUI(L".\\resources\\UI\\Axe2.PNG",200, 400, gaugeWidth, gaugeHeight);
-	//BaseUI* halberd   = new BaseUI(L".\\resources\\UI\\HB.PNG", 0, 400, gaugeWidth, gaugeHeight);
-	//BaseUI* subSword  = new BaseUI(L".\\resources\\UI\\EX.PNG", 100, 500, gaugeWidth, gaugeHeight);
-	//BaseUI* zyuuzi = new BaseUI(L".\\resources\\UI\\zyuuzi.PNG", 110, 425,50, 50);
+	
 	LockOnUI* lock    = new LockOnUI(L".\\resources\\Lockon.png");
-	//BreakUI* breakWepon = new BreakUI(L".\\resources\\UI\\break.png", 100, 300, gaugeWidth, gaugeHeight);
-	//BaseUI* lt = new BaseUI(L".\\resources\\UI\\LT.PNG", 0, 200, 200, 50);
-	//BaseUI* lb = new BaseUI(L".\\resources\\UI\\LB.PNG", 0, 250, 250, 50);
 
 	//ParticleSprite* particleSprite = new ParticleSprite({NULL,NULL,NULL}, { NULL,NULL,NULL }, ParticleSprite::ParticleSoft, ParticleSprite::Chile, (int)EffectTexAll::EfTexAll::Thunder, 20000,NULL, NULL, false);
 	AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Bgm)->Play(true);
@@ -325,6 +304,8 @@ void SceneGame::Render()
 	//シャドウバッファ
 	shadowbuffer->clear(immediate_context);
 	shadowbuffer->activate(immediate_context);
+	// ライトの方向
+	DirectX::XMFLOAT4 light_direction = { 1.0f, -1.0f, 0.0f, 0.0f };
 	{
 		DirectX::XMVECTOR LightPosition = DirectX::XMLoadFloat4(&light_direction);
 		DirectX::XMVECTOR Position = DirectX::XMLoadFloat3(&player->GetPosition());
@@ -333,11 +314,13 @@ void SceneGame::Render()
 			Position,
 			DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
 		// シャドウマップに描画したい範囲の射影行列を生成
-		DirectX::XMMATRIX P = DirectX::XMMatrixOrthographicLH(shadowDrawRect, shadowDrawRect, 0.1f,
-			100.0f);
+		DirectX::XMMATRIX P = DirectX::XMMatrixOrthographicLH(shadowDrawRect, shadowDrawRect, 0.1f, 100.0f);
 		DirectX::XMStoreFloat4x4(&rc.view, V);
 		DirectX::XMStoreFloat4x4(&rc.projection, P);
+		DirectX::XMFLOAT4X4 lightViewProjection;
 		DirectX::XMStoreFloat4x4(&lightViewProjection, V * P);
+		rc.shadowMapData.lightViewProjection = lightViewProjection;
+		rc.shadowMapData.shadowMap = shadowbuffer->SrvShadow.Get();
 	}
 	ModelShader* shader = graphics.GetShader(Graphics::ModelShaderId::ShadowmapCaster);
 	shader->Begin(immediate_context, rc);
@@ -372,8 +355,7 @@ void SceneGame::Render()
 	rc.projection = camera.GetProjection();
 	rc.lightDirection = light_direction;
 	
-	rc.shadowMapData.shadowMap = shadowbuffer->SrvShadow.Get();
-	rc.shadowMapData.lightViewProjection = lightViewProjection;
+
 
 	SpriteShader* shader2 = graphics.GetShader(Graphics::SpriteShaderId::Skybox);
 
@@ -465,7 +447,6 @@ void SceneGame::Render()
 	//サブオフスクリーンバッファ（輝度抜き出し）
 	subframebuffers[0]->Clear(immediate_context);
 	subframebuffers[0]->Activate(immediate_context);
-	rc.luminanceExtractionData = luminanceExtractionData;
 	shader2 = graphics.GetShader(Graphics::SpriteShaderId::LuminanceExtraction);
 	shader2->Begin(rc);
 	renderSprite->SetShaderResourceView(framebuffers[0]->shaderResourceViews[0].Get(), SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -537,24 +518,48 @@ void SceneGame::Render()
 		{
 			float waveCountWidth = static_cast<float>(waveSprite[wave]->GetTextureWidth());
 			float waveCountHeight = static_cast<float>(waveSprite[wave]->GetTextureHeight());
-			waveSprite[wave]->Render(immediate_context,
-				screenWidth * 0.5f - waveCountWidth * 0.5f, screenHeight * 0.1f, waveCountWidth, waveCountHeight,
-				0.0f, 0.0f, waveCountWidth, waveCountHeight,
-				0.0f,
-				1.0f, 1.0f, 1.0f, 1.0f,
-				waveTimer
-			);
-			shader2->Draw(rc, waveSprite[wave].get());
 			float waveBackWidth = static_cast<float>(waveBackSprite->GetTextureWidth());
 			float waveBackHeight = static_cast<float>(waveBackSprite->GetTextureHeight());
 			waveBackSprite->Render(immediate_context,
-				screenWidth * 0.5f - waveCountWidth * 0.5f, screenHeight * 0.1f, waveCountWidth, waveCountHeight,
+				screenWidth * 0.5f - waveCountWidth * 0.5f, screenHeight * 0.075f, waveCountWidth, waveCountHeight,
 				0.0f, 0.0f, waveBackWidth, waveBackHeight,
 				0.0f,
 				1.0f, 1.0f, 1.0f, 1.0f,
 				waveTimer
 			);
 			shader2->Draw(rc, waveBackSprite.get());
+			waveSprite[wave]->Render(immediate_context,
+				screenWidth * 0.5f - waveCountWidth * 0.5f, screenHeight * 0.075f, waveCountWidth, waveCountHeight,
+				0.0f, 0.0f, waveCountWidth, waveCountHeight,
+				0.0f,
+				1.0f, 1.0f, 1.0f, 1.0f,
+				waveTimer
+			);
+			shader2->Draw(rc, waveSprite[wave].get());
+			
+			if (EnemySystem::Instance().GetWaveTimer() > 8)
+			{
+				waveBackSprite->Render(immediate_context,
+					screenWidth * 0.5f - waveCountWidth * 0.1f, screenHeight * 0.025f, waveCountWidth * 0.3f, waveCountHeight,
+					0.0f, 0.0f, waveBackWidth, waveBackHeight,
+					0.0f,
+					1.0f, 1.0f, 1.0f, 1.0f,
+					3.0f - waveTimer
+				);
+				shader2->Draw(rc, waveBackSprite.get());
+				static constexpr float size = 75.0f;
+				int waveTime = static_cast<int>(EnemySystem::Instance().GetWaveMaxTimer(EnemySystem::Instance().GetWave()) - EnemySystem::Instance().GetWaveTimer());
+				float shiftPosition = 0.5f;
+				if (waveTime < 10)
+				{
+					shiftPosition = 0.25f;
+				}
+				Text(shader2, immediate_context, std::to_string(waveTime),
+					screenWidth * 0.5f - size * shiftPosition, screenHeight * 0.05f,
+					size, size,
+					1.0f, 0.0f, 0.0f, 1.0f,
+					3.0f - waveTimer);
+			}
 		}
 	}
 	// ゲーム終了後テクスチャ
@@ -623,6 +628,29 @@ void SceneGame::Render()
 	}
 #endif
 }
+void SceneGame::Text(SpriteShader* shader, ID3D11DeviceContext* dc, std::string s, float x, float y, float w, float h, float r, float g, float b, float a, float dissolve)
+{
+	RenderContext rc;
+	rc.deviceContext = dc;
+
+	//現在の文字位置（相対位置）
+	float carriage = 0;
+
+	//文字数分だけrender()を呼び出す
+	for (const char c : s)
+	{
+		//文字を表示。アスキーコードの位置にある文字位置を切り抜いて表示
+		font->Render(dc,
+			x + carriage / 2, y, w, h,
+			72.0f * (c & 0x0F), 0.0f, 72.0f, 72.0f,
+			0.0f,
+			r, g, b, a,
+			dissolve);
+		shader->Draw(rc, font.get());
+		//文字位置を幅分ずらす
+		carriage += w;
+	}
+}
 void SceneGame::projectImgui()
 {
 	ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_FirstUseEver);
@@ -634,15 +662,6 @@ void SceneGame::projectImgui()
 	}
 	EnemyManager::Instance().DrawDebugGUI();
 	TrapManager::Instance().DrawDebugGUI();
-	if (ImGui::TreeNode("light"))
-	{
-		ImGui::SliderFloat("light_dir.x", &light_direction.x, -1.0f, 1.0f);
-		ImGui::SliderFloat("light_dir.y", &light_direction.y, -1.0f, 1.0f);
-		ImGui::SliderFloat("light_dir.z", &light_direction.z, -1.0f, 1.0f);
-		ImGui::SliderFloat("light_dir.w", &light_direction.w, -1000.0f, 1000.0f);
-		ImGui::TreePop();
-	
-	}
 	if (ImGui::TreeNode("Shadowmap"))
 	{
 		ImGui::SliderFloat("DrawRect", &shadowDrawRect,1.0f, 150.0f);
@@ -674,12 +693,6 @@ void SceneGame::projectImgui()
 		ImGui::Image(subframebuffers[2]->shaderResourceViews.Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
 		ImGui::Image(subframebuffers[3]->shaderResourceViews.Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
 		ImGui::Image(subframebuffers[4]->shaderResourceViews.Get(), { 256, 144 }, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 });
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("Bloom"))
-	{
-		ImGui::SliderFloat("threshold", &luminanceExtractionData.threshold, 0.0f, 1.0f);
-		ImGui::SliderFloat("intensity", &luminanceExtractionData.intensity, 0.0f, 10.0f);
 		ImGui::TreePop();
 	}
 	if (ImGui::TreeNode("JitterDrift"))
