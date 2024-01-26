@@ -62,8 +62,6 @@ private:
 	std::unique_ptr<Player> player = nullptr;
 	std::unique_ptr<Base> base = nullptr;
 	std::unique_ptr<Meta> meta = nullptr;
-	static const int ShadowMapSize = 1096;
-
 	float shadowDrawRect = 1.0f; // シャドウマップに描画する範囲
 
 	float dissolveTimer = 0;
@@ -91,5 +89,5 @@ private:
 	float objAngleZ[3][3] = { { 0,0,0 },{ 0,0,90 },{ 0,0,90 }};//オブジェクト回転
 	float gameAfterTimer = 0.0f;
 	float gameAfterDissolveTimer = 3.0f;
-
+	float t = 1.0f;
 };

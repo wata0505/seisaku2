@@ -103,21 +103,13 @@ void SceneGame::Initialize()
 	subframebuffers[4] = std::make_unique<SubFramebuffer>(device, SCREEN_WIDTH, SCREEN_HEIGHT);
 	subframebuffers[5] = std::make_unique<SubFramebuffer>(device, SCREEN_WIDTH, SCREEN_HEIGHT);
 	jitterDriftSubFramebuffer = std::make_unique<SubFramebuffer>(device, SCREEN_WIDTH, SCREEN_HEIGHT);
+	// シャドウバッファ
+	static const int ShadowMapSize = 1096;
 	shadowbuffer = std::make_unique<Shadowbuffer>(device, ShadowMapSize, ShadowMapSize);
 	
 	meta = std::make_unique<Meta>(player.get(), &enemyManager);
 	UIManager& uiManager = UIManager::Instance();
-	
-	//BaseUI* mpWaku    = new BaseUI(L".\\resources\\Mpwaku3.png", 10, 650, gaugeWidth * 1.1, gaugeHeight * 0.5);
-	gaugeWidth = 65.0f;
-	gaugeHeight = 100.0f;
-	
 	LockOnUI* lock    = new LockOnUI(L".\\resources\\Lockon.png");
-
-	//ParticleSprite* particleSprite = new ParticleSprite({NULL,NULL,NULL}, { NULL,NULL,NULL }, ParticleSprite::ParticleSoft, ParticleSprite::Chile, (int)EffectTexAll::EfTexAll::Thunder, 20000,NULL, NULL, false);
-	AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Bgm)->Play(true);
-
-
 }
 void SceneGame::Finalize()
 {
@@ -152,13 +144,12 @@ void SceneGame::Update(float elapsedTime)
 	}
 	base->Update(deltaTimer);
 	StageManager::Instance().Update(deltaTimer);
-	EnemySystem::Instance().Update(deltaTimer);
-	EnemyManager::Instance().Update(deltaTimer);
-	EnemyManager::Instance().DrawDebugPrimitive();
+	EnemySystem::Instance().Update(deltaTimer * t);
+	EnemyManager::Instance().Update(deltaTimer * t);
 		
 	EffectManager::instance().Update(deltaTimer);
-
-	ParticleManager::Instance().Update(deltaTimer);
+	
+	ParticleManager::Instance().Update(deltaTimer * t);
 
 	InstancingSpriteManager::Instance().Update(deltaTimer);
 
@@ -169,7 +160,6 @@ void SceneGame::Update(float elapsedTime)
 	UIManager::Instance().Update(deltaTimer);
 
 	TrapManager::Instance().Update(deltaTimer);
-	TrapManager::Instance().DrawDebugPrimitive();
 #if 0
 	if (Base::Instance().GetJitterStrength() > 0) {
 		jitterDriftData.jitterStrength = Base::Instance().GetJitterStrength();
@@ -278,7 +268,7 @@ void SceneGame::Render()
 	sampler_states[0] = graphics.GetSamplerState(0);
 	sampler_states[1] = graphics.GetSamplerState(1);
 	sampler_states[2] = graphics.GetSamplerState(2);
-	//->AddRef()
+
 	//塗りつぶす色の設定
 	FLOAT color[]{ 0.9f,0.9f,0.2f,1.0f };
 	//レンダーターゲットビューのクリア。キャンバス全体を指定した色で塗りつぶす。
@@ -290,15 +280,10 @@ void SceneGame::Render()
 		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	//これから描くキャンバスを指定する
 	immediate_context->OMSetRenderTargets(1, render_target_view.GetAddressOf(), graphics.GetDepthStencilView());
-
-
-	//ポイントフィルタをｓ０
+	
 	immediate_context->PSSetSamplers(0, 1, sampler_states[0].GetAddressOf());
-	//リニアフィルタを s1
 	immediate_context->PSSetSamplers(1, 1, sampler_states[1].GetAddressOf());
-	//アニソトロピックを　s2
 	immediate_context->PSSetSamplers(2, 1, sampler_states[2].GetAddressOf());
-	//深度テストをOFF深度書き込みOFF
 
 	RenderContext rc;
 	//シャドウバッファ
@@ -479,11 +464,6 @@ void SceneGame::Render()
 		//放射ブラー
 		bit_block_transfer->blit(immediate_context, subframebuffers[3]->shaderResourceViews.GetAddressOf(), 0, 1, pixel_shaders[2].Get());
 	}
-	//else
-	//{
-	//	bit_block_transfer->blit(immediate_context, subframebuffers[3]->shaderResourceViews.GetAddressOf(), 0, 1);
-	//}
-
 	subframebuffers[4]->Deactivate(immediate_context);
 
 	// ジッタードリフトシェーダー
@@ -657,6 +637,7 @@ void SceneGame::projectImgui()
 	ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_FirstUseEver);
 	if (ImGui::Begin("Debug", nullptr, ImGuiWindowFlags_None))
 	{
+		ImGui::SliderFloat("t", &t, 0.0f, 1.0f);
 		ImGui::SliderFloat("Sky", &skyboxColor, 0.0f, 1.0f);
 		ImGui::SliderFloat("GameAfterDissolveTimer", &gameAfterDissolveTimer, 0.0f, 3.0f);
 	}

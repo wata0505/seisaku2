@@ -161,6 +161,15 @@ void SceneTitle::Update(float elapsedTime)
 
 			titleMode++;
 		}
+
+		if (titleMode == TitleMode::Select && gameMode != (int)GamaMode::Tutorial)
+		{
+			if (pad.GetButtonDown() & GamePad::BTN_BACK)
+			{
+				titleMode--;
+			}
+		}
+		
 		if (titleMode > TitleMode::TitleStart)
 		{
 			titleDissolveTimer += elapsedTime;
