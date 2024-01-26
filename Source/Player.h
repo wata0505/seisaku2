@@ -223,6 +223,7 @@ public:
     float GetHologramTimer() { return hologramTimer; }
     float GetLoseDirectingTimer() { return loseDirectingTimer; }
     float GetClearDirectingTimer() { return clearDirectingTimer; }
+    int GetClearState() { return clearState; }
 
     // ノードとエネミーの衝突処理
     void CollisionNodeVsEnemies(float nodeRadius, DirectX::XMFLOAT2 pow, float Damage, float InvincibleTime);

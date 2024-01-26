@@ -17,17 +17,26 @@ TrapManager::TrapManager()
 	// 地雷
 	obj[0] = std::make_unique<Model>(".\\resources\\Trap\\Mine\\Mine.fbx", true);
 	obj[0]->ModelSerialize(".\\resources\\Trap\\Mine\\Mine.fbx");
-	obj[0]->ModelRegister(".\\resources\\Trap\\Mine\\Mine.fbx");	
+	obj[0]->ModelRegister(".\\resources\\Trap\\Mine\\Mine.fbx");
 
 	// トーテム
 	obj[1] = std::make_unique<Model>(".\\resources\\Trap\\AttacheCase\\AttacheCase.fbx", true);
 	obj[1]->ModelSerialize(".\\resources\\Trap\\AttacheCase\\AttacheCase.fbx");
-	obj[1]->ModelRegister(".\\resources\\Trap\\AttacheCase\\AttacheCase.fbx", "Texture\\Albedo.png");	
+	obj[1]->ModelRegister(".\\resources\\Trap\\AttacheCase\\AttacheCase.fbx", "Texture\\Albedo.png");
 
 	// デコイ
 	obj[2] = std::make_unique<Model>(".\\resources\\Trap\\Decoy\\Decoy.fbx", true);
 	obj[2]->ModelSerialize(".\\resources\\Trap\\Decoy\\Decoy.fbx");
-	obj[2]->ModelRegister(".\\resources\\Trap\\Decoy\\Decoy.fbx", "Texture\\Albedo.png");	
+	obj[2]->ModelRegister(".\\resources\\Trap\\Decoy\\Decoy.fbx", "Texture\\Albedo.png");
+
+	obj[3] = std::make_unique<Model>(".\\resources\\Trap\\Sentorygun\\Taret_GUN.fbx", true);
+	obj[3]->AppendAnimations(".\\resources\\Sentorygun\\GUN_motionBullet.fbx", 0);
+	obj[3]->ModelSerialize(".\\resources\\Trap\\Sentorygun\\Taret_GUN.fbx");
+	obj[3]->ModelRegister(".\\resources\\Trap\\Sentorygun\\Taret_GUN.fbx", "Taret_BODY.fbm\\TARET_GUN_BaseColor.png");
+
+	obj[4] = std::make_unique<Model>(".\\resources\\Trap\\Sentorygun\\Taret.fbx", true);
+	obj[4]->ModelSerialize(".\\resources\\Trap\\Sentorygun\\Taret.fbx");
+	obj[4]->ModelRegister(".\\resources\\Trap\\Sentorygun\\Taret.fbx", "Taret.fbm\\TARET_BODY_BaseColor.png");
 
 	uiTrap[0] = std::make_unique<Sprite>(L".\\resources\\Trap\\Turret.png");
 	uiTrap[1] = std::make_unique<Sprite>(L".\\resources\\Trap\\Mine.png");
@@ -275,6 +284,7 @@ void TrapManager::Render(ID3D11DeviceContext* deviceContext, ModelShader* shader
 // インスタンシング描画処理
 void TrapManager::InstancingRender(ID3D11DeviceContext* deviceContext, ModelShader* shader)
 {
+#if 0
 	for (int index = 0; index < 3; index++)
 	{
 		float yUp = 0.0f;
@@ -283,7 +293,8 @@ void TrapManager::InstancingRender(ID3D11DeviceContext* deviceContext, ModelShad
 			yUp = 1.0f;
 		}
 		//shader->Draw(deviceContext, obj[index].get(), constants[index], instangNo[index], { 0.0f, 0.0f, 0.0f, yUp });
-	}	
+	}
+#endif
 }
 // 残像エフェクト描画処理
 void TrapManager::Afterimagerender(Microsoft::WRL::ComPtr<ID3D11DeviceContext> deviceContext, ModelShader* shader)
@@ -411,6 +422,7 @@ void TrapManager::SetTrap()
 
 void TrapManager::Sprite2DRender(ID3D11DeviceContext* dc, RenderContext& rc, SpriteShader* shader)
 {
+#if 0
 	// ビューポート
 	D3D11_VIEWPORT viewport;
 	UINT numViewports = 1;
@@ -419,7 +431,7 @@ void TrapManager::Sprite2DRender(ID3D11DeviceContext* dc, RenderContext& rc, Spr
 	DirectX::XMMATRIX View = DirectX::XMLoadFloat4x4(&rc.view);
 	DirectX::XMMATRIX Projection = DirectX::XMLoadFloat4x4(&rc.projection);
 	DirectX::XMMATRIX World = DirectX::XMMatrixIdentity();
-
+#endif
 	TrapManager::Instance().Text(shader, dc, std::to_string(trapPoint), 165, 630, 50, 50, 0.0f, 1.0f, 0.0f, 1.0f);
 
 	DirectX::XMFLOAT2 positon = { 1100.0f, 480.0f };

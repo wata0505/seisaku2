@@ -62,7 +62,7 @@ private:
 	std::unique_ptr<Sprite> spriteNo;
 	std::unique_ptr<Sprite> uiHp;
 	std::unique_ptr<Sprite> uiTrap[Trap::TrapType::TrapMax];
-	std::unique_ptr<Model>	obj[3] = { nullptr };
+	std::unique_ptr<Model>	obj[5] = { nullptr };
 	std::vector<Trap*>		traps;
 	std::vector<Trap*>		removes;
 	InstancingConstants		constants[3];
