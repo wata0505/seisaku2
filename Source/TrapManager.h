@@ -56,6 +56,9 @@ public:
 	void SetTrapPoint(int point) { this->trapPoint = point; }
 	int GetTrapPoint() { return trapPoint; }
 
+	bool GetBuidFlag() { return buildFlag; }
+	bool GetCanSetFlag() { return canSetFlag; }
+
 private:
 	std::unique_ptr<Sprite> font = {};
 	std::unique_ptr<Sprite> sprite;

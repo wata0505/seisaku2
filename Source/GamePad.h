@@ -59,6 +59,9 @@ public:
 	// 右トリガー入力状態の取得
 	float GetTriggerR() const { return triggerR; }
 
+	//コントローラー接続状態の取得
+	bool GetControllerState();
+
 private:
 	GamePadButton		buttonState[2] = { 0 };
 	GamePadButton		buttonDown = 0;
@@ -70,4 +73,7 @@ private:
 	float				triggerL = 0.0f;
 	float				triggerR = 0.0f;
 	int					slot = 0;
+
+	//コントローラー接続状態
+	bool isController = false;
 };

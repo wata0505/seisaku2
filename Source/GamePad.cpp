@@ -3,6 +3,32 @@
 #include <Xinput.h>
 #include "GamePad.h"
 
+//コントローラー接続の状態を取得
+bool GamePad::GetControllerState()
+{
+	DWORD dwResult;
+	for (DWORD i = 0; i < XUSER_MAX_COUNT; i++)
+	{
+		XINPUT_STATE state;
+		ZeroMemory(&state, sizeof(XINPUT_STATE));
+
+		// Simply get the state of the controller from XInput.
+		dwResult = XInputGetState(i, &state);
+
+		if (dwResult == ERROR_SUCCESS)
+		{
+			// Controller is connected
+			return true;
+		}
+		else
+		{
+			// Controller is not connected
+			return false;
+		}
+	}
+}
+
+
 // 更新
 void GamePad::Update()
 {

@@ -724,16 +724,21 @@ void SceneTutorial::Initialize()
 	AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Bgm)->Play(true);
 
 	TrapManager& trapManager = TrapManager::Instance();
-	{//scale=150
-		DirectX::XMFLOAT3 position[3] = { { 84.0f, 12.5f, -35.0f }, { 94.4f, 12.5f, -24.5f }, { 57.5f, 12.5f, -50.0f} };
-		for (int i = 0; i < 3; i++)
-		{
-			Turret* turret = new Turret();
-			turret->SetPosition(position[i]);
-			turret->SetTerritory(turret->GetPosition(), 30.0f);
-			trapManager.Register(turret);
-		}
+
+	//チュートリアルUI関連
+	sprTutorialState[0] = std::make_unique<Sprite>(L".\\resources\\UI\\Tutorial\\Tutorial_state1.png");
+	sprTutorialState[1] = std::make_unique<Sprite>(L".\\resources\\UI\\Tutorial\\titorial_state2.png");
+	for (int i = 0; i < 4; i++)
+	{
+		sprUiHighlight[i] = std::make_unique<Sprite>(L".\\resources\\UI\\Tutorial\\highlight.png");
 	}
+	//操作方法関連
+	//フェーズ1
+	sprOperationUi[TutorialState::STATE_ATTACK][Operations::KEYBOARD] = std::make_unique<Sprite>(L".\\resources\\UI\\Tutorial\\phase1Keys.png");
+	sprOperationUi[TutorialState::STATE_ATTACK][Operations::GAMEPAD] = std::make_unique<Sprite>(L".\\resources\\UI\\Tutorial\\phase1Buttons.png");
+	//フェーズ2
+	sprOperationUi[TutorialState::STATE_OBJ_SETTING][Operations::KEYBOARD] = std::make_unique<Sprite>(L".\\resources\\UI\\Tutorial\\phase2Keys.png");
+	sprOperationUi[TutorialState::STATE_OBJ_SETTING][Operations::GAMEPAD] = std::make_unique<Sprite>(L".\\resources\\UI\\Tutorial\\phase2Buttons.png");
 }
 void SceneTutorial::Finalize()
 {
@@ -815,6 +820,8 @@ void SceneTutorial::Update(float elapsedTime)
 		if (waveTimer > 3) waveTimer = 3;
 	}
 
+	//コントローラー接続状態でUIを変更する
+	ChangeUi();
 	//チュートリアル呼び出し
 	TutorialUpdate(elapsedTime);
 
@@ -1090,6 +1097,70 @@ void SceneTutorial::Render()
 			SceneManager::Instance().ChangeScene(new SceneLoading(new SceneTitle));
 		}
 	}
+
+
+	//チュートリアルUI
+	{
+		//基本操作
+		//フェーズ1
+		if (isShowFlag[0])
+		{
+			sprTutorialState[0]->Render(immediate_context,
+				pos.x, pos.y,						//座標
+				size.x * scale, size.y * scale,		//画像サイズ
+				0, 0, texSize.x, texSize.y,			//テクスチャ座標、サイズ
+				0,									//角度
+				1, 1, 1, 1);						//agba
+			shader2->Draw(rc, sprTutorialState[0].get());
+
+			//キー、ボタン表示
+			sprOperationUi[0][keyOrButton]->Render(immediate_context,
+				pos.x, pos.y,						//座標
+				size.x * scale, size.y * scale,		//画像サイズ
+				0, 0, texSize.x, texSize.y,			//テクスチャ座標、サイズ
+				0,									//角度
+				1, 1, 1, 1);						//agba
+			shader2->Draw(rc, sprOperationUi[0][keyOrButton].get());
+		}
+		//フェーズ2
+		if (isShowFlag[1])
+		{
+			//設置操作
+			sprTutorialState[1]->Render(immediate_context,
+				pos.x, pos.y,						//座標
+				size.x * scale, size.y * scale,		//画像サイズ
+				0, 0, texSize.x, texSize.y,			//テクスチャ座標、サイズ
+				0,									//角度
+				1, 1, 1, 1);						//agba
+			shader2->Draw(rc, sprTutorialState[1].get());
+
+			//キー、ボタン表示
+			sprOperationUi[1][keyOrButton]->Render(immediate_context,
+				pos.x, pos.y,						//座標
+				size.x * scale, size.y * scale,		//画像サイズ
+				0, 0, texSize.x, texSize.y,			//テクスチャ座標、サイズ
+				0,									//角度
+				1, 1, 1, 1);						//agba
+			shader2->Draw(rc, sprOperationUi[1][keyOrButton].get());
+		}
+
+		//強調表示
+		for (int i = 0; i < 4; i++)
+		{
+			if (isHighlightFlag[i])
+			{
+				sprUiHighlight[i]->Render(immediate_context,
+					pos.x, pos.y + (10 * scale) + (i * (64 * scale)),		//座標
+					500 * scale, 64 * scale,					//画像サイズ
+					0, 0, 720, 64,								//テクスチャ座標、サイズ
+					0,											//角度
+					1, 1, 1, 1);								//agba
+				shader2->Draw(rc, sprUiHighlight[i].get());
+			}
+		}
+	}
+
+
 	shader2->End(rc);
 	if (player->GetDidTimer() < NULL) {
 		SceneManager::Instance().ChangeScene(new SceneLoading(new SceneTitle));
@@ -1171,16 +1242,53 @@ void SceneTutorial::projectImgui()
 
 		}
 	}
+	//チュートリアル
 	if (ImGui::TreeNode("Tutorial"))
 	{
 		//現在のステート
+		ImGui::Text("Now State →");
+		ImGui::SameLine();
 		ImGui::Text(stateListString[tutorialState].c_str());
+
+		//タイマー
+		ImGui::InputFloat("changeTimer", &stateTimer);
 
 		//チェックリスト
 		for (int i = 0; i < checkMAX; i++)
 		{
 			ImGui::Checkbox(checkListString[i].c_str(), &isTutorialCheck[i]);
 		}
+
+		/*if (isShowFlag[0])
+		{
+			if (ImGui::Button(u8"表示切替"))
+			{
+				isShowFlag[0] = false;
+			}
+		}
+		if (!isShowFlag[0])
+		{
+			if (ImGui::Button(u8"表示切替"))
+			{
+				isShowFlag[0] = true;
+			}
+		}
+		if (ImGui::Button(u8"リセット"))
+		{
+			pos.x = 0;
+			pos.y = 220;
+			size.x = 500;
+			size.y = 276;
+			scale = 0.8f;
+		}
+		*/
+
+		ImGui::SliderFloat("posX", &pos.x, 0, 1280);
+		ImGui::SliderFloat("posY", &pos.y, 0, 720);
+		ImGui::SliderFloat("sizeX", &size.x, 0, 1280);
+		ImGui::SliderFloat("sizeY", &size.y, 0, 720);
+		ImGui::SliderFloat("scale", &scale, 0, 2.0f);
+
 	}
 
 	ImGui::Separator();
@@ -1210,42 +1318,187 @@ void SceneTutorial::TutorialUpdate(float elapsedTime)
 
 void SceneTutorial::TutorialAttackUpdate(float elapsedTime)
 {
-	//攻撃を検知
-	if (player->InputAttack())
+	//移動を検知
 	{
-		//フラグをオンにする
-		isTutorialCheck[CheckList::CHECK_ATTACK] = true;
+		DirectX::XMFLOAT3 velocity = player->GetVelocity();
+		if (velocity.x != 0 || velocity.z != 0)
+		{
+			//強調表示
+			isHighlightFlag[Tutorial01::MOVE] = true;
+		}
+		else
+		{
+			//強調表示
+			isHighlightFlag[Tutorial01::MOVE] = false;
+		}
+	}
+
+	//カメラ操作を検知
+	{
+		GamePad& gamePad = Input::Instance().GetGamePad();
+		float ax = gamePad.GetAxisRX();
+		float ay = gamePad.GetAxisRY();
+		if (ax != 0 || ay != 0)
+		{
+			//強調表示
+			isHighlightFlag[Tutorial01::CAMERA] = true;
+		}
+		else
+		{
+			//強調表示
+			isHighlightFlag[Tutorial01::CAMERA] = false;
+		}
+	}
+
+	//攻撃を検知
+	{
+		if (player->InputAttack())
+		{
+			//フラグをオンにする
+			isTutorialCheck[CheckList::CHECK_ATTACK] = true;
+			//強調表示
+			highlightTimer[Tutorial01::ATTACK] = 0.5f;
+			//isHighlightFlag[Tutorial01::ATTACK] = true;
+		}
+		highlightTimer[Tutorial01::ATTACK] -= elapsedTime;
+		if (highlightTimer[Tutorial01::ATTACK] > 0)
+		{
+			isHighlightFlag[Tutorial01::ATTACK] = true;
+		}
+		else
+		{
+			//強調表示
+			isHighlightFlag[Tutorial01::ATTACK] = false;
+		}
+	}
+
+	//ジャンプを検知
+	{
+		if (player->jumpCount |= 0)
+		{
+			//フラグをオンにする
+			isTutorialCheck[CheckList::CHECK_JUMP] = true;
+			//強調表示
+			isHighlightFlag[Tutorial01::JUMP] = true;
+		}
+		else
+		{
+			//強調表示
+			isHighlightFlag[Tutorial01::JUMP] = false;
+		}
+	}
+
+	//チェックできた回数をカウント
+	checkCount = isTutorialCheck[CheckList::CHECK_ATTACK] + isTutorialCheck[CheckList::CHECK_JUMP];
+
+	//全ての検知が完了したら
+	if (checkCount == 2)
+	{
+		stateTimer -= elapsedTime;
+	}
+	//一定時間後にステートを更新
+	if (stateTimer < 0)
+	{
 		//ステートを更新
 		tutorialState = TutorialState::STATE_OBJ_SETTING;
+		//表示するUIを変更
+		isShowFlag[0] = !isShowFlag[0];
+		isShowFlag[1] = !isShowFlag[1];
+		//初期化
+		stateTimer = initTimer;
+		for (int i = 0; i < 4; i++)
+		{
+			isHighlightFlag[i] = false;
+			highlightTimer[i] = -1.0f;
+		}
+		//トラップ一度削除
+		TrapManager::Instance().Clear();
 	}
 }
+
 void SceneTutorial::TutorialObjSettingUpdate(float elapsedTime)
 {
 	GamePad& gamePad = Input::Instance().GetGamePad();
 
 	//オブジェクト選択を検知
-	if (gamePad.GetButtonDown() & GamePad::BTN_LEFT)
 	{
-		//フラグをオンにする
-		isTutorialCheck[CheckList::CHECK_OBJ_SELECT] = true;
-	}
-	if (gamePad.GetButtonDown() & GamePad::BTN_RIGHT)
-	{
-		//フラグをオンにする
-		isTutorialCheck[CheckList::CHECK_OBJ_SELECT] = true;
+		if (gamePad.GetButtonDown() & GamePad::BTN_LEFT)
+		{
+			//フラグをオンにする
+			isTutorialCheck[CheckList::CHECK_OBJ_SELECT] = true;
+			highlightTimer[Tutorial02::OBJ_SELECT] = 0.5f;
+		}
+		if (gamePad.GetButtonDown() & GamePad::BTN_RIGHT)
+		{
+			//フラグをオンにする
+			isTutorialCheck[CheckList::CHECK_OBJ_SELECT] = true;
+			highlightTimer[Tutorial02::OBJ_SELECT] = 0.5f;
+		}
+		//一定時間ハイライト
+		highlightTimer[Tutorial02::OBJ_SELECT] -= elapsedTime;
+		if (highlightTimer[Tutorial02::OBJ_SELECT] > 0)
+		{
+			isHighlightFlag[Tutorial02::OBJ_SELECT] = true;
+		}
+		else
+		{
+			//強調表示
+			isHighlightFlag[Tutorial02::OBJ_SELECT] = false;
+		}
 	}
 
 	//セットモード検知
-	if (TrapManager::Instance().GetTrapCount() == 1)
 	{
-		//フラグをオンにする
-		isTutorialCheck[CheckList::CHECK_OBJ_SET_MODE] = true;
+		if (TrapManager::Instance().GetBuidFlag())
+		{
+			//フラグをオンにする
+			isTutorialCheck[CheckList::CHECK_OBJ_SET_MODE] = true;
+			highlightTimer[Tutorial02::OBJ_SET_MODE] = 0.5f;
+			isSetMode = true;
+		}
+		else
+		{
+			isSetMode = false;
+		}
+
+		//一定時間ハイライト
+		highlightTimer[Tutorial02::OBJ_SET_MODE] -= elapsedTime;
+		if (highlightTimer[Tutorial02::OBJ_SET_MODE] > 0)
+		{
+			isHighlightFlag[Tutorial02::OBJ_SET_MODE] = true;
+		}
+		else
+		{
+			//強調表示
+			isHighlightFlag[Tutorial02::OBJ_SET_MODE] = false;
+		}
 	}
+
 	//設置を検知
-	if (TrapManager::Instance().GetTrapCount() == 2)
 	{
-		//フラグをオンにする
-		isTutorialCheck[CheckList::CHECK_OBJ_SET] = true;
+		if (isSetMode)
+		{
+			if (gamePad.GetButtonDown() & GamePad::BTN_UP)
+			{
+				if (TrapManager::Instance().GetCanSetFlag())
+				{
+					//フラグをオンにする
+					isTutorialCheck[CheckList::CHECK_OBJ_SET] = true;
+					highlightTimer[Tutorial02::OBJ_SET] = 0.5f;
+				}
+			}
+		}
+		//一定時間ハイライト
+		highlightTimer[Tutorial02::OBJ_SET] -= elapsedTime;
+		if (highlightTimer[Tutorial02::OBJ_SET] > 0)
+		{
+			isHighlightFlag[Tutorial02::OBJ_SET] = true;
+		}
+		else
+		{
+			//強調表示
+			isHighlightFlag[Tutorial02::OBJ_SET] = false;
+		}
 	}
 
 	//チェックした数をカウント
@@ -1256,8 +1509,27 @@ void SceneTutorial::TutorialObjSettingUpdate(float elapsedTime)
 	//全て検知をしたら次のステートへ遷移
 	if (checkCount == 3)
 	{
+		stateTimer -= elapsedTime;
+	}
+
+	//一定時間後にステートを更新
+	if (stateTimer < 0)
+	{
 		//ステートを更新
 		tutorialState = TutorialState::STATE_RLUE_CHECK;
+
+		//表示するUIを変更
+		isShowFlag[0] = false;
+		isShowFlag[1] = false;
+		//初期化
+		stateTimer = 5.0f;
+		for (int i = 0; i < 4; i++)
+		{
+			isHighlightFlag[i] = false;
+			highlightTimer[i] = -1.0f;
+		}
+		//トラップ一度削除
+		TrapManager::Instance().Clear();
 	}
 }
 void SceneTutorial::TutorialRuleCheckUpdate(float elapsedTime)
@@ -1271,5 +1543,19 @@ void SceneTutorial::TutorialRuleCheckUpdate(float elapsedTime)
 	if (gamePad.GetButtonDown() & GamePad::BTN_X)
 	{
 		SceneManager::Instance().ChangeScene(new SceneLoading(new SceneTitle));
+	}
+}
+
+//UI変更処理
+void SceneTutorial::ChangeUi()
+{
+	GamePad& gamePad = Input::Instance().GetGamePad();
+	if (gamePad.GetControllerState() == true)
+	{
+		keyOrButton = Operations::GAMEPAD;
+	}
+	else
+	{
+		keyOrButton = Operations::KEYBOARD;
 	}
 }

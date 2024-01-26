@@ -248,40 +248,91 @@ private:
 	{
 		STATE_ATTACK,
 		STATE_OBJ_SETTING,
-		STATE_RLUE_CHECK
+		STATE_RLUE_CHECK,
+		STATE_BREAK_TIME
 	};
 	//現在のステート
 	int tutorialState = 0;
+	//次のステートへ向かうタイマー
+	float stateTimer = 3.0f;
+	float initTimer = 3.0f;
 	//項目(今後増える予定あり)
-	static const int checkMAX = 5;
-	static const int stateMAX = 3;
+	static const int checkMAX = 6;
+	static const int stateMAX = 4;
 	bool isTutorialCheck[checkMAX] = {};
 	int checkCount = 0;
+	//強調表示する為のタイマー
+	float highlightTimer[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	//セットモードフラグ
+	bool isSetMode = false;
+
+	//コントローラーかpadを繋いでいるかで表示する画像を変更
+	int keyOrButton = 0;
+
 	//添え字
 	enum CheckList
 	{
 		CHECK_ATTACK,
+		CHECK_JUMP,
 		CHECK_OBJ_SELECT,
 		CHECK_OBJ_SET_MODE,
 		CHECK_OBJ_SET,
 		CHECK_RULE
 	};
-	
+
+	//強調表示する為の添え字
+	enum Tutorial01
+	{
+		MOVE,
+		CAMERA,
+		ATTACK,
+		JUMP
+	};
+	enum Tutorial02
+	{
+		OBJ_SELECT,
+		OBJ_SET_MODE,
+		OBJ_SET,
+	};
+
+	enum Operations
+	{
+		KEYBOARD = 0,
+		GAMEPAD
+	};
+
 	//纏めてアップデート
 	void TutorialUpdate(float elapsedTime);
 	//各種チェック項目のアップデート
 	void TutorialAttackUpdate(float elapsedTime);
 	void TutorialObjSettingUpdate(float elapsedTime);
 	void TutorialRuleCheckUpdate(float elapsedTime);
+	//UIをチェンジする関数
+	void ChangeUi();
+
+	//表示UI
+	std::unique_ptr<Sprite> sprTutorialState[2] = {};	//基本操作UI表示
+	std::unique_ptr<Sprite> sprUiHighlight[4] = {};		//現在行った行動の強調表示
+	std::unique_ptr<Sprite> sprOperationUi[2][2] = {};	//操作方法UI [フェーズ数][ボタンかキーか]
+
+	//調性用変数
+	bool isShowFlag[2] = { true, false };
+	bool isHighlightFlag[4] = { false, false, false, false };
+	DirectX::XMFLOAT2 pos = { 0, 220 };
+	DirectX::XMFLOAT2 size = { 500, 276 };
+	float scale = 0.8f;
+	DirectX::XMFLOAT2 texSize = { 500, 276 };
 
 	//imgui用
 	std::string stateListString[stateMAX] = {
 		"STATE_ATTACK",
 		"STATE_OBJ_SETTING",
-		"STATE_RLUE_CHECK" };
+		"STATE_RLUE_CHECK"
+		"STATE_BREAK_TIME" };
 
 	std::string checkListString[checkMAX] = {
 		"CHECK_ATTACK",
+		"CHECK_JUMP",
 		"CHECK_OBJ_SELECT",
 		"CHECK_OBJ_SET_MODE",
 		"CHECK_OBJ_SET",
