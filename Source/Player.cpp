@@ -66,19 +66,23 @@ Player::Player() {
 
 	player->PlayAnimation(0, true);
 
-    sword = std::make_unique<Model>(".\\resources\\Sword.fbx", true);
-    sword->ModelSerialize(".\\resources\\Sword.fbx");
-    sword->ModelRegister(".\\resources\\Sword.fbx");
-    sword->UpdateBufferData(transform);
-    slash = std::make_unique<Model>(".\\resources\\Textures\\zanngeki4.fbx", true);
-    slash->ModelSerialize(".\\resources\\Textures\\zanngeki4.fbx");
-    slash->ModelRegister(".\\resources\\Textures\\zanngeki4.fbx");
-    slash->UpdateBufferData(transform);
-    beem = std::make_unique<Model>(".\\resources\\Cube.fbx", true);
-    beem->ModelSerialize(".\\resources\\Cube.fbx");
-    beem->ModelRegister(".\\resources\\Cube.fbx");
-    beem->UpdateBufferData(transform);
+    //sword = std::make_unique<Model>(".\\resources\\Sword.fbx", true);
+    //sword->ModelSerialize(".\\resources\\Sword.fbx");
+    //sword->ModelRegister(".\\resources\\Sword.fbx");
+    //sword->UpdateBufferData(transform);
+    //slash = std::make_unique<Model>(".\\resources\\Textures\\zanngeki4.fbx", true);
+    //slash->ModelSerialize(".\\resources\\Textures\\zanngeki4.fbx");
+    //slash->ModelRegister(".\\resources\\Textures\\zanngeki4.fbx");
+    //slash->UpdateBufferData(transform);
+    //beem = std::make_unique<Model>(".\\resources\\Cube.fbx", true);
+    //beem->ModelSerialize(".\\resources\\Cube.fbx");
+    //beem->ModelRegister(".\\resources\\Cube.fbx");
+    //beem->UpdateBufferData(transform);
     //wepon = std::make_unique<MainWepon>();
+    slash = std::make_unique<Model>(".\\resources\\Cube.fbx", true);
+    slash->ModelSerialize(".\\resources\\Cube.fbx");
+    slash->ModelRegister(".\\resources\\Cube.fbx");
+    slash->UpdateBufferData(transform);
     maxHealth = 20;
     health = maxHealth;
     mp = mpMax;
@@ -92,7 +96,7 @@ Player::Player() {
     cameraController = std::make_unique<CameraController>();
     moveSpeed = 20;
     maxMoveSpeed = 20;
-    friction = 0.5f;
+    friction = 0.65f;
     player->UpdateBufferData(transform);
     //renderdata = player->GetBufferData();
     for (int i = 0; i < 13; i++) {
@@ -283,10 +287,14 @@ void Player::ClearUpdate(float elapsedTime)
     player->ShaderAdjustment(glitchScale, timer, maxHeight, hologramColor);
     float ElapsedTime = elapsedTime * modelSpeed;
     animeTimer = ElapsedTime;
+    velocity = {};
+    angle.y = 0.0f;
     dir = { 0.0f, 0.0f, 1.0f };
     switch (clearState)
     {
     case ClearState::ClearDefault:
+        player->PlayAnimation(Animations::Anim1Combo4, false, 1.0f);
+        player->UpdateAnimation(1.0f, "koshi");
         position = { 100.0f, -2.5f, -130.0f };
         comboflag = true;//コンボ先行入力
         farPosition = position.z + 5.0f;
@@ -298,6 +306,10 @@ void Player::ClearUpdate(float elapsedTime)
     {
         attackStart = 0.6f;
         float animationTime = player->GetCurrentAnimationSeconds();
+        if (animationTime <= attackStart)
+        {
+            animeTimer *= attackMove;
+        }
         if (animationTime > attackStart) 
         {            
             clearState = ClearState::ClearPunchNow;
@@ -326,13 +338,8 @@ void Player::ClearUpdate(float elapsedTime)
     case ClearState::ClearPunchReverberation:
         break;
     }
-
     
     ComeTerget(elapsedTime);
-
-    //ステートマシン更新
-    if(clearState < ClearState::ClearPunchNow)
-    stateMachine->Update(elapsedTime);
 
     //アニメーション更新
     player->UpdateAnimation(animeTimer, "koshi");
@@ -422,6 +429,7 @@ void Player::ComeTerget(float elapsedTime)
     }
     else if (health <= 0 || Base::Instance().GetHP() <= 0)
     {
+        stateMachine->ChangeSubState(static_cast<int>(Player::State::Idle));
         if (explosionTimer <= 0.0f)
         {
             AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Bgm)->Stop();
@@ -606,12 +614,14 @@ void Player::ComeTerget(float elapsedTime)
         }
         cameraController->SetRangeMax(cameraRange);
         cameraController->SetCorrectionSpeed(correctionSpeed);
-        cameraController->SetTarget(camePos);
-        if (lockOn) {
+        cameraController->SetTarget(camePos);        
+        if (lockOn) 
+        {
             cameraController->SetTarget2(target);
             enemyLength = dist;
             dist *= 0.1f;//距離補正
-            cameraController->Update2(elapsedTime, { dir.x,NULL,dir.z }, dist);
+            // ロックオン更新処理
+            cameraController->LockOnUpdate(elapsedTime, { dir.x, NULL, dir.z }, dist);
         }
         else {
             cameraController->Update(elapsedTime);
@@ -989,12 +999,12 @@ void Player::InputProjectile()
             for (int i = 1; i < 5; i++) {
                 h = 0.4f*i;
                 ProjectileStraite* projectile = new ProjectileStraite(&objectManager);
-                projectile->Launch(beem,h,2.5f - 0.5f * i, angle.y, Type::Beem, (int)EffectTexAll::EfTexAll::BlueThader, 2 + 0.1f * i,1,0.0f);
+                //projectile->Launch(beem,h,2.5f - 0.5f * i, angle.y, Type::Beem, (int)EffectTexAll::EfTexAll::BlueThader, 2 + 0.1f * i,1,0.0f);
             }
             for (int i = 1; i < 5; i++) {
                 h = 0.4f * i;
                 ProjectileStraite* projectile = new ProjectileStraite(&objectManager);
-                projectile->Launch(beem, h,2.5f -0.5f * i, angle.y, Type::Beem, (int)EffectTexAll::EfTexAll::BlueThader,2 + 0.1f* i, 1, 0.0f,true);
+                //projectile->Launch(beem, h,2.5f -0.5f * i, angle.y, Type::Beem, (int)EffectTexAll::EfTexAll::BlueThader,2 + 0.1f* i, 1, 0.0f,true);
             }
     }
     //if (gamePad.GetButtonDown() & GamePad::BTN_B && mp > swordMp && skillCoolTime[ProjectileRotate] <= 0.0f)
