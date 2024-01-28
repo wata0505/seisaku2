@@ -112,9 +112,6 @@
     <ClCompile Include="Source\Main.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="Source\SpriteBatch.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Texture.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
@@ -427,12 +424,6 @@
       <Filter>Hadaer</Filter>
     </ClInclude>
     <ClInclude Include="Source\Misc.h">
-      <Filter>Hadaer</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\SpriteBatch.h">
-      <Filter>Hadaer</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\StaticMesh.h">
       <Filter>Hadaer</Filter>
     </ClInclude>
     <ClInclude Include="Source\Texture.h">

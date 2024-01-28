@@ -69,7 +69,7 @@ void ParticleShader::Begin(ID3D11DeviceContext* dc, const RenderContext& rc)
 
 	const float blend_factor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	dc->OMSetBlendState(graphics.GetBlendState(BlendState::Alpha), blend_factor, 0xFFFFFFFF);
-	dc->OMSetDepthStencilState(graphics.GetDepthStencilState(DepthStencilState::ONOFF), 0);
+	dc->OMSetDepthStencilState(graphics.GetDepthStencilState(DepthStencilState::ONON), 0);
 	dc->RSSetState(graphics.GetRasterizerState(RasterizerState::Solid));
 
 }

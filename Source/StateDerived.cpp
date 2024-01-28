@@ -16,7 +16,7 @@ void BagWanderState::Enter()
 {
 	owner->SetRandomTargetPosition();
 	owner->GetModel()->PlayAnimation(static_cast<int>(EnemyBag::WalkFWD), true);
-	owner->PlaySe((int)EnemyBag::EnemyBagSE::Walk,true);
+	//owner->PlaySe((int)EnemyBag::EnemyBagSE::Walk,true);
 }
 
 // 徘徊ステートで実行するメソッド
@@ -55,7 +55,7 @@ void BagWanderState::Execute(float elapsedTime)
 // 徘徊ステートから出ていくときのメソッド
 void BagWanderState::Exit()
 {
-	owner->StopSe((int)EnemyBag::EnemyBagSE::Walk);
+	//owner->StopSe((int)EnemyBag::EnemyBagSE::Walk);
 }
 //待機ステートに入った時のメソッド
 void BagIdleState::Enter()
@@ -125,13 +125,13 @@ void BagPursuitState::Enter()
 	if (1.0 - dot < 0.2) {
 		owner->GetModel()->PlayAnimation(static_cast<int>(EnemyBag::WalkFWD), true);
 		owner->SetMoveRate(2.5);
-		owner->PlaySe((int)EnemyBag::EnemyBagSE::Walk, true);
+		//owner->PlaySe((int)EnemyBag::EnemyBagSE::Walk, true);
 	}
 	else
 	{
 		owner->GetModel()->PlayAnimation(static_cast<int>(EnemyBag::WalkFWD), true);
 		owner->SetMoveRate(2.5);
-		owner->PlaySe((int)EnemyBag::EnemyBagSE::Walk, true);
+		//owner->PlaySe((int)EnemyBag::EnemyBagSE::Walk, true);
 	}
 	if (owner->SearchPlayer() || owner->GetRootNo() >= owner->GetMaxRootNo()) {
 		Meta::Instance().SendMessaging(owner->GetId(), 0, MESSAGE_TYPE::MsgAskAttackRight);
@@ -203,8 +203,8 @@ void BagPursuitState::Execute(float elapsedTime)
 void BagPursuitState::Exit()
 {
 	owner->SetMoveRate(1.0);
-	owner->StopSe((int)EnemyBag::EnemyBagSE::Walk);
-	owner->StopSe((int)EnemyBag::EnemyBagSE::Run);
+	//owner->StopSe((int)EnemyBag::EnemyBagSE::Walk);
+	//owner->StopSe((int)EnemyBag::EnemyBagSE::Run);
 }
 void BagAttackState::Enter()
 {
@@ -602,7 +602,7 @@ void BagStandbyState::Execute(float elapsedTime)
 // 戦闘待機ステートから出ていくときのメソッド
 void BagStandbyState::Exit()
 {
-	owner->StopSe((int)EnemyBag::EnemyBagSE::Walk);
+	//owner->StopSe((int)EnemyBag::EnemyBagSE::Walk);
 	owner->SetMoveRate(1.0);
 }
 // 戦闘待機ステートに入った時のメソッド

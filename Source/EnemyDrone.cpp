@@ -61,8 +61,8 @@ EnemyDrone::EnemyDrone(bool tutorial)
 	model->UpdateBufferData(transform);
 	//renderdata = model->GetBufferData();
 
-	se[(int)EnemyDroneSE::Walk] = Audio::Instance().LoadAudioSource("resources\\Audio\\wolk2.wav");
-	se[(int)EnemyDroneSE::Run] = Audio::Instance().LoadAudioSource("resources\\Audio\\run3.wav");
+	//se[(int)EnemyDroneSE::Walk] = Audio::Instance().LoadAudioSource("resources\\Audio\\wolk2.wav");
+	//se[(int)EnemyDroneSE::Run] = Audio::Instance().LoadAudioSource("resources\\Audio\\run3.wav");
 	//se[(int)EnemyDroneSE::hit] = Audio::Instance().LoadAudioSource("resources\\Audio\\pannti.wav");
 	searchRange = 25.0f;
 	attackRange = 25.0f;
@@ -105,7 +105,7 @@ float EnemyDrone::MovePow() {
 }
 void EnemyDrone::Update(float elapsedTime)
 {
-	coolTime--;
+	coolTime -= elapsedTime;
 	
 
 	timer += elapsedTime;
@@ -238,7 +238,7 @@ void EnemyDrone::OnDamaged()
 }
 void EnemyDrone::BeemShoat()
 {
-	if (coolTime <= 0)
+	if (coolTime <= 0.0f)
 	{
 		// ‘O•ûŒü
 		float h = 0;
@@ -248,7 +248,7 @@ void EnemyDrone::BeemShoat()
 		ProjectileStraite* projectile = new ProjectileStraite(&objectManager);
 		projectile->TurretLaunch(beem, h, 2.5 - 0.5, position, targetPosition, angle.y, Type::Beem, (int)EffectTexAll::EfTexAll::Distortion, 1, 1, 0.5f);
 		
-		coolTime = 180;
+		coolTime = 3.0f;
 	}
 }
 
@@ -560,8 +560,6 @@ void EnemyDrone::DrawDebugGUI()
 		}
 		if (ImGui::TreeNode("Glitch"))
 		{
-			//ImGui::SliderFloat("glitchSpeed", &glitchSpeed, 0.0f, 10.0f);
-			ImGui::SliderFloat("glitchSpeed", &glitchSpeed, 1.0f, 50.0f);
 			ImGui::SliderFloat("glitchIntensity", &glitchIntensity, 0.0f, 1.0f);
 			ImGui::SliderFloat("glitchScale", &glitchScale, 1.0f, 50.0f);
 			ImGui::TreePop();

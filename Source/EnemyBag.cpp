@@ -83,8 +83,8 @@ EnemyBag::EnemyBag(bool tutorial, int stag,int enemyType)
 	model->UpdateBufferData(transform);
 	//renderdata = model->GetBufferData();
 
-	se[(int)EnemyBagSE::Walk] = Audio::Instance().LoadAudioSource("resources\\Audio\\wolk2.wav");
-	se[(int)EnemyBagSE::Run] = Audio::Instance().LoadAudioSource("resources\\Audio\\run3.wav");
+	//se[(int)EnemyBagSE::Walk] = Audio::Instance().LoadAudioSource("resources\\Audio\\wolk2.wav");
+	//se[(int)EnemyBagSE::Run] = Audio::Instance().LoadAudioSource("resources\\Audio\\run3.wav");
 	//se[(int)EnemyBagSE::hit] = Audio::Instance().LoadAudioSource("resources\\Audio\\pannti.wav");
 	searchRange = 6.0f;
 
@@ -615,8 +615,6 @@ void EnemyBag::DrawDebugGUI()
 		}
 		if (ImGui::TreeNode("Glitch"))
 		{
-			//ImGui::SliderFloat("glitchSpeed", &glitchSpeed, 0.0f, 10.0f);
-			ImGui::SliderFloat("glitchSpeed", &glitchSpeed, 1.0f, 50.0f);
 			ImGui::SliderFloat("glitchIntensity", &glitchIntensity, 0.0f, 1.0f);
 			ImGui::SliderFloat("glitchScale", &glitchScale, 1.0f, 50.0f);
 			ImGui::TreePop();

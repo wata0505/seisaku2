@@ -141,31 +141,28 @@ void TrapManager::Update(float elapsedTime)
 			else
 			{
 				// レイの開始位置は足元より少し上
-				DirectX::XMFLOAT3 start = { trap->GetPosition().x, trap->GetPosition().y, trap->GetPosition().z };
+				DirectX::XMFLOAT3 start = Player::Instance().GetPosition();
 				// 下げ位置
 				float offset = 5.0f;
-				float frontX = sinf(Player::Instance().GetAngle().y) * trap->GetRadius();
-				float frontZ = cosf(Player::Instance().GetAngle().y) * trap->GetRadius();
-				DirectX::XMFLOAT3 frontStart = { trap->GetPosition().x + frontX, trap->GetPosition().y, trap->GetPosition().z + frontZ };
-				DirectX::XMFLOAT3 backStart = { trap->GetPosition().x - frontX, trap->GetPosition().y, trap->GetPosition().z - frontZ };
-				DirectX::XMFLOAT3 frontEnd = { trap->GetPosition().x + frontX, trap->GetPosition().y - offset, trap->GetPosition().z + frontZ };
-				DirectX::XMFLOAT3 backEnd = { trap->GetPosition().x - frontX, trap->GetPosition().y - offset, trap->GetPosition().z - frontZ };
-				frontX = sinf(Player::Instance().GetAngle().y + DirectX::XM_PIDIV2) * trap->GetRadius();
-				frontZ = cosf(Player::Instance().GetAngle().y + DirectX::XM_PIDIV2) * trap->GetRadius();
-				DirectX::XMFLOAT3 rightStart = { trap->GetPosition().x + frontX, trap->GetPosition().y, trap->GetPosition().z + frontZ };
-				DirectX::XMFLOAT3 leftStart = { trap->GetPosition().x - frontX, trap->GetPosition().y, trap->GetPosition().z - frontZ };
-				DirectX::XMFLOAT3 rightEnd = { trap->GetPosition().x + frontX, trap->GetPosition().y - offset, trap->GetPosition().z + frontZ };
-				DirectX::XMFLOAT3 leftEnd = { trap->GetPosition().x - frontX, trap->GetPosition().y - offset, trap->GetPosition().z - frontZ };
+				DirectX::XMFLOAT3 position = trap->GetPosition();
+				float angle = Player::Instance().GetAngle().y;
+				float frontX = sinf(angle) * trap->GetRadius();
+				float frontZ = cosf(angle) * trap->GetRadius();
+				DirectX::XMFLOAT3 frontStart = { position.x + frontX, position.y, position.z + frontZ };
+				DirectX::XMFLOAT3 backStart = { position.x - frontX, position.y, position.z - frontZ };
+				DirectX::XMFLOAT3 frontEnd = { position.x + frontX, position.y - offset, position.z + frontZ };
+				DirectX::XMFLOAT3 backEnd = { position.x - frontX, position.y - offset, position.z - frontZ };
+				frontX = sinf(angle + DirectX::XM_PIDIV2) * trap->GetRadius();
+				frontZ = cosf(angle + DirectX::XM_PIDIV2) * trap->GetRadius();
+				DirectX::XMFLOAT3 rightStart = { position.x + frontX, position.y, position.z + frontZ };
+				DirectX::XMFLOAT3 leftStart = { position.x - frontX, position.y, position.z - frontZ };
+				DirectX::XMFLOAT3 rightEnd = { position.x + frontX, position.y - offset, position.z + frontZ };
+				DirectX::XMFLOAT3 leftEnd = { position.x - frontX, position.y - offset, position.z - frontZ };
 				HitResult hit;
-#if 0
-				// 多少台からはみ出ても置ける
-				if (!StageManager::Instance().RayCast(start, frontEnd, hit) || !StageManager::Instance().RayCast(start, backEnd, hit) ||
-					!StageManager::Instance().RayCast(start, leftEnd, hit) || !StageManager::Instance().RayCast(start, rightEnd, hit))
-#else
 				// ほとんど台からはみ出てない限り置ける
 				if (!StageManager::Instance().RayCast(frontStart, frontEnd, hit) || !StageManager::Instance().RayCast(backStart, backEnd, hit) ||
-					!StageManager::Instance().RayCast(leftStart, leftEnd, hit) || !StageManager::Instance().RayCast(rightStart, rightEnd, hit))
-#endif
+					!StageManager::Instance().RayCast(leftStart, leftEnd, hit) || !StageManager::Instance().RayCast(rightStart, rightEnd, hit) || 
+					StageManager::Instance().RayCast(start, frontStart, hit))
 				{
 					canSetFlag = false;
 				}

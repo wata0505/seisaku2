@@ -16,7 +16,7 @@ void DroneWanderState::Enter()
 {
 	owner->SetRandomTargetPosition();
 	owner->GetModel()->PlayAnimation(static_cast<int>(EnemyDrone::EnemyDroneAnimation::Idle), true);
-	owner->PlaySe((int)EnemyDrone::EnemyDroneSE::Walk, true);
+	//owner->PlaySe((int)EnemyDrone::EnemyDroneSE::Walk, true);
 }
 
 // 徘徊ステートで実行するメソッド
@@ -55,7 +55,7 @@ void DroneWanderState::Execute(float elapsedTime)
 // 徘徊ステートから出ていくときのメソッド
 void DroneWanderState::Exit()
 {
-	owner->StopSe((int)EnemyDrone::EnemyDroneSE::Walk);
+	//owner->StopSe((int)EnemyDrone::EnemyDroneSE::Walk);
 }
 //待機ステートに入った時のメソッド
 void DroneIdleState::Enter()
@@ -105,13 +105,13 @@ void DronePursuitState::Enter()
 	if (1.0 - dot < 0.2) {
 		owner->GetModel()->PlayAnimation(static_cast<int>(EnemyDrone::EnemyDroneAnimation::Idle), true);
 		owner->SetMoveRate(2.5);
-		owner->PlaySe((int)EnemyDrone::EnemyDroneSE::Walk, true);
+		//owner->PlaySe((int)EnemyDrone::EnemyDroneSE::Walk, true);
 	}
 	else
 	{
 		owner->GetModel()->PlayAnimation(static_cast<int>(EnemyDrone::EnemyDroneAnimation::Idle), true);
 		owner->SetMoveRate(2.5);
-		owner->PlaySe((int)EnemyDrone::EnemyDroneSE::Walk, true);
+		//owner->PlaySe((int)EnemyDrone::EnemyDroneSE::Walk, true);
 	}
 	if (owner->SearchTrap() || owner->GetRootNo() >= owner->GetMaxRootNo()) {
 		Meta::Instance().SendMessaging(owner->GetId(), 0, MESSAGE_TYPE::MsgAskAttackRight);
@@ -185,8 +185,8 @@ void DronePursuitState::Execute(float elapsedTime)
 void DronePursuitState::Exit()
 {
 	owner->SetMoveRate(1.0);
-	owner->StopSe((int)EnemyDrone::EnemyDroneSE::Walk);
-	owner->StopSe((int)EnemyDrone::EnemyDroneSE::Run);
+	//owner->StopSe((int)EnemyDrone::EnemyDroneSE::Walk);
+	//owner->StopSe((int)EnemyDrone::EnemyDroneSE::Run);
 }
 void DroneAttackState::Enter()
 {
@@ -195,7 +195,7 @@ void DroneAttackState::Enter()
 	{
 
 	}
-	owner->SetDamegeRadius(0.2);
+	owner->SetDamegeRadius(0.2f);
 
 }
 
@@ -506,7 +506,7 @@ void DroneStandbyState::Execute(float elapsedTime)
 	if (dist > owner->GetAttackRange() && !owner->GetAttackFlg())
 	{
 		// 攻撃範囲から出たら追跡ステートへ遷移
-		owner->SetBattleRange(rand() % 6 + 1);
+		owner->SetBattleRange(static_cast<float>(rand() % 6 + 1));
 		owner->GetStateMachine()->ChangeSubState(static_cast<int>(EnemyDrone::Battle::Pursuit));
 	}
 	if (owner->GetStateTimer() < 0 && !owner->GetAttackFlg()) {
@@ -524,6 +524,6 @@ void DroneStandbyState::Execute(float elapsedTime)
 // 戦闘待機ステートから出ていくときのメソッド
 void DroneStandbyState::Exit()
 {
-	owner->StopSe((int)EnemyDrone::EnemyDroneSE::Walk);
+	//owner->StopSe((int)EnemyDrone::EnemyDroneSE::Walk);
 	owner->SetMoveRate(1.0);
 }

@@ -286,7 +286,6 @@
     <ClCompile Include="Source\SkinnedMesh.cpp" />
     <ClCompile Include="Source\SkyboxShader.cpp" />
     <ClCompile Include="Source\Sprite.cpp" />
-    <ClCompile Include="Source\SpriteBatch.cpp" />
     <ClCompile Include="Source\StageMain.cpp" />
     <ClCompile Include="Source\StageManager.cpp" />
     <ClCompile Include="Source\StageObj.cpp" />
@@ -393,7 +392,6 @@
     <ClInclude Include="Source\SkinnedMesh.h" />
     <ClInclude Include="Source\SkyboxShader.h" />
     <ClInclude Include="Source\Sprite.h" />
-    <ClInclude Include="Source\SpriteBatch.h" />
     <ClInclude Include="Source\Stage.h" />
     <ClInclude Include="Source\StageMain.h" />
     <ClInclude Include="Source\StageManager.h" />
@@ -403,7 +401,6 @@
     <ClInclude Include="Source\StateDrone.h" />
     <ClInclude Include="Source\StateMachine.h" />
     <ClInclude Include="Source\StatePlayer.h" />
-    <ClInclude Include="Source\StaticMesh.h" />
     <ClInclude Include="Source\SubFramebuffer.h" />
     <ClInclude Include="Source\SwordTrail.h" />
     <ClInclude Include="Source\Telegram.h" />

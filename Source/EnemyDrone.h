@@ -235,14 +235,13 @@ private:
 	float adjustMetalness = -1.0f;	// 金属度
 	float adjustSmoothness = 0.0f;	// 粗さ
 	float timer = 0.0f;				// 更新時間	
-	float glitchSpeed = 50.0f;		// スクロール速度
 	float glitchIntensity = 0.0f;	// 強度
 	float lerpGlitchIntensity = 0.0f;	// 強度
 	float glitchScale = 50.0f;		// 振れ幅	
 	float deathTimer = 0.0f;		// 死亡時間
 	float maxEria = 0.0f;
 
-	int coolTime = 0;
+	float coolTime = 0.0f;
 };
 #pragma once
 
