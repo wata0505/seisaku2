@@ -544,6 +544,10 @@ void AttackState::Enter()
     owner->counterFlag = false;
     owner->effectflag = false;
     owner->shildFlag = false;
+    if (!owner->IsGround())
+    {
+        owner->GetStateMachine()->ChangeSubState(static_cast<int>(Player::State::FallAttack));
+    }
 }
 // 攻撃ステートで実行するメソッド
 void AttackState::Execute(float elapsedTime)

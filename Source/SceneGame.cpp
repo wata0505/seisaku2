@@ -310,11 +310,11 @@ void SceneGame::Render()
 	ModelShader* shader = graphics.GetShader(Graphics::ModelShaderId::ShadowmapCaster);
 	shader->Begin(immediate_context, rc);
 	StageManager::Instance().Render(immediate_context, shader);
-	StageManager::Instance().InstaningRender(immediate_context,shader);
 	if (player->GetLoseDirectingTimer() <= 0.0f || player->GetClearDirectingTimer() > 0.0f)
 	{
 		player->render(immediate_context, shader);
 	}
+	StageManager::Instance().InstaningRender(immediate_context,shader);
 	shader->End(immediate_context);
 	shadowbuffer->deactivate(immediate_context);
 

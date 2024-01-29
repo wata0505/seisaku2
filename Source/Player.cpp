@@ -290,6 +290,7 @@ void Player::ClearUpdate(float elapsedTime)
     velocity = {};
     angle.y = 0.0f;
     dir = { 0.0f, 0.0f, 1.0f };
+    isGround = true;
     switch (clearState)
     {
     case ClearState::ClearDefault:
@@ -614,7 +615,7 @@ void Player::ComeTerget(float elapsedTime)
         }
         cameraController->SetRangeMax(cameraRange);
         cameraController->SetCorrectionSpeed(correctionSpeed);
-        cameraController->SetTarget(camePos);        
+        cameraController->SetTarget(camePos);
         if (lockOn) 
         {
             cameraController->SetTarget2(target);
