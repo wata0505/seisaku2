@@ -29,8 +29,8 @@ void SceneTutorial::Initialize()
 
 	EnemyManager& enemyManager = EnemyManager::Instance();
 
-	EnemySystem& enemySystem = EnemySystem::Instance();
-	enemySystem.Start(SceneManager::Instance().GetStage());
+	//EnemySystem& enemySystem = EnemySystem::Instance();
+	//enemySystem.Start(SceneManager::Instance().GetStage());
 	StageManager& stageManager = StageManager::Instance();
 	stageManager.Clear();
 	StageMain* stageMain = new StageMain();
@@ -127,6 +127,17 @@ void SceneTutorial::Initialize()
 	//フェーズ2
 	sprOperationUi[TutorialState::STATE_OBJ_SETTING][Operations::KEYBOARD] = std::make_unique<Sprite>(L".\\resources\\UI\\Tutorial\\phase2Keys.png");
 	sprOperationUi[TutorialState::STATE_OBJ_SETTING][Operations::GAMEPAD] = std::make_unique<Sprite>(L".\\resources\\UI\\Tutorial\\phase2Buttons.png");
+	sprObjectSet[0][0] = std::make_unique<Sprite>(L".\\resources\\UI\\Tutorial\\setumei1_1.png");
+	sprObjectSet[0][1] = std::make_unique<Sprite>(L".\\resources\\UI\\Tutorial\\setumei1_2.png");
+	sprObjectSet[1][0] = std::make_unique<Sprite>(L".\\resources\\UI\\Tutorial\\setumei2_1.png");
+	sprObjectSet[1][1] = std::make_unique<Sprite>(L".\\resources\\UI\\Tutorial\\setumei2_2.png");
+
+	sprTutorialStart[0] = std::make_unique<Sprite>(L".\\resources\\UI\\Tutorial\\TutorialStart1.png");
+	sprTutorialStart[1] = std::make_unique<Sprite>(L".\\resources\\UI\\Tutorial\\TutorialStart2.png");
+
+	sprRule[0] = std::make_unique<Sprite>(L".\\resources\\UI\\Tutorial\\Rule1.png");
+	sprRule[1] = std::make_unique<Sprite>(L".\\resources\\UI\\Tutorial\\Rule2.png");
+
 }
 void SceneTutorial::Finalize()
 {
@@ -146,22 +157,31 @@ void SceneTutorial::Update(float elapsedTime)
 {
 	// ゲームBGM再生
 	AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Bgm)->Play(true, 0.3f);
+
+	//コントローラー接続状態でUIを変更する
+	ChangeUi();
+	//チュートリアル呼び出し
+	TutorialUpdate(elapsedTime);
+	if (isUpdateStoper == true)
+		return;
+
+
 	float deltaTimer = elapsedTime;
 	if (gameAfterTimer >= 1.0f)
 	{
 		deltaTimer = 0.0f;
 	}
-	if (EnemySystem::Instance().GetWave() < 3)
+	//if (EnemySystem::Instance().GetWave() < 3)
 	{
 		player->update(elapsedTime);
 	}
-	else
-	{
-		player->ClearUpdate(elapsedTime);
-	}
+	//else
+	//{
+	//	player->ClearUpdate(elapsedTime);
+	//}
 	base->Update(deltaTimer);
 	StageManager::Instance().Update(deltaTimer);
-	EnemySystem::Instance().Update(deltaTimer);
+	//EnemySystem::Instance().Update(deltaTimer);
 	EnemyManager::Instance().Update(deltaTimer);
 
 	EffectManager::instance().Update(deltaTimer);
@@ -195,7 +215,7 @@ void SceneTutorial::Update(float elapsedTime)
 	}
 	jitterDriftData.jitterStrength = skyboxColor / 200.0f;
 #endif
-	if (base->GetHP() != 0 && player->GetHealth() > 0 && EnemySystem::Instance().GetWave() < 3)
+	if (base->GetHP() != 0 && player->GetHealth() > 0 /*&& EnemySystem::Instance().GetWave() < 3*/)
 	{
 		dissolveTimer += elapsedTime;
 		if (dissolveTimer > 3.0f)
@@ -205,7 +225,7 @@ void SceneTutorial::Update(float elapsedTime)
 	}
 	else
 	{
-		float waitTimer = 2.0f;
+		/*float waitTimer = 2.0f;
 		if (EnemySystem::Instance().GetWave() == 3)
 		{
 			waitTimer = 3.5f;
@@ -242,10 +262,11 @@ void SceneTutorial::Update(float elapsedTime)
 				}
 			}
 		}
+			*/
 	}
 
 	haikeiTimer += deltaTimer;
-	if (EnemySystem::Instance().GetWaveTimer() > 3 && EnemySystem::Instance().GetWaveTimer() < 8)
+	/*if (EnemySystem::Instance().GetWaveTimer() > 3 && EnemySystem::Instance().GetWaveTimer() < 8)
 	{
 		waveTimer -= elapsedTime;
 		if (waveTimer < 0.0f)
@@ -268,12 +289,7 @@ void SceneTutorial::Update(float elapsedTime)
 		{
 			AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Text)->Play(false, 0.3f);
 		}
-	}
-
-	//コントローラー接続状態でUIを変更する
-	ChangeUi();
-	//チュートリアル呼び出し
-	TutorialUpdate(elapsedTime);
+	}*/
 
 	gameTimer++;
 }
@@ -510,7 +526,7 @@ void SceneTutorial::Render()
 		TrapManager::Instance().Sprite2DRender(immediate_context, rc, shader2);
 		UIManager::Instance().Render(rc, shader2);
 		base->HpDisplay(rc, shader2);
-		int wave = EnemySystem::Instance().GetWave();
+		/*int wave = EnemySystem::Instance().GetWave();
 		if (wave < 3)
 		{
 			float waveCountWidth = static_cast<float>(waveSprite[wave]->GetTextureWidth());
@@ -557,7 +573,7 @@ void SceneTutorial::Render()
 					1.0f, 0.0f, 0.0f, 1.0f,
 					3.0f - waveTimer);
 			}
-		}
+		}*/
 	}
 	// ゲーム終了後テクスチャ
 	{
@@ -573,7 +589,7 @@ void SceneTutorial::Render()
 		float height = static_cast<float>(gameOverSprite->GetTextureHeight());
 		if (gameAfterDissolveTimer < 3.0f)
 		{
-			if (base->GetHP() == 0 || player->GetHealth() <= 0 || EnemySystem::Instance().GetWave() < 3)
+			if (base->GetHP() == 0 || player->GetHealth() <= 0 /*|| EnemySystem::Instance().GetWave() < 3*/)
 			{
 				gameOverSprite->Render(immediate_context,
 					screenWidth * 0.5f - width, screenHeight * 0.5f - height, width * 2.0f, height * 2.0f,
@@ -605,7 +621,7 @@ void SceneTutorial::Render()
 		dissolveTimer, 0.0f, 0.0f
 	);
 	shader2->Draw(rc, loodSprite.get());
-	if (base->GetHP() == 0 || player->GetHealth() <= 0 || EnemySystem::Instance().GetWave() == 3)
+	if (base->GetHP() == 0 || player->GetHealth() <= 0 /*|| EnemySystem::Instance().GetWave() == 3*/)
 	{
 		//shader2->Draw(rc, claerSprite.get());
 		if (dissolveTimer < 0)
@@ -674,6 +690,42 @@ void SceneTutorial::Render()
 					1, 1, 1, 1);								//agba
 				shader2->Draw(rc, sprUiHighlight[i].get());
 			}
+		}
+
+		//タレットの説明文
+		if (tutorialState == TutorialState::STATE_BREAK_TIME)
+		{
+			sprObjectSet[taretSetumeiState][keyOrButton]->Render(immediate_context,
+				pos2.x, pos2.y,		//座標
+				size2.x, size2.y,					//画像サイズ
+				0, 0, texSize2.x, texSize2.y,				//テクスチャ座標、サイズ
+				0,											//角度
+				1, 1, 1, 1);								//agba
+			shader2->Draw(rc, sprObjectSet[taretSetumeiState][keyOrButton].get());
+		}
+
+		//一番最初の一枚絵
+		if (tutorialState == TutorialState::STATE_START)
+		{
+			sprTutorialStart[keyOrButton]->Render(immediate_context,
+				pos2.x, pos2.y,		//座標
+				size2.x, size2.y,					//画像サイズ
+				0, 0, texSize2.x, texSize2.y,				//テクスチャ座標、サイズ
+				0,											//角度
+				1, 1, 1, 1);								//agba
+			shader2->Draw(rc, sprTutorialStart[keyOrButton].get());
+		}
+
+		//一番最初の一枚絵
+		if (tutorialState == TutorialState::STATE_RLUE_CHECK)
+		{
+			sprRule[keyOrButton]->Render(immediate_context,
+				pos2.x, pos2.y,		//座標
+				size2.x, size2.y,					//画像サイズ
+				0, 0, texSize2.x, texSize2.y,				//テクスチャ座標、サイズ
+				0,											//角度
+				1, 1, 1, 1);								//agba
+			shader2->Draw(rc, sprRule[keyOrButton].get());
 		}
 	}
 
@@ -783,35 +835,11 @@ void SceneTutorial::projectImgui()
 			ImGui::Checkbox(checkListString[i].c_str(), &isTutorialCheck[i]);
 		}
 
-		/*if (isShowFlag[0])
-		{
-			if (ImGui::Button(u8"表示切替"))
-			{
-				isShowFlag[0] = false;
-			}
-		}
-		if (!isShowFlag[0])
-		{
-			if (ImGui::Button(u8"表示切替"))
-			{
-				isShowFlag[0] = true;
-			}
-		}
-		if (ImGui::Button(u8"リセット"))
-		{
-			pos.x = 0;
-			pos.y = 220;
-			size.x = 500;
-			size.y = 276;
-			scale = 0.8f;
-		}
-		*/
-
-		ImGui::SliderFloat("posX", &pos.x, 0, 1280);
-		ImGui::SliderFloat("posY", &pos.y, 0, 720);
-		ImGui::SliderFloat("sizeX", &size.x, 0, 1280);
-		ImGui::SliderFloat("sizeY", &size.y, 0, 720);
-		ImGui::SliderFloat("scale", &scale, 0, 2.0f);
+		ImGui::SliderFloat("posX", &pos2.x, 0, 1280);
+		ImGui::SliderFloat("posY", &pos2.y, 0, 720);
+		ImGui::SliderFloat("sizeX", &size2.x, 0, 1280);
+		ImGui::SliderFloat("sizeY", &size2.y, 0, 720);
+		ImGui::SliderFloat("scale", &scale2, 0, 2.0f);
 
 	}
 
@@ -836,6 +864,14 @@ void SceneTutorial::TutorialUpdate(float elapsedTime)
 
 	case TutorialState::STATE_RLUE_CHECK:
 		TutorialRuleCheckUpdate(elapsedTime);
+		break;
+
+	case TutorialState::STATE_BREAK_TIME:
+		TutorialBreakTimeUpdate(elapsedTime);
+		break;
+
+	case TutorialState::STATE_START:
+		TutorialStartUpdate(elapsedTime);
 		break;
 	}
 }
@@ -924,7 +960,7 @@ void SceneTutorial::TutorialAttackUpdate(float elapsedTime)
 	if (stateTimer < 0)
 	{
 		//ステートを更新
-		tutorialState = TutorialState::STATE_OBJ_SETTING;
+		tutorialState = TutorialState::STATE_BREAK_TIME;
 		//表示するUIを変更
 		isShowFlag[0] = !isShowFlag[0];
 		isShowFlag[1] = !isShowFlag[1];
@@ -1056,17 +1092,168 @@ void SceneTutorial::TutorialObjSettingUpdate(float elapsedTime)
 		TrapManager::Instance().Clear();
 	}
 }
+
+//一番最後
 void SceneTutorial::TutorialRuleCheckUpdate(float elapsedTime)
 {
 	GamePad& gamePad = Input::Instance().GetGamePad();
-	//タイトルへ戻る
-	if (gamePad.GetButtonDown() & GamePad::BTN_START)
+	isUpdateStoper = true;
+	
+	//画像を大きくする演出
+	if (startUi == 0)
 	{
-		SceneManager::Instance().ChangeScene(new SceneLoading(new SceneTitle));
+		size2.x += 15.0f;
+		if (size2.x > 399.0f)
+		{
+			size2.x = 400;
+			size2.y += 30.0f;
+
+			if (size2.y > 600.0f)
+			{
+				size2.y = 600.0f;
+				startUi = 1;
+			}
+		}
 	}
-	if (gamePad.GetButtonDown() & GamePad::BTN_X)
+	if (startUi == 1)
 	{
-		SceneManager::Instance().ChangeScene(new SceneLoading(new SceneTitle));
+		if (gamePad.GetButtonDown() & GamePad::BTN_START || gamePad.GetButtonDown() & GamePad::BTN_ENTER)
+		{
+			startUi = 2;
+		}
+	}
+	if (startUi == 2)
+	{
+		//画像を小さくする演出
+		size2.y -= 30.0f;
+		if (size2.y < 5.0f)
+		{
+			size2.y = 5.0f;
+			size2.x -= 15.0f;
+
+			if (size2.x < 0.0f)
+			{
+				size2.x = 0;
+				size2.y = 0.0f;
+				startUi = 0;
+				isUpdateStoper = true;
+				SceneManager::Instance().ChangeScene(new SceneLoading(new SceneTitle));
+			}
+		}
+	}
+}
+
+//ステート間の一枚絵を表示するアップデート
+void SceneTutorial::TutorialBreakTimeUpdate(float elapsedTime)
+{
+	GamePad& gamePad = Input::Instance().GetGamePad();
+	isUpdateStoper = true;
+
+	//画像を大きくする演出
+	if (taretSetumeiState == 0)
+	{
+		size2.x += 15.0f;
+		if (size2.x > 399.0f)
+		{
+			size2.x = 400;
+			size2.y += 30.0f;
+
+			if (size2.y > 600.0f)
+			{
+				size2.y = 600.0f;
+			}
+		}
+	}
+
+	//最大の大きさの時のみ
+	if (size2.y == 600.0f)
+	{
+		//パッドメニューボタン
+		if (gamePad.GetButtonDown() & GamePad::BTN_START)
+		{
+			taretSetumeiState++;
+			pushCount++;
+		}
+		//キーボードEnterキー
+		if (gamePad.GetButtonDown() & GamePad::BTN_ENTER)
+		{
+			taretSetumeiState++;
+			pushCount++;
+		}
+	}
+
+	//上限
+	if (taretSetumeiState == 2)
+		taretSetumeiState = 1;
+
+	//2枚分表示してから更にボタンを押したらこのステートを閉じる
+	if (pushCount > 1)
+	{
+		//画像を小さくする演出
+		size2.y -= 30.0f;
+		if (size2.y < 5.0f)
+		{
+			size2.y = 5.0f;
+			size2.x -= 15.0f;
+
+			if (size2.x < 0.0f)
+			{
+				size2.x = 0;
+				size2.y = 0.0f;
+				tutorialState = TutorialState::STATE_OBJ_SETTING;
+				isUpdateStoper = false;
+			}
+		}
+
+	}
+}
+
+void SceneTutorial::TutorialStartUpdate(float elapsedTime)
+{
+	GamePad& gamePad = Input::Instance().GetGamePad();
+	isUpdateStoper = true;
+
+	//画像を大きくする演出
+	if (startUi == 0)
+	{
+		size2.x += 15.0f;
+		if (size2.x > 399.0f)
+		{
+			size2.x = 400;
+			size2.y += 30.0f;
+
+			if (size2.y > 600.0f)
+			{
+				size2.y = 600.0f;
+				startUi = 1;
+			}
+		}
+	}
+	if (startUi == 1)
+	{
+		if (gamePad.GetButtonDown() & GamePad::BTN_START || gamePad.GetButtonDown() & GamePad::BTN_ENTER)
+		{
+			startUi = 2;
+		}
+	}
+	if(startUi == 2)
+	{
+		//画像を小さくする演出
+		size2.y -= 30.0f;
+		if (size2.y < 5.0f)
+		{
+			size2.y = 5.0f;
+			size2.x -= 15.0f;
+
+			if (size2.x < 0.0f)
+			{
+				size2.x = 0;
+				size2.y = 0.0f;
+				tutorialState = TutorialState::STATE_ATTACK;
+				startUi = 0;
+				isUpdateStoper = false;
+			}
+		}
 	}
 }
 

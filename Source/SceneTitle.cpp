@@ -292,6 +292,7 @@ void SceneTitle::UpdateTextureData(float elapsedTime)
 			SceneManager::Instance().ChangeScene(new SceneLoading(new SceneGame));
 			break;
 		case (int)GamaMode::Tutorial:	// チュートリアル
+			SceneManager::Instance().SetStage(2);//初期ポイントの問題で一旦ステージ3呼び出し
 			SceneManager::Instance().ChangeScene(new SceneLoading(new SceneTutorial));
 			break;
 		}

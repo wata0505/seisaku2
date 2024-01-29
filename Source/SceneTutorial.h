@@ -90,15 +90,18 @@ private:
 
 private:
 	//チュートリアル用変数
+	bool isUpdateStoper = false;
+
 	enum TutorialState
 	{
 		STATE_ATTACK,
 		STATE_OBJ_SETTING,
 		STATE_RLUE_CHECK,
-		STATE_BREAK_TIME
+		STATE_BREAK_TIME,
+		STATE_START,
 	};
 	//現在のステート
-	int tutorialState = 0;
+	int tutorialState = TutorialState::STATE_START;
 	//次のステートへ向かうタイマー
 	float stateTimer = 3.0f;
 	float initTimer = 3.0f;
@@ -111,6 +114,11 @@ private:
 	float highlightTimer[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	//セットモードフラグ
 	bool isSetMode = false;
+	//タレットセット説明フラグ
+	int taretSetumeiState = 0;
+	int pushCount = 0;
+
+	int startUi = 0;
 
 	//コントローラーかpadを繋いでいるかで表示する画像を変更
 	int keyOrButton = 0;
@@ -153,6 +161,8 @@ private:
 	void TutorialAttackUpdate(float elapsedTime);
 	void TutorialObjSettingUpdate(float elapsedTime);
 	void TutorialRuleCheckUpdate(float elapsedTime);
+	void TutorialBreakTimeUpdate(float elapsedTime);
+	void TutorialStartUpdate(float elapsedTime);
 	//UIをチェンジする関数
 	void ChangeUi();
 
@@ -160,6 +170,9 @@ private:
 	std::unique_ptr<Sprite> sprTutorialState[2] = {};	//基本操作UI表示
 	std::unique_ptr<Sprite> sprUiHighlight[4] = {};		//現在行った行動の強調表示
 	std::unique_ptr<Sprite> sprOperationUi[2][2] = {};	//操作方法UI [フェーズ数][ボタンかキーか]
+	std::unique_ptr<Sprite> sprObjectSet[2][2] = {};	//オブジェクト設置の説明
+	std::unique_ptr<Sprite> sprTutorialStart[2] = {};	//チュートリアルスタートの一枚絵
+	std::unique_ptr<Sprite> sprRule[2] = {};	//ルールの一枚絵
 
 	//調性用変数
 	bool isShowFlag[2] = { true, false };
@@ -168,6 +181,11 @@ private:
 	DirectX::XMFLOAT2 size = { 500, 276 };
 	float scale = 0.8f;
 	DirectX::XMFLOAT2 texSize = { 500, 276 };
+
+	DirectX::XMFLOAT2 pos2 = { 500, 50 };
+	DirectX::XMFLOAT2 size2 = { /*400, 600*/0, 20 };
+	float scale2 = 0.8f;
+	DirectX::XMFLOAT2 texSize2 = { 400, 600 };
 
 	//imgui用
 	std::string stateListString[stateMAX] = {
