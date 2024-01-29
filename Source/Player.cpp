@@ -615,7 +615,7 @@ void Player::ComeTerget(float elapsedTime)
         }
         cameraController->SetRangeMax(cameraRange);
         cameraController->SetCorrectionSpeed(correctionSpeed);
-        cameraController->SetTarget(camePos);
+        cameraController->SetTarget(camePos);        
         if (lockOn) 
         {
             cameraController->SetTarget2(target);
@@ -964,7 +964,7 @@ void Player::SwordEffect() {
 bool Player::InputJump()
 {
     GamePad& gamePad = Input::Instance().GetGamePad();
-    if (gamePad.GetButtonDown() & GamePad::BTN_A)
+    if (gamePad.GetButtonDown() & GamePad::BTN_START)
     {
         if (jumpCount < jumpLimit) {
             jumpCount++;

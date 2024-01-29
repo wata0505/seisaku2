@@ -523,8 +523,8 @@ void SceneTutorial::Render()
 	if (player->GetLoseDirectingTimer() <= 0.0f)
 	{
 		//player->Sprite2DRender(immediate_context, rc, shader2);
-		TrapManager::Instance().Sprite2DRender(immediate_context, rc, shader2);
 		UIManager::Instance().Render(rc, shader2);
+		TrapManager::Instance().Sprite2DRender(immediate_context, rc, shader2);
 		base->HpDisplay(rc, shader2);
 		/*int wave = EnemySystem::Instance().GetWave();
 		if (wave < 3)

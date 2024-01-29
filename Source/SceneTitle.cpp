@@ -15,6 +15,7 @@
 #include "Input.h"
 #include "Mathf.h"
 #include "Misc.h"
+#include "TrapManager.h"
 
 // 初期化
 void SceneTitle::Initialize()
@@ -124,6 +125,7 @@ void SceneTitle::Finalize()
 {
 	StageManager::Instance().Clear();
 	LightManager::Instance().Clear();
+	TrapManager::Instance().Clear();
 }
 
 // 更新処理
@@ -296,6 +298,21 @@ void SceneTitle::UpdateTextureData(float elapsedTime)
 			SceneManager::Instance().ChangeScene(new SceneLoading(new SceneTutorial));
 			break;
 		}
+		int trapPoint = 0;
+		//初期ポイント
+		switch (SceneManager::Instance().GetStage())
+		{
+		case 0://stage1
+			trapPoint = 0;
+			break;
+		case 1://stage2
+			trapPoint = 30;
+			break;
+		case 2://stage3
+			trapPoint = 60;
+			break;
+		}
+		TrapManager::Instance().SetTrapPoint(trapPoint);
 	}
 	
 	// 経過時間加算

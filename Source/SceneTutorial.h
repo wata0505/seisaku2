@@ -61,7 +61,7 @@ private:
 	std::unique_ptr<Player> player = nullptr;
 	std::unique_ptr<Base> base = nullptr;
 	std::unique_ptr<Meta> meta = nullptr;
-	float shadowDrawRect = 1.0f; // シャドウマップに描画する範囲
+	float shadowDrawRect = 10.0f; // シャドウマップに描画する範囲
 	float dissolveTimer = 0;
 	float haikeiTimer = 0;
 
