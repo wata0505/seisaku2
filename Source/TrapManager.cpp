@@ -10,7 +10,7 @@
 #include "AudioAll.h"
 #include "Input.h"
 #include <imgui.h>
-
+#include "SceneManager.h"
 // コンストラクタ
 TrapManager::TrapManager()
 {
@@ -48,7 +48,25 @@ TrapManager::TrapManager()
 	sprite = std::make_unique<Sprite>(L".\\resources\\Trap\\TrapSlot.png");
 	spriteNo = std::make_unique<Sprite>(L".\\resources\\Trap\\No.png");
 	font = std::make_unique<Sprite>(L".\\resources\\Font\\Number.png");
-	trapPoint = 100;
+	
+	//初期ポイント
+	switch (SceneManager::Instance().GetStage())
+	{
+	case 0://stage1
+		trapPoint = 0;
+		break;
+	case 1://stage2
+		trapPoint = 30;
+		break;
+	case 2://stage3
+		trapPoint = 60;
+		break;
+	}
+	//コスト設定
+	cost[Trap::TrapType::TrapTurret] = 20;
+	cost[Trap::TrapType::TrapMine] = 1;
+	cost[Trap::TrapType::TrapTotem] = 3;
+	cost[Trap::TrapType::TrapDecoy] = 3;
 }
 
 // 更新処理

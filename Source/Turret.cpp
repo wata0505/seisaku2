@@ -271,7 +271,7 @@ void Turret::UpdateAttackState(float elapsedTime)
 	if (coolTime <= 0)
 	{	
 		ProjectileStraite* projectile = new ProjectileStraite(&objectManager);
-		projectile->TurretLaunch(beem, 0.4f, 1.5f, position, targetPosition, angle.y, Type::Beem, (int)EffectTexAll::EfTexAll::BlueThader, 1.0f, 1.0f, 0.0f);
+		projectile->TurretLaunch(beem, 0.4f, 1.5f, { position.x,position.y + 0.5f,position.z }, targetPosition, angle.y, Type::Beem, (int)EffectTexAll::EfTexAll::BlueThader, 1.0f, 1.0f, 0.0f);
 		float volume = 0.3f;
 		// ƒJƒƒ‰‚©‚ç‚Ì‹——£‚É‰‚¶‚Ä‰¹—Ê’²ß
 		{

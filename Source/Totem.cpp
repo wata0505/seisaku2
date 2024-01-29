@@ -18,7 +18,7 @@ Totem::Totem()
     territoryRange = 10.0f;                 // テリトリー範囲設定
     attack = 1;                             // ダメージ量設定
     type = Trap::TrapType::TrapTotem;       // トラップ種類設定
-    survivalTime = 10.0f;                   // 生存時間設定
+    survivalTime = 30.0f;                   // 生存時間設定
     yUp = 0;
 
     // ホログラムシェーダー情報初期化
