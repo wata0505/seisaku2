@@ -167,8 +167,8 @@ void EnemyBag::Update(float elapsedTime)
 					//Õ“Ëˆ—
 					DirectX::XMFLOAT3 outPosition;
 					if (Collision::IntersectCylinderVsCylinder(
-						enemy->GetPosition(), enemy->GetRadius(), enemy->GetHeight(),
-						position, 5, height,
+						{ enemy->GetPosition().x,enemy->GetPosition().y - 1,enemy->GetPosition().z }, enemy->GetRadius(), enemy->GetHeight(),
+						position, 6, height,
 						outPosition
 					)) {
 						enemy->RecoverHealth(1);

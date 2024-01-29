@@ -337,7 +337,7 @@ void ProjectileStraite::Launch(std::shared_ptr <Model> buffer, float height, flo
 			DirectX::XMVECTOR N = DirectX::XMVector3Normalize(V);
 			DirectX::XMStoreFloat3(&direction, N);
 		}
-		radius = 3.0;
+		radius = 5.0;
 		ParticleSystem::Instance().ImpactEffect({ position.x,position.y,position.z },direction, int(EffectTexAll::EfTexAll::BlueThader), 80, { NULL,NULL,2,1 });
 	}
 	if (type == Type::Column) {

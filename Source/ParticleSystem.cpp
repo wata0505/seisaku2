@@ -343,9 +343,9 @@ void ParticleSystem::CorruptionEffect(DirectX::XMFLOAT3 position,int enemyNo){
     Vec.x = sinf(angleX);
     Vec.z = cosf(angleX);
 
-    pos.x = position.x + Vec.x * 5;
+    pos.x = position.x + Vec.x * 6;
     pos.y = position.y -0.5;
-    pos.z = position.z + Vec.z * 5;
+    pos.z = position.z + Vec.z * 6;
 
     float speed = 3.5;
     InstancingSprite* particle = new InstancingSprite;

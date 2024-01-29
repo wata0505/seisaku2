@@ -597,16 +597,7 @@ void AttackState::Execute(float elapsedTime)
     }
     if (animationTime >= 0.2 && animationTime <= owner->attackStart&& owner->combo == 3) {
         owner->cameraRange -= animationTime * 10;
-        // ゲーム中
-        if (owner->GetClearState() == Player::ClearState::ClearDefault)
-        {
-            owner->Turn(elapsedTime, Camera::Instance().GetFront().x, Camera::Instance().GetFront().z, owner->turnSpeed * 10);
-        }
-        // ゲームクリア時
-        else
-        {
-            owner->Turn(elapsedTime, owner->attackDir.x, owner->attackDir.z, owner->turnSpeed * 10);
-        }
+        owner->Turn(elapsedTime, Camera::Instance().GetFront().x, Camera::Instance().GetFront().z, owner->turnSpeed * 10);
     }
     
     if (owner->comboflag && animationTime >= owner->attackEnd) {//攻撃判定が終わったら次のコンボへ
