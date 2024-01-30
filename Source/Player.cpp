@@ -138,6 +138,7 @@ Player::Player() {
 }
 Player::~Player()
 {
+    AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Run)->Stop();
 }
 void Player::update(float elapsedTime) 
 {
