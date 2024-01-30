@@ -17,11 +17,11 @@ EffectAll::EffectAll() {
 	//gudEffect = std::make_unique<Effect>(".\\resources\\Effect\\Gud6.efk");
 	//quickEffect = std::make_unique<Effect>(".\\resources\\Effect\\skill1.efk");
 	//boomEffect = std::make_unique<Effect>(".\\resources\\Effect\\inpact.efk");
-	swordEffect = std::make_unique<Effect>(".\\resources\\Effect\\swordEffcet.efk");
+	//swordEffect = std::make_unique<Effect>(".\\resources\\Effect\\swordEffcet.efk");
 	//sword2Effect = std::make_unique<Effect>(".\\resources\\Effect\\Attack2.efk");
-	stingerEffect = std::make_unique<Effect>(".\\resources\\Effect\\Stinger2.efk");
-	stampEffect = std::make_unique<Effect>(".\\resources\\Effect\\BloodLance.efk");
-	fireBallEffect = std::make_unique<Effect>(".\\resources\\Effect\\FireBall.efk");
+	//stingerEffect = std::make_unique<Effect>(".\\resources\\Effect\\Stinger2.efk");
+	//stampEffect = std::make_unique<Effect>(".\\resources\\Effect\\BloodLance.efk");
+	//fireBallEffect = std::make_unique<Effect>(".\\resources\\Effect\\FireBall.efk");
 	//jumpEffect = std::make_unique<Effect>(".\\resources\\Effect\\jump.efk");
 	//chagingEffect = std::make_unique<Effect>(".\\resources\\Effect\\chage.efk");
 	//impactEffect = std::make_unique<Effect>(".\\resources\\Effect\\inpact11.efk");

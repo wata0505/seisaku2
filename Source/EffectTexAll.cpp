@@ -23,8 +23,8 @@ EffectTexAll::EffectTexAll() {
 	efTex[static_cast<int>(EfTexAll::Hart)] = std::make_unique<Sprite>(L".\\resources\\Textures\\hart.png");
 	efTex[static_cast<int>(EfTexAll::BlueThader)] = std::make_unique<Sprite>(L".\\resources\\Textures\\burThader.jpg");
 	efTex[static_cast<int>(EfTexAll::Metal)] = std::make_unique<Sprite>(L".\\resources\\Textures\\17.png");
-	efTex[static_cast<int>(EfTexAll::Barrier)] = std::make_unique<Sprite>(L".\\resources\\Textures\\baria2.png");
-	efTex[static_cast<int>(EfTexAll::BarrierEnemy)] = std::make_unique<Sprite>(L".\\resources\\Textures\\baria3.png");
+	//efTex[static_cast<int>(EfTexAll::Barrier)] = std::make_unique<Sprite>(L".\\resources\\Textures\\baria2.png");
+	//efTex[static_cast<int>(EfTexAll::BarrierEnemy)] = std::make_unique<Sprite>(L".\\resources\\Textures\\baria3.png");
 }
 EffectTexAll::~EffectTexAll() {
 	//for (int i = 0; i < static_cast<int>(EfTexAll::Max); i++) {

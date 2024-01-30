@@ -300,10 +300,11 @@ void Enemy::HitInpnt(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT2 pow, float damage,
 	{
 		float power = 10;
 		//êÅÇ´îÚÇŒÇ∑
+		ParticleSprite* particleSprite = new ParticleSprite(pos, { NULL,NULL,NULL }, ParticleSprite::ParticleImpact, ParticleSprite::Expansion, (int)EffectTexAll::EfTexAll::Impact, static_cast<int>(efMax), efLife);
 		if (player.GetState() != Player::State::Attack) {
 			player.PlayerKnockBack(this->position, player.GetPosition(), pow.x, pow.y, damage);
 			//EffectAll::Instance().hitEffect->Play(player.GetEfPos(), 0.1);
-			ParticleSprite* particleSprite = new ParticleSprite(pos, { NULL,NULL,NULL }, ParticleSprite::ParticleImpact, ParticleSprite::Expansion, (int)EffectTexAll::EfTexAll::Impact, static_cast<int>(efMax), efLife);
+			
 
 		}
 		AudioAll::Instance().GetMusic((int)AudioAll::AudioMusic::Hit)->Play(false, static_cast<float>(SE));

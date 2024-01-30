@@ -479,130 +479,130 @@ void Player::ComeTerget(float elapsedTime)
     }
     else
     {
-        //エネミーへの方向ベクトル  
-        DirectX::XMFLOAT3 enemydir = {};
-        //ターゲット位置
-        DirectX::XMFLOAT3 target = {};
-        //一番近くの敵をターゲットにする
-        EnemyManager& enemyManager = EnemyManager::Instance();
-        float dist = FLT_MAX;
-        float d = 0;
-        //エネミー数
-        int enemyCount = enemyManager.GetEnemyCount();
-        if (fallDeath)return;
-        if (enemyCount == 0) { // ロックオンする敵がいない
-            DirectX::XMFLOAT3 camePos = position;
-            camePos.y += height;
-            cameraController->SetTarget(camePos);
-            cameraController->Update(elapsedTime);
-            return;
-        }
-        GamePad& gamePad = Input::Instance().GetGamePad();
-        float ax = gamePad.GetAxisRX();
-        int x = 0;
-        if (ax > 0.5) x = 1;  //右ステック入力設定
-        if (ax < -0.5) x = -1;//右ステック入力設定
-        if (gamePad.GetButtonDown() & GamePad::BTN_RIGHT_THUMB) {//右ステック押し込み
-            locklength = !locklength;//ロックオン状態変化
-            fistlock = true;//始めてロックオン
-        }
-        Enemy* enemy = nullptr;
-        switch (x)
-        {
-            //ロックオン入力リセット
-        case 0:
-            lockflag = false;
-            break;
-            //次のロックオンターゲットへ
-        case 1:
-            if (lockflag)break;//右ステック入力され続づけてたら
-            if (!locklength)break;//ロックオン状態じゃないなら
-            enemyLock++;
-            if (enemyLock >= enemyCount) enemyLock = 0;//ロックオン対象がエネミー数を超えたら0に
-            lockflag = true; //右ステック入力されたか
-            enemy = enemyManager.GetEnemy(enemyLock);//エネミー取得
-            while (enemy->GetHealth() <= 0 || !enemy->GetActiveflag()) {//エネミーのHPがあるか、アクティブになっているか
-                enemyLock++;
-                if (enemyLock >= enemyCount) enemyLock = 0;//ロックオン対象がエネミー数を超えたら0に
-                enemy = enemyManager.GetEnemy(enemyLock);
-            }
-            enemyId = enemy->GetId();//ID取得
-            break;
-            //前のロックオンターゲットへ
-        case -1:
-            if (lockflag)break;//右ステック入力され続づけてたら
-            if (!locklength)break;//ロックオン状態じゃないなら
-            enemyLock--;
-            lockflag = true;//右ステック入力されたか
-            if (enemyLock < 0) enemyLock = enemyCount - 1;//ロックオン対象が0より下なら最大数
-            enemy = enemyManager.GetEnemy(enemyLock);
-            while (enemy->GetHealth() <= 0 || !enemy->GetActiveflag()) {//エネミーのHPがあるか、アクティブになっているか
-                enemyLock--;
-                if (enemyLock < 0) enemyLock = enemyCount - 1;//ロックオン対象が0より下なら最大数
-                enemy = enemyManager.GetEnemy(enemyLock);
-            }
-            enemyId = enemy->GetId();//ID取得
-        }
+        ////エネミーへの方向ベクトル  
+        //DirectX::XMFLOAT3 enemydir = {};
+        ////ターゲット位置
+        //DirectX::XMFLOAT3 target = {};
+        ////一番近くの敵をターゲットにする
+        //EnemyManager& enemyManager = EnemyManager::Instance();
+        //float dist = FLT_MAX;
+        //float d = 0;
+        ////エネミー数
+        //int enemyCount = enemyManager.GetEnemyCount();
+        //if (fallDeath)return;
+        //if (enemyCount == 0) { // ロックオンする敵がいない
+        //    DirectX::XMFLOAT3 camePos = position;
+        //    camePos.y += height;
+        //    cameraController->SetTarget(camePos);
+        //    cameraController->Update(elapsedTime);
+        //    return;
+        //}
+        //GamePad& gamePad = Input::Instance().GetGamePad();
+        //float ax = gamePad.GetAxisRX();
+        //int x = 0;
+        //if (ax > 0.5) x = 1;  //右ステック入力設定
+        //if (ax < -0.5) x = -1;//右ステック入力設定
+        //if (gamePad.GetButtonDown() & GamePad::BTN_RIGHT_THUMB) {//右ステック押し込み
+        //    locklength = !locklength;//ロックオン状態変化
+        //    fistlock = true;//始めてロックオン
+        //}
+        //Enemy* enemy = nullptr;
+        //switch (x)
+        //{
+        //    //ロックオン入力リセット
+        //case 0:
+        //    lockflag = false;
+        //    break;
+        //    //次のロックオンターゲットへ
+        //case 1:
+        //    if (lockflag)break;//右ステック入力され続づけてたら
+        //    if (!locklength)break;//ロックオン状態じゃないなら
+        //    enemyLock++;
+        //    if (enemyLock >= enemyCount) enemyLock = 0;//ロックオン対象がエネミー数を超えたら0に
+        //    lockflag = true; //右ステック入力されたか
+        //    enemy = enemyManager.GetEnemy(enemyLock);//エネミー取得
+        //    while (enemy->GetHealth() <= 0 || !enemy->GetActiveflag()) {//エネミーのHPがあるか、アクティブになっているか
+        //        enemyLock++;
+        //        if (enemyLock >= enemyCount) enemyLock = 0;//ロックオン対象がエネミー数を超えたら0に
+        //        enemy = enemyManager.GetEnemy(enemyLock);
+        //    }
+        //    enemyId = enemy->GetId();//ID取得
+        //    break;
+        //    //前のロックオンターゲットへ
+        //case -1:
+        //    if (lockflag)break;//右ステック入力され続づけてたら
+        //    if (!locklength)break;//ロックオン状態じゃないなら
+        //    enemyLock--;
+        //    lockflag = true;//右ステック入力されたか
+        //    if (enemyLock < 0) enemyLock = enemyCount - 1;//ロックオン対象が0より下なら最大数
+        //    enemy = enemyManager.GetEnemy(enemyLock);
+        //    while (enemy->GetHealth() <= 0 || !enemy->GetActiveflag()) {//エネミーのHPがあるか、アクティブになっているか
+        //        enemyLock--;
+        //        if (enemyLock < 0) enemyLock = enemyCount - 1;//ロックオン対象が0より下なら最大数
+        //        enemy = enemyManager.GetEnemy(enemyLock);
+        //    }
+        //    enemyId = enemy->GetId();//ID取得
+        //}
         //ロックオン入力がされたら
-        if (locklength) {
-            //始めてロックオン入力されたら最も近い敵をロックオン
-            if (!fistlock)
-            {
-                enemy = enemyManager.GetEnemyFromId(enemyId);
-                if (enemy->GetHealth() <= 0 || !enemy->GetActiveflag()) {//エネミーのHPがあるか、アクティブになっているか
-                    fistlock = true;
-                }
-                DirToLength(position, { enemy->GetPosition().x,position.y,enemy->GetPosition().z }, enemydir, enemyLength);
-                //距離で判定
-                if (enemyLength < 6000) {
-                    target = enemy->GetPosition();
-                    //target.y += enemy->GetHeight() * 0.5;
-                    dir = enemydir;
-                    lockOn = true;
-                    epos = enemy->GetEfPos();
-                    dist = enemyLength;
-                }
-                else
-                {
-                    fistlock = true;
-                }
-            }
-            if (fistlock) {//始めてのロックオン
-                dist = FLT_MAX;
-                for (int i = 0; i < enemyCount; i++) {
-                    enemy = enemyManager.GetEnemy(i);
-                    if (enemy->GetHealth() <= 0 || !enemy->GetActiveflag()) continue;
-                    DirToLength(position, { enemy->GetPosition().x,position.y,enemy->GetPosition().z }, enemydir, enemyLength);
-                    float a = enemyLength;
-                    if (d == 0) d = a;//距離代入
-                    //距離で判定
-                    if (a < 4000) {
-                        if (a < dist)
-                        {
-                            dist = a;
-                            target = enemy->GetPosition();
-                            //target.y += enemy->GetHeight() * 0.5f;
-                            enemyId = enemy->GetId();
-                            epos = enemy->GetEfPos();
-                            dir = enemydir;
-                            lockOn = true;
-                        }
-                    }
-                }
-                fistlock = false;
-                if (dist == FLT_MAX) {
-                    lockOn = false;
-                    locklength = false;
-                    fistlock = true;
-                }
-            }
-        }
-        else
-        {
+        //if (locklength) {
+        //    //始めてロックオン入力されたら最も近い敵をロックオン
+        //    if (!fistlock)
+        //    {
+        //        enemy = enemyManager.GetEnemyFromId(enemyId);
+        //        if (enemy->GetHealth() <= 0 || !enemy->GetActiveflag()) {//エネミーのHPがあるか、アクティブになっているか
+        //            fistlock = true;
+        //        }
+        //        DirToLength(position, { enemy->GetPosition().x,position.y,enemy->GetPosition().z }, enemydir, enemyLength);
+        //        //距離で判定
+        //        if (enemyLength < 6000) {
+        //            target = enemy->GetPosition();
+        //            //target.y += enemy->GetHeight() * 0.5;
+        //            dir = enemydir;
+        //            lockOn = true;
+        //            epos = enemy->GetEfPos();
+        //            dist = enemyLength;
+        //        }
+        //        else
+        //        {
+        //            fistlock = true;
+        //        }
+        //    }
+        //    if (fistlock) {//始めてのロックオン
+        //        dist = FLT_MAX;
+        //        for (int i = 0; i < enemyCount; i++) {
+        //            enemy = enemyManager.GetEnemy(i);
+        //            if (enemy->GetHealth() <= 0 || !enemy->GetActiveflag()) continue;
+        //            DirToLength(position, { enemy->GetPosition().x,position.y,enemy->GetPosition().z }, enemydir, enemyLength);
+        //            float a = enemyLength;
+        //            if (d == 0) d = a;//距離代入
+        //            //距離で判定
+        //            if (a < 4000) {
+        //                if (a < dist)
+        //                {
+        //                    dist = a;
+        //                    target = enemy->GetPosition();
+        //                    //target.y += enemy->GetHeight() * 0.5f;
+        //                    enemyId = enemy->GetId();
+        //                    epos = enemy->GetEfPos();
+        //                    dir = enemydir;
+        //                    lockOn = true;
+        //                }
+        //            }
+        //        }
+        //        fistlock = false;
+        //        if (dist == FLT_MAX) {
+        //            lockOn = false;
+        //            locklength = false;
+        //            fistlock = true;
+        //        }
+        //    }
+        //}
+        //else
+        //{
             lockOn = false;
             dir.x = sinf(angle.y);
             dir.z = cosf(angle.y);
-        }
+        //}
         //ロックオンしてるならカメラ設定
         DirectX::XMFLOAT3 camePos = position;
         if (state == Attack) {
@@ -616,18 +616,19 @@ void Player::ComeTerget(float elapsedTime)
         }
         cameraController->SetRangeMax(cameraRange);
         cameraController->SetCorrectionSpeed(correctionSpeed);
-        cameraController->SetTarget(camePos);        
-        if (lockOn) 
-        {
-            cameraController->SetTarget2(target);
-            enemyLength = dist;
-            dist *= 0.1f;//距離補正
-            // ロックオン更新処理
-            cameraController->LockOnUpdate(elapsedTime, { dir.x, NULL, dir.z }, dist);
-        }
-        else {
-            cameraController->Update(elapsedTime);
-        }
+        cameraController->SetTarget(camePos); 
+        cameraController->Update(elapsedTime);
+        //if (lockOn) 
+        //{
+        //    cameraController->SetTarget2(target);
+        //    enemyLength = dist;
+        //    dist *= 0.1f;//距離補正
+        //    // ロックオン更新処理
+        //    cameraController->LockOnUpdate(elapsedTime, { dir.x, NULL, dir.z }, dist);
+        //}
+        //else {
+        //    cameraController->Update(elapsedTime);
+        //}
     }   
 }
 
