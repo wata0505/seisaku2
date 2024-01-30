@@ -175,7 +175,7 @@ private:
 	std::unique_ptr<Sprite> sprRule[2] = {};	//ƒ‹[ƒ‹‚Ìˆê–‡ŠG
 
 	//’²«—p•Ï”
-	bool isShowFlag[2] = { true, false };
+	bool isShowFlag[2] = { false, false };
 	bool isHighlightFlag[4] = { false, false, false, false };
 	DirectX::XMFLOAT2 pos = { 0, 220 };
 	DirectX::XMFLOAT2 size = { 500, 276 };

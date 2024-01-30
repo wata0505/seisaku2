@@ -1249,6 +1249,7 @@ void SceneTutorial::TutorialStartUpdate(float elapsedTime)
 
 			if (size2.x < 0.0f)
 			{
+				isShowFlag[0] = true;
 				size2.x = 0;
 				size2.y = 0.0f;
 				tutorialState = TutorialState::STATE_ATTACK;

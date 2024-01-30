@@ -24,6 +24,8 @@ public:
 
 	//エンター
 	static const GamePadButton BTN_ENTER = (1 << 16);
+	//パッドのAボタン
+	static const GamePadButton BTN_PAD_A = (1 << 17);
 
 public:
 	GamePad() {}

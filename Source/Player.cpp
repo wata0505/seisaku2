@@ -965,7 +965,7 @@ void Player::SwordEffect() {
 bool Player::InputJump()
 {
     GamePad& gamePad = Input::Instance().GetGamePad();
-    if (gamePad.GetButtonDown() & GamePad::BTN_START)
+    if (gamePad.GetButtonDown() & GamePad::BTN_START || gamePad.GetButtonDown() & GamePad::BTN_PAD_A)
     {
         if (jumpCount < jumpLimit) {
             jumpCount++;
