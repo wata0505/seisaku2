@@ -1200,6 +1200,8 @@ void SceneTutorial::TutorialBreakTimeUpdate(float elapsedTime)
 			{
 				size2.x = 0;
 				size2.y = 0.0f;
+				//次のステートはオブジェクト設置
+				TrapManager::Instance().SetTrapPoint(100);//次のフェーズが始める前にポイント使いきってた時の為
 				tutorialState = TutorialState::STATE_OBJ_SETTING;
 				isUpdateStoper = false;
 			}
